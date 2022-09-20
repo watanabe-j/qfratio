@@ -678,7 +678,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alpha1 = 1, alpha2 = 1,
+                    alpha2 = 1,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -709,12 +709,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         "q should be a nonnegative real number" = {
             length(q) == 1 &&
             q >= 0
-        },
-        "alpha1 should be a scalar with 0 < alpha1 < 2" = {
-            is.numeric(alpha1) &&
-            length(alpha1) == 1 &&
-            alpha1 > 0 &&
-            alpha1 < 2
         },
         "alpha2 should be a scalar with 0 < alpha2 < 2" = {
             is.numeric(alpha2) &&
@@ -891,9 +885,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             attr(errseq, "singular") <- TRUE
             attr(errorb, "singular") <- TRUE
         }
-        if(alpha1 > 1 || alpha2 > 1) {
+        if(alpha2 > 1) {
             warning("Error bound is unreliable ",
-                    "when alpha1 > 1 or alpha2 > 1\n  ",
+                    "when alpha2 > 1\n  ",
                     "It is returned purely for heuristic purpose")
             attr(errseq, "alphaout") <- TRUE
             attr(errorb, "alphaout") <- TRUE
