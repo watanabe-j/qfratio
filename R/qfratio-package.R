@@ -38,7 +38,7 @@
 #'   doi:[10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.1993.tb01335.x).
 #'
 #' @seealso
-#'   \code{\link{qfratio}}: Moment of simple ratio of quadratic forms
+#'   \code{\link{qfrm}}: Moment of simple ratio of quadratic forms
 #'
 #' @examples
 #' ## Symmetric matrices

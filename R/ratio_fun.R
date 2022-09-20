@@ -1,7 +1,199 @@
 ##### qfrm #####
 #' Moment of ratio of quadratic forms in normal variables
 #'
+#' \code{qfrm()} is a front-end function to obtain the (compound) moment
+#' of a ratio of quadratic forms in normal variables, i.e.,
+#' \eqn{ \mathrm{E} \left(
+#'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
+#'   \right) },
+#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' Internally, \code{qfrm()} calls one of the following functions which does
+#' the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+#' and \eqn{p}. Usually the best one is automatically selected.
+#'
+#' These functions use infinite series expressions based on the joint
+#' moment-generating function (with the top-order zonal/invariant polynomials)
+#' (see Smith 1989, Hillier et al. 2009, 2014; Bao & Kan 2013), and the results
+#' are typically truncated sums from these infinite series,
+#' which necessarily involve truncation errors.
+#' (An exception is when \eqn{\mathbf{B} = \mathbf{I}_n} and \eqn{p} is a
+#' positive integer, the case handled by \code{qfrm_ApIq_int()}.)
+#'
+#' The returned value is a list consisting of the truncated series
+#' up to the order of polynomials specified by \code{m}, its sum,
+#' and error bounds corresponding to these (see "Values").
+#' The \code{print} method only displays the terminal truncated sum and its
+#' error bound (when available).
+#' Use the \code{plot} method for visual inspection, or the ordinary list
+#' element access as required.
+#'
+#' When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
+#' a truncation error bound following Hillier et al. (2009: theorem 6) or
+#' Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
+#' \code{qfrm_ApIq_npi()} implements similar error bounds.
+#' No error bound is available for \code{qfrm_ApBq_npi()}, at least to the
+#' author's knowledge. See \code{vignette("qfratio")} for further technical
+#' details.
+#'
+#' When \code{Sigma} is provided, the quadratic forms are transformed into
+#' a canonical form; that is, using the decomposition
+#' \eqn{\mathbm{\Sigma} = \mathbm{K} \mathbm{K}^T}, where the number of
+#' columns \eqn{m} of \eqn{\mathbm{K}} equals the rank of \eqn{\mathbf{\Sigma}},
+#' \eqn{\mathbm{A}_\mathrm{new} = \mathbm{K^\mathit{T} A K}},
+#' \eqn{\mathbm{B}_\mathrm{new} = \mathbm{K^\mathit{T} B K}}, and
+#' \eqn{\mathbm{x}_\mathrm{new} = \mathbm{K x} ~ N(\mathbm{K}^{-} \mathbm{\mu}, \mathbm{I}_m)}.
+#' \code{qfrm()} handles this by transforming \code{A}, \code{B},
+#' and \code{mu} and calling itself recursively with these new arguments.
+#' Note that the ``internal'' functions do not accommodate \code{Sigma}
+#' (the error for unused arguments will happen).
+#'
+#' The existence of the moment is assessed by the eigenstructures of
+#' \eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
+#' Bao & Kan (2013: proposition 1). An error will result if the conditions
+#' are not met.
+#'
+#' For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
+#' \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
+#' the arguments \code{alpha1} and \code{alpha2}. These are the factors for
+#' the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
+#' \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
+#' The default is 1, which should suffice for most purposes.
+#' Values larger than 1 often yield faster convergence, but are *not*
+#' recommended as the error bound will not strictly hold
+#' (see the references cited above).
+#'
+#' @param A,B
+#'   Argument matrices. Assumed to be square. Will be automatically symmetrized.
+#' @param p,q
+#'   Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+#'   respectively. When only one is provided, the other is set to the same value.
+#'   In \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()}, \eqn{p} should
+#'   be a positive integer (an error results otherwise).
+#' @param m
+#'   Order of polynomials at which the series expression is truncated.
+#'   \eqn{M} in Hillier et al. (2009, 2014).
+#' @param mu
+#'   Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}
+#' @param Sigma
+#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+#'   Accommodated only by the front-end \code{qfrm()}. See "Details".
+#' @param tol_zero
+#'   Tolerance against which numerical zero is determined.  Used to determine,
+#'   e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
+#'   the identity matrix, etc.
+#' @param tol_sing
+#'   Tolerance against which matrix singularity and rank are determined.
+#'   The eigenvalues smaller than this are considered zero.
+#' @param ...
+#'   Additional arguments in the front-end \code{qfrm()} will be passed to
+#'   the appropriate ``internal'' function.
+#' @param alpha1,alpha2
+#'   Factors for the scaling constants for \eqn{\mathbf{A}} and
+#'   \eqn{\mathbf{B}}, respectively. See "Details".
+#' @param use_cpp
+#'   Logical to specify whether the calculation is done with \code{C++}
+#'   functions via \code{Rcpp}. \code{FALSE} by default.
+#' @param cpp_method
+#'   Character to specify the \code{C++} method. At present this is ignored,
+#'   as only one method (using \code{RcppEigen}) is implemented.
+#' @param error_bound
+#'   Logical to specify whether the error bound is returned (if available).
+#' @param check_convergence
+#'   Logical to specify whether a (very rough) check for convergence is done.
+#'   See "Details".
+#' @param tol_conv
+#'   Tolerance against which the convergence of series is (roughly) determined
+#'
+#' @return
+#' A list consisting of the following:
+#' \itemize{
+#'   \item{$statistic}{evaluation result (\code{sum(res_seq)})}
+#'   \item{$res_seq}{vector of truncated series up to the order \code{m}}
+#'   \item{$errorb}{error bound of \code{statistic}}
+#'   \item{$err_seq}{vector of error bounds corresponding to \code{res_seq}}
+#'  }
+#'
+#' @references
+#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#'   normal random variables. *Journal of Multivariate Analysis*, **117**,
+#'   229--245.
+#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#'   for top-order invariant polynomials with applications.
+#'   *Econometric Theory*, **25**, 211--242.
+#'   doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#'   short recursions, with applications to the moments of quadratic forms
+#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'
+#' Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+#'   in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
+#'   doi:[10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1).
+#'
+#' Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
+#'   variables: evaluating some top-order invariant polynomials.
+#'   *Australian Journal of Statistics*, **35**, 271--282.
+#'   doi:[10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.1993.tb01335.x).
+#'
+#' @seealso \code{\link{qfmrm}} for multiple ratio
+#'
+#' @name qfrm
+#'
 #' @export
+#'
+#' @examples
+#' ## Some symmetric matrices and parameters
+#' nv <- 4
+#' A <- diag(nv:1)
+#' B <- diag(sqrt(1:nv))
+#' mu <- nv:1 / nv
+#' Sigma <- matrix(0.5, nv, nv)
+#' diag(Sigma) <- 1
+#'
+#' ## Expectation of (x^T A x)^2 / (x^T x)^2 where x ~ N(0, I)
+#' ## An exact expression is available
+#' (res1 <- qfrm(A, p = 2))
+#'
+#' # The above internally calls the following:
+#' qfrm_ApIq_int(A, p = 2) ## The same
+#'
+#' # Similar result with different expression
+#' # This is a suboptimal option and throws a warning
+#' qfrm_ApIq_npi(A, p = 2)
+#'
+#' ## Expectation of (x^T A x)^1/2 / (x^T x)^1/2 where x ~ N(0, I)
+#' ## Note how quickly the series converges in this case
+#' (res2 <- qfrm(A, p = 1/2))
+#' plot(res2)
+#'
+#' # The above calls:
+#' qfrm_ApIq_npi(A, p = 0.5)
+#'
+#' # This is not allowed (throws an error):
+#' \dontrun{qfrm_ApIq_int(A, p = 0.5)}
+#'
+#' ## (x^T A x)^2 / (x^T B x)^3 where x ~ N(0, I)
+#' (res3 <- qfrm(A, B, 2, 3))
+#' plot(res3)
+#'
+#' ## (x^T A x)^2 / (x^T B x)^2 where x ~ N(mu, I)
+#' ## Note the two-sided error bound
+#' (res4 <- qfrm(A, B, 2, 2, mu = mu))
+#' plot(res4)
+#'
+#' ## (x^T A x)^2 / (x^T B x)^2 where x ~ N(mu, Sigma)
+#' (res5 <- qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma))
+#' plot(res5)
+#'
+#' # Sigma is not allowed in the "internal" functions:
+#' \dontrun{qfrm_ApBq_int(A, B, p = 2, q = 2, Sigma = Sigma)}
+#'
+#' # In res5 above, the error bound didn't converge
+#' # Use larger m to evaluate higher-order terms
+#' plot(print(qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma, m = 300)))
 #'
 qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
                  tol_zero = .Machine$double.eps * 100,
@@ -71,9 +263,105 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 ##### qfmrm #####
 #' Moment of multiple ratio of quadratic forms in normal variables
 #'
+#' \code{qfmrm()} is a front-end function to obtain the (compound) moment
+#' of a multiple ratio of quadratic forms in normal variables in the following
+#' special form:
+#' \eqn{ \mathrm{E} \left(
+#'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
+#'   \right) },
+#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' Like \code{qfrm()}, this function calls one of the following ``internal''
+#' functions for actual calculation, as appropriate.
+#'
+#' The usage of these functions is similar to \code{\link{qfrm}}, to which
+#' the user is referred.
+#' It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+#' (otherwise, the problem reduces to a simple ratio).
+#'
+#' When \code{B} is identity or missing, this and its exponent \code{q} will
+#' be swapped with \code{D} and \code{r}, respectively, before
+#' \code{qfmrm_ApBIqr_***()} is called.
+#'
+#' The error bound is only available for \code{qfmrm_ApBIqr_int()}.
+#' This is similar to, but slightly differs from, that
+#' in \code{qfrm_ApBq_int()}. See \code{vignette("qfratio")} for technical
+#' details.
+#'
+#' Note that these functions may take a substantially longer computational time
+#' than those pertaining to a simple ratio, because multiple matrices means
+#' multiple infinite series along which summation is to be taken.
+#' Expect the computational time to scale with \code{m^2} for
+#' \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
+#' \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
+#' the rest.
+#'
+#' @inheritParams qfrm
+#'
+#' @param A,B,D
+#'   Argument matrices. Assumed to be square. Automatically symmetrized.
+#' @param p,q,r
+#'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
+#'   respectively. By default, \code{q} equals \code{p/2} and
+#'   \code{r} equals \code{q}. If unsure, specify all explicitly.
+#' @param alpha1,alpha2,alpha3
+#'   Factors for the scaling constants for \eqn{\mathbf{A}},
+#'   \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
+#'   \code{\link{qfrm}}.
+#'
+#' @references
+#' Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+#'   in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
+#'   doi:[10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1).
+#'
+#' @seealso \code{\link{qfrm}} for simple ratio
+#'
+#' @name qfmrm
+#'
 #' @export
 #'
-qfmrm <- function(A, B, D, p = 1, q = p / 2, r = p / 2, m = 100L, mu, Sigma,
+#' @examples
+#' ## Some symmetric matrices and parameters
+#' nv <- 4
+#' A <- diag(nv:1)
+#' B <- diag(sqrt(1:nv))
+#' D <- diag((1:nv)^2 / nv)
+#' mu <- nv:1 / nv
+#' Sigma <- matrix(0.5, nv, nv)
+#' diag(Sigma) <- 1
+#'
+#' ## Expectation of (x^T A x)^2 / (x^T B x) (x^T x) where x ~ N(0, I)
+#' (res1 <- qfmrm(A, B, p = 2, q = 1, r = 1))
+#' plot(res1)
+#'
+#' # The above internally calls the following:
+#' qfmrm_ApBIqr_int(A, B, p = 2, q = 1, r = 1) ## The same
+#'
+#' # Similar result with different expression
+#' # This is a suboptimal option and throws a warning
+#' qfmrm_ApBIqr_npi(A, B, p = 2, q = 1, r = 1)
+#'
+#' ## Expectation of (x^T A x) / (x^T B x)^(1/2) (x^T D x)^(1/2) where x ~ N(0, I)
+#' (res2 <- qfmrm(A, B, D, p = 1, q = 1/2, r = 1/2))
+#' plot(res2)
+#'
+#' # The above internally calls the following:
+#' qfmrm_ApBDqr_int(A, B, D, p = 1, q = 1/2, r = 1/2) ## The same
+#'
+#' ## Average response correlation between A and B
+#' (res3 <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
+#'                p = 1, q = 1/2, r = 1/2))
+#' plot(res3)
+#'
+#' ## Same, but with x ~ N(mu, Sigma)
+#' (res4 <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
+#'                p = 1, q = 1/2, r = 1/2, mu = mu, Sigma = Sigma))
+#' plot(res4)
+#'
+#' ## Average autonomy of D
+#' (res5 <- qfmrm(B = D, D = solve(D), p = 2, q = 1, r = 1))
+#' plot(res5)
+#'
+qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps, ...) {
     ##
@@ -176,6 +464,77 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = p / 2, m = 100L, mu, Sigma,
 ###############################
 ## Function for positive integer moment of a quadratic form
 ###############################
+##### qfpm (dummy) #####
+#' Moment of (product of) quadratic forms in normal variables
+#'
+#' Functions to obtain (compound) moments
+#' of a product of quadratic forms in normal variables, i.e.,
+#' \eqn{ \mathrm{E} \left(
+#'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
+#'   \right) },
+#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#'
+#' These functions implement the super-short recursion algorithms described in
+#' Hillier et al. (2014: 3.1--3.2 and 4). At present, only positive integers
+#' are accepted as the exponents (negative exponents yield ratios, of course).
+#' All these yield exact results.
+#'
+#' An error is thrown in the trivial case of \code{p = 0}
+#' (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()}).
+#'
+#' @inheritParams qfmrm
+#'
+#' @param p,q,r
+#'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
+#'   respectively. By default, these are set to the same value.
+#'   If in doubt, specify all explicitly.
+#'
+#' @seealso
+#' \code{\link{qfrm}} and \code{\link{qfmrm}} for moments of ratios
+#'
+#' @name qfpm
+#'
+#' @examples
+#' ## Some symmetric matrices and parameters
+#' nv <- 4
+#' A <- diag(nv:1)
+#' B <- diag(sqrt(1:nv))
+#' D <- diag((1:nv)^2 / nv)
+#' mu <- nv:1 / nv
+# #' Sigma <- matrix(0.5, nv, nv)
+# #' diag(Sigma) <- 1
+#'
+#' ## Expectation of (x^T A x)^2 where x ~ N(0, I)
+#' qfm_Ap_int(A, 2)
+#'
+#' ## This is the same but obviously less efficient
+#' qfpm_ABpq_int(A, p = 2, q = 0)
+#'
+#' ## Either of these trivial cases yields an error
+#' \dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1)}
+#' \dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0)}
+#'
+#' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
+#' qfpm_ABDpqr_int(A, B, D, 1, 1, 1)
+#'
+#' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, I)
+#' qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu)
+#'
+#' ## Expectations of (x^T x)^2 where x ~ N(0, I) and x ~ N(mu, I)
+#' ## i.e., roundabout way to obtain moments of
+#' ## central and noncentral chi-square variables
+#' qfm_Ap_int(diag(nv), 2)
+#' qfm_Ap_int(diag(nv), 2, mu = mu)
+#'
+NULL
+
+##### qfm_Ap_int #####
+#' Moment of quadratic forms in normal variables
+#'
+#' \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
+#'
+#' @rdname qfpm
+#'
 #' @export
 #'
 qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n),
@@ -224,6 +583,13 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n),
 ###############################
 ## Function for product of quadratic forms
 ###############################
+##### qfpm_ABpq_int #####
+#' Moment of product of quadratic forms in normal variables
+#'
+#' \code{qfpm_ABpq_int()} is for \eqn{r = 0}
+#'
+#' @rdname qfpm
+#'
 #' @export
 #'
 qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n),
@@ -313,6 +679,13 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n),
                    res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
+##### qfpm_ABDpqr_int #####
+#' Moment of product of quadratic forms in normal variables
+#'
+#' \code{qfpm_ABDpqr_int()} is for the product of all three powers
+#'
+#' @rdname qfpm
+#'
 #' @export
 #'
 qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
@@ -427,7 +800,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 
 
 ###############################
-## Functions for multiple ratio
+## Functions for simple ratio
 ###############################
 
 ##### qfrm_ApIq_int #####
@@ -443,11 +816,22 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 ##
 #' Positive integer moment of ratio of quadratic forms in normal variables
 #'
-#' \code{qfrm_ApIq_int()}: Positive integer moment of
-#' \eqn{(\mathbf{x}^T \mathbf{A} \mathbf{x}) / (\mathbf{x}^T \mathbf{x})},
-#' where \eqn{\mathbf{x}} is a vector of independent standard normal variables.
+#' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+#' positive integral \eqn{p}.
+#'
+#' *Dependency note*: An exact expression is available for
+#' \code{qfrm_ApIq_int()}, but this requires evaluation of
+#' a confluent hypergeometric function when \code{mu} is nonzero
+#' (Hillier et al. 2014: theorem 4).
+#' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
+#' available (which this package \code{Suggests}). Otherwise, the function uses
+#' the ordinary infinite series expression, which is less accurate and slow,
+#' and throws a warning. It is recommended to install that package if
+#' an accurate estimate is desired for that case.
 #'
 # #' @importFrom gsl hyperg_1F1
+#'
+#' @rdname qfrm
 #'
 #' @export
 #'
@@ -534,9 +918,10 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfrm_ApIq_npi #####
 #' Non-positive-integer moment of ratio of quadratic forms in normal variables
 #'
-#' \code{qfrm_ApIq_npi()}: Non-positive-integer moment of
-#' \eqn{(\mathbf{x}^T \mathbf{A} \mathbf{x}) / (\mathbf{x}^T \mathbf{x})},
-#' where \eqn{\mathbf{x}} is a vector of independent standard normal variables.
+#' \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+#' non-positive-integral \eqn{p} (typically fraction or negative).
+#'
+#' @rdname qfrm
 #'
 #' @export
 #'
@@ -673,7 +1058,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 }
 
 
+##### qfrm_ApBq_int #####
+#' Positive integer moment of ratio of quadratic forms
 #'
+#' \code{qfrm_ApBq_int()}: For general \eqn{\mathbf{B}} and
+#' positive-integral \eqn{p}.
+#'
+#'
+#' @rdname qfrm
 #'
 #' @export
 #'
@@ -903,6 +1295,14 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                    res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
+##### qfrm_ApBq_npi #####
+#' Non-positive-integer moment of ratio of quadratic forms
+#'
+#' \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}} and
+#' non-positive-integral \eqn{p}.
+#'
+#' @rdname qfrm
+#'
 #' @export
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
@@ -1055,7 +1455,13 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ## Functions for multiple ratio
 ###############################
 
+##### qfmrm_ApBIqr_int #####
+#' Positive integer moment of multiple ratio when D is identity
 #'
+#' \code{qfmrm_ApBIqr_int()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+#' \eqn{\mathbf{D} = \mathbf{I}_n} and positive-integral \eqn{p}.
+#'
+#' @rdname qfmrm
 #'
 #' @export
 #'
@@ -1288,7 +1694,14 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                    res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
+##### qfmrm_ApBIqr_npi #####
+#' Non-positive-integer moment of multiple ratio when D is identity
 #'
+#' \code{qfmrm_ApBIqr_npi()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+#' \eqn{\mathbf{D} = \mathbf{I}_n} and non-positive-integral \eqn{p}.
+#'
+#'
+#' @rdname qfmrm
 #'
 #' @export
 #'
@@ -1453,7 +1866,13 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 }
 
 ## WIP: Condition(s) for existence of moment
+##### qfmrm_IpBDqr_gen #####
+#' Moment of multiple ratio when A is identity
 #'
+#' \code{qfmrm_IpBDqr_gen()}: For general\eqn{\mathbf{A} = \mathbf{I}_n}
+#' and the rest general.
+#'
+#' @rdname qfmrm
 #'
 #' @export
 #'
@@ -1609,7 +2028,13 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 }
 
 ## WIP: Condition(s) for existence of moment
+##### qfmrm_ApBDqr_int #####
+#' Positive integer moment of multiple ratio
 #'
+#' \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+#' and \eqn{\mathbf{D}}, and positive-integral \eqn{p}.
+#'
+#' @rdname qfmrm
 #'
 #' @export
 #'
@@ -1763,7 +2188,13 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 }
 
 ## WIP: Condition(s) for existence of moment
+##### qfmrm_ApBDqr_npi #####
+#' Positive integer moment of multiple ratio
 #'
+#' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+#' and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}.
+#'
+#' @rdname qfmrm
 #'
 #' @export
 #'

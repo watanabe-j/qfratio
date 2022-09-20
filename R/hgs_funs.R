@@ -2,6 +2,10 @@
 #'
 #' These internal functions calculate (summands of) hypergeometric series.
 #'
+#' The denominator paramter \code{dpi} (or \eqn{q}) is assumed positive,
+#' whereas the numerator parameters can be positive or negative.
+#' The signs of the latter will be reflected in the result.
+#'
 #' @name hgs
 #'
 #' @param dks
@@ -10,9 +14,9 @@
 #'   \eqn{(m + 1) \times (m + 1) \times (m + 1)} array for \eqn{d_{i, j, k}}
 #'   (\eqn{i, j, k = 0, 1, \dots m})
 #' @param np1,np2,np3
-#'   Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}
+#'   Numerator parameters. Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}
 #' @param dpi,dpij,dpijk
-#'   Scalar \eqn{q} (assumed to be positive)
+#'   Denominator parameter. Scalar \eqn{q}
 #' @param lconst
 #'   Scalar \eqn{\log c}
 #'

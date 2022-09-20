@@ -22,9 +22,9 @@ hgs_dmu_2d(dks, np1, np2, dpij, lconst = 0)
 \eqn{(m + 1) \times (m + 1) \times (m + 1)} array for \eqn{d_{i, j, k}}
 (\eqn{i, j, k = 0, 1, \dots m})}
 
-\item{np1, np2, np3}{Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}}
+\item{np1, np2, np3}{Numerator parameters. Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}}
 
-\item{dpi, dpij, dpijk}{Scalar \eqn{q} (assumed to be positive)}
+\item{dpi, dpij, dpijk}{Denominator parameter. Scalar \eqn{q}}
 
 \item{lconst}{Scalar \eqn{\log c}}
 }
@@ -45,4 +45,9 @@ These internal functions calculate (summands of) hypergeometric series.
 
 \code{hgs_2d()} calculates the hypergeometric series
 \eqn{c \frac{(p_1)_i (p_2)_j}{(q)_{i+j}} d_{i, j}}
+}
+\details{
+The denominator paramter \code{dpi} (or \eqn{q}) is assumed positive,
+whereas the numerator parameters can be positive or negative.
+The signs of the latter will be reflected in the result.
 }

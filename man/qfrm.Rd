@@ -2,6 +2,10 @@
 % Please edit documentation in R/ratio_fun.R
 \name{qfrm}
 \alias{qfrm}
+\alias{qfrm_ApIq_int}
+\alias{qfrm_ApIq_npi}
+\alias{qfrm_ApBq_int}
+\alias{qfrm_ApBq_npi}
 \title{Moment of ratio of quadratic forms in normal variables}
 \usage{
 qfrm(
@@ -16,7 +20,281 @@ qfrm(
   tol_sing = .Machine$double.eps,
   ...
 )
+
+qfrm_ApIq_int(
+  A,
+  p = 1,
+  q = p,
+  m = 100L,
+  mu = rep.int(0, n),
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_zero = .Machine$double.eps * 100
+)
+
+qfrm_ApIq_npi(
+  A,
+  p = 1,
+  q = p,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha1 = 1,
+  error_bound = TRUE,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfrm_ApBq_int(
+  A,
+  B,
+  p = 1,
+  q = p,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha2 = 1,
+  error_bound = TRUE,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfrm_ApBq_npi(
+  A,
+  B,
+  p = 1,
+  q = p,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha1 = 1,
+  alpha2 = 1,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+}
+\arguments{
+\item{A, B}{Argument matrices. Assumed to be square. Will be automatically symmetrized.}
+
+\item{p, q}{Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+respectively. When only one is provided, the other is set to the same value.
+In \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()}, \eqn{p} should
+be a positive integer (an error results otherwise).}
+
+\item{m}{Order of polynomials at which the series expression is truncated.
+\eqn{M} in Hillier et al. (2009, 2014).}
+
+\item{mu}{Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}}
+
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+Accommodated only by the front-end \code{qfrm()}. See "Details".}
+
+\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
+the identity matrix, etc.}
+
+\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
+The eigenvalues smaller than this are considered zero.}
+
+\item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to
+the appropriate ``internal'' function.}
+
+\item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
+functions via \code{Rcpp}. \code{FALSE} by default.}
+
+\item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
+as only one method (using \code{RcppEigen}) is implemented.}
+
+\item{alpha1, alpha2}{Factors for the scaling constants for \eqn{\mathbf{A}} and
+\eqn{\mathbf{B}}, respectively. See "Details".}
+
+\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+
+\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
+See "Details".}
+
+\item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
+}
+\value{
+A list consisting of the following:
+\itemize{
+\item{$statistic}{evaluation result (\code{sum(res_seq)})}
+\item{$res_seq}{vector of truncated series up to the order \code{m}}
+\item{$errorb}{error bound of \code{statistic}}
+\item{$err_seq}{vector of error bounds corresponding to \code{res_seq}}
+}
 }
 \description{
-Moment of ratio of quadratic forms in normal variables
+\code{qfrm()} is a front-end function to obtain the (compound) moment
+of a ratio of quadratic forms in normal variables, i.e.,
+\eqn{ \mathrm{E} \left(
+  \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
+  \right) },
+where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+Internally, \code{qfrm()} calls one of the following functions which does
+the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+and \eqn{p}. Usually the best one is automatically selected.
+
+\code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+positive integral \eqn{p}.
+
+\code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+non-positive-integral \eqn{p} (typically fraction or negative).
+
+\code{qfrm_ApBq_int()}: For general \eqn{\mathbf{B}} and
+positive-integral \eqn{p}.
+
+\code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}} and
+non-positive-integral \eqn{p}.
+}
+\details{
+These functions use infinite series expressions based on the joint
+moment-generating function (with the top-order zonal/invariant polynomials)
+(see Smith 1989, Hillier et al. 2009, 2014; Bao & Kan 2013), and the results
+are typically truncated sums from these infinite series,
+which necessarily involve truncation errors.
+(An exception is when \eqn{\mathbf{B} = \mathbf{I}_n} and \eqn{p} is a
+positive integer, the case handled by \code{qfrm_ApIq_int()}.)
+
+The returned value is a list consisting of the truncated series
+up to the order of polynomials specified by \code{m}, its sum,
+and error bounds corresponding to these (see "Values").
+The \code{print} method only displays the terminal truncated sum and its
+error bound (when available).
+Use the \code{plot} method for visual inspection, or the ordinary list
+element access as required.
+
+When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
+a truncation error bound following Hillier et al. (2009: theorem 6) or
+Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
+\code{qfrm_ApIq_npi()} implements similar error bounds.
+No error bound is available for \code{qfrm_ApBq_npi()}, at least to the
+author's knowledge. See \code{vignette("qfratio")} for further technical
+details.
+
+When \code{Sigma} is provided, the quadratic forms are transformed into
+a canonical form; that is, using the decomposition
+\eqn{\mathbm{\Sigma} = \mathbm{K} \mathbm{K}^T}, where the number of
+columns \eqn{m} of \eqn{\mathbm{K}} equals the rank of \eqn{\mathbf{\Sigma}},
+\eqn{\mathbm{A}_\mathrm{new} = \mathbm{K^\mathit{T} A K}},
+\eqn{\mathbm{B}_\mathrm{new} = \mathbm{K^\mathit{T} B K}}, and
+\eqn{\mathbm{x}_\mathrm{new} = \mathbm{K x} ~ N(\mathbm{K}^{-} \mathbm{\mu}, \mathbm{I}_m)}.
+\code{qfrm()} handles this by transforming \code{A}, \code{B},
+and \code{mu} and calling itself recursively with these new arguments.
+Note that the ``internal'' functions do not accommodate \code{Sigma}
+(the error for unused arguments will happen).
+
+The existence of the moment is assessed by the eigenstructures of
+\eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
+Bao & Kan (2013: proposition 1). An error will result if the conditions
+are not met.
+
+For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
+\eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
+the arguments \code{alpha1} and \code{alpha2}. These are the factors for
+the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
+\eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
+The default is 1, which should suffice for most purposes.
+Values larger than 1 often yield faster convergence, but are \emph{not}
+recommended as the error bound will not strictly hold
+(see the references cited above).
+
+\emph{Dependency note}: An exact expression is available for
+\code{qfrm_ApIq_int()}, but this requires evaluation of
+a confluent hypergeometric function when \code{mu} is nonzero
+(Hillier et al. 2014: theorem 4).
+This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
+available (which this package \code{Suggests}). Otherwise, the function uses
+the ordinary infinite series expression, which is less accurate and slow,
+and throws a warning. It is recommended to install that package if
+an accurate estimate is desired for that case.
+}
+\examples{
+## Some symmetric matrices and parameters
+nv <- 4
+A <- diag(nv:1)
+B <- diag(sqrt(1:nv))
+mu <- nv:1 / nv
+Sigma <- matrix(0.5, nv, nv)
+diag(Sigma) <- 1
+
+## Expectation of (x^T A x)^2 / (x^T x)^2 where x ~ N(0, I)
+## An exact expression is available
+(res1 <- qfrm(A, p = 2))
+
+# The above internally calls the following:
+qfrm_ApIq_int(A, p = 2) ## The same
+
+# Similar result with different expression
+# This is a suboptimal option and throws a warning
+qfrm_ApIq_npi(A, p = 2)
+
+## Expectation of (x^T A x)^1/2 / (x^T x)^1/2 where x ~ N(0, I)
+## Note how quickly the series converges in this case
+(res2 <- qfrm(A, p = 1/2))
+plot(res2)
+
+# The above calls:
+qfrm_ApIq_npi(A, p = 0.5)
+
+# This is not allowed (throws an error):
+\dontrun{qfrm_ApIq_int(A, p = 0.5)}
+
+## (x^T A x)^2 / (x^T B x)^3 where x ~ N(0, I)
+(res3 <- qfrm(A, B, 2, 3))
+plot(res3)
+
+## (x^T A x)^2 / (x^T B x)^2 where x ~ N(mu, I)
+## Note the two-sided error bound
+(res4 <- qfrm(A, B, 2, 2, mu = mu))
+plot(res4)
+
+## (x^T A x)^2 / (x^T B x)^2 where x ~ N(mu, Sigma)
+(res5 <- qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma))
+plot(res5)
+
+# Sigma is not allowed in the "internal" functions:
+\dontrun{qfrm_ApBq_int(A, B, p = 2, q = 2, Sigma = Sigma)}
+
+# In res5 above, the error bound didn't converge
+# Use larger m to evaluate higher-order terms
+plot(print(qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma, m = 300)))
+
+}
+\references{
+Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
+229--245.
+doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002}.
+
+Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+for top-order invariant polynomials with applications.
+\emph{Econometric Theory}, \strong{25}, 211--242.
+doi:\href{https://doi.org/10.1017/S0266466608090075}{10.1017/S0266466608090075}.
+
+Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+short recursions, with applications to the moments of quadratic forms
+in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
+doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
+
+Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
+doi:\href{https://doi.org/10.1016/0047-259X(89)90065-1}{10.1016/0047-259X(89)90065-1}.
+
+Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
+variables: evaluating some top-order invariant polynomials.
+\emph{Australian Journal of Statistics}, \strong{35}, 271--282.
+doi:\href{https://doi.org/10.1111/j.1467-842X.1993.tb01335.x}{10.1111/j.1467-842X.1993.tb01335.x}.
+}
+\seealso{
+\code{\link{qfmrm}} for multiple ratio
 }

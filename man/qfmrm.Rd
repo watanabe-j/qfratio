@@ -2,6 +2,11 @@
 % Please edit documentation in R/ratio_fun.R
 \name{qfmrm}
 \alias{qfmrm}
+\alias{qfmrm_ApBIqr_int}
+\alias{qfmrm_ApBIqr_npi}
+\alias{qfmrm_IpBDqr_gen}
+\alias{qfmrm_ApBDqr_int}
+\alias{qfmrm_ApBDqr_npi}
 \title{Moment of multiple ratio of quadratic forms in normal variables}
 \usage{
 qfmrm(
@@ -10,7 +15,7 @@ qfmrm(
   D,
   p = 1,
   q = p/2,
-  r = p/2,
+  r = q,
   m = 100L,
   mu,
   Sigma,
@@ -18,7 +23,239 @@ qfmrm(
   tol_sing = .Machine$double.eps,
   ...
 )
+
+qfmrm_ApBIqr_int(
+  A,
+  B,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha2 = 1,
+  error_bound = TRUE,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfmrm_ApBIqr_npi(
+  A,
+  B,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha1 = 1,
+  alpha2 = 1,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  check_convergence = TRUE,
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfmrm_IpBDqr_gen(
+  B,
+  D,
+  p = 1,
+  q = 1,
+  r = 1,
+  mu = rep.int(0, n),
+  m = 100L,
+  alpha2 = 1,
+  alpha3 = 1,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfmrm_ApBDqr_int(
+  A,
+  B,
+  D,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha2 = 1,
+  alpha3 = 1,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+
+qfmrm_ApBDqr_npi(
+  A,
+  B,
+  D,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  mu = rep.int(0, n),
+  alpha1 = 1,
+  alpha2 = 1,
+  alpha3 = 1,
+  check_convergence = TRUE,
+  use_cpp = FALSE,
+  cpp_method = "Eigen",
+  tol_conv = .Machine$double.eps^(1/4),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
+)
+}
+\arguments{
+\item{A, B, D}{Argument matrices. Assumed to be square. Automatically symmetrized.}
+
+\item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
+respectively. By default, \code{q} equals \code{p/2} and
+\code{r} equals \code{q}. If unsure, specify all explicitly.}
+
+\item{m}{Order of polynomials at which the series expression is truncated.
+\eqn{M} in Hillier et al. (2009, 2014).}
+
+\item{mu}{Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}}
+
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+Accommodated only by the front-end \code{qfrm()}. See "Details".}
+
+\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
+the identity matrix, etc.}
+
+\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
+The eigenvalues smaller than this are considered zero.}
+
+\item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to
+the appropriate ``internal'' function.}
+
+\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+
+\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
+See "Details".}
+
+\item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
+functions via \code{Rcpp}. \code{FALSE} by default.}
+
+\item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
+as only one method (using \code{RcppEigen}) is implemented.}
+
+\item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
+
+\item{alpha1, alpha2, alpha3}{Factors for the scaling constants for \eqn{\mathbf{A}},
+\eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
+\code{\link{qfrm}}.}
 }
 \description{
-Moment of multiple ratio of quadratic forms in normal variables
+\code{qfmrm()} is a front-end function to obtain the (compound) moment
+of a multiple ratio of quadratic forms in normal variables in the following
+special form:
+\eqn{ \mathrm{E} \left(
+  \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
+  \right) },
+where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+Like \code{qfrm()}, this function calls one of the following ``internal''
+functions for actual calculation, as appropriate.
+
+\code{qfmrm_ApBIqr_int()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+\eqn{\mathbf{D} = \mathbf{I}_n} and positive-integral \eqn{p}.
+
+\code{qfmrm_ApBIqr_npi()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
+\eqn{\mathbf{D} = \mathbf{I}_n} and non-positive-integral \eqn{p}.
+
+\code{qfmrm_IpBDqr_gen()}: For general\eqn{\mathbf{A} = \mathbf{I}_n}
+and the rest general.
+
+\code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+and \eqn{\mathbf{D}}, and positive-integral \eqn{p}.
+
+\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}.
+}
+\details{
+The usage of these functions is similar to \code{\link{qfrm}}, to which
+the user is referred.
+It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+(otherwise, the problem reduces to a simple ratio).
+
+When \code{B} is identity or missing, this and its exponent \code{q} will
+be swapped with \code{D} and \code{r}, respectively, before
+\code{qfmrm_ApBIqr_***()} is called.
+
+The error bound is only available for \code{qfmrm_ApBIqr_int()}.
+This is similar to, but slightly differs from, that
+in \code{qfrm_ApBq_int()}. See \code{vignette("qfratio")} for technical
+details.
+
+Note that these functions may take a substantially longer computational time
+than those pertaining to a simple ratio, because multiple matrices means
+multiple infinite series along which summation is to be taken.
+Expect the computational time to scale with \code{m^2} for
+\code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
+\code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
+the rest.
+}
+\examples{
+## Some symmetric matrices and parameters
+nv <- 4
+A <- diag(nv:1)
+B <- diag(sqrt(1:nv))
+D <- diag((1:nv)^2 / nv)
+mu <- nv:1 / nv
+Sigma <- matrix(0.5, nv, nv)
+diag(Sigma) <- 1
+
+## Expectation of (x^T A x)^2 / (x^T B x) (x^T x) where x ~ N(0, I)
+(res1 <- qfmrm(A, B, p = 2, q = 1, r = 1))
+plot(res1)
+
+# The above internally calls the following:
+qfmrm_ApBIqr_int(A, B, p = 2, q = 1, r = 1) ## The same
+
+# Similar result with different expression
+# This is a suboptimal option and throws a warning
+qfmrm_ApBIqr_npi(A, B, p = 2, q = 1, r = 1)
+
+## Expectation of (x^T A x) / (x^T B x)^(1/2) (x^T D x)^(1/2) where x ~ N(0, I)
+(res2 <- qfmrm(A, B, D, p = 1, q = 1/2, r = 1/2))
+plot(res2)
+
+# The above internally calls the following:
+qfmrm_ApBDqr_int(A, B, D, p = 1, q = 1/2, r = 1/2) ## The same
+
+## Average response correlation between A and B
+(res3 <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
+               p = 1, q = 1/2, r = 1/2))
+plot(res3)
+
+## Same, but with x ~ N(mu, Sigma)
+(res4 <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
+               p = 1, q = 1/2, r = 1/2, mu = mu, Sigma = Sigma))
+plot(res4)
+
+## Average autonomy of D
+(res5 <- qfmrm(B = D, D = solve(D), p = 2, q = 1, r = 1))
+plot(res5)
+
+}
+\references{
+Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
+doi:\href{https://doi.org/10.1016/0047-259X(89)90065-1}{10.1016/0047-259X(89)90065-1}.
+}
+\seealso{
+\code{\link{qfrm}} for simple ratio
 }
