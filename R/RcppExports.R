@@ -47,8 +47,8 @@ ABDpqr_int_cvE <- function(LA, LB, LD, p = 1, q = 1, r = 1) {
     .Call(`_qfratio_ABDpqr_int_cvE`, LA, LB, LD, p, q, r)
 }
 
-ABDpqr_int_cmE <- function(A, LB, D, p = 1, q = 1, r = 1) {
-    .Call(`_qfratio_ABDpqr_int_cmE`, A, LB, D, p, q, r)
+ABDpqr_int_cmE <- function(A, LB, D, p = 1, q = 1, r = 1, nthreads = 1L) {
+    .Call(`_qfratio_ABDpqr_int_cmE`, A, LB, D, p, q, r, nthreads)
 }
 
 ABDpqr_int_nvE <- function(LA, LB, LD, mu, p = 1, q = 1, r = 1) {
@@ -132,72 +132,72 @@ ApBIqr_int_nvE <- function(LA, LB, b2, mu, p = 1, q = 1, r = 1, m = 100L, error_
     .Call(`_qfratio_ApBIqr_int_nvE`, LA, LB, b2, mu, p, q, r, m, error_bound)
 }
 
-ApBIqr_int_nmE <- function(A, LA, UA, LB, b2, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = TRUE) {
-    .Call(`_qfratio_ApBIqr_int_nmE`, A, LA, UA, LB, b2, mu, p, q, r, m, error_bound)
+ApBIqr_int_nmE <- function(A, LA, UA, LB, b2, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = TRUE, nthreads = 0L) {
+    .Call(`_qfratio_ApBIqr_int_nmE`, A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
 }
 
-ApBIqr_npi_cvE <- function(LA, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBIqr_npi_cvE`, LA, LB, b1, b2, p, q, r, m, error_bound)
+ApBIqr_npi_cvE <- function(LA, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBIqr_npi_cvE`, LA, LB, b1, b2, p, q, r, m)
 }
 
-ApBIqr_npi_cmE <- function(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBIqr_npi_cmE`, A, LB, b1, b2, p, q, r, m, error_bound)
+ApBIqr_npi_cmE <- function(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBIqr_npi_cmE`, A, LB, b1, b2, p, q, r, m)
 }
 
-ApBIqr_npi_nvE <- function(LA, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBIqr_npi_nvE`, LA, LB, b1, b2, mu, p, q, r, m, error_bound)
+ApBIqr_npi_nvE <- function(LA, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBIqr_npi_nvE`, LA, LB, b1, b2, mu, p, q, r, m)
 }
 
-ApBIqr_npi_nmE <- function(A, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBIqr_npi_nmE`, A, LB, b1, b2, mu, p, q, r, m, error_bound)
+ApBIqr_npi_nmE <- function(A, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBIqr_npi_nmE`, A, LB, b1, b2, mu, p, q, r, m, nthreads)
 }
 
-IpBDqr_gen_cvE <- function(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_IpBDqr_gen_cvE`, LB, LD, b2, b3, p, q, r, m, error_bound)
+IpBDqr_gen_cvE <- function(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_IpBDqr_gen_cvE`, LB, LD, b2, b3, p, q, r, m)
 }
 
-IpBDqr_gen_cmE <- function(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_IpBDqr_gen_cmE`, LB, D, b2, b3, p, q, r, m, error_bound)
+IpBDqr_gen_cmE <- function(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_IpBDqr_gen_cmE`, LB, D, b2, b3, p, q, r, m)
 }
 
-IpBDqr_gen_nvE <- function(LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_IpBDqr_gen_nvE`, LB, LD, b2, b3, mu, p, q, r, m, error_bound)
+IpBDqr_gen_nvE <- function(LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_IpBDqr_gen_nvE`, LB, LD, b2, b3, mu, p, q, r, m)
 }
 
-IpBDqr_gen_nmE <- function(LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_IpBDqr_gen_nmE`, LB, D, b2, b3, mu, p, q, r, m, error_bound)
+IpBDqr_gen_nmE <- function(LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_IpBDqr_gen_nmE`, LB, D, b2, b3, mu, p, q, r, m, nthreads)
 }
 
-ApBDqr_int_cvE <- function(LA, LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_int_cvE`, LA, LB, LD, b2, b3, p, q, r, m, error_bound)
+ApBDqr_int_cvE <- function(LA, LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_int_cvE`, LA, LB, LD, b2, b3, p, q, r, m)
 }
 
-ApBDqr_int_cmE <- function(A, LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_int_cmE`, A, LB, D, b2, b3, p, q, r, m, error_bound)
+ApBDqr_int_cmE <- function(A, LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_int_cmE`, A, LB, D, b2, b3, p, q, r, m, nthreads)
 }
 
-ApBDqr_int_nvE <- function(LA, LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_int_nvE`, LA, LB, LD, b2, b3, mu, p, q, r, m, error_bound)
+ApBDqr_int_nvE <- function(LA, LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_int_nvE`, LA, LB, LD, b2, b3, mu, p, q, r, m)
 }
 
-ApBDqr_int_nmE <- function(A, LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_int_nmE`, A, LB, D, b2, b3, mu, p, q, r, m, error_bound)
+ApBDqr_int_nmE <- function(A, LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_int_nmE`, A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
 }
 
-ApBDqr_npi_cvE <- function(LA, LB, LD, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_npi_cvE`, LA, LB, LD, b1, b2, b3, p, q, r, m, error_bound)
+ApBDqr_npi_cvE <- function(LA, LB, LD, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_npi_cvE`, LA, LB, LD, b1, b2, b3, p, q, r, m)
 }
 
-ApBDqr_npi_cmE <- function(A, LB, D, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_npi_cmE`, A, LB, D, b1, b2, b3, p, q, r, m, error_bound)
+ApBDqr_npi_cmE <- function(A, LB, D, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_npi_cmE`, A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
 }
 
-ApBDqr_npi_nvE <- function(LA, LB, LD, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_npi_nvE`, LA, LB, LD, b1, b2, b3, mu, p, q, r, m, error_bound)
+ApBDqr_npi_nvE <- function(LA, LB, LD, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_npi_nvE`, LA, LB, LD, b1, b2, b3, mu, p, q, r, m)
 }
 
-ApBDqr_npi_nmE <- function(A, LB, D, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, error_bound = FALSE) {
-    .Call(`_qfratio_ApBDqr_npi_nmE`, A, LB, D, b1, b2, b3, mu, p, q, r, m, error_bound)
+ApBDqr_npi_nmE <- function(A, LB, D, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_npi_nmE`, A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
 }
 
 rmvnE <- function(N, mu, Sigma) {

@@ -37,6 +37,7 @@ qfmrm_ApBIqr_int(
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
+  nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps
@@ -54,6 +55,7 @@ qfmrm_ApBIqr_npi(
   alpha2 = 1,
   use_cpp = FALSE,
   cpp_method = "Eigen",
+  nthreads = 0,
   check_convergence = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
@@ -73,6 +75,7 @@ qfmrm_IpBDqr_gen(
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
+  nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps
@@ -92,6 +95,7 @@ qfmrm_ApBDqr_int(
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
+  nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps
@@ -112,6 +116,7 @@ qfmrm_ApBDqr_npi(
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
+  nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps
@@ -152,6 +157,9 @@ functions via \code{Rcpp}. \code{FALSE} by default.}
 
 \item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
 as only one method (using \code{RcppEigen}) is implemented.}
+
+\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
+See "Details".}
 
 \item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
 
@@ -207,6 +215,18 @@ Expect the computational time to scale with \code{m^2} for
 \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
 \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 the rest.
+
+All these functions can use \code{C++} versions to speed up computation;
+set \code{use_cpp = TRUE}.
+Furthermore, some of the \code{C++} functions, in particular those
+using three matrix arguments, are parallelized with \code{OpenMP}
+(when available). Use the argument \code{nthreads} to control the number
+of \code{OpenMP} threads. By default (\code{nthreads = 0}), they use
+one-half of the detected processors (via \code{omp_get_num_procs()}).
+These will not take effect when all the argument matrices share
+the same eigenvectors (so that the calculation only involves element-wise
+operations of eigenvalues; which is fast anyway), because the \code{OpenMP}
+parallelization does not seem to improve performance in that case.
 }
 \examples{
 ## Some symmetric matrices and parameters

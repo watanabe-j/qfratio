@@ -295,6 +295,18 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #' \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 #' the rest.
 #'
+#' All these functions can use \code{C++} versions to speed up computation;
+#' set \code{use_cpp = TRUE}.
+#' Furthermore, some of the \code{C++} functions, in particular those
+#' using three matrix arguments, are parallelized with \code{OpenMP}
+#' (when available). Use the argument \code{nthreads} to control the number
+#' of \code{OpenMP} threads. By default (\code{nthreads = 0}), they use
+#' one-half of the detected processors (via \code{omp_get_num_procs()}).
+#' These will not take effect when all the argument matrices share
+#' the same eigenvectors (so that the calculation only involves element-wise
+#' operations of eigenvalues; which is fast anyway), because the \code{OpenMP}
+#' parallelization does not seem to improve performance in that case.
+#'
 #' @inheritParams qfrm
 #'
 #' @param A,B,D
@@ -307,6 +319,9 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #'   Factors for the scaling constants for \eqn{\mathbf{A}},
 #'   \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
 #'   \code{\link{qfrm}}.
+#' @param nthreads
+#'   Number of threads used in OpenMP-enabled \code{C++} functions.
+#'   See "Details".
 #'
 #' @references
 #' Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
@@ -1470,6 +1485,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
+                    nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps) {
@@ -1559,9 +1575,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m, error_bound)
+                cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
             } else {
-                cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound)
+                cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
             }
         }
         # browser()
@@ -1709,6 +1725,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alpha1 = 1, alpha2 = 1,
                     # fun = c("dki1", "dk2"),
                     use_cpp = FALSE, cpp_method = "Eigen",
+                    nthreads = 0,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -1816,9 +1833,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m)
+                cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
             } else {
-                cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m)
+                cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m, nthreads)
             }
         }
         ansseq <- cppres$ansseq
@@ -1881,6 +1898,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
+                    nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps) {
@@ -1965,9 +1983,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             }
         } else {
             if(use_vec) {
-                cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m)
+                cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
             } else {
-                cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu, p, q, r, m)
+                cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu, p, q, r, m, nthreads)
             }
         }
         ansseq <- cppres$ansseq
@@ -2043,6 +2061,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
+                    nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps) {
@@ -2121,15 +2140,15 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m)
+                cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
             } else {
-                cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3, p, q, r, m)
+                cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3, p, q, r, m, nthreads)
             }
         } else {
             if(use_vec) {
-                cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu, p, q, r, m)
+                cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
             } else {
-                cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu, p, q, r, m)
+                cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
             }
         }
         ansseq <- cppres$ansseq
@@ -2204,6 +2223,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
+                    nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps) {
@@ -2291,15 +2311,15 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3, p, q, r, m)
+                cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
             } else {
-                cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3, p, q, r, m)
+                cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
             }
         } else {
             if(use_vec) {
-                cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu, p, q, r, m)
+                cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
             } else {
-                cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu, p, q, r, m)
+                cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
             }
         }
         ansseq <- cppres$ansseq

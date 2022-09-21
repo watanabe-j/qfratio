@@ -41,30 +41,30 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
     const Eigen::ArrayXd& mu, const int p, const int q);
 
 Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-    const Eigen::MatrixXd& A3, const int m, double& lscf);
+    const Eigen::MatrixXd& A3, const int m, double& lscf, int nthreads);
 Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-    const Eigen::ArrayXd& A3, const int m, double& lscf);
+    const Eigen::ArrayXd& A3, const int m, double& lscf); // , int nthreads);
 Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-    const Eigen::MatrixXd& A3, const int m, const int p, double& lscf);
+    const Eigen::MatrixXd& A3, const int m, const int p, double& lscf, int nthreads);
 Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-    const Eigen::ArrayXd& A3, const int m, const int p, double& lscf);
+    const Eigen::ArrayXd& A3, const int m, const int p, double& lscf); // , int nthreads);
 Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const Eigen::VectorXd& mu, const int m,
-    double& lscf);
+    double& lscf, int nthreads);
 Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-    const Eigen::ArrayXd& A3, const Eigen::ArrayXd& mu, const int m, double& lscf);
+    const Eigen::ArrayXd& A3, const Eigen::ArrayXd& mu, const int m, double& lscf); // , int nthreads);
 Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const Eigen::VectorXd& mu, const int m,
-    const int p, double& lscf);
+    const int p, double& lscf, int nthreads);
 Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
     const Eigen::ArrayXd& A3, const Eigen::ArrayXd& mu, const int m,
-    const int p, double& lscf);
+    const int p, double& lscf); // , int nthreads);
 Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const Eigen::VectorXd& mu, const int m,
-    const int p, double& lscf);
+    const int p, double& lscf, int nthreads);
 Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
     const Eigen::ArrayXd& A3, const Eigen::ArrayXd& mu, const int m,
-    const int p, double& lscf);
+    const int p, double& lscf); // , int nthreads);
 Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const Eigen::VectorXd mu,
     const int p, const int q, const int r);

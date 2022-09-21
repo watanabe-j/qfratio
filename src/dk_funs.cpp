@@ -3,6 +3,11 @@
 #include <limits>
 #include "dk_funs.h"
 
+#ifdef _OPENMP
+    #include <omp.h>
+    // [[Rcpp::plugins(openmp)]]
+#endif
+
 using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
@@ -526,13 +531,16 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                          const int m, double& lscf) {
+                          const int m, double& lscf, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    MatrixXd tG(n, n);
     MatrixXd Go = MatrixXd::Zero(n, n * (m + 1) * m);
     MatrixXd Gn = MatrixXd::Zero(n, n * (m + 1) * (m + 1));
     for(int i = 1; i <= m; i++) {
@@ -549,6 +557,11 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
                 A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             dks(i, k) = Gn.block(0, i * n, n, n).trace() / (2 * (k + i));
         }
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(int j = 1; j < k; j++) {
             Gn.block(0, j * n * (m + 1), n, n) =
                 A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1), n, n)) +
@@ -562,6 +575,9 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
                 dks(i, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (m + 1) + i * n, n, n).trace() / (2 * (k + i));
             }
         }
+#ifdef _OPENMP
+}
+#endif
         Gn.block(0, k * n * (m + 1), n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1), n, n));
         dks(0, k * (m + 1)) = Gn.block(0, k * n * (m + 1), n, n).trace() / (2 * k);
         for(int i = 1; i <= (m - k); i++) {
@@ -581,12 +597,15 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                          const int m, double& lscf) {
+                          const int m, double& lscf) { // , int nthreads) {
+// #ifdef _OPENMP
+//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+//     omp_set_num_threads(nthreads);
+// #endif
     const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    ArrayXXd tG(n, n);
     ArrayXXd Go = ArrayXXd::Zero(n, (m + 1) * m);
     ArrayXXd Gn = ArrayXXd::Zero(n, (m + 1) * (m + 1));
     for(int i = 1; i <= m; i++) {
@@ -602,6 +621,11 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
                         A2 * (dks(i, k - 1) + Go.col(i));
             dks(i, k) = Gn.col(i).sum() / (2 * (k + i));
         }
+// #ifdef _OPENMP
+// #pragma omp parallel
+// {
+// #pragma omp for
+// #endif
         for(int j = 1; j < k; j++) {
             Gn.col(j * (m + 1)) =
                 A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1))) +
@@ -615,6 +639,9 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
                 dks(i, (k - j) + j * (m + 1)) = Gn.col(j * (m + 1) + i).sum() / (2 * (k + i));
             }
         }
+// #ifdef _OPENMP
+// }
+// #endif
         Gn.col(k * (m + 1)) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1)));
         dks(0, k * (m + 1)) = Gn.col(k * (m + 1)).sum() / (2 * k);
         for(int i = 1; i <= (m - k); i++) {
@@ -634,7 +661,11 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                             const int m, const int p, double& lscf) {
+                             const int m, const int p, double& lscf, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
@@ -655,6 +686,11 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
                                        A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             dks(i, k) = Gn.block(0, i * n, n, n).trace() / (2 * (k + i));
         }
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(int j = 1; j < k; j++) {
             Gn.block(0, j * n * (p + 1), n, n) = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) + A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
             dks(0, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (p + 1), n, n).trace() / (2 * k);
@@ -665,6 +701,9 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
                 dks(i, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
             }
         }
+#ifdef _OPENMP
+}
+#endif
         Gn.block(0, k * n * (p + 1), n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
         dks(0, k * (m + 1)) = Gn.block(0, k * n * (p + 1), n, n).trace() / (2 * k);
         for(int i = 1; i <= p; i++) {
@@ -683,7 +722,11 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const int m, const int p, double& lscf) {
+                            const int m, const int p, double& lscf) { // , int nthreads) {
+// #ifdef _OPENMP
+//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+//     omp_set_num_threads(nthreads);
+// #endif
     const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -703,6 +746,11 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
                         A2 * (dks(i, k - 1) + Go.col(i));
             dks(i, k) = Gn.col(i).sum() / (2 * (k + i));
         }
+// #ifdef _OPENMP
+// #pragma omp parallel
+// {
+// #pragma omp for
+// #endif
         for(int j = 1; j < k; j++) {
             Gn.col(j * (p + 1)) =
                 A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
@@ -716,6 +764,9 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
                 dks(i, (k - j) + j * (m + 1)) = Gn.col(j * (p + 1) + i).sum() / (2 * (k + i));
             }
         }
+// #ifdef _OPENMP
+// }
+// #endif
         Gn.col(k * (p + 1)) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         dks(0, k * (m + 1)) = Gn.col(k * (p + 1)).sum() / (2 * k);
         for(int i = 1; i <= p; i++) {
@@ -735,7 +786,11 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, double& lscf) {
+                            const Eigen::VectorXd& mu, const int m, double& lscf, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
@@ -768,6 +823,11 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
             Gn.block(0, i * n, n, n) = tG;
             dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
         }
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1), n, n)) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (m + 1), n, n));
@@ -789,6 +849,9 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
                 dks(i, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (m + 1) + i * n, n, n).trace() + gn.col(j * (m + 1) + i).dot(mu)) / (2 * (k + i));
             }
         }
+#ifdef _OPENMP
+}
+#endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1), n, n));
         gn.col(k * (m + 1)) = (tG - Go.block(0, (k - 1) * n * (m + 1), n, n)
                                - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (m + 1));
@@ -816,7 +879,11 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, double& lscf) {
+                            const Eigen::ArrayXd& mu, const int m, double& lscf) { // , int nthreads) {
+// #ifdef _OPENMP
+//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+//     omp_set_num_threads(nthreads);
+// #endif
     const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -848,6 +915,11 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
             Gn.col(i) = tG;
             dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
         }
+// #ifdef _OPENMP
+// #pragma omp parallel private(tG)
+// {
+// #pragma omp for
+// #endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1))) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (m + 1)));
@@ -869,6 +941,9 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
                 dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (m + 1) + i).sum() + (mu * gn.col(j * (m + 1) + i)).sum()) / (2 * (k + i));
             }
         }
+// #ifdef _OPENMP
+// }
+// #endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1)));
         gn.col(k * (m + 1)) = (tG - Go.col((k - 1) * (m + 1)) - (dks(0, (k - 1) * (m + 1)))) * mu + A3 * go.col((k - 1) * (m + 1));
         Gn.col(k * (m + 1)) = tG;
@@ -895,7 +970,11 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf) {
+                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
@@ -927,6 +1006,11 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             Gn.block(0, i * n, n, n) = tG;
             dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
         }
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
@@ -947,6 +1031,9 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
                 dks(i, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() + gn.col(j * (p + 1) + i).dot(mu)) / (2 * (k + i));
             }
         }
+#ifdef _OPENMP
+}
+#endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
         gn.col(k * (p + 1)) = (tG - Go.block(0, (k - 1) * n * (p + 1), n, n) - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
@@ -972,7 +1059,11 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) {
+                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) { // , int nthreads) {
+// #ifdef _OPENMP
+//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+//     omp_set_num_threads(nthreads);
+// #endif
     const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -1003,6 +1094,11 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             Gn.col(i) = tG;
             dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
         }
+// #ifdef _OPENMP
+// #pragma omp parallel private(tG)
+// {
+// #pragma omp for
+// #endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
@@ -1022,6 +1118,9 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
                 dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
             }
         }
+// #ifdef _OPENMP
+// }
+// #endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         gn.col(k * (p + 1)) =
             (tG - Go.col((k - 1) * (p + 1)) - (dks(0, (k - 1) * (m + 1)))) * mu +
@@ -1049,7 +1148,11 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf) {
+                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
@@ -1081,6 +1184,11 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             Gn.block(0, i * n, n, n) = tG;
             dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
         }
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
@@ -1101,6 +1209,9 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
                 dks(i, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() + gn.col(j * (p + 1) + i).dot(mu)) / (2 * (k + i));
             }
         }
+#ifdef _OPENMP
+}
+#endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
         gn.col(k * (p + 1)) = (tG + Go.block(0, (k - 1) * n * (p + 1), n, n) + (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
@@ -1126,7 +1237,11 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) {
+                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) { // , int nthreads) {
+// #ifdef _OPENMP
+//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+//     omp_set_num_threads(nthreads);
+// #endif
     const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -1157,6 +1272,11 @@ Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             Gn.col(i) = tG;
             dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
         }
+// #ifdef _OPENMP
+// #pragma omp parallel private(tG)
+// {
+// #pragma omp for
+// #endif
         for(int j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) + A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
             gn.col(j * (p + 1)) =
@@ -1177,6 +1297,9 @@ Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
                 dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
             }
         }
+// #ifdef _OPENMP
+// }
+// #endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         gn.col(k * (p + 1)) =
             (tG + Go.col((k - 1) * (p + 1)) + (dks(0, (k - 1) * (m + 1)))) * mu +
