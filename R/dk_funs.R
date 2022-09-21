@@ -1,3 +1,386 @@
+##### d1_i (documentation) #####
+#' Coefficients in polynomial expansion of generating function---single matrix
+#'
+#' These are internal functions to calculate the coefficients
+#' in polynomial expansion of generating functions for quadratic forms
+#' in multivariate normal variables.
+#'
+#' \code{d1_i()} calculates \eqn{d_k(\mathbf{A})}, and \code{dtil1_i_v()} and
+#' \code{dtil1_i_m()} calculate \eqn{\tilde{d}_k(\mathbf{A})} in
+#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
+#' The former is related to the top-order zonal polynomial
+#' \eqn{C_{[k]}(\mathbf{A})} in the following way:
+#' \eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k C_{[k]}(\mathbf{A}) },
+#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}.
+#'
+#' These functions calculate the coefficients based on the super-short
+#' recursion algorithm described in Hillier et al. (2014: 3.2, eqs. 28--30).
+#'
+#' @return
+#' A vector of length \code{m + 1}, corresponding to
+#' the 0th, 1st, ..., and mth order terms.
+#' Hence, the \code{[m + 1]}-th element should be extracted
+#' when the coefficient for the mth order term is required.
+#'
+#' @param L
+#'   Vector of eigenvalues of the argument matrix
+#' @param m
+#'   Integer-alike to specify the order of polynomials
+#' @param A
+#'   Argument matrix.  Assumed to be symmetric in these functions.
+#' @param mu
+#'   Mean vector of the random variables. Assumed to have the same dimension
+#'   as \code{L} or \code{A}.
+#'
+#' @references
+#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#'   normal random variables. *Journal of Multivariate Analysis*, **117**,
+#'   229--245.
+#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#'   for top-order invariant polynomials with applications.
+#'   *Econometric Theory*, **25**, 211--242.
+#'   doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#'   short recursions, with applications to the moments of quadratic forms
+#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'
+#' @seealso
+#' \code{\link{qfpm}}, \code{\link{qfrm}}, and \code{\link{qfmrm}} are
+#' major front-end functions that utilize these functions
+#'
+#' \code{\link{dtil2_pq}} for \eqn{\tilde{d}}
+#' used for moments of a product of quadratic forms
+#'
+#' \code{\link{d2_ij}} and \code{\link{d3_ijk}} for \eqn{d}, \eqn{h},
+#' \eqn{\tilde{h}}, and \eqn{\hat{h}} used for moments of ratios
+#' of quadratic forms
+#'
+#' @name d1_i
+#' @aliases dtil1_i
+#'
+NULL
+
+##### dtil2_pq (documentation) #####
+#' Coefficients in polynomial expansion of generating function---for products
+#'
+#' These are internal functions to calculate the coefficients
+#' in polynomial expansion of joint generating functions for two or three
+#' quadratic forms in potentially noncentral multivariate normal variables,
+#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' They are primarily used to calculate moments of a product of two or
+#' three quadratic forms.
+#'
+#' \code{dtil2_pq_m()} and \code{dtil2_pq_v()} calculate
+#' \eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)} in
+#' Hillier et al. (2014).
+#' \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are fast versions
+#' for the commonly used case when \eqn{p = 1}.
+#' Similarly, \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
+#' \eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)}.
+#'
+#' Those ending with \code{_m} take matrices as arguments, whereas
+#' those with \code{_v} take eigenvalues.
+#' The latter assumes the argument matrices share the same eigenvectors,
+#' to which the eigenvalues correspond in the orders given,
+#' but is substantially faster.
+#'
+#' These functions calculate the coefficients based on the super-short
+#' recursion algorithm described in Hillier et al. (2014: 4.2).
+#'
+#' @return
+#' A \code{(p + 1) * (q + 1)} matrix for the 2D functions,
+#' or a \code{(p + 1) * (q + 1) * (r + 1)} array for the 3D functions.
+#'
+#' The 1st, 2nd, and 3rd dimensions correspond to increasing orders of
+#' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3},
+#' respectively. And the 1st row/column of each dimension corresponds
+#' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+#'
+#' @param A1,A2,A3
+#'   Argument matrices. Assumed to be symmetric and of the same order.
+#' @param L1,L2,L3
+#'   Eigenvalues of the argument matrices
+#' @param mu
+#'   Mean vector of the random variables. Assumed to have the same dimension
+#'   as \code{A}'s or \code{L}'s.
+#' @param p,q,r
+#'   Integer-alikes to specify the order along the three argument matrices
+#'
+#' @references
+#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#'   short recursions, with applications to the moments of quadratic forms
+#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'
+#' @seealso
+#' \code{\link{qfpm}} is a front-end functions that utilizes these functions
+#'
+#' \code{\link{d1_1}} for a single-matrix equivalent of \eqn{\tilde{d}}
+#'
+#' @name dtil2_pq
+#' @aliases dtil3_pqr
+#'
+NULL
+
+##### d2_ij (documentation) #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratios with two matrices
+#'
+#' These are internal functions to calculate the coefficients
+#' in polynomial expansion of joint generating functions for two
+#' quadratic forms in potentially noncentral multivariate normal variables,
+#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' They are primarily used in calculations around moments of a ratio
+#' involving two or three quadratic forms.
+#'
+#' \code{d2_**_*()} functions calculate
+#' \eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} in
+#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
+#' These are also related to the top-order invariant polynomials
+#' \eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)} in the following way:
+#' \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
+#'      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
+#'      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
+#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}.
+#' (see Chikuse 1987; Hillier et al. 2009).
+#'
+#' \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
+#' \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
+#' \eqn{\tilde{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}, respectively,
+#' in Bao & Kan (2013). Note that the latter is denoted by the symbol
+#' \eqn{h_{i,j}} in Hillier et al. (2014).
+#' \code{hhat2_pj_*()} functions are for
+#' \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
+#' in Hillier et al. (2014), used to calculate an error bound in
+#' truncated sum for moments of a ratio of quadratic forms.
+#' The mean vector \eqn{\mathbf{\mu}} is a parameter in all these.
+#'
+#' There are two different situations in which these coefficients are used
+#' in calculation of moments of ratios of quadratic forms:
+#' **1**) within an infinite series for one of the subscripts, with the
+#' other subscript fixed (when the exponent \eqn{p} of the numerator
+#' is integer); **2**) within a double infinite series for both subscripts
+#' (when \eqn{p} is non-integer) (see Bao & Kan 2013).
+#' In this package, the situation **1** is handled by
+#' those functions with \code{*_pj_*} (and \code{*_1j_*}), and **2** is by
+#' those functions with \code{*_ij_*}.
+#'
+#' In particular, the \code{*_pj_*} functions always return a
+#' \code{(m1 + 1) * (m + 1)} matrix where all elements are filled with
+#' the relevant coefficients (e.g., \eqn{d_{i,j}}, \eqn{\tilde{h}_{i,j}}),
+#' from which, typically, the \code{[m1 + 1, ]}-th row is used for
+#' subsequent calculations.
+#' (Those with \code{*_1q_*} are simply fast versions
+#' for the commonly used case when \eqn{p = 1}.)
+#' On the other hand, the \code{*_ij_*} functions by default return a
+#' \code{(m + 1) * (m + 1)} matrix whose upper-left triangular part
+#' (including the diagonals) is filled with the coefficients
+#' (\eqn{d_{i,j}} or \eqn{h_{i,j}}), the rest being 0, and all the coefficients
+#' are used in subsequent calculations.
+#'
+#' (At present, the \code{*_ij_*} functions also have the functionality to
+#' fill all coefficients of a potentially non-square output matrix,
+#' but this is less efficient than \code{*_pj_*} functions so may
+#' be omitted in the future development.)
+#'
+#' Those ending with \code{_m} take matrices as arguments, whereas
+#' those with \code{_v} take eigenvalues.
+#' The latter assumes the argument matrices share the same eigenvectors,
+#' to which the eigenvalues correspond in the orders given,
+#' but is substantially faster.
+#'
+#' This package also involves \code{C++} equivalents for most of these functions
+#' (which are suffixed by \code{E} for \code{Eigen}),
+#' but these are exclusively for internal use and not exposed to the user.
+#'
+#' These functions calculate the coefficients based on the super-short
+#' recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
+#' Bao & Kan (2014: sec. 5).
+#' The algorithm for \eqn{\hat{h}_{i,j}} was said to be ``very similar'' to
+#' that of \eqn{\tilde{h}_{i,j}} by Hillier et al. (2014), but differs
+#' in the signs of some terms.
+#'
+#' @return
+#' A \code{(m1 + 1) * (m + 1)} matrix for the 2D functions.
+#'
+#' The rows and columns correspond to increasing orders for
+#' \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
+#' And the 1st row/column of each dimension corresponds
+#' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+#'
+#' @param A1,A2
+#'   Argument matrices. Assumed to be symmetric and of the same order.
+#' @param L1,L2
+#'   Eigenvalues of the argument matrices
+#' @param mu
+#'   Mean vector of the random variables. Assumed to have the same dimension
+#'   as \code{A}'s or \code{L}'s.
+#' @param m
+#'   Integer-alike to specify the desired order along \code{A2}/\code{L2}
+#' @param m1,m2
+#'   Integer-alikes to specify the desired orders along
+#'   \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.
+#' @param fill_all
+#'   Logical to specify whether all the output matrix should be filled.
+#'   See "Details".
+#'
+#' @references
+#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#'   normal random variables. *Journal of Multivariate Analysis*, **117**,
+#'   229--245.
+#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'
+#' Chikuse, Y. (1987). Methods for constructing top order invariant polynomials.
+#'   *Econometric Theory*, **3**, 195--207.
+#'   doi:[10.1017/S026646660001029X](https://doi.org/10.1017/S026646660001029X).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#'   for top-order invariant polynomials with applications.
+#'   *Econometric Theory*, **25**, 211--242.
+#'   doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#'   short recursions, with applications to the moments of quadratic forms
+#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'
+#' @seealso
+#' \code{\link{qfrm}} and \code{\link{qfmrm}} are
+#' major front-end functions that utilize these functions
+#'
+#' \code{\link{dtil2_pq}} for \eqn{\tilde{d}}
+#' used for moments of a product of quadratic forms
+#'
+#' \code{\link{d3_ijk}} for equivalents for three matrices
+#'
+#' @name d2_ij
+#' @aliases d2_pj h2_ij htil2_pj hhat2_pj d2_1j htil2_1j hhat2_1j
+#'
+NULL
+
+##### d3_ijk (documentation) #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratios with three matrices
+#'
+#' These are internal functions to calculate the coefficients
+#' in polynomial expansion of joint generating functions for three
+#' quadratic forms in potentially noncentral multivariate normal variables,
+#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' They are primarily used in calculations around moments of a ratio
+#' involving three quadratic forms.
+#'
+#' All these functions have equivalents for two matrices (\code{\link{d2_ij}}),
+#' to which the user is referred for documentations.
+#' The primary difference of these functions from the latter is
+#' the addition of arguments for the third matrix \code{A3}/\code{L3}.
+#'
+#' \code{d3_*jk_*()} functions calculate
+#' \eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)} in
+#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
+#' These are also related to the top-order invariant polynomials as described
+#' in \code{\link{d2_ij}}.
+#'
+#' \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
+#'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)},
+#' \eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3))}, and
+#' \eqn{\hat{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
+#' respectively, as described in Watanabe (forthcoming). These are equivalent
+#' to similar coefficients described in Bao & Kan (2013) and.
+#' Hillier et al. (2014).
+#'
+#' The difference between the \code{*_pjk_*} and \code{*_ijk_*} functions
+#' is as described for \code{*_pj_*} and \code{*_ij_*}
+#' (see "Details" in \code{\link{d2_ij}}).
+#' The only difference is that these functions return a 3D array.
+#' In the \code{*_pjk_*} functions, all the slices along the first dimension
+#' (i.e., \code{[i, , ]}) are an upper-left triangular matrix
+#' like what the \code{*_ij_*} functions return in the 2D case;
+#' in other words, the return has the coefficients for the terms that satisfy
+#' \eqn{j + k \leq m} for all \eqn{i = 0, 1, \dots, m1}.
+#' Typically, the \code{[m1 + 1, , ]}-th slice is used for subsequent
+#' calculations.
+#' In the return of the \code{*_ijk_*} functions, only the triangular prism
+#' close to the \code{[1, 1, 1]} is filled with coefficients, which
+#' correspond to the terms satisfying \eqn{i + j + k \leq m}.
+#'
+#' (At present, the \code{*_ijk_*} functions have the functionality to
+#' fill all coefficients of a potentially non-cubic output array,
+#' but this is less efficient than \code{*_pjk_*} functions so may
+#' be omitted in the future development.)
+#'
+#' This package also involves \code{C++} equivalents for most of these functions
+#' (which are suffixed by \code{E} for \code{Eigen}),
+#' but these are exclusively for internal use and not exposed to the user.
+#'
+#' These functions calculate the coefficients based on the super-short
+#' recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
+#' Bao & Kan (2014: sec. 5).
+#'
+#' @return
+#' The \code{*_pjk_*} functions return a
+#' \code{(m1 + 1) * (m + 1) * (m + 1)} array, and
+#' the \code{*_ijk_*} functions return a
+#' \code{(m + 1) * (m + 1) * (m + 1)} array by default (see "Details").
+#'
+#' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
+#' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3}, respectively.
+#' And the 1st row/column of each dimension corresponds
+#' to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
+#' the \eqn{(p,q,r)}-th moment).
+#'
+#' @inheritParams d2_ij
+#' @param A1,A2,A3
+#'   Argument matrices. Assumed to be symmetric and of the same order.
+#' @param L1,L2,L3
+#'   Eigenvalues of the argument matrices
+#' @param m
+#'   Integer-alike to specify the desired order along \code{A2}/\code{L2}
+#'   and \code{A3}/\code{L3}
+#' @param m1,m2,m3
+#'   Integer-alikes to specify the desired orders along
+#'   \code{A1}/\code{L1}, \code{A2}/\code{L2}, and \code{A3}/\code{L3},
+#'   respectively.
+#' @param fill_across
+#'   Logical vector of length 3, to specify whether each dimension of
+#'   the output matrix should be filled.
+#'
+#' @references
+#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#'   normal random variables. *Journal of Multivariate Analysis*, **117**,
+#'   229--245.
+#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'
+#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#'   short recursions, with applications to the moments of quadratic forms
+#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'
+#' @seealso
+#' \code{\link{qfmrm}} is a
+#' major front-end function that utilizes these functions
+#'
+#' \code{\link{dtil2_pq}} for \eqn{\tilde{d}}
+#' used for moments of a product of quadratic forms
+#'
+#' \code{\link{d2_ij}} for equivalents for two matrices
+#'
+#' @name d3_ijk
+#' @aliases d3_pjk h3_ijk htil3_pjk hhat3_pjk
+#'
+NULL
+
+##### d1_i #####
+#' Coefficients in polynomial expansion of generating function
+#'
+#' \code{d1_i()} is for standard multivariate normal variables,
+#' \eqn{\mathbf{x} \sim N(\mathbf{0}, \mathbf{I}_n)}.
+#'
+#' @rdname d1_i
+#'
 d1_i <- function(L, m = 100L) {
     n <- length(L)
     dks <- rep.int(c(1, 0), c(1L, m))
@@ -16,10 +399,13 @@ d1_i <- function(L, m = 100L) {
     return(dks)
 }
 
-#' Recursion for dtilde_k
+##### dtil1_i_v #####
+#' Coefficients in polynomial expansion of generating function
 #'
-#' \code{dtil1_i()} calculates \eqn{\tilde{d}_k} by the recursion in
-#' eqs. 28--30 in Hillier et al. (2014)
+#' \code{dtil1_i_v()} is for noncentral multivariate normal variables,
+#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#'
+#' @rdname d1_i
 #'
 dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L) {
     n <- length(L)
@@ -43,10 +429,13 @@ dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L) {
     return(dks)
 }
 
-#' Recursion for dtilde_k
+##### dtil1_i_m #####
+#' Coefficients in polynomial expansion of generating function
 #'
-#' \code{dtil1_i()} calculates \eqn{\tilde{d}_k} by the recursion in
-#' eqs. 28--30 in Hillier et al. (2014)
+#' \code{dtil1_i_m()} is a wrapper for \code{dtil1_i_v()}
+#' and takes the argument matrix rather than its eigenvalues.
+#'
+#' @rdname d1_i
 #'
 dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
     eigA <- eigen(A, symmetric = TRUE)
@@ -243,6 +632,12 @@ dtil3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m
     return(dks)
 }
 
+##### dtil2_pq_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of two matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
     if(p == 1L) return(dtil2_1q_m(A1, A2, mu, q))
     n <- ncol(A1)
@@ -283,6 +678,12 @@ dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
     return(dks)
 }
 
+##### dtil2_1q_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of two matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -313,6 +714,12 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
     return(dks)
 }
 
+##### dtil2_pq_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of two matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
     if(p == 1L) return(dtil2_1j_v(L1, L2, mu, q))
     n <- length(L1)
@@ -351,6 +758,12 @@ dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
     return(dks)
 }
 
+##### dtil2_1q_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of two matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
     n <- length(L1)
     dks <- matrix(0, 2L, q + 1L)
@@ -382,6 +795,12 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
 }
 
 
+##### dtil3_pqr_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of three matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -472,6 +891,12 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
     return(dks)
 }
 
+##### dtil3_pqr_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' product of three matrices
+#'
+#' @rdname dtil2_pq
+#'
 dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) {
     n <- length(L1)
     m <- q + r
@@ -561,27 +986,48 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
 }
 
 
-
+##### arl #####
 #' Recursion for a_{r,l}
 #'
-#' \code{arl()} calculates \eqn{a_{k,l}} by the recursion in
-#' eqs. 31--32 in Hillier et al. (2014)
+#' \code{arl()} is an internal function to calculate \eqn{a_{k,l}} as defined
+#' in Hillier et al. (2014; eq. 24), which is used in the calculation of
+#' the moment of such a ratio of quadratic forms in normal variables
+#' where the denominator matrix is identity.
 #'
+#' This function implements the super-short recursion described in
+#' Hillier et al. (2014  eqs. 31--32).
 #' Note that \eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
 #' the index \eqn{l} fixed for each \eqn{a_{r,l}}.
 #'
+#' The \code{matrix} method just calculates \code{L} and \code{D} from
+#' \code{A} and \code{mu} and passes them to the \code{default} method.
+#'
 #' @param L
-#'   Eigenvalues of the argument matrix; vectors of \eqn{\lambda_i}
+#'   Eigenvalues of the argument matrix; vector of \eqn{\lambda_i}
+#' @param A
+#'   Argument matrix.  Assumed to be symmetric.
+#' @param mu
+#'   Mean vector \eqn{\mathbf{\mu}}
 #' @param D
 #'   Squared norm of the mean vector projected on the eigenvalues of
 #'   the argument matrix: vectors of \eqn{\delta_i}
 #' @param m
 #'   Scalar to specify the desired order
 #'
+#' @seealso
+#' \code{\link{qfrm}}; this function is used in \code{qfrm_ApIq_int()}
+#' (for noncentral cases only)
+#'
+#' @name arl
+#' @order 1
+#'
 arl <- function(L, ...) {
     UseMethod("arl", L)
 }
 
+#' @rdname arl
+#' @order 3
+#'
 #' @exportS3Method
 #'
 arl.matrix <- function(A, mu, m = 10L) {
@@ -592,6 +1038,9 @@ arl.matrix <- function(A, mu, m = 10L) {
     return(arl.default(L, D, m))
 }
 
+#' @rdname arl
+#' @order 2
+#'
 #' @exportS3Method
 #'
 arl.default <-  function(L, D, m = 10L) {
@@ -655,6 +1104,12 @@ d2_ij_vb <- function(L1, L2, m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) |
     return(dks)
 }
 
+##### d2_ij_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_ij_m <- function(A1, A2, m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) || !missing(m2)) {
     il2 <- function(i1, i2) i1 + i2 * (m1 + 1L) + 1L
     # tr <- function(X) sum(diag(X))
@@ -686,6 +1141,12 @@ d2_ij_m <- function(A1, A2, m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) ||
     return(dks)
 }
 
+##### d2_ij_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_ij_v <- function(L1, L2, m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) || !missing(m2)) {
     il2 <- function(i1, i2) i1 + i2 * (m1 + 1L) + 1L
     n <- length(L1)
@@ -715,6 +1176,12 @@ d2_ij_v <- function(L1, L2, m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) ||
     return(dks)
 }
 
+##### d2_pj_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_pj_m <- function(A1, A2, m = 100L, m1 = 1L) {
     if(m1 == 1L) return(d2_1j_m(A1, A2, m))
     n <- ncol(A1)
@@ -747,6 +1214,12 @@ d2_pj_m <- function(A1, A2, m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### d2_1j_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_1j_m <- function(A1, A2, m = 100L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -773,6 +1246,12 @@ d2_1j_m <- function(A1, A2, m = 100L) {
     return(dks)
 }
 
+##### d2_pj_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_pj_v <- function(L1, L2, m = 100L, m1 = 1L) {
     if(m1 == 1L) return(d2_1j_v(L1, L2, m))
     n <- length(L1)
@@ -804,6 +1283,12 @@ d2_pj_v <- function(L1, L2, m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### d2_1j_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 d2_1j_v <- function(L1, L2, m = 100L) {
     n <- length(L1)
     dks <- matrix(0, 2L, m + 1L)
@@ -917,8 +1402,11 @@ d2_1j_v <- function(L1, L2, m = 100L) {
 # }
 
 
-#' This function makes many temporary matrices which are used recursively
-#' to calculate polynomials.
+##### d3_ijk_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
 #'
 d3_ijk_m <- function(A1, A2, A3, m = 100L, m1 = m, m2 = m, m3 = m,
                  fill_across = c(!missing(m1), !missing(m2), !missing(m3))) { # , verbose = m > 200L) {
@@ -959,6 +1447,12 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, m1 = m, m2 = m, m3 = m,
     return(dks)
 }
 
+##### d3_ijk_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 d3_ijk_v <- function(L1, L2, L3, m = 100L, m1 = m, m2 = m, m3 = m,
                  fill_across = c(!missing(m1), !missing(m2), !missing(m3))) { # , verbose = m > 200L) {
     il3 <- function(i1, i2, i3) i1 + i2 * (m1 + 1L) + i3 * (m1 + 1L) * (m2 + 1L) + 1L
@@ -997,6 +1491,12 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, m1 = m, m2 = m, m3 = m,
     return(dks)
 }
 
+##### d3_pjk_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 d3_pjk_m <- function(A1, A2, A3, m = 100L, m1 = 1L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -1052,6 +1552,12 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### d3_pjk_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 d3_pjk_v <- function(L1, L2, L3, m = 100L, m1 = 1L) {
     n <- length(L1)
     dks <- array(0, dim = c(m1 + 1L, m + 1L, m + 1L))
@@ -1168,6 +1674,12 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, m1 = 1L) {
 #     return(dks)
 # }
 
+##### h2_1j_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m,
                       fill_all = !missing(m1) || !missing(m2)) {
     il2 <- function(i1, i2) i1 + i2 * (m1 + 1L) + 1L
@@ -1207,6 +1719,12 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m,
     return(dks)
 }
 
+##### h2_1j_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m,
                       fill_all = !missing(m1) || !missing(m2)) {
     il2 <- function(i1, i2) i1 + i2 * (m1 + 1L) + 1L
@@ -1320,6 +1838,12 @@ htil2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m,
     return(dks)
 }
 
+##### htil2_pj_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     if(m1 == 1L) return(htil2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
@@ -1363,6 +1887,12 @@ htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### htil2_1j_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -1398,6 +1928,12 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     return(dks)
 }
 
+##### htil2_pj_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     if(m1 == 1L) return(htil2_1j_v(L1, L2, mu, m))
     n <- length(L1)
@@ -1438,6 +1974,12 @@ htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### htil2_1j_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
     n <- length(L1)
     dks <- matrix(0, 2L, m + 1L)
@@ -1471,6 +2013,12 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 }
 
 
+##### h3_ijk_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m, m3 = m,
                  fill_across = c(!missing(m1), !missing(m2), !missing(m3))) { # , verbose = m > 200L) {
     il3 <- function(i1, i2, i3) i1 + i2 * (m1 + 1L) + i3 * (m1 + 1L) * (m2 + 1L) + 1L
@@ -1519,6 +2067,12 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m, m
     return(dks)
 }
 
+##### h3_ijk_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m, m3 = m,
                  fill_across = c(!missing(m1), !missing(m2), !missing(m3))) { # , verbose = m > 200L) {
     il3 <- function(i1, i2, i3) i1 + i2 * (m1 + 1L) + i3 * (m1 + 1L) * (m2 + 1L) + 1L
@@ -1659,6 +2213,12 @@ htil3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m
     return(dks)
 }
 
+##### htil3_pjk_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -1742,6 +2302,12 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### htil3_pjk_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     n <- length(L1)
     dks <- array(0, dim = c(m1 + 1L, m + 1L, m + 1L))
@@ -1827,16 +2393,16 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
 
 
 
-#' Recursion for hhat
-#'
-#' \code{hhat2_ij_m()} and \code{hhat2_ij_m()} are recursive algorithms
-#' for truncation error in noncentral case.
-#'
-#' These provide recursive algorithms for \eqn{\hat{h}_{i,j}} in
-#' Hillier et al. (2014, theorem 7).  This recursion is said to be very similar
-#' to those for \eqn{h_{i,j}} in the note therein, but differs in the signs
-#' of some terms.
-#'
+# #' Recursion for hhat
+# #'
+# #' \code{hhat2_ij_m()} and \code{hhat2_ij_m()} are recursive algorithms
+# #' for truncation error in noncentral case.
+# #'
+# #' These provide recursive algorithms for \eqn{\hat{h}_{i,j}} in
+# #' Hillier et al. (2014, theorem 7).  This recursion is said to be very similar
+# #' to those for \eqn{h_{i,j}} in the note therein, but differs in the signs
+# #' of some terms.
+# #'
 hhat2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m, fill_all = !missing(m1) || !missing(m2)) {
     il2 <- function(i1, i2) i1 + i2 * (m1 + 1L) + 1L
     n <- ncol(A1)
@@ -1911,6 +2477,12 @@ hhat2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m, fil
     return(dks)
 }
 
+##### hhat2_pj_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     if(m1 == 1L) return(hhat2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
@@ -1954,6 +2526,12 @@ hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### hhat2_1j_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -1989,6 +2567,12 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     return(dks)
 }
 
+##### hhat2_pj_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     if(m1 == 1L) return(hhat2_1j_v(L1, L2, mu, m))
     n <- length(L1)
@@ -2029,6 +2613,12 @@ hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### hhat2_1j_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with two matrices
+#'
+#' @rdname d2_ij
+#'
 hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
     n <- length(L1)
     dks <- matrix(0, 2L, m + 1L)
@@ -2157,6 +2747,12 @@ hhat3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m
     return(dks)
 }
 
+##### hhat3_pjk_m #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     n <- ncol(A1)
     In <- diag(n)
@@ -2240,6 +2836,12 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     return(dks)
 }
 
+##### hhat3_pjk_v #####
+#' Coefficients in polynomial expansion of generating function---for
+#' ratio with three matrices
+#'
+#' @rdname d3_ijk
+#'
 hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L) {
     n <- length(L1)
     dks <- array(0, dim = c(m1 + 1L, m + 1L, m + 1L))
