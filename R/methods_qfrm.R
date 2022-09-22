@@ -58,13 +58,13 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
          ylim = ylim, xlab = xlab,
          ylab = ylab, lwd = lwd_m, lty = lty_m, ...))
     if(add_error) {
-        lines(seq_along(ansseq) - 1L, errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
+        graphics::lines(seq_along(ansseq) - 1L, errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
         if(isTRUE(attr(errseq, "twosided"))) {
-            lines(-errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
+            graphics::lines(-errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
         }
     }
     if(add_legend) {
-        legend(pos_leg, legend = c("Moment", "Error bound"),
+        graphics::legend(pos_leg, legend = c("Moment", "Error bound"),
                col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
                lty = c(lty_m, lty_e))
     }

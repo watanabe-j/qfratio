@@ -8,7 +8,7 @@ Description: This package provides functions to evaluate moments of ratios
     of quadratic forms in normal variables, specifically using recursive
     algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
 License: GPL (>= 3)
-Imports: Rcpp
+Imports: Rcpp, graphics
 LinkingTo: Rcpp, RcppEigen
 Suggests: gsl, mvtnorm
 Encoding: UTF-8
