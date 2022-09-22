@@ -8,9 +8,9 @@ Description: This package provides functions to evaluate moments of ratios
     of quadratic forms in normal variables, specifically using recursive
     algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
 License: GPL (>= 3)
-Imports: Rcpp, graphics
+Imports: Rcpp
 LinkingTo: Rcpp, RcppEigen
-Suggests: gsl, mvtnorm, stats, testthat (>= 3.0.0)
+Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1

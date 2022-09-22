@@ -51,6 +51,9 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
                       col_m = "royalblue4", col_e = "tomato",
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
+    if(!requireNamespace("graphics", quietly = TRUE)) {
+        stop("Package \"graphics\" is required for plot.qfrm")
+    }
     ansseq <- x$res_seq
     errseq <- x$err_seq
     cumseq <- cumsum(ansseq)
