@@ -1002,8 +1002,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         LAh <- rep.int(1, n) - b1 * LA
         if(central) {
             dks <- d1_i(LAh, m = m)
+            lscf <- attr(dks, "logscale")
             ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(b1)
-                             + lgamma(n / 2 + p - q) - lgamma(n / 2)))
+                             + lgamma(n / 2 + p - q) - lgamma(n / 2) - lscf))
         } else {
             mu <- c(crossprod(UA, c(mu)))
             # ## This is based on recursion for d as in Hillier et al. (2009)
@@ -1013,12 +1014,13 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             #                      - p * log(b1) + lgamma(n / 2 + p - q) - lgamma(n / 2)))
             ## This is based on recursion for h as in Hillier et al. (2014)
             dks <- h2_ij_v(LAh, rep.int(0, n), mu, m)
+            lscf <- attr(dks, "logscale")
             ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(b1)
-                             + lgamma(n / 2 + p - q) - lgamma(n / 2)))
+                             + lgamma(n / 2 + p - q) - lgamma(n / 2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
         }
-        scf <- attr(dks, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dks, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1056,7 +1058,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
                        - lgamma(n / 2 + 0:m + 1) + lgamma(n / 2 + p - q)
                        + (p - q) * log(2) - p * log(b1))
-            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) - exp((lcoefe + log(cumsum(dkst[1:(m + 1)]))) - log(scf))
+            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) - exp((lcoefe + log(cumsum(dkst[1:(m + 1)]))) - lscf)
             errseq <- errseq * cumprod(sign(-p + 0:m))
         }
         errorb <- errseq[length(errseq)]
@@ -1225,10 +1227,11 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             }
         }
         dks <- dksm[p + 1, 1:(m + 1)]
+        lscf <- attr(dksm, "logscale")
         ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q) * log(2) + q * log(b2)
-                         + lgamma(p + 1) + lgamma(n / 2 + p - q) - lgamma(n / 2 + p)))
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+                         + lgamma(p + 1) + lgamma(n / 2 + p - q) - lgamma(n / 2 + p) - lscf))
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1297,13 +1300,13 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 }
             }
             dkst <- dkstm[p + 1, 1:(m + 1)]
-            scft <- attr(dkstm, "scale")
+            lscft <- attr(dkstm, "logscale")
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
                         - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q)
                         + (p - q) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-            exp(lcoefe + log(cumsum(dkst)) - log(scft))
+                      exp(lcoefe + log(cumsum(dkst)) - lscft)
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
@@ -1461,12 +1464,13 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 dksm <- h2_ij_m(Ah, Bh, mu, m)
             }
         }
+        lscf <- attr(dksm, "logscale")
         ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q) * log(2)
                          - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q) -
-                         lgamma(n / 2)))
+                         lgamma(n / 2) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1624,8 +1628,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 dksm <- d2_pj_m(A, Bh, m, p = p)
             }
             dks <- dksm[p + 1, 1:(m + 1)]
+            lscf <- attr(dksm, "logscale")
             ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q - r) * log(2) + q * log(b2)
-                    + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p)))
+                    + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
         } else {
             if(use_vec) {
                 # dksm <- htil3_ijk_v(LA, LBh, rep.int(0, n), mu, m, p = p)[p + 1, , ]
@@ -1635,13 +1640,14 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p)
             }
             dks <- dksm[p + 1, , ]
+            lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
                             + q * log(b2) + lgamma(p + 1)
-                            + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p)))
+                            + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
             ansseq <- sum_counterdiag(ansmat)
         }
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1710,13 +1716,13 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
             }
-            scft <- attr(dkstm, "scale")
+            lscft <- attr(dkstm, "logscale")
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
                        - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-                      exp(lcoefe + log(cumsum(dkst)) - log(scft))
+                      exp(lcoefe + log(cumsum(dkst)) - lscft)
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
@@ -1883,9 +1889,10 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             } else {
                 dksm <- d2_ij_m(Ah, Bh, m)
             }
+            lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q - r) * log(2)
                         - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q - r)
-                        - lgamma(n / 2)))
+                        - lgamma(n / 2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
         } else {
             if(use_vec) {
@@ -1893,13 +1900,14 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             } else {
                 dksm <- h3_ijk_m(Ah, Bh, matrix(0, n, n), mu, m)
             }
+            lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
                         - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q - r)
-                        - lgamma(n / 2)))
+                        - lgamma(n / 2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
         }
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -2037,9 +2045,10 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             } else {
                 dksm <- d2_ij_m(Bh, Dh, m)
             }
+            lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, q, r, n / 2, ((p - q - r) * log(2)
                              + q * log(b2) + r * log(b3) + lgamma(n / 2 + p - q - r)
-                             - lgamma(n / 2)))
+                             - lgamma(n / 2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
         } else {
             if(use_vec) {
@@ -2047,13 +2056,14 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             } else {
                 dksm <- h3_ijk_m(matrix(0, n, n), Bh, Dh, mu, m)
             }
+            lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
                             + q * log(b2) + r * log(b3) + lgamma(n / 2 + p - q - r)
-                            - lgamma(n / 2)))
+                            - lgamma(n / 2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
         }
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
 ## WIP: Condition(s) for existence of moment
     ## Check condition for existence of moment
@@ -2231,12 +2241,13 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             }
         }
         dks <- dksm[p + 1, , ]
+        lscf <- attr(dksm, "logscale")
         ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
                          + q * log(b2) + r * log(b3) + lgamma(p + 1)
-                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p)))
+                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -2412,12 +2423,13 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                 dksm <- h3_ijk_m(Ah, Bh, Dh, mu, m)
             }
         }
+        lscf <- attr(dksm, "logscale")
         ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
                          - p * log(b1) + q * log(b2) + r * log(b3)
-                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2)))
+                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
-        scf <- attr(dksm, "scale")
-        ansseq <- ansseq / scf
+        # scf <- attr(dksm, "scale")
+        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
