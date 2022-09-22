@@ -740,6 +740,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
     if(missing(B)) {
         B <- In
@@ -1119,8 +1120,13 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A and B should be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -1355,8 +1361,13 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A and B should be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -1516,8 +1527,13 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A and B should be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -1757,8 +1773,13 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A and B should be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -1928,8 +1949,13 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     } else {
         n <- dim(B)[1L]
         In <- diag(n)
+        B <- (B + t(B)) / 2
     }
-    if(missing(D)) D <- In
+    if(missing(D)) {
+        D <- In
+    } else {
+        D <- (D + t(D)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "B and D should be square matrices" = all(c(dim(B), dim(D)) == n),
@@ -2098,9 +2124,18 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
-    if(missing(D)) D <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    if(missing(D)) {
+        D <- In
+    } else {
+        D <- (D + t(D)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A, B and D should be square matrices" = all(c(dim(A), dim(B), dim(D)) == n),
@@ -2260,9 +2295,18 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
+        A <- (A + t(A)) / 2
     }
-    if(missing(B)) B <- In
-    if(missing(D)) D <- In
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    if(missing(D)) {
+        D <- In
+    } else {
+        D <- (D + t(D)) / 2
+    }
     ## Check basic requirements for arguments
     stopifnot(
         "A, B and D should be square matrices" = all(c(dim(A), dim(B), dim(D)) == n),
