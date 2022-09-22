@@ -12,7 +12,7 @@
 #' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q} } (\code{rqfr()}),
 #' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} } (\code{rqfmr()}), and
 #' \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
-#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #'
 #' When only one of \code{p} and \code{q} are provided in \code{rqfr()},
 #' the other (missing) one is set to the same value.
@@ -20,7 +20,7 @@
 #' In \code{rqfmr()}, \code{q} and \code{r} are set to \code{p/2}
 #' when both missing, and set to the same value when only one is missing.
 #' When \code{p} is missing, this is set to be \code{q + r}.
-#' If in doubt, specify all these explicitly.
+#' If unsure, specify all these explicitly.
 #'
 #' In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default.
 #'
@@ -35,9 +35,10 @@
 #'   Exponents for A, B, D, respectively (see "Details").  Assumed to be
 #'   numeric of length 1 each.  See "Details" for default values.
 #' @param mu
-#'   Mean vector for the normal variables.  Default zero vector.
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}. Default zero vector.
 #' @param Sigma
-#'   Covariance matrix for the normal variables.  Default identity matrix.
+#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+#'   Default identity matrix.
 #'   \code{mu} and \code{Sigma} are assumed to be of the same order as
 #'   the argument matrices.
 #' @param use_cpp
