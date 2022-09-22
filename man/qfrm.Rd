@@ -83,7 +83,7 @@ qfrm_ApBq_npi(
 )
 }
 \arguments{
-\item{A, B}{Argument matrices. Assumed to be square. Will be automatically symmetrized.}
+\item{A, B}{Argument matrices. Should be square. Will be automatically symmetrized.}
 
 \item{p, q}{Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
 respectively. When only one is provided, the other is set to the same value.
@@ -93,7 +93,7 @@ be a positive integer (an error results otherwise).}
 \item{m}{Order of polynomials at which the series expression is truncated.
 \eqn{M} in Hillier et al. (2009, 2014).}
 
-\item{mu}{Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
 Accommodated only by the front-end \code{qfrm()}. See "Details".}
@@ -139,7 +139,7 @@ of a ratio of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
   \right) },
-where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 Internally, \code{qfrm()} calls one of the following functions which does
 the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{p}. Usually the best one is automatically selected.
@@ -177,21 +177,28 @@ When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 a truncation error bound following Hillier et al. (2009: theorem 6) or
 Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
 \code{qfrm_ApIq_npi()} implements similar error bounds.
-No error bound is available for \code{qfrm_ApBq_npi()}, at least to the
-author's knowledge. See \code{vignette("qfratio")} for further technical
-details.
+No error bound is known for \code{qfrm_ApBq_npi()}, at least to the
+author's knowledge.
 
 When \code{Sigma} is provided, the quadratic forms are transformed into
 a canonical form; that is, using the decomposition
-\eqn{\mathbm{\Sigma} = \mathbm{K} \mathbm{K}^T}, where the number of
-columns \eqn{m} of \eqn{\mathbm{K}} equals the rank of \eqn{\mathbf{\Sigma}},
-\eqn{\mathbm{A}_\mathrm{new} = \mathbm{K^\mathit{T} A K}},
-\eqn{\mathbm{B}_\mathrm{new} = \mathbm{K^\mathit{T} B K}}, and
-\eqn{\mathbm{x}_\mathrm{new} = \mathbm{K x} ~ N(\mathbm{K}^{-} \mathbm{\mu}, \mathbm{I}_m)}.
+\eqn{\mathbf{\Sigma} = \mathbf{K} \mathbf{K}^T}, where the number of
+columns \eqn{m} of \eqn{\mathbf{K}} equals the rank of \eqn{\mathbf{\Sigma}},
+\eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}},
+\eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}, and
+\eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
+     \sim N(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
 \code{qfrm()} handles this by transforming \code{A}, \code{B},
 and \code{mu} and calling itself recursively with these new arguments.
 Note that the ``internal'' functions do not accommodate \code{Sigma}
 (the error for unused arguments will happen).
+For singular \eqn{\mathbf{\Sigma}}, one of the following conditions should
+be met for the above transformation to be valid:
+\strong{1}) \eqn{\bm{\mu}} is in the range of \eqn{\mathbf{\Sigma}};
+\strong{2}) \eqn{\mathbf{A}} and \eqn{\mathbf{B}} are in the range of
+\eqn{\mathbf{\Sigma}}; or
+\strong{3}) \eqn{\mathbf{A} \bm{\mu} = \mathbf{B} \bm{\mu} = \mathbf{0}}.
+An error is thrown if none is met with a singular \code{Sigma}.
 
 The existence of the moment is assessed by the eigenstructures of
 \eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
@@ -210,7 +217,7 @@ recommended as the error bound will not strictly hold
 
 \emph{Dependency note}: An exact expression is available for
 \code{qfrm_ApIq_int()}, but this requires evaluation of
-a confluent hypergeometric function when \code{mu} is nonzero
+a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 (Hillier et al. 2014: theorem 4).
 This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 available (which this package \code{Suggests}). Otherwise, the function uses

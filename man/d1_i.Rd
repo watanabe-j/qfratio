@@ -18,8 +18,7 @@ dtil1_i_m(A, mu = rep.int(0, n), m = 100L)
 
 \item{m}{Integer-alike to specify the order of polynomials}
 
-\item{mu}{Mean vector of the random variables. Assumed to have the same dimension
-as \code{L} or \code{A}.}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
 \item{A}{Argument matrix.  Assumed to be symmetric in these functions.}
 }
@@ -38,7 +37,7 @@ in multivariate normal variables.
 \eqn{\mathbf{x} \sim N(\mathbf{0}, \mathbf{I}_n)}.
 
 \code{dtil1_i_v()} is for noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 
 \code{dtil1_i_m()} is a wrapper for \code{dtil1_i_v()}
 and takes the argument matrix rather than its eigenvalues.

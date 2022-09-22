@@ -26,8 +26,7 @@ dtil3_pqr_v(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L)
 \arguments{
 \item{A1, A2, A3}{Argument matrices. Assumed to be symmetric and of the same order.}
 
-\item{mu}{Mean vector of the random variables. Assumed to have the same dimension
-as \code{A}'s or \code{L}'s.}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
 \item{p, q, r}{Integer-alikes to specify the order along the three argument matrices}
 
@@ -37,7 +36,7 @@ as \code{A}'s or \code{L}'s.}
 A \code{(p + 1) * (q + 1)} matrix for the 2D functions,
 or a \code{(p + 1) * (q + 1) * (r + 1)} array for the 3D functions.
 
-The 1st, 2nd, and 3rd dimensions correspond to increasing orders of
+The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
 \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3},
 respectively. And the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
@@ -46,7 +45,7 @@ to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two or three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 They are primarily used to calculate moments of a product of two or
 three quadratic forms.
 }
@@ -55,18 +54,18 @@ three quadratic forms.
 \eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)} in
 Hillier et al. (2014).
 \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are fast versions
-for the commonly used case when \eqn{p = 1}.
+for the commonly used case where \eqn{p = 1}.
 Similarly, \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
-\eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)}.
+\eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}.
 
 Those ending with \code{_m} take matrices as arguments, whereas
 those with \code{_v} take eigenvalues.
-The latter assumes the argument matrices share the same eigenvectors,
-to which the eigenvalues correspond in the orders given,
+The latter can be used only when the argument matrices share the same
+eigenvectors, to which the eigenvalues correspond in the orders given,
 but is substantially faster.
 
 These functions calculate the coefficients based on the super-short
-recursion algorithm described in Hillier et al. (2014: 4.2).
+recursion algorithm described in Hillier et al. (2014: sec. 4.2).
 }
 \references{
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and

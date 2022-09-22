@@ -29,8 +29,7 @@
 #' @param A
 #'   Argument matrix.  Assumed to be symmetric in these functions.
 #' @param mu
-#'   Mean vector of the random variables. Assumed to have the same dimension
-#'   as \code{L} or \code{A}.
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #'
 #' @references
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
@@ -70,7 +69,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two or three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 #' They are primarily used to calculate moments of a product of two or
 #' three quadratic forms.
 #'
@@ -78,24 +77,24 @@ NULL
 #' \eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)} in
 #' Hillier et al. (2014).
 #' \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are fast versions
-#' for the commonly used case when \eqn{p = 1}.
+#' for the commonly used case where \eqn{p = 1}.
 #' Similarly, \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
-#' \eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)}.
+#' \eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}.
 #'
 #' Those ending with \code{_m} take matrices as arguments, whereas
 #' those with \code{_v} take eigenvalues.
-#' The latter assumes the argument matrices share the same eigenvectors,
-#' to which the eigenvalues correspond in the orders given,
+#' The latter can be used only when the argument matrices share the same
+#' eigenvectors, to which the eigenvalues correspond in the orders given,
 #' but is substantially faster.
 #'
 #' These functions calculate the coefficients based on the super-short
-#' recursion algorithm described in Hillier et al. (2014: 4.2).
+#' recursion algorithm described in Hillier et al. (2014: sec. 4.2).
 #'
 #' @return
 #' A \code{(p + 1) * (q + 1)} matrix for the 2D functions,
 #' or a \code{(p + 1) * (q + 1) * (r + 1)} array for the 3D functions.
 #'
-#' The 1st, 2nd, and 3rd dimensions correspond to increasing orders of
+#' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
 #' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3},
 #' respectively. And the 1st row/column of each dimension corresponds
 #' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
@@ -105,8 +104,7 @@ NULL
 #' @param L1,L2,L3
 #'   Eigenvalues of the argument matrices
 #' @param mu
-#'   Mean vector of the random variables. Assumed to have the same dimension
-#'   as \code{A}'s or \code{L}'s.
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #' @param p,q,r
 #'   Integer-alikes to specify the order along the three argument matrices
 #'
@@ -119,7 +117,7 @@ NULL
 #' @seealso
 #' \code{\link{qfpm}} is a front-end functions that utilizes these functions
 #'
-#' \code{\link{d1_1}} for a single-matrix equivalent of \eqn{\tilde{d}}
+#' \code{\link{d1_i}} for a single-matrix equivalent of \eqn{\tilde{d}}
 #'
 #' @name dtil2_pq
 #' @aliases dtil3_pqr
@@ -133,7 +131,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving two or three quadratic forms.
 #'
@@ -145,8 +143,8 @@ NULL
 #' \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
 #'      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
 #'      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
-#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}.
-#' (see Chikuse 1987; Hillier et al. 2009).
+#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}
+#' (Chikuse 1987; Hillier et al. 2009).
 #'
 #' \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
 #' \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
@@ -155,9 +153,9 @@ NULL
 #' \eqn{h_{i,j}} in Hillier et al. (2014).
 #' \code{hhat2_pj_*()} functions are for
 #' \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
-#' in Hillier et al. (2014), used to calculate an error bound in
+#' in Hillier et al. (2014), used to calculate an error bound for
 #' truncated sum for moments of a ratio of quadratic forms.
-#' The mean vector \eqn{\mathbf{\mu}} is a parameter in all these.
+#' The mean vector \eqn{\bf{\mu}} is a parameter in all these.
 #'
 #' There are two different situations in which these coefficients are used
 #' in calculation of moments of ratios of quadratic forms:
@@ -166,8 +164,8 @@ NULL
 #' is integer); **2**) within a double infinite series for both subscripts
 #' (when \eqn{p} is non-integer) (see Bao & Kan 2013).
 #' In this package, the situation **1** is handled by
-#' those functions with \code{*_pj_*} (and \code{*_1j_*}), and **2** is by
-#' those functions with \code{*_ij_*}.
+#' the \code{*_pj_*} (and \code{*_1j_*}) functions, and **2** is by
+#' the \code{*_ij_*} functions.
 #'
 #' In particular, the \code{*_pj_*} functions always return a
 #' \code{(m1 + 1) * (m + 1)} matrix where all elements are filled with
@@ -175,7 +173,7 @@ NULL
 #' from which, typically, the \code{[m1 + 1, ]}-th row is used for
 #' subsequent calculations.
 #' (Those with \code{*_1q_*} are simply fast versions
-#' for the commonly used case when \eqn{p = 1}.)
+#' for the commonly used case where \eqn{p = 1}.)
 #' On the other hand, the \code{*_ij_*} functions by default return a
 #' \code{(m + 1) * (m + 1)} matrix whose upper-left triangular part
 #' (including the diagonals) is filled with the coefficients
@@ -189,8 +187,8 @@ NULL
 #'
 #' Those ending with \code{_m} take matrices as arguments, whereas
 #' those with \code{_v} take eigenvalues.
-#' The latter assumes the argument matrices share the same eigenvectors,
-#' to which the eigenvalues correspond in the orders given,
+#' The latter can be used only when the argument matrices share the same
+#' eigenvectors, to which the eigenvalues correspond in the orders given,
 #' but is substantially faster.
 #'
 #' This package also involves \code{C++} equivalents for most of these functions
@@ -205,20 +203,21 @@ NULL
 #' in the signs of some terms.
 #'
 #' @return
-#' A \code{(m1 + 1) * (m + 1)} matrix for the 2D functions.
+#' A \code{(m1 + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
+#'
+#' A \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 #'
 #' The rows and columns correspond to increasing orders for
 #' \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
 #' And the 1st row/column of each dimension corresponds
-#' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+#' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 #'
 #' @param A1,A2
 #'   Argument matrices. Assumed to be symmetric and of the same order.
 #' @param L1,L2
 #'   Eigenvalues of the argument matrices
 #' @param mu
-#'   Mean vector of the random variables. Assumed to have the same dimension
-#'   as \code{A}'s or \code{L}'s.
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #' @param m
 #'   Integer-alike to specify the desired order along \code{A2}/\code{L2}
 #' @param m1,m2
@@ -269,7 +268,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving three quadratic forms.
 #'
@@ -279,17 +278,17 @@ NULL
 #' the addition of arguments for the third matrix \code{A3}/\code{L3}.
 #'
 #' \code{d3_*jk_*()} functions calculate
-#' \eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)} in
+#' \eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)} in
 #' Hillier et al. (2009, 2014) and Bao & Kan (2013).
 #' These are also related to the top-order invariant polynomials as described
 #' in \code{\link{d2_ij}}.
 #'
 #' \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
-#'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)},
-#' \eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3))}, and
+#'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
+#' \eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}, and
 #' \eqn{\hat{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
 #' respectively, as described in Watanabe (forthcoming). These are equivalent
-#' to similar coefficients described in Bao & Kan (2013) and.
+#' to similar coefficients described in Bao & Kan (2013) and
 #' Hillier et al. (2014).
 #'
 #' The difference between the \code{*_pjk_*} and \code{*_ijk_*} functions
@@ -321,16 +320,17 @@ NULL
 #' Bao & Kan (2014: sec. 5).
 #'
 #' @return
-#' The \code{*_pjk_*} functions return a
-#' \code{(m1 + 1) * (m + 1) * (m + 1)} array, and
-#' the \code{*_ijk_*} functions return a
-#' \code{(m + 1) * (m + 1) * (m + 1)} array by default (see "Details").
+#'
+#' A \code{(m1 + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
+#'
+#' A \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
+#' (by default; see "Details").
 #'
 #' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
 #' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3}, respectively.
 #' And the 1st row/column of each dimension corresponds
 #' to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
-#' the \eqn{(p,q,r)}-th moment).
+#' the \eqn{(p,q,r)}-th order).
 #'
 #' @inheritParams d2_ij
 #' @param A1,A2,A3
@@ -403,7 +403,7 @@ d1_i <- function(L, m = 100L) {
 #' Coefficients in polynomial expansion of generating function
 #'
 #' \code{dtil1_i_v()} is for noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 #'
 #' @rdname d1_i
 #'
@@ -1007,12 +1007,14 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
 #' @param A
 #'   Argument matrix.  Assumed to be symmetric.
 #' @param mu
-#'   Mean vector \eqn{\mathbf{\mu}}
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #' @param D
 #'   Squared norm of the mean vector projected on the eigenvalues of
 #'   the argument matrix: vectors of \eqn{\delta_i}
 #' @param m
 #'   Scalar to specify the desired order
+#' @param ...
+#'   Additional arguments passed to internal methods
 #'
 #' @seealso
 #' \code{\link{qfrm}}; this function is used in \code{qfrm_ApIq_int()}

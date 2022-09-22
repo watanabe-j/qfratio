@@ -6,7 +6,7 @@
 #' \eqn{ \mathrm{E} \left(
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #' Internally, \code{qfrm()} calls one of the following functions which does
 #' the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 #' and \eqn{p}. Usually the best one is automatically selected.
@@ -31,21 +31,29 @@
 #' a truncation error bound following Hillier et al. (2009: theorem 6) or
 #' Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
 #' \code{qfrm_ApIq_npi()} implements similar error bounds.
-#' No error bound is available for \code{qfrm_ApBq_npi()}, at least to the
-#' author's knowledge. See \code{vignette("qfratio")} for further technical
-#' details.
+#' No error bound is known for \code{qfrm_ApBq_npi()}, at least to the
+#' author's knowledge.
+# #' See \code{vignette("qfratio")} for further technical details.
 #'
 #' When \code{Sigma} is provided, the quadratic forms are transformed into
 #' a canonical form; that is, using the decomposition
-#' \eqn{\mathbm{\Sigma} = \mathbm{K} \mathbm{K}^T}, where the number of
-#' columns \eqn{m} of \eqn{\mathbm{K}} equals the rank of \eqn{\mathbf{\Sigma}},
-#' \eqn{\mathbm{A}_\mathrm{new} = \mathbm{K^\mathit{T} A K}},
-#' \eqn{\mathbm{B}_\mathrm{new} = \mathbm{K^\mathit{T} B K}}, and
-#' \eqn{\mathbm{x}_\mathrm{new} = \mathbm{K x} ~ N(\mathbm{K}^{-} \mathbm{\mu}, \mathbm{I}_m)}.
+#' \eqn{\mathbf{\Sigma} = \mathbf{K} \mathbf{K}^T}, where the number of
+#' columns \eqn{m} of \eqn{\mathbf{K}} equals the rank of \eqn{\mathbf{\Sigma}},
+#' \eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}},
+#' \eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}, and
+#' \eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
+#'      \sim N(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
 #' \code{qfrm()} handles this by transforming \code{A}, \code{B},
 #' and \code{mu} and calling itself recursively with these new arguments.
 #' Note that the ``internal'' functions do not accommodate \code{Sigma}
 #' (the error for unused arguments will happen).
+#' For singular \eqn{\mathbf{\Sigma}}, one of the following conditions should
+#' be met for the above transformation to be valid:
+#' **1**) \eqn{\bm{\mu}} is in the range of \eqn{\mathbf{\Sigma}};
+#' **2**) \eqn{\mathbf{A}} and \eqn{\mathbf{B}} are in the range of
+#' \eqn{\mathbf{\Sigma}}; or
+#' **3**) \eqn{\mathbf{A} \bm{\mu} = \mathbf{B} \bm{\mu} = \mathbf{0}}.
+#' An error is thrown if none is met with a singular \code{Sigma}.
 #'
 #' The existence of the moment is assessed by the eigenstructures of
 #' \eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
@@ -63,7 +71,7 @@
 #' (see the references cited above).
 #'
 #' @param A,B
-#'   Argument matrices. Assumed to be square. Will be automatically symmetrized.
+#'   Argument matrices. Should be square. Will be automatically symmetrized.
 #' @param p,q
 #'   Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
 #'   respectively. When only one is provided, the other is set to the same value.
@@ -73,7 +81,7 @@
 #'   Order of polynomials at which the series expression is truncated.
 #'   \eqn{M} in Hillier et al. (2009, 2014).
 #' @param mu
-#'   Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
 #'   Accommodated only by the front-end \code{qfrm()}. See "Details".
@@ -269,12 +277,12 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #' \eqn{ \mathrm{E} \left(
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #' Like \code{qfrm()}, this function calls one of the following ``internal''
 #' functions for actual calculation, as appropriate.
 #'
 #' The usage of these functions is similar to \code{\link{qfrm}}, to which
-#' the user is referred.
+#' the user is referred for documentation.
 #' It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
 #' (otherwise, the problem reduces to a simple ratio).
 #'
@@ -284,8 +292,8 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #'
 #' The error bound is only available for \code{qfmrm_ApBIqr_int()}.
 #' This is similar to, but slightly differs from, that
-#' in \code{qfrm_ApBq_int()}. See \code{vignette("qfratio")} for technical
-#' details.
+#' in \code{qfrm_ApBq_int()}.
+# #' See \code{vignette("qfratio")} for technical details.
 #'
 #' Note that these functions may take a substantially longer computational time
 #' than those pertaining to a simple ratio, because multiple matrices means
@@ -301,20 +309,25 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #' using three matrix arguments, are parallelized with \code{OpenMP}
 #' (when available). Use the argument \code{nthreads} to control the number
 #' of \code{OpenMP} threads. By default (\code{nthreads = 0}), they use
-#' one-half of the detected processors (via \code{omp_get_num_procs()}).
+#' one-half of the processors detected via \code{omp_get_num_procs()}.
 #' These will not take effect when all the argument matrices share
 #' the same eigenvectors (so that the calculation only involves element-wise
-#' operations of eigenvalues; which is fast anyway), because the \code{OpenMP}
-#' parallelization does not seem to improve performance in that case.
+#' operations of eigenvalues), because the \code{OpenMP} parallelization
+#' does not seem to improve performance in that case
+#' (and this is typically fast anyway).
 #'
 #' @inheritParams qfrm
 #'
 #' @param A,B,D
-#'   Argument matrices. Assumed to be square. Automatically symmetrized.
+#'   Argument matrices. Should be square. Automatically symmetrized.
 #' @param p,q,r
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 #'   respectively. By default, \code{q} equals \code{p/2} and
 #'   \code{r} equals \code{q}. If unsure, specify all explicitly.
+#' @param Sigma
+#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+#'   Accommodated only by the front-end \code{qfmrm()}. See "Details"
+#'   in \code{\link{qfrm}}.
 #' @param alpha1,alpha2,alpha3
 #'   Factors for the scaling constants for \eqn{\mathbf{A}},
 #'   \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
@@ -322,6 +335,9 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #' @param nthreads
 #'   Number of threads used in OpenMP-enabled \code{C++} functions.
 #'   See "Details".
+#' @param ...
+#'   Additional arguments in the front-end \code{qfmrm()} will be passed to
+#'   the appropriate ``internal'' function.
 #'
 #' @references
 #' Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
@@ -479,7 +495,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
 ###############################
 ## Function for positive integer moment of a quadratic form
 ###############################
-##### qfpm (dummy) #####
+##### qfpm (documentation) #####
 #' Moment of (product of) quadratic forms in normal variables
 #'
 #' Functions to obtain (compound) moments
@@ -487,11 +503,11 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
 #' \eqn{ \mathrm{E} \left(
 #'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 #'
 #' These functions implement the super-short recursion algorithms described in
-#' Hillier et al. (2014: 3.1--3.2 and 4). At present, only positive integers
-#' are accepted as the exponents (negative exponents yield ratios, of course).
+#' Hillier et al. (2014: sec. 3.1--3.2 and 4). At present, only positive integers
+#' are accepted as exponents (negative exponents yield ratios, of course).
 #' All these yield exact results.
 #'
 #' An error is thrown in the trivial case of \code{p = 0}
@@ -502,7 +518,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
 #' @param p,q,r
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 #'   respectively. By default, these are set to the same value.
-#'   If in doubt, specify all explicitly.
+#'   If unsure, specify all explicitly.
 #'
 #' @seealso
 #' \code{\link{qfrm}} and \code{\link{qfmrm}} for moments of ratios
@@ -836,7 +852,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #'
 #' *Dependency note*: An exact expression is available for
 #' \code{qfrm_ApIq_int()}, but this requires evaluation of
-#' a confluent hypergeometric function when \code{mu} is nonzero
+#' a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 #' (Hillier et al. 2014: theorem 4).
 #' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 #' available (which this package \code{Suggests}). Otherwise, the function uses
@@ -1473,8 +1489,8 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfmrm_ApBIqr_int #####
 #' Positive integer moment of multiple ratio when D is identity
 #'
-#' \code{qfmrm_ApBIqr_int()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-#' \eqn{\mathbf{D} = \mathbf{I}_n} and positive-integral \eqn{p}.
+#' \code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+#' positive-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'
@@ -1713,8 +1729,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_ApBIqr_npi #####
 #' Non-positive-integer moment of multiple ratio when D is identity
 #'
-#' \code{qfmrm_ApBIqr_npi()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-#' \eqn{\mathbf{D} = \mathbf{I}_n} and non-positive-integral \eqn{p}.
+#' \code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+#' non-positive-integral \eqn{p}
 #'
 #'
 #' @rdname qfmrm
@@ -1886,8 +1902,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_IpBDqr_gen #####
 #' Moment of multiple ratio when A is identity
 #'
-#' \code{qfmrm_IpBDqr_gen()}: For general\eqn{\mathbf{A} = \mathbf{I}_n}
-#' and the rest general.
+#' \code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}
 #'
 #' @rdname qfmrm
 #'
@@ -2050,7 +2065,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' Positive integer moment of multiple ratio
 #'
 #' \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{\mathbf{D}}, and positive-integral \eqn{p}.
+#' and \eqn{\mathbf{D}}, and positive-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'
@@ -2211,7 +2226,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 #' Positive integer moment of multiple ratio
 #'
 #' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}.
+#' and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'

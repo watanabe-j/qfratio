@@ -9,9 +9,9 @@
 #' @name hgs
 #'
 #' @param dks
-#'   \eqn{(m + 1)} vector for \eqn{d_{i}},
-#'   \eqn{(m + 1) \times (m + 1)} square matrix for \eqn{d_{i, j}}, or
-#'   \eqn{(m + 1) \times (m + 1) \times (m + 1)} array for \eqn{d_{i, j, k}}
+#'   \code{(m + 1)} vector for \eqn{d_{i}},
+#'   \code{(m + 1) * (m + 1)} square matrix for \eqn{d_{i, j}}, or
+#'   \code{(m + 1) * (m + 1) * (m + 1)} array for \eqn{d_{i, j, k}}
 #'   (\eqn{i, j, k = 0, 1, \dots m})
 #' @param np1,np2,np3
 #'   Numerator parameters. Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}
@@ -110,31 +110,31 @@ hgs_3d <- function (dks, np1, np2, np3, dpijk, lconst = 0) {
     ansmat * sgnseq
 }
 
-#' Calculate 2D hypergeometric series
-#'
-#' \code{hgs_2d()} calculates the hypergeometric series
-#' \eqn{c \frac{(p_1)_i (p_2)_j}{(q)_{i+j}} d_{i, j}}
-#'
-#' @rdname hgs
-#'
-hgs_dmu_2d <- function (dks, np1, np2, dpij, lconst = 0) {
-    m <- ncol(dks) - 1
-    if(np1 < 0 && (np1 %% 1) == 0) {
-        lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
-    } else {
-        lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
-    }
-    if(np2 < 0 && (np2 %% 1) == 0) {
-        lnum_j <- cumsum(log(c(1, -np2 - 0:(m - 1))))
-    } else {
-        lnum_j <- lgamma(np2 + 0:m) - lgamma(np2)
-    }
-    lden_ij <- lgamma(dpij + outer(0:m, 0:m, "+")) - lgamma(dpij)
-    lden_ij <- t(t(lden_ij) + 0:m * log(2) + lgamma(1 / 2 + 0:m) - lgamma(1 / 2))
-    lcoefm <- (outer(lnum_i, lnum_j, "+") - lden_ij)
-    ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
-    ## Signs for (np1)_i and (np2)_j, where i = 0:m is along the rows
-    sgnseq <- outer(cumprod(c(1, sign(np1 + 0:(m - 1)))),
-                    cumprod(c(1, sign(np2 + 0:(m - 1))))) * sign(dks)
-    ansmat * sgnseq
-}
+# #' Calculate 2D hypergeometric series
+# #'
+# #' \code{hgs_dmu_2d()} calculates the hypergeometric series
+# #' for a ratio of quadratic forms as in Hillier et al. (2009: eq. 84)
+# #'
+# #' @rdname hgs
+# #'
+# hgs_dmu_2d <- function (dks, np1, np2, dpij, lconst = 0) {
+#     m <- ncol(dks) - 1
+#     if(np1 < 0 && (np1 %% 1) == 0) {
+#         lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
+#     } else {
+#         lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
+#     }
+#     if(np2 < 0 && (np2 %% 1) == 0) {
+#         lnum_j <- cumsum(log(c(1, -np2 - 0:(m - 1))))
+#     } else {
+#         lnum_j <- lgamma(np2 + 0:m) - lgamma(np2)
+#     }
+#     lden_ij <- lgamma(dpij + outer(0:m, 0:m, "+")) - lgamma(dpij)
+#     lden_ij <- t(t(lden_ij) + 0:m * log(2) + lgamma(1 / 2 + 0:m) - lgamma(1 / 2))
+#     lcoefm <- (outer(lnum_i, lnum_j, "+") - lden_ij)
+#     ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
+#     ## Signs for (np1)_i and (np2)_j, where i = 0:m is along the rows
+#     sgnseq <- outer(cumprod(c(1, sign(np1 + 0:(m - 1)))),
+#                     cumprod(c(1, sign(np2 + 0:(m - 1))))) * sign(dks)
+#     ansmat * sgnseq
+# }

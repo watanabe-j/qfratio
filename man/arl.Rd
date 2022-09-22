@@ -15,6 +15,8 @@ arl(L, ...)
 \arguments{
 \item{L}{Eigenvalues of the argument matrix; vector of \eqn{\lambda_i}}
 
+\item{...}{Additional arguments passed to internal methods}
+
 \item{D}{Squared norm of the mean vector projected on the eigenvalues of
 the argument matrix: vectors of \eqn{\delta_i}}
 
@@ -22,7 +24,7 @@ the argument matrix: vectors of \eqn{\delta_i}}
 
 \item{A}{Argument matrix.  Assumed to be symmetric.}
 
-\item{mu}{Mean vector \eqn{\mathbf{\mu}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \description{
 \code{arl()} is an internal function to calculate \eqn{a_{k,l}} as defined

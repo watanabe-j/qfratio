@@ -123,7 +123,7 @@ qfmrm_ApBDqr_npi(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Assumed to be square. Automatically symmetrized.}
+\item{A, B, D}{Argument matrices. Should be square. Automatically symmetrized.}
 
 \item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 respectively. By default, \code{q} equals \code{p/2} and
@@ -132,10 +132,11 @@ respectively. By default, \code{q} equals \code{p/2} and
 \item{m}{Order of polynomials at which the series expression is truncated.
 \eqn{M} in Hillier et al. (2009, 2014).}
 
-\item{mu}{Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-Accommodated only by the front-end \code{qfrm()}. See "Details".}
+Accommodated only by the front-end \code{qfmrm()}. See "Details"
+in \code{\link{qfrm}}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
@@ -144,7 +145,7 @@ the identity matrix, etc.}
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
 The eigenvalues smaller than this are considered zero.}
 
-\item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to
+\item{...}{Additional arguments in the front-end \code{qfmrm()} will be passed to
 the appropriate ``internal'' function.}
 
 \item{error_bound}{Logical to specify whether the error bound is returned (if available).}
@@ -174,28 +175,27 @@ special form:
 \eqn{ \mathrm{E} \left(
   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
   \right) },
-where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 Like \code{qfrm()}, this function calls one of the following ``internal''
 functions for actual calculation, as appropriate.
 
-\code{qfmrm_ApBIqr_int()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-\eqn{\mathbf{D} = \mathbf{I}_n} and positive-integral \eqn{p}.
+\code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+positive-integral \eqn{p}
 
-\code{qfmrm_ApBIqr_npi()}: For general \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-\eqn{\mathbf{D} = \mathbf{I}_n} and non-positive-integral \eqn{p}.
+\code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+non-positive-integral \eqn{p}
 
-\code{qfmrm_IpBDqr_gen()}: For general\eqn{\mathbf{A} = \mathbf{I}_n}
-and the rest general.
+\code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}
 
 \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}, and positive-integral \eqn{p}.
+and \eqn{\mathbf{D}}, and positive-integral \eqn{p}
 
 \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}.
+and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which
-the user is referred.
+the user is referred for documentation.
 It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
 (otherwise, the problem reduces to a simple ratio).
 
@@ -205,8 +205,7 @@ be swapped with \code{D} and \code{r}, respectively, before
 
 The error bound is only available for \code{qfmrm_ApBIqr_int()}.
 This is similar to, but slightly differs from, that
-in \code{qfrm_ApBq_int()}. See \code{vignette("qfratio")} for technical
-details.
+in \code{qfrm_ApBq_int()}.
 
 Note that these functions may take a substantially longer computational time
 than those pertaining to a simple ratio, because multiple matrices means
@@ -222,11 +221,12 @@ Furthermore, some of the \code{C++} functions, in particular those
 using three matrix arguments, are parallelized with \code{OpenMP}
 (when available). Use the argument \code{nthreads} to control the number
 of \code{OpenMP} threads. By default (\code{nthreads = 0}), they use
-one-half of the detected processors (via \code{omp_get_num_procs()}).
+one-half of the processors detected via \code{omp_get_num_procs()}.
 These will not take effect when all the argument matrices share
 the same eigenvectors (so that the calculation only involves element-wise
-operations of eigenvalues; which is fast anyway), because the \code{OpenMP}
-parallelization does not seem to improve performance in that case.
+operations of eigenvalues), because the \code{OpenMP} parallelization
+does not seem to improve performance in that case
+(and this is typically fast anyway).
 }
 \examples{
 ## Some symmetric matrices and parameters

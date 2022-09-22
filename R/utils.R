@@ -29,9 +29,9 @@ S_fromUL <- function(evec = evec, evalues = evalues) {
 #' Matrix square root and generalized inverse
 #'
 #' This internal function calculates the decomposition
-#' \eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T}, for an \eqn{n \times n}
-#' covariance matrix \eqn{mathbf{S}}, so that \eqn{\mathbf{K}} is an
-#' \eqn{n \times m} matrix with \eqn{m} being the rank of \eqn{mathbf{S}}.
+#' \eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T} for an \eqn{n \times n}
+#' covariance matrix \eqn{\mathbf{S}}, so that \eqn{\mathbf{K}} is an
+#' \eqn{n \times m} matrix with \eqn{m} being the rank of \eqn{\mathbf{S}}.
 #' Returns this \eqn{\mathbf{K}} and its generalized inverse,
 #' \eqn{\mathbf{K}^-}, in a list.
 #'
@@ -41,7 +41,7 @@ S_fromUL <- function(evec = evec, evalues = evalues) {
 #' @param S
 #'   Covariance matrix. Symmetry and positive (semi-)definiteness are checked.
 #' @param tol
-#'   Tolerance to determine the rank of \eqn{S}.  Eigenvalues smaller than
+#'   Tolerance to determine the rank of \eqn{\mathbf{S}}.  Eigenvalues smaller than
 #'   this value is considered zero.
 #'
 #' @return
@@ -84,7 +84,7 @@ tr <- function(X) sum(diag(X))
 #'
 #' sum_counterdiag() sums up counter-diagonal elements of a square matrix from
 #' the upper-left; i.e., \code{c(X[1, 1], X[1, 2] + X[2, 1], X[1, 3] + X[2, 2] + X[3, 1], ...)}
-#' (or \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
+#' (or a sequence of \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
 #' sum_counterdiag3D() does a comparable in a 3D cubic array.
 #' No check is done on the structure of \code{X}.
 #'

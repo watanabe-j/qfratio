@@ -103,22 +103,23 @@ See "Details".}
 
 \item{L1, L2}{Eigenvalues of the argument matrices}
 
-\item{mu}{Mean vector of the random variables. Assumed to have the same dimension
-as \code{A}'s or \code{L}'s.}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-A \code{(m1 + 1) * (m + 1)} matrix for the 2D functions.
+A \code{(m1 + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
+
+A \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 
 The rows and columns correspond to increasing orders for
 \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
 And the 1st row/column of each dimension corresponds
-to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 }
 \description{
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving two or three quadratic forms.
 }
@@ -131,8 +132,8 @@ These are also related to the top-order invariant polynomials
 \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
-where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}.
-(see Chikuse 1987; Hillier et al. 2009).
+where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}
+(Chikuse 1987; Hillier et al. 2009).
 
 \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
 \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
@@ -141,9 +142,9 @@ in Bao & Kan (2013). Note that the latter is denoted by the symbol
 \eqn{h_{i,j}} in Hillier et al. (2014).
 \code{hhat2_pj_*()} functions are for
 \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
-in Hillier et al. (2014), used to calculate an error bound in
+in Hillier et al. (2014), used to calculate an error bound for
 truncated sum for moments of a ratio of quadratic forms.
-The mean vector \eqn{\mathbf{\mu}} is a parameter in all these.
+The mean vector \eqn{\bf{\mu}} is a parameter in all these.
 
 There are two different situations in which these coefficients are used
 in calculation of moments of ratios of quadratic forms:
@@ -152,8 +153,8 @@ other subscript fixed (when the exponent \eqn{p} of the numerator
 is integer); \strong{2}) within a double infinite series for both subscripts
 (when \eqn{p} is non-integer) (see Bao & Kan 2013).
 In this package, the situation \strong{1} is handled by
-those functions with \code{*_pj_*} (and \code{*_1j_*}), and \strong{2} is by
-those functions with \code{*_ij_*}.
+the \code{*_pj_*} (and \code{*_1j_*}) functions, and \strong{2} is by
+the \code{*_ij_*} functions.
 
 In particular, the \code{*_pj_*} functions always return a
 \code{(m1 + 1) * (m + 1)} matrix where all elements are filled with
@@ -161,7 +162,7 @@ the relevant coefficients (e.g., \eqn{d_{i,j}}, \eqn{\tilde{h}_{i,j}}),
 from which, typically, the \code{[m1 + 1, ]}-th row is used for
 subsequent calculations.
 (Those with \code{*_1q_*} are simply fast versions
-for the commonly used case when \eqn{p = 1}.)
+for the commonly used case where \eqn{p = 1}.)
 On the other hand, the \code{*_ij_*} functions by default return a
 \code{(m + 1) * (m + 1)} matrix whose upper-left triangular part
 (including the diagonals) is filled with the coefficients
@@ -175,8 +176,8 @@ be omitted in the future development.)
 
 Those ending with \code{_m} take matrices as arguments, whereas
 those with \code{_v} take eigenvalues.
-The latter assumes the argument matrices share the same eigenvectors,
-to which the eigenvalues correspond in the orders given,
+The latter can be used only when the argument matrices share the same
+eigenvectors, to which the eigenvalues correspond in the orders given,
 but is substantially faster.
 
 This package also involves \code{C++} equivalents for most of these functions

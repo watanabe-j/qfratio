@@ -41,13 +41,13 @@ qfpm_ABDpqr_int(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Assumed to be square. Automatically symmetrized.}
+\item{A, B, D}{Argument matrices. Should be square. Automatically symmetrized.}
 
 \item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 respectively. By default, these are set to the same value.
-If in doubt, specify all explicitly.}
+If unsure, specify all explicitly.}
 
-\item{mu}{Mean vector \eqn{\mathbf{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
@@ -65,7 +65,7 @@ of a product of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
   \right) },
-where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 
 \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
 
@@ -75,8 +75,8 @@ where \eqn{\mathbf{x} \sim N(\mathbf{mu}, \mathbf{\Sigma})}.
 }
 \details{
 These functions implement the super-short recursion algorithms described in
-Hillier et al. (2014: 3.1--3.2 and 4). At present, only positive integers
-are accepted as the exponents (negative exponents yield ratios, of course).
+Hillier et al. (2014: sec. 3.1--3.2 and 4). At present, only positive integers
+are accepted as exponents (negative exponents yield ratios, of course).
 All these yield exact results.
 
 An error is thrown in the trivial case of \code{p = 0}

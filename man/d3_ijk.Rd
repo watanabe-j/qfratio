@@ -92,26 +92,25 @@ the output matrix should be filled.}
 
 \item{L1, L2, L3}{Eigenvalues of the argument matrices}
 
-\item{mu}{Mean vector of the random variables. Assumed to have the same dimension
-as \code{A}'s or \code{L}'s.}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-The \code{*_pjk_*} functions return a
-\code{(m1 + 1) * (m + 1) * (m + 1)} array, and
-the \code{*_ijk_*} functions return a
-\code{(m + 1) * (m + 1) * (m + 1)} array by default (see "Details").
+A \code{(m1 + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
+
+A \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
+(by default; see "Details").
 
 The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
 \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3}, respectively.
 And the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
-the \eqn{(p,q,r)}-th moment).
+the \eqn{(p,q,r)}-th order).
 }
 \description{
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\mathbf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving three quadratic forms.
 }
@@ -122,17 +121,17 @@ The primary difference of these functions from the latter is
 the addition of arguments for the third matrix \code{A3}/\code{L3}.
 
 \code{d3_*jk_*()} functions calculate
-\eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)} in
+\eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)} in
 Hillier et al. (2009, 2014) and Bao & Kan (2013).
 These are also related to the top-order invariant polynomials as described
 in \code{\link{d2_ij}}.
 
 \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
-calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2), \mathbf{A}_3)},
-\eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3))}, and
+calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
+\eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}, and
 \eqn{\hat{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
 respectively, as described in Watanabe (forthcoming). These are equivalent
-to similar coefficients described in Bao & Kan (2013) and.
+to similar coefficients described in Bao & Kan (2013) and
 Hillier et al. (2014).
 
 The difference between the \code{*_pjk_*} and \code{*_ijk_*} functions
