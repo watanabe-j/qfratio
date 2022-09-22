@@ -3,20 +3,20 @@
 
 #'
 #'
-hgs_1dE <- function(dks, np1, dpi, lconst) {
-    .Call(`_qfratio_hgs_1dE`, dks, np1, dpi, lconst)
+hgs_1dE <- function(dks, a1, b, lconst) {
+    .Call(`_qfratio_hgs_1dE`, dks, a1, b, lconst)
 }
 
 #'
 #'
-hgs_2dE <- function(dks, np1, np2, dpij, lconst) {
-    .Call(`_qfratio_hgs_2dE`, dks, np1, np2, dpij, lconst)
+hgs_2dE <- function(dks, a1, a2, b, lconst) {
+    .Call(`_qfratio_hgs_2dE`, dks, a1, a2, b, lconst)
 }
 
 #'
 #'
-hgs_3dE <- function(dks, np1, np2, np3, dpijk, lconst) {
-    .Call(`_qfratio_hgs_3dE`, dks, np1, np2, np3, dpijk, lconst)
+hgs_3dE <- function(dks, a1, a2, a3, b, lconst) {
+    .Call(`_qfratio_hgs_3dE`, dks, a1, a2, a3, b, lconst)
 }
 
 Ap_int_cmE <- function(A, p = 1) {

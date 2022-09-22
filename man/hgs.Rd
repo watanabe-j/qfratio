@@ -7,11 +7,11 @@
 \alias{hgs_3d}
 \title{Calculate hypergeometric series}
 \usage{
-hgs_1d(dks, np1, dpi, lconst = 0)
+hgs_1d(dks, a1, b, lconst = 0)
 
-hgs_2d(dks, np1, np2, dpij, lconst = 0)
+hgs_2d(dks, a1, a2, b, lconst = 0)
 
-hgs_3d(dks, np1, np2, np3, dpijk, lconst = 0)
+hgs_3d(dks, a1, a2, a3, b, lconst = 0)
 }
 \arguments{
 \item{dks}{\code{(m + 1)} vector for \eqn{d_{i}},
@@ -19,9 +19,9 @@ hgs_3d(dks, np1, np2, np3, dpijk, lconst = 0)
 \code{(m + 1) * (m + 1) * (m + 1)} array for \eqn{d_{i, j, k}}
 (\eqn{i, j, k = 0, 1, \dots m})}
 
-\item{np1, np2, np3}{Numerator parameters. Scalars \eqn{p_1}, \eqn{p_2}, and \eqn{p_3}}
+\item{a1, a2, a3}{Numerator parameters}
 
-\item{dpi, dpij, dpijk}{Denominator parameter. Scalar \eqn{q}}
+\item{b}{Denominator parameter}
 
 \item{lconst}{Scalar \eqn{\log c}}
 }
@@ -32,16 +32,16 @@ Numeric with the same dimension with \code{dks}
 These internal functions calculate (summands of) hypergeometric series.
 
 \code{hgs_1d()} calculates the hypergeometric series
-\eqn{c \frac{(p_1)_i}{(q)_i} d_{i}}
+\eqn{c \frac{(a_1)_i}{(b)_i} d_{i}}
 
 \code{hgs_2d()} calculates the hypergeometric series
-\eqn{c \frac{(p_1)_i (p_2)_j}{(q)_{i+j}} d_{i, j}}
+\eqn{c \frac{(a_1)_i (a_2)_j}{(b)_{i+j}} d_{i, j}}
 
 \code{hgs_3d()} calculates the hypergeometric series
-\eqn{c \frac{(p_1)_i (p_2)_j (p_3)_k}{(q)_{i+j+k}} d_{i, j, k}}
+\eqn{c \frac{(a_1)_i (a_2)_j (a_3)_k}{(b)_{i+j+k}} d_{i, j, k}}
 }
 \details{
-The denominator paramter \code{dpi} (or \eqn{q}) is assumed positive,
+The denominator paramter \code{b} is assumed positive,
 whereas the numerator parameters can be positive or negative.
 The signs of the latter will be reflected in the result.
 }

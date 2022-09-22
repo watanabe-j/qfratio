@@ -12,47 +12,47 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // hgs_1dE
-Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks, const double np1, const double dpi, const double lconst);
-RcppExport SEXP _qfratio_hgs_1dE(SEXP dksSEXP, SEXP np1SEXP, SEXP dpiSEXP, SEXP lconstSEXP) {
+Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks, const double a1, const double b, const double lconst);
+RcppExport SEXP _qfratio_hgs_1dE(SEXP dksSEXP, SEXP a1SEXP, SEXP bSEXP, SEXP lconstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::ArrayXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type np1(np1SEXP);
-    Rcpp::traits::input_parameter< const double >::type dpi(dpiSEXP);
+    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
     Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_1dE(dks, np1, dpi, lconst));
+    rcpp_result_gen = Rcpp::wrap(hgs_1dE(dks, a1, b, lconst));
     return rcpp_result_gen;
 END_RCPP
 }
 // hgs_2dE
-Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks, const double np1, const double np2, const double dpij, const double lconst);
-RcppExport SEXP _qfratio_hgs_2dE(SEXP dksSEXP, SEXP np1SEXP, SEXP np2SEXP, SEXP dpijSEXP, SEXP lconstSEXP) {
+Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks, const double a1, const double a2, const double b, const double lconst);
+RcppExport SEXP _qfratio_hgs_2dE(SEXP dksSEXP, SEXP a1SEXP, SEXP a2SEXP, SEXP bSEXP, SEXP lconstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::ArrayXXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type np1(np1SEXP);
-    Rcpp::traits::input_parameter< const double >::type np2(np2SEXP);
-    Rcpp::traits::input_parameter< const double >::type dpij(dpijSEXP);
+    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
+    Rcpp::traits::input_parameter< const double >::type a2(a2SEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
     Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_2dE(dks, np1, np2, dpij, lconst));
+    rcpp_result_gen = Rcpp::wrap(hgs_2dE(dks, a1, a2, b, lconst));
     return rcpp_result_gen;
 END_RCPP
 }
 // hgs_3dE
-Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks, const double np1, const double np2, const double np3, const double dpijk, const double lconst);
-RcppExport SEXP _qfratio_hgs_3dE(SEXP dksSEXP, SEXP np1SEXP, SEXP np2SEXP, SEXP np3SEXP, SEXP dpijkSEXP, SEXP lconstSEXP) {
+Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks, const double a1, const double a2, const double a3, const double b, const double lconst);
+RcppExport SEXP _qfratio_hgs_3dE(SEXP dksSEXP, SEXP a1SEXP, SEXP a2SEXP, SEXP a3SEXP, SEXP bSEXP, SEXP lconstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::ArrayXXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type np1(np1SEXP);
-    Rcpp::traits::input_parameter< const double >::type np2(np2SEXP);
-    Rcpp::traits::input_parameter< const double >::type np3(np3SEXP);
-    Rcpp::traits::input_parameter< const double >::type dpijk(dpijkSEXP);
+    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
+    Rcpp::traits::input_parameter< const double >::type a2(a2SEXP);
+    Rcpp::traits::input_parameter< const double >::type a3(a3SEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
     Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_3dE(dks, np1, np2, np3, dpijk, lconst));
+    rcpp_result_gen = Rcpp::wrap(hgs_3dE(dks, a1, a2, a3, b, lconst));
     return rcpp_result_gen;
 END_RCPP
 }

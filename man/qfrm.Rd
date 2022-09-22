@@ -38,7 +38,7 @@ qfrm_ApIq_npi(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alpha1 = 1,
+  alphaA = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
@@ -55,7 +55,7 @@ qfrm_ApBq_int(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alpha2 = 1,
+  alphaB = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
@@ -72,8 +72,8 @@ qfrm_ApBq_npi(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alpha1 = 1,
-  alpha2 = 1,
+  alphaA = 1,
+  alphaB = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
@@ -114,7 +114,7 @@ functions via \code{Rcpp}. \code{FALSE} by default.}
 \item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
 as only one method (using \code{RcppEigen}) is implemented.}
 
-\item{alpha1, alpha2}{Factors for the scaling constants for \eqn{\mathbf{A}} and
+\item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
 
 \item{error_bound}{Logical to specify whether the error bound is returned (if available).}
@@ -207,7 +207,7 @@ are not met.
 
 For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
-the arguments \code{alpha1} and \code{alpha2}. These are the factors for
+the arguments \code{alphaA} and \code{alphaB}. These are the factors for
 the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
 The default is 1, which should suffice for most purposes.

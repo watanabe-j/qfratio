@@ -24,10 +24,10 @@ d3_ijk_m(
   A2,
   A3,
   m = 100L,
-  m1 = m,
-  m2 = m,
-  m3 = m,
-  fill_across = c(!missing(m1), !missing(m2), !missing(m3))
+  p = m,
+  q = m,
+  r = m,
+  fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
 d3_ijk_v(
@@ -35,15 +35,15 @@ d3_ijk_v(
   L2,
   L3,
   m = 100L,
-  m1 = m,
-  m2 = m,
-  m3 = m,
-  fill_across = c(!missing(m1), !missing(m2), !missing(m3))
+  p = m,
+  q = m,
+  r = m,
+  fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
-d3_pjk_m(A1, A2, A3, m = 100L, m1 = 1L)
+d3_pjk_m(A1, A2, A3, m = 100L, p = 1L)
 
-d3_pjk_v(L1, L2, L3, m = 100L, m1 = 1L)
+d3_pjk_v(L1, L2, L3, m = 100L, p = 1L)
 
 h3_ijk_m(
   A1,
@@ -51,10 +51,10 @@ h3_ijk_m(
   A3,
   mu = rep.int(0, n),
   m = 100L,
-  m1 = m,
-  m2 = m,
-  m3 = m,
-  fill_across = c(!missing(m1), !missing(m2), !missing(m3))
+  p = m,
+  q = m,
+  r = m,
+  fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
 h3_ijk_v(
@@ -63,19 +63,19 @@ h3_ijk_v(
   L3,
   mu = rep.int(0, n),
   m = 100L,
-  m1 = m,
-  m2 = m,
-  m3 = m,
-  fill_across = c(!missing(m1), !missing(m2), !missing(m3))
+  p = m,
+  q = m,
+  r = m,
+  fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
-htil3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L)
+htil3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L)
 
-htil3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L)
+htil3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L)
 
-hhat3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, m1 = 1L)
+hhat3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L)
 
-hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L)
+hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L)
 }
 \arguments{
 \item{A1, A2, A3}{Argument matrices. Assumed to be symmetric and of the same order.}
@@ -83,7 +83,7 @@ hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, m1 = 1L)
 \item{m}{Integer-alike to specify the desired order along \code{A2}/\code{L2}
 and \code{A3}/\code{L3}}
 
-\item{m1, m2, m3}{Integer-alikes to specify the desired orders along
+\item{p, q, r}{Integer-alikes to specify the desired orders along
 \code{A1}/\code{L1}, \code{A2}/\code{L2}, and \code{A3}/\code{L3},
 respectively.}
 
@@ -95,7 +95,7 @@ the output matrix should be filled.}
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-A \code{(m1 + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
+A \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
 
 A \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
 (by default; see "Details").
@@ -142,8 +142,8 @@ In the \code{*_pjk_*} functions, all the slices along the first dimension
 (i.e., \code{[i, , ]}) are an upper-left triangular matrix
 like what the \code{*_ij_*} functions return in the 2D case;
 in other words, the return has the coefficients for the terms that satisfy
-\eqn{j + k \leq m} for all \eqn{i = 0, 1, \dots, m1}.
-Typically, the \code{[m1 + 1, , ]}-th slice is used for subsequent
+\eqn{j + k \leq m} for all \eqn{i = 0, 1, \dots, p}.
+Typically, the \code{[p + 1, , ]}-th slice is used for subsequent
 calculations.
 In the return of the \code{*_ijk_*} functions, only the triangular prism
 close to the \code{[1, 1, 1]} is filled with coefficients, which

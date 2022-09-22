@@ -12,13 +12,13 @@ Eigen::ArrayXd get_sign_rf(const double a, const int n);
 Eigen::ArrayXd get_sign_rfp1(const double a, const int n);
 
 Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
-    const double np1,
-    const double dpi, const double lconst = 0);
+    const double a1,
+    const double b, const double lconst = 0);
 Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
-    const double np1, const double np2,
-    const double dpij, const double lconst = 0);
+    const double a1, const double a2,
+    const double b, const double lconst = 0);
 Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
-    const double np1, const double np2, const double np3,
-    const double dpijk, const double lconst = 0);
+    const double a1, const double a2, const double a3,
+    const double b, const double lconst = 0);
 
 #endif

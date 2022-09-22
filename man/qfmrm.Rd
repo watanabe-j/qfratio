@@ -32,7 +32,7 @@ qfmrm_ApBIqr_int(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alpha2 = 1,
+  alphaB = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
@@ -51,8 +51,8 @@ qfmrm_ApBIqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alpha1 = 1,
-  alpha2 = 1,
+  alphaA = 1,
+  alphaB = 1,
   use_cpp = FALSE,
   cpp_method = "Eigen",
   nthreads = 0,
@@ -70,8 +70,8 @@ qfmrm_IpBDqr_gen(
   r = 1,
   mu = rep.int(0, n),
   m = 100L,
-  alpha2 = 1,
-  alpha3 = 1,
+  alphaB = 1,
+  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
@@ -90,8 +90,8 @@ qfmrm_ApBDqr_int(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alpha2 = 1,
-  alpha3 = 1,
+  alphaB = 1,
+  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
@@ -110,9 +110,9 @@ qfmrm_ApBDqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alpha1 = 1,
-  alpha2 = 1,
-  alpha3 = 1,
+  alphaA = 1,
+  alphaB = 1,
+  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "Eigen",
@@ -164,7 +164,7 @@ See "Details".}
 
 \item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
 
-\item{alpha1, alpha2, alpha3}{Factors for the scaling constants for \eqn{\mathbf{A}},
+\item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}},
 \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
 \code{\link{qfrm}}.}
 }

@@ -28,29 +28,15 @@
 \title{Coefficients in polynomial expansion of generating function---for
 ratios with two matrices}
 \usage{
-d2_ij_m(
-  A1,
-  A2,
-  m = 100L,
-  m1 = m,
-  m2 = m,
-  fill_all = !missing(m1) || !missing(m2)
-)
+d2_ij_m(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q))
 
-d2_ij_v(
-  L1,
-  L2,
-  m = 100L,
-  m1 = m,
-  m2 = m,
-  fill_all = !missing(m1) || !missing(m2)
-)
+d2_ij_v(L1, L2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q))
 
-d2_pj_m(A1, A2, m = 100L, m1 = 1L)
+d2_pj_m(A1, A2, m = 100L, p = 1L)
 
 d2_1j_m(A1, A2, m = 100L)
 
-d2_pj_v(L1, L2, m = 100L, m1 = 1L)
+d2_pj_v(L1, L2, m = 100L, p = 1L)
 
 d2_1j_v(L1, L2, m = 100L)
 
@@ -59,9 +45,9 @@ h2_ij_m(
   A2,
   mu = rep.int(0, n),
   m = 100L,
-  m1 = m,
-  m2 = m,
-  fill_all = !missing(m1) || !missing(m2)
+  p = m,
+  q = m,
+  fill_all = !missing(p) || !missing(q)
 )
 
 h2_ij_v(
@@ -69,24 +55,24 @@ h2_ij_v(
   L2,
   mu = rep.int(0, n),
   m = 100L,
-  m1 = m,
-  m2 = m,
-  fill_all = !missing(m1) || !missing(m2)
+  p = m,
+  q = m,
+  fill_all = !missing(p) || !missing(q)
 )
 
-htil2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L)
+htil2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L)
 
 htil2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L)
 
-htil2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L)
+htil2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L)
 
 htil2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
 
-hhat2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, m1 = 1L)
+hhat2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L)
 
 hhat2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L)
 
-hhat2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, m1 = 1L)
+hhat2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L)
 
 hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
 }
@@ -95,7 +81,7 @@ hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
 
 \item{m}{Integer-alike to specify the desired order along \code{A2}/\code{L2}}
 
-\item{m1, m2}{Integer-alikes to specify the desired orders along
+\item{p, q}{Integer-alikes to specify the desired orders along
 \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.}
 
 \item{fill_all}{Logical to specify whether all the output matrix should be filled.
@@ -106,7 +92,7 @@ See "Details".}
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-A \code{(m1 + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
+A \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
 
 A \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 
@@ -157,9 +143,9 @@ the \code{*_pj_*} (and \code{*_1j_*}) functions, and \strong{2} is by
 the \code{*_ij_*} functions.
 
 In particular, the \code{*_pj_*} functions always return a
-\code{(m1 + 1) * (m + 1)} matrix where all elements are filled with
+\code{(p + 1) * (m + 1)} matrix where all elements are filled with
 the relevant coefficients (e.g., \eqn{d_{i,j}}, \eqn{\tilde{h}_{i,j}}),
-from which, typically, the \code{[m1 + 1, ]}-th row is used for
+from which, typically, the \code{[p + 1, ]}-th row is used for
 subsequent calculations.
 (Those with \code{*_1q_*} are simply fast versions
 for the commonly used case where \eqn{p = 1}.)

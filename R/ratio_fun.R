@@ -62,7 +62,7 @@
 #'
 #' For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 #' \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
-#' the arguments \code{alpha1} and \code{alpha2}. These are the factors for
+#' the arguments \code{alphaA} and \code{alphaB}. These are the factors for
 #' the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
 #' \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
 #' The default is 1, which should suffice for most purposes.
@@ -95,7 +95,7 @@
 #' @param ...
 #'   Additional arguments in the front-end \code{qfrm()} will be passed to
 #'   the appropriate ``internal'' function.
-#' @param alpha1,alpha2
+#' @param alphaA,alphaB
 #'   Factors for the scaling constants for \eqn{\mathbf{A}} and
 #'   \eqn{\mathbf{B}}, respectively. See "Details".
 #' @param use_cpp
@@ -328,7 +328,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
 #'   Accommodated only by the front-end \code{qfmrm()}. See "Details"
 #'   in \code{\link{qfrm}}.
-#' @param alpha1,alpha2,alpha3
+#' @param alphaA,alphaB,alphaD
 #'   Factors for the scaling constants for \eqn{\mathbf{A}},
 #'   \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
 #'   \code{\link{qfrm}}.
@@ -924,7 +924,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 warning("This expression is suboptimal with a nonzero mean.\n  ",
                         "An exact alternative is available with ",
                         "the package \"gsl\" (recommended).")
-                dks <- d2_ij_m(A, tcrossprod(mu), m, m1 = p)[p + 1, ]
+                dks <- d2_ij_m(A, tcrossprod(mu), m, p = p)[p + 1, ]
                 ansseq <- exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
                               + lgamma(n / 2 + p - q + 0:m) - 0:m * log(2)
                               - lgamma(1/2 + 0:m) + lgamma(1/2) - lgamma(n / 2 + p + 0:m)
@@ -958,7 +958,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alpha1 = 1,
+                    alphaA = 1,
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -990,7 +990,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     cond_exist <- n / 2 + p > q ## condition(1)
     stopifnot("Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    b1 <- alpha1 / max(abs(LA))
+    b1 <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
             cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound)
@@ -1068,8 +1068,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             attr(errseq, "singular") <- TRUE
             attr(errorb, "singular") <- TRUE
         }
-        if(alpha1 > 1) {
-            warning("Error bound is unreliable when alpha1 > 1\n  ",
+        if(alphaA > 1) {
+            warning("Error bound is unreliable when alphaA > 1\n  ",
             "It is returned purely for heuristic purpose")
             attr(errseq, "alphaout") <- TRUE
             attr(errorb, "alphaout") <- TRUE
@@ -1102,7 +1102,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alpha2 = 1,
+                    alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -1139,11 +1139,11 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             length(q) == 1 &&
             q >= 0
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
@@ -1152,7 +1152,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1205,11 +1205,11 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # LA <- diag(A)
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
-                # dks <- d2_ij_v(LA, LBh, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- d2_pj_v(LA, LBh, m, m1 = p)
+                # dks <- d2_ij_v(LA, LBh, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- d2_pj_v(LA, LBh, m, p = p)
             } else {
-                # dks <- htil2_ij_v(LA, LBh, mu, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- htil2_pj_v(LA, LBh, mu, m, m1 = p)
+                # dks <- htil2_ij_v(LA, LBh, mu, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- htil2_pj_v(LA, LBh, mu, m, p = p)
             }
         } else {
             # eigA <- eigen(A, symmetric = TRUE)
@@ -1217,11 +1217,11 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # LA <- eigA$values
             Bh <- In - b2 * diag(LB)
             if(central) {
-                # dks <- d2_ij_m(A, Bh, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- d2_pj_m(A, Bh, m, m1 = p)
+                # dks <- d2_ij_m(A, Bh, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- d2_pj_m(A, Bh, m, p = p)
             } else {
-                # dks <- htil2_ij_m(A, Bh, mu, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- htil2_pj_m(A, Bh, mu, m, m1 = p)
+                # dks <- htil2_ij_m(A, Bh, mu, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- htil2_pj_m(A, Bh, mu, m, p = p)
             }
         }
         dks <- dksm[p + 1, 1:(m + 1)]
@@ -1260,10 +1260,10 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 deldif2 <- 0
                 if(twosided) {
                     if(use_vec) {
-                        dkstm <- d2_ij_v(LAp, LBh, m, m1 = p)
+                        dkstm <- d2_ij_v(LAp, LBh, m, p = p)
                     } else {
                         Ap <- S_fromUL(UA, LAp)
-                        dkstm <- d2_ij_m(Ap, Bh, m, m1 = p)
+                        dkstm <- d2_ij_m(Ap, Bh, m, p = p)
                     }
                 } else {
                     # LAp <- LA
@@ -1283,13 +1283,13 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 mub <- sqrt(2 / b2) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 if(use_vec) {
-                    # dkst <- hhat2_ij_v(LAp, LBh, mu, m, m1 = p)[p + 1, 1:(m + 1)]
-                    dkstm <- hhat2_pj_v(LAp, LBh, mu, m, m1 = p)
+                    # dkst <- hhat2_ij_v(LAp, LBh, mu, m, p = p)[p + 1, 1:(m + 1)]
+                    dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p)
                     dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    # dkst <- hhat2_ij_m(Ap, Bh, mu, m, m1 = p)[p + 1, 1:(m + 1)]
-                    dkstm <- hhat2_pj_m(Ap, Bh, mu, m, m1 = p)
+                    # dkst <- hhat2_ij_m(Ap, Bh, mu, m, p = p)[p + 1, 1:(m + 1)]
+                    dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p)
                     # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
                     # dp <- dtil1_i_m(Bisqr %*% Ap %*% Bisqr / b2, mub, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
@@ -1314,9 +1314,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             attr(errseq, "singular") <- TRUE
             attr(errorb, "singular") <- TRUE
         }
-        if(alpha2 > 1) {
+        if(alphaB > 1) {
             warning("Error bound is unreliable ",
-                    "when alpha2 > 1\n  ",
+                    "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
             attr(errseq, "alphaout") <- TRUE
             attr(errorb, "alphaout") <- TRUE
@@ -1343,7 +1343,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alpha1 = 1, alpha2 = 1,
+                    alphaA = 1, alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -1377,17 +1377,17 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             p >= 0 &&
             q >= 0
         },
-        "alpha1 should be a scalar with 0 < alpha1 < 2" = {
-            is.numeric(alpha1) &&
-            length(alpha1) == 1 &&
-            alpha1 > 0 &&
-            alpha1 < 2
+        "alphaA should be a scalar with 0 < alphaA < 2" = {
+            is.numeric(alphaA) &&
+            length(alphaA) == 1 &&
+            alphaA > 0 &&
+            alphaA < 2
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
@@ -1396,7 +1396,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1422,7 +1422,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     use_vec <- is_diagonal(A, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    b1 <- alpha1 / max(abs(LA))
+    b1 <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
             if(use_vec) {
@@ -1441,7 +1441,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         if(use_vec) {
             # LA <- diag(A)
-            # b1 <- alpha1 / max(abs(LA))
+            # b1 <- alphaA / max(abs(LA))
             LAh <- rep.int(1, n) - b1 * LA
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
@@ -1452,7 +1452,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         } else {
             # eigA <- eigen(A, symmetric = TRUE)
             # LA <- eigA$values
-            # b1 <- alpha1 / max(abs(LA))
+            # b1 <- alphaA / max(abs(LA))
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB)
             if(central) {
@@ -1508,7 +1508,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alpha2 = 1,
+                    mu = rep.int(0, n), alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -1550,17 +1550,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             length(r) == 1 &&
             r >= 0
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1617,22 +1617,22 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         if(central) {
             if(use_vec) {
-                # dks <- d2_ij_v(LA, LBh, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- d2_pj_v(LA, LBh, m, m1 = p)
+                # dks <- d2_ij_v(LA, LBh, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- d2_pj_v(LA, LBh, m, p = p)
             } else {
-                # dks <- d2_ij_m(A, Bh, m, m1 = p)[p + 1, 1:(m + 1)]
-                dksm <- d2_pj_m(A, Bh, m, m1 = p)
+                # dks <- d2_ij_m(A, Bh, m, p = p)[p + 1, 1:(m + 1)]
+                dksm <- d2_pj_m(A, Bh, m, p = p)
             }
             dks <- dksm[p + 1, 1:(m + 1)]
             ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q - r) * log(2) + q * log(b2)
                     + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p)))
         } else {
             if(use_vec) {
-                # dksm <- htil3_ijk_v(LA, LBh, rep.int(0, n), mu, m, m1 = p)[p + 1, , ]
-                dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, m1 = p)
+                # dksm <- htil3_ijk_v(LA, LBh, rep.int(0, n), mu, m, p = p)[p + 1, , ]
+                dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p)
             } else {
-                # dksm <- htil3_ijk_m(A, Bh, matrix(0, n, n), mu, m, m1 = p)[p + 1, , ]
-                dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, m1 = p)
+                # dksm <- htil3_ijk_m(A, Bh, matrix(0, n, n), mu, m, p = p)[p + 1, , ]
+                dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p)
             }
             dks <- dksm[p + 1, , ]
             ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
@@ -1669,12 +1669,12 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 s <- q
                 if(twosided) {
                     if(use_vec) {
-                        # dkst <- d2_ij_v(LAp, LBh, m, m1 = p)[p + 1, 1:(m + 1)]
-                        dkstm <- d2_pj_v(LAp, LBh, m, m1 = p)
+                        # dkst <- d2_ij_v(LAp, LBh, m, p = p)[p + 1, 1:(m + 1)]
+                        dkstm <- d2_pj_v(LAp, LBh, m, p = p)
                     } else {
                         Ap <- S_fromUL(UA, LAp)
-                        # dkst <- d2_ij_m(Ap, Bh, m, m1 = p)[p + 1, 1:(m + 1)]
-                        dkstm <- d2_pj_m(Ap, Bh, m, m1 = p)
+                        # dkst <- d2_ij_m(Ap, Bh, m, p = p)[p + 1, 1:(m + 1)]
+                        dkstm <- d2_pj_m(Ap, Bh, m, p = p)
                     }
                 } else {
                     # LAp <- LA
@@ -1696,13 +1696,13 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 s <- max(q, r)
                 if(use_vec) {
-                    # dksmt <- hhat3_ijk_v(LAp, LBh, rep.int(0, n), mu, m, m1 = p)[p + 1, , ]
-                    dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, m1 = p)
+                    # dksmt <- hhat3_ijk_v(LAp, LBh, rep.int(0, n), mu, m, p = p)[p + 1, , ]
+                    dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p)
                     dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    # dksmt <- hhat3_ijk_m(Ap, Bh, matrix(0, n, n), mu, m, m1 = p)[p + 1, , ]
-                    dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, m1 = p)
+                    # dksmt <- hhat3_ijk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)[p + 1, , ]
+                    dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)
                     # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
                     # dp <- dtil1_i_m(Bisqr %*% Ap %*% Bisqr / b2, mub, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
@@ -1727,9 +1727,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             attr(errseq, "singular") <- TRUE
             attr(errorb, "singular") <- TRUE
         }
-        if(alpha2 > 1) {
+        if(alphaB > 1) {
             warning("Error bound is unreliable ",
-                    "when alpha2 > 1\n  ",
+                    "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
             attr(errseq, "alphaout") <- TRUE
             attr(errorb, "alphaout") <- TRUE
@@ -1754,7 +1754,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alpha1 = 1, alpha2 = 1,
+                    mu = rep.int(0, n), alphaA = 1, alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     use_cpp = FALSE, cpp_method = "Eigen",
                     nthreads = 0,
@@ -1795,17 +1795,17 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             length(r) == 1 &&
             r >= 0
         },
-        "alpha1 should be a scalar with 0 < alpha1 < 2" = {
-            is.numeric(alpha1) &&
-            length(alpha1) == 1 &&
-            alpha1 > 0 &&
-            alpha1 < 2
+        "alphaA should be a scalar with 0 < alphaA < 2" = {
+            is.numeric(alphaA) &&
+            length(alphaA) == 1 &&
+            alphaA > 0 &&
+            alphaA < 2
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
@@ -1814,7 +1814,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1841,7 +1841,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LA <- diag(A)
-        b1 <- alpha1 / max(abs(LA))
+        b1 <- alphaA / max(abs(LA))
         LAh <- rep.int(1, n) - b1 * LA
         LBh <- rep.int(1, n) - b2 * LB
         # if(central) {
@@ -1852,7 +1852,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         LA <- eigA$values
-        b1 <- alpha1 / max(abs(LA))
+        b1 <- alphaA / max(abs(LA))
         Ah <- In - b1 * A
         Bh <- In - b2 * diag(LB)
         # if(central) {
@@ -1930,7 +1930,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    m = 100L, alpha2 = 1, alpha3 = 1,
+                    m = 100L, alphaB = 1, alphaD = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -1971,23 +1971,23 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             length(r) == 1 &&
             r >= 0
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
-        "alpha3 should be a scalar with 0 < alpha3 < 2" = {
-            is.numeric(alpha3) &&
-            length(alpha3) == 1 &&
-            alpha3 > 0 &&
-            alpha3 < 2
+        "alphaD should be a scalar with 0 < alphaD < 2" = {
+            is.numeric(alphaD) &&
+            length(alphaD) == 1 &&
+            alphaD > 0 &&
+            alphaD < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate D and mu with eigenvectors of B
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1995,7 +1995,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LD <- diag(D)
-        b3 <- alpha3 / max(LD)
+        b3 <- alphaD / max(LD)
         LBh <- rep.int(1, n) - b2 * LB
         LDh <- rep.int(1, n) - b3 * LD
         # if(central) {
@@ -2006,7 +2006,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LD <- eigD$values
-        b3 <- alpha3 / max(LD)
+        b3 <- alphaD / max(LD)
         Bh <- In - b2 * diag(LB)
         Dh <- In - b3 * D
         # if(central) {
@@ -2098,7 +2098,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alpha2 = 1, alpha3 = 1,
+                    mu = rep.int(0, n), alphaB = 1, alphaD = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -2152,23 +2152,23 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             length(r) == 1 &&
             r >= 0
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
-        "alpha3 should be a scalar with 0 < alpha3 < 2" = {
-            is.numeric(alpha3) &&
-            length(alpha3) == 1 &&
-            alpha3 > 0 &&
-            alpha3 < 2
+        "alphaD should be a scalar with 0 < alphaD < 2" = {
+            is.numeric(alphaD) &&
+            length(alphaD) == 1 &&
+            alphaD > 0 &&
+            alphaD < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A, D, and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
@@ -2177,7 +2177,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
-    b3 <- alpha3 / max(LD)
+    b3 <- alphaD / max(LD)
 ## WIP: Condition(s) for existence of moment
     ## Check condition for existence of moment
     rB <- sum(LB > tol_sing)
@@ -2206,28 +2206,28 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         if(use_vec) {
             # LA <- diag(A)
             # LD <- diag(D)
-            # b3 <- alpha3 / max(LD)
+            # b3 <- alphaD / max(LD)
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
             if(central) {
-                # dksm <- d3_ijk_v(LA, LBh, LDh, m, m1 = p)[p + 1, , ]
-                dksm <- d3_pjk_v(LA, LBh, LDh, m, m1 = p)
+                # dksm <- d3_ijk_v(LA, LBh, LDh, m, p = p)[p + 1, , ]
+                dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p)
             } else {
-                # dksm <- htil3_ijk_v(LA, LBh, LDh, mu, m, m1 = p)[p + 1, , ]
-                dksm <- htil3_pjk_v(LA, LBh, LDh, mu, m, m1 = p)
+                # dksm <- htil3_ijk_v(LA, LBh, LDh, mu, m, p = p)[p + 1, , ]
+                dksm <- htil3_pjk_v(LA, LBh, LDh, mu, m, p = p)
             }
         } else {
             # eigD <- eigen(D, symmetric = TRUE)
             # LD <- eigD$values
-            # b3 <- alpha3 / max(LD)
+            # b3 <- alphaD / max(LD)
             Bh <- In - b2 * diag(LB)
             Dh <- In - b3 * D
             if(central) {
-                # dksm <- d3_ijk_m(A, Bh, Dh, m, m1 = p)[p + 1, , ]
-                dksm <- d3_pjk_m(A, Bh, Dh, m, m1 = p)
+                # dksm <- d3_ijk_m(A, Bh, Dh, m, p = p)[p + 1, , ]
+                dksm <- d3_pjk_m(A, Bh, Dh, m, p = p)
             } else {
-                # dksm <- htil3_ijk_m(A, Bh, Dh, mu, m, m1 = p)[p + 1, , ]
-                dksm <- htil3_pjk_m(A, Bh, Dh, mu, m, m1 = p)
+                # dksm <- htil3_ijk_m(A, Bh, Dh, mu, m, p = p)[p + 1, , ]
+                dksm <- htil3_pjk_m(A, Bh, Dh, mu, m, p = p)
             }
         }
         dks <- dksm[p + 1, , ]
@@ -2269,7 +2269,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
-                    alpha1 = 1, alpha2 = 1, alpha3 = 1,
+                    alphaA = 1, alphaB = 1, alphaD = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "Eigen",
@@ -2322,23 +2322,23 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             length(r) == 1 &&
             r >= 0
         },
-        "alpha1 should be a scalar with 0 < alpha1 < 2" = {
-            is.numeric(alpha1) &&
-            length(alpha1) == 1 &&
-            alpha1 > 0 &&
-            alpha1 < 2
+        "alphaA should be a scalar with 0 < alphaA < 2" = {
+            is.numeric(alphaA) &&
+            length(alphaA) == 1 &&
+            alphaA > 0 &&
+            alphaA < 2
         },
-        "alpha2 should be a scalar with 0 < alpha2 < 2" = {
-            is.numeric(alpha2) &&
-            length(alpha2) == 1 &&
-            alpha2 > 0 &&
-            alpha2 < 2
+        "alphaB should be a scalar with 0 < alphaB < 2" = {
+            is.numeric(alphaB) &&
+            length(alphaB) == 1 &&
+            alphaB > 0 &&
+            alphaB < 2
         },
-        "alpha3 should be a scalar with 0 < alpha3 < 2" = {
-            is.numeric(alpha3) &&
-            length(alpha3) == 1 &&
-            alpha3 > 0 &&
-            alpha3 < 2
+        "alphaD should be a scalar with 0 < alphaD < 2" = {
+            is.numeric(alphaD) &&
+            length(alphaD) == 1 &&
+            alphaD > 0 &&
+            alphaD < 2
         },
         "mu should be an n-vector" = length(mu) == n
     )
@@ -2347,7 +2347,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alpha2 / max(LB)
+    b2 <- alphaB / max(LB)
     ## Rotate A, D, and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
@@ -2356,8 +2356,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
-    b1 <- alpha1 / max(abs(LA))
-    b3 <- alpha3 / max(LD)
+    b1 <- alphaA / max(abs(LA))
+    b3 <- alphaD / max(LD)
 ## WIP: Condition(s) for existence of moment
     ## Check condition for existence of moment
     rB <- sum(LB > tol_sing)
@@ -2386,8 +2386,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         if(use_vec) {
             # LA <- diag(A)
             # LD <- diag(D)
-            # b1 <- alpha1 / max(abs(LA))
-            # b3 <- alpha3 / max(LD)
+            # b1 <- alphaA / max(abs(LA))
+            # b3 <- alphaD / max(LD)
             LAh <- rep.int(1, n) - b1 * LA
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
@@ -2401,8 +2401,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             # eigD <- eigen(D, symmetric = TRUE)
             # LA <- eigA$values
             # LD <- eigD$values
-            # b1 <- alpha1 / max(abs(LA))
-            # b3 <- alpha3 / max(LD)
+            # b1 <- alphaA / max(abs(LA))
+            # b3 <- alphaD / max(LD)
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB)
             Dh <- In - b3 * D

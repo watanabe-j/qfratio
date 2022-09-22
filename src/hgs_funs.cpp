@@ -78,17 +78,17 @@ Eigen::MatrixXd ResizeFor3d(const Eigen::VectorXd& X) {
 //'
 // [[Rcpp::export]]
 Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
-                      const double np1, const double dpi, const double lconst) {
+                      const double a1, const double b, const double lconst) {
     const int m = dks.size() - 1;
-    ArrayXd Alnum = get_lrf(np1, m + 1);
-    ArrayXd Alden = get_lrf(dpi, m + 1);
+    ArrayXd Alnum = get_lrf(a1, m + 1);
+    ArrayXd Alden = get_lrf(b, m + 1);
     ArrayXd ansseq(m + 1);
-    ArrayXd Asgns = get_sign_rf(np1, m + 1);
+    ArrayXd Asgns = get_sign_rf(a1, m + 1);
     // ArrayXd Asgns(m + 1);
-    // set_cumprod_sign_rf(np1, m + 1, Asgns);
+    // set_cumprod_sign_rf(a1, m + 1, Asgns);
     // Asgns(0) = 1;
     // for(int i = 1; i <= m; i ++) {
-    //     Asgns(i) = Asgns(i - 1) * sgn(np1 + double(i) - 1);
+    //     Asgns(i) = Asgns(i - 1) * sgn(a1 + double(i) - 1);
     // }
     ansseq = exp(Alnum - Alden + log(abs(dks)) + lconst);
     ansseq *= Asgns * sign(dks);
@@ -100,28 +100,28 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 //'
 // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
-                        const double np1, const double np2,
-                        const double dpij, const double lconst) {
+                        const double a1, const double a2,
+                        const double b, const double lconst) {
     const int m = dks.rows() - 1;
     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
-    VectorXd Alnumi = get_lrf(np1, m + 1);
-    VectorXd Alnumj = get_lrf(np2, m + 1);
+    VectorXd Alnumi = get_lrf(a1, m + 1);
+    VectorXd Alnumj = get_lrf(a2, m + 1);
     ArrayXXd Alden(m + 1, m + 1);
-    Alden = lgamma(dpij + (seq0m.rowwise().replicate(m + 1) +
+    Alden = lgamma(b + (seq0m.rowwise().replicate(m + 1) +
                            seq0m.transpose().colwise().replicate(m + 1)).array());
-    Alden -= lgamma(dpij);
+    Alden -= lgamma(b);
     ArrayXXd ansmat(m + 1, m + 1);
-    ArrayXd Asgnsi = get_sign_rf(np1, m + 1);
-    ArrayXd Asgnsj = get_sign_rf(np2, m + 1);
+    ArrayXd Asgnsi = get_sign_rf(a1, m + 1);
+    ArrayXd Asgnsj = get_sign_rf(a2, m + 1);
     // ArrayXd Asgnsi(m + 1);
     // ArrayXd Asgnsj(m + 1);
-    // set_cumprod_sign_rf(np1, m + 1, Asgnsi);
-    // set_cumprod_sign_rf(np2, m + 1, Asgnsj);
+    // set_cumprod_sign_rf(a1, m + 1, Asgnsi);
+    // set_cumprod_sign_rf(a2, m + 1, Asgnsj);
     // Asgnsi(0) = 1;
     // Asgnsj(0) = 1;
     // for(int i = 1; i <= m; i++) {
-    //     Asgnsi(i) = Asgnsi(i - 1) * sgn(np1 + double(i) - 1);
-    //     Asgnsj(i) = Asgnsj(i - 1) * sgn(np2 + double(i) - 1);
+    //     Asgnsi(i) = Asgnsi(i - 1) * sgn(a1 + double(i) - 1);
+    //     Asgnsj(i) = Asgnsj(i - 1) * sgn(a2 + double(i) - 1);
     // }
     ansmat = exp((Alnumi.rowwise().replicate(m + 1) +
                   Alnumj.transpose().colwise().replicate(m + 1)).array()
@@ -135,35 +135,35 @@ Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
 //'
 // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
-                        const double np1, const double np2, const double np3,
-                        const double dpijk, const double lconst) {
+                        const double a1, const double a2, const double a3,
+                        const double b, const double lconst) {
     const int m = dks.rows() - 1;
     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
-    VectorXd Alnumi = get_lrf(np1, m + 1);
-    VectorXd Alnumj = get_lrf(np2, m + 1);
-    VectorXd Alnumk = get_lrf(np3, m + 1);
+    VectorXd Alnumi = get_lrf(a1, m + 1);
+    VectorXd Alnumj = get_lrf(a2, m + 1);
+    VectorXd Alnumk = get_lrf(a3, m + 1);
     ArrayXXd Alden(m + 1, (m + 1) * (m + 1));
-    Alden = (dpijk + (seq0m.rowwise().replicate(m + 1) +
+    Alden = (b + (seq0m.rowwise().replicate(m + 1) +
                       seq0m.transpose().colwise().replicate(m + 1)).rowwise().replicate(m + 1).array() +
              ResizeFor3d(seq0m).array()).lgamma();
-    Alden -= lgamma(dpijk);
+    Alden -= lgamma(b);
     ArrayXXd ansmat(m + 1, (m + 1) * (m + 1));
-    ArrayXd Asgnsi = get_sign_rf(np1, m + 1);
-    ArrayXd Asgnsj = get_sign_rf(np2, m + 1);
-    ArrayXd Asgnsk = get_sign_rf(np3, m + 1);
+    ArrayXd Asgnsi = get_sign_rf(a1, m + 1);
+    ArrayXd Asgnsj = get_sign_rf(a2, m + 1);
+    ArrayXd Asgnsk = get_sign_rf(a3, m + 1);
     // ArrayXd Asgnsi(m + 1);
     // ArrayXd Asgnsj(m + 1);
     // ArrayXd Asgnsk(m + 1);
-    // set_cumprod_sign_rf(np1, m + 1, Asgnsi);
-    // set_cumprod_sign_rf(np2, m + 1, Asgnsj);
-    // set_cumprod_sign_rf(np3, m + 1, Asgnsk);
+    // set_cumprod_sign_rf(a1, m + 1, Asgnsi);
+    // set_cumprod_sign_rf(a2, m + 1, Asgnsj);
+    // set_cumprod_sign_rf(a3, m + 1, Asgnsk);
     // Asgnsi(0) = 1;
     // Asgnsj(0) = 1;
     // Asgnsk(0) = 1;
     // for(int i = 1; i <= m; i++) {
-    //     Asgnsi(i) = Asgnsi(i - 1) * sgn(np1 + double(i) - 1);
-    //     Asgnsj(i) = Asgnsj(i - 1) * sgn(np2 + double(i) - 1);
-    //     Asgnsk(i) = Asgnsk(i - 1) * sgn(np3 + double(i) - 1);
+    //     Asgnsi(i) = Asgnsi(i - 1) * sgn(a1 + double(i) - 1);
+    //     Asgnsj(i) = Asgnsj(i - 1) * sgn(a2 + double(i) - 1);
+    //     Asgnsk(i) = Asgnsk(i - 1) * sgn(a3 + double(i) - 1);
     // }
     ansmat = exp( (Alnumi.rowwise().replicate(m + 1) +
                    Alnumj.transpose().colwise().replicate(m + 1) ).rowwise().replicate(m + 1).array() +
