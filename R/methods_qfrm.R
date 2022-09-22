@@ -1,10 +1,10 @@
 #' @exportS3Method
 #'
-print.qfrm <- function(obj, digits = getOption("digits"),
-                       show_range = !is.null(obj$error_bound),
+print.qfrm <- function(x, digits = getOption("digits"),
+                       show_range = !is.null(x$error_bound),
                        prefix = "\t", ...) {
-    stat <- obj$statistic
-    errorb <- obj$error_bound
+    stat <- x$statistic
+    errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     cat("\n")
     cat(strwrap("Moment of ratio of quadratic form", prefix = prefix), sep = "\n")
@@ -22,7 +22,7 @@ print.qfrm <- function(obj, digits = getOption("digits"),
     if(exact) {
         cat("This value is exact\n")
     } else if(length(errorb) > 0 && xor(all(is.na(errorb)), all(is.nan(errorb)))) {
-        cat("Error bound unavailable; recommended to inspect plot() of this object\n")
+        cat("Error bound unavailable; recommended to inspect plot() of this xect\n")
     } else if(show_range) {
         if(isTRUE(attr(errorb, "twosided"))) {
             ra <- sort(c(stat - errorb, stat + errorb))
@@ -39,20 +39,20 @@ print.qfrm <- function(obj, digits = getOption("digits"),
         cat(paste("Note: Adjustment parameter(s) alpha above 1, so error bound is unreliable\n"))
     }
     cat("\n")
-    invisible(obj)
+    invisible(x)
 }
 
 #' @exportS3Method
 #'
-plot.qfrm <- function(obj, add_error = length(errseq) > 0,
+plot.qfrm <- function(x, add_error = length(errseq) > 0,
                       add_legend = add_error,
                       ylim = sum(ansseq) * ylim_f, ylim_f = c(0.9, 1.1),
                       xlab = "Order of polynomials", ylab = "Moment of ratio",
                       col_m = "royalblue4", col_e = "tomato",
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
-    ansseq <- obj$res_seq
-    errseq <- obj$err_seq
+    ansseq <- x$res_seq
+    errseq <- x$err_seq
     cumseq <- cumsum(ansseq)
     try(plot(seq_along(ansseq) - 1L, cumseq, type = "l", col = col_m,
          ylim = ylim, xlab = xlab,
