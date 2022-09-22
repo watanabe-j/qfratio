@@ -10,7 +10,8 @@ Description: This package provides functions to evaluate moments of ratios
 License: GPL (>= 3)
 Imports: Rcpp, graphics
 LinkingTo: Rcpp, RcppEigen
-Suggests: gsl, mvtnorm
+Suggests: gsl, mvtnorm, stats, testthat (>= 3.0.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
+Config/testthat/edition: 3
