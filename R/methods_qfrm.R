@@ -22,7 +22,7 @@ print.qfrm <- function(x, digits = getOption("digits"),
     if(exact) {
         cat("This value is exact\n")
     } else if(length(errorb) > 0 && xor(all(is.na(errorb)), all(is.nan(errorb)))) {
-        cat("Error bound unavailable; recommended to inspect plot() of this xect\n")
+        cat("Error bound unavailable; recommended to inspect plot() of this object\n")
     } else if(show_range) {
         if(isTRUE(attr(errorb, "twosided"))) {
             ra <- sort(c(stat - errorb, stat + errorb))

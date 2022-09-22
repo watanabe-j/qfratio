@@ -25,7 +25,7 @@ set.seed(64501)
 
 This package provides functions to evaluate moments of ratios of quadratic forms in normal variables, specifically using recursive algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
 
-There exists a couple of `Matlab` programs developed by Raymond Kan (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R` package has been developed independently with added functionalities. This has originally been developed for a biological application, specifically for evaluating average evolvability measures in quantitative genetics.
+There exist a couple of `Matlab` programs developed by Raymond Kan (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R` package has been developed independently with added functionalities. This has originally been developed for a biological application, specifically for evaluating average evolvability measures in quantitative genetics.
 
 This project is **under active development**. Most planned functionalities have been implemented, but some may lack comprehensive documentation. At present, substantial restructuring might be possible.
 

@@ -10,16 +10,16 @@ This package provides functions to evaluate moments of ratios of
 quadratic forms in normal variables, specifically using recursive
 algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
 
-There exists a couple of `Matlab` programs developed by Raymond Kan
+There exist a couple of `Matlab` programs developed by Raymond Kan
 (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R`
 package has been developed independently with added functionalities.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
 quantitative genetics.
 
-This project is under active development. Most planned functionalities
-have been implemented, but have not been extensively documented. At
-present, substantial restructuring might be possible.
+This project is **under active development**. Most planned
+functionalities have been implemented, but some may lack comprehensive
+documentation. At present, substantial restructuring might be possible.
 
 ## Installation
 
@@ -95,7 +95,7 @@ plot(avr_cevoA)
 
 ``` r
 
-## Expectation of (x^T x)^2 / (x^T A x) (x^T A^-1 x) 
+## Expectation of (x^T x)^2 / (x^T A x) (x^T A^-1 x)
 ##   = "average autonomy"
 (avr_autoA <- qfmrm(diag(nv), A, solve(A), p = 2, q = 1, r = 1))
 #> 
@@ -113,11 +113,11 @@ plot(avr_autoA)
 
 ``` r
 
-## Expectation of (x^T A B x) / ((x^T A^2 x) (x^T B^2 x))^1/2 
+## Expectation of (x^T A B x) / ((x^T A^2 x) (x^T B^2 x))^1/2
 ##   = "average vector correlation"
 ## whose Monte Carlo evaluation is called the "random skewers" analysis,
 ## while this is essentially an analytic solution (with slight truncation error)
-(avr_rcorA <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B), 
+(avr_rcorA <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
                     p = 1, q = 1/2, r = 1/2))
 #> 
 #>  Moment of ratio of quadratic form
@@ -125,7 +125,7 @@ plot(avr_autoA)
 #> Moment = 0.84622
 #> Error bound unavailable; recommended to inspect plot() of this object
 
-mean(rqfmr(1000, A = crossprod(A, B), B = crossprod(A), D = crossprod(B), 
+mean(rqfmr(1000, A = crossprod(A, B), B = crossprod(A), D = crossprod(B),
            p = 1, q = 1/2, r = 1/2))
 #> [1] 0.8459347
 plot(avr_rcorA)
@@ -140,7 +140,7 @@ plot(avr_rcorA)
 ## Expectation of (x^T A x)^2 / (x^T B x)^3 where x ~ N(mu, Sigma)
 mu <- 1:nv / nv
 Sigma <- diag(runif(nv) * 3)
-(mom_A2B3 <- qfrm(A, B, p = 2, q = 3, mu = mu, Sigma = Sigma, 
+(mom_A2B3 <- qfrm(A, B, p = 2, q = 3, mu = mu, Sigma = Sigma,
                   m = 500, use_cpp = TRUE))
 #> 
 #>  Moment of ratio of quadratic form
