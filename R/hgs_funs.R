@@ -35,7 +35,7 @@ NULL
 hgs_1d <- function (dks, np1, dpi, lconst = 0) {
     m <- length(dks) - 1
     if(np1 < 0 && (np1 %% 1) == 0) {
-        lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
+        lnum_i <- cumsum(suppressWarnings(log(c(1, -np1 - 0:(m - 1)))))
     } else {
         lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
     }
@@ -57,12 +57,12 @@ hgs_1d <- function (dks, np1, dpi, lconst = 0) {
 hgs_2d <- function (dks, np1, np2, dpij, lconst = 0) {
     m <- ncol(dks) - 1
     if(np1 < 0 && (np1 %% 1) == 0) {
-        lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
+        lnum_i <- cumsum(suppressWarnings(log(c(1, -np1 - 0:(m - 1)))))
     } else {
         lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
     }
     if(np2 < 0 && (np2 %% 1) == 0) {
-        lnum_j <- cumsum(log(c(1, -np2 - 0:(m - 1))))
+        lnum_j <- cumsum(suppressWarnings(log(c(1, -np2 - 0:(m - 1)))))
     } else {
         lnum_j <- lgamma(np2 + 0:m) - lgamma(np2)
     }
@@ -85,17 +85,17 @@ hgs_2d <- function (dks, np1, np2, dpij, lconst = 0) {
 hgs_3d <- function (dks, np1, np2, np3, dpijk, lconst = 0) {
     m <- dim(dks)[1] - 1
     if(np1 < 0 && (np1 %% 1) == 0) {
-        lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
+        lnum_i <- cumsum(suppressWarnings(log(c(1, -np1 - 0:(m - 1)))))
     } else {
         lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
     }
     if(np2 < 0 && (np2 %% 1) == 0) {
-        lnum_j <- cumsum(log(c(1, -np2 - 0:(m - 1))))
+        lnum_j <- cumsum(suppressWarnings(log(c(1, -np2 - 0:(m - 1)))))
     } else {
         lnum_j <- lgamma(np2 + 0:m) - lgamma(np2)
     }
     if(np3 < 0 && (np3 %% 1) == 0) {
-        lnum_k <- cumsum(log(c(1, -np3 - 0:(m - 1))))
+        lnum_k <- cumsum(suppressWarnings(log(c(1, -np3 - 0:(m - 1)))))
     } else {
         lnum_k <- lgamma(np3 + 0:m) - lgamma(np3)
     }
@@ -120,12 +120,12 @@ hgs_3d <- function (dks, np1, np2, np3, dpijk, lconst = 0) {
 # hgs_dmu_2d <- function (dks, np1, np2, dpij, lconst = 0) {
 #     m <- ncol(dks) - 1
 #     if(np1 < 0 && (np1 %% 1) == 0) {
-#         lnum_i <- cumsum(log(c(1, -np1 - 0:(m - 1))))
+#         lnum_i <- cumsum(suppressWarnings(log(c(1, -np1 - 0:(m - 1)))))
 #     } else {
 #         lnum_i <- lgamma(np1 + 0:m) - lgamma(np1)
 #     }
 #     if(np2 < 0 && (np2 %% 1) == 0) {
-#         lnum_j <- cumsum(log(c(1, -np2 - 0:(m - 1))))
+#         lnum_j <- cumsum(suppressWarnings(log(c(1, -np2 - 0:(m - 1)))))
 #     } else {
 #         lnum_j <- lgamma(np2 + 0:m) - lgamma(np2)
 #     }
