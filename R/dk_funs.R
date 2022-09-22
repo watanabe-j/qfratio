@@ -490,7 +490,7 @@ dtil2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, m1 = m, m2 = m,
             hs[[il2(i1, i2)]] <- ht
             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, ht))) / (2 * k)
         }
-        if(max(tG) > thr || max(th)) {
+        if(max(tG) > thr || max(ht) > thr) {
             dks <- dks / 1e10
             Gs <- lapply(Gs, function(x) x / 1e10)
             hs <- lapply(hs, function(x) x / 1e10)
@@ -721,7 +721,7 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
 #' @rdname dtil2_pq
 #'
 dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
-    if(p == 1L) return(dtil2_1j_v(L1, L2, mu, q))
+    if(p == 1L) return(dtil2_1q_v(L1, L2, mu, q))
     n <- length(L1)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
@@ -775,7 +775,7 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
     g_k_0 <- rep.int(0, n)
     g_k_1 <- G_k_1 * mu # + L1 %*% g_k_0
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
-    for(k in 1L:m) {
+    for(k in 1L:q) {
         G_k_0 <- L2 * (dks[1L, k] + G_k_0)
         g_k_0 <- G_k_0 * mu + L2 * g_k_0
         dks[1L, k + 1L] <- sum(G_k_0 + mu * g_k_0) / (2 * k)

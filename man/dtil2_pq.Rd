@@ -76,5 +76,5 @@ doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
 \seealso{
 \code{\link{qfpm}} is a front-end functions that utilizes these functions
 
-\code{\link{d1_1}} for a single-matrix equivalent of \eqn{\tilde{d}}
+\code{\link{d1_i}} for a single-matrix equivalent of \eqn{\tilde{d}}
 }
