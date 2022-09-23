@@ -207,6 +207,18 @@ The error bound is only available for \code{qfmrm_ApBIqr_int()}.
 This is similar to, but slightly differs from, that
 in \code{qfrm_ApBq_int()}.
 
+Smith (1989: p. 258) stated the existence condition for the moments
+of this multiple ratio for nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}.
+For singular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}, only a sufficient condition
+seems to be known (Watanabe forthcoming); this is to assume a common
+nonnull subspace of \eqn{\mathbf{B}} and \eqn{\mathbf{D}}, reduce the
+problem to a simple ratio with a matrix spanned by a basis of the subspace,
+and apply the criteria for a simple ratio by Bao & Kan (2013: proposition 1).
+As this only sets sufficient conditions, a warning is thrown even when
+the conditions are not met, unlike \code{qfrm()} which throws an error
+based on the necessary and sufficient conditions for the simple ratio.
+Use careful consideration when this warning is encountered.
+
 Note that these functions may take a substantially longer computational time
 than those pertaining to a simple ratio, because multiple matrices means
 multiple infinite series along which summation is to be taken.
@@ -272,6 +284,11 @@ plot(res5)
 
 }
 \references{
+Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
+229--245.
+doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002}.
+
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
 in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
 doi:\href{https://doi.org/10.1016/0047-259X(89)90065-1}{10.1016/0047-259X(89)90065-1}.
