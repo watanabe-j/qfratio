@@ -1003,6 +1003,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(central) {
             dks <- d1_i(LAh, m = m)
             lscf <- attr(dks, "logscale")
+            attributes(dks) <- NULL
             ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(b1)
                              + lgamma(n / 2 + p - q) - lgamma(n / 2) - lscf))
         } else {
@@ -1058,7 +1059,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
                        - lgamma(n / 2 + 0:m + 1) + lgamma(n / 2 + p - q)
                        + (p - q) * log(2) - p * log(b1))
-            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) - exp((lcoefe + log(cumsum(dkst[1:(m + 1)]))) - lscf)
+            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) - exp((lcoefe + log(cumsum(dkst[1:(m + 1)] / exp(lscf)))))
             errseq <- errseq * cumprod(sign(-p + 0:m))
         }
         errorb <- errseq[length(errseq)]
@@ -1227,7 +1228,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             }
         }
         dks <- dksm[p + 1, 1:(m + 1)]
-        lscf <- attr(dksm, "logscale")
+        lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
         ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q) * log(2) + q * log(b2)
                          + lgamma(p + 1) + lgamma(n / 2 + p - q) - lgamma(n / 2 + p) - lscf))
         # scf <- attr(dksm, "scale")
@@ -1300,13 +1301,13 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 }
             }
             dkst <- dkstm[p + 1, 1:(m + 1)]
-            lscft <- attr(dkstm, "logscale")
+            lscft <- attr(dkstm, "logscale")[p + 1, 1:(m + 1)]
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
                         - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q)
                         + (p - q) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-                      exp(lcoefe + log(cumsum(dkst)) - lscft)
+                      exp(lcoefe + log(cumsum(dkst / exp(lscft))))
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
@@ -1628,7 +1629,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 dksm <- d2_pj_m(A, Bh, m, p = p)
             }
             dks <- dksm[p + 1, 1:(m + 1)]
-            lscf <- attr(dksm, "logscale")
+            lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
             ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q - r) * log(2) + q * log(b2)
                     + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
         } else {
@@ -1640,7 +1641,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p)
             }
             dks <- dksm[p + 1, , ]
-            lscf <- attr(dksm, "logscale")
+            lscf <- attr(dksm, "logscale")[p + 1, , ]
             ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
                             + q * log(b2) + lgamma(p + 1)
                             + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
@@ -1696,6 +1697,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE)$values / b2, p)[p + 1]
                 }
+                lscft <- attr(dkstm, "logscale")[p + 1, ]
             } else {
                 twosided <- TRUE
                 mub <- sqrt(3 / b2) * mu / sqrt(LB)
@@ -1715,14 +1717,15 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2, mub, p)[p + 1]
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
+                lscft <- attr(dkstm, "logscale")[p + 1, , 1]
             }
-            lscft <- attr(dkstm, "logscale")
+            # lscft <- attr(dkstm, "logscale")
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
                        - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-                      exp(lcoefe + log(cumsum(dkst)) - lscft)
+                      exp(lcoefe + log(cumsum(dkst / exp(lscft))))
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
@@ -2241,7 +2244,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             }
         }
         dks <- dksm[p + 1, , ]
-        lscf <- attr(dksm, "logscale")
+        lscf <- attr(dksm, "logscale")[p + 1, , ]
         ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
                          + q * log(b2) + r * log(b3) + lgamma(p + 1)
                          + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
@@ -2249,6 +2252,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         # scf <- attr(dksm, "scale")
         # ansseq <- ansseq / scf
     }
+    # browser()
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
     if(any(nans_ansseq)) {

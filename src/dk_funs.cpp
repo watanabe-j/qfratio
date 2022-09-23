@@ -15,7 +15,7 @@ using Eigen::VectorXd;
 
 
 // // [[Rcpp::export]]
-Eigen::ArrayXd d1_i_vE(const Eigen::ArrayXd& L, const int m, double& lscf) {
+Eigen::ArrayXd d1_i_vE(const Eigen::ArrayXd& L, const int m, Eigen::ArrayXd& lscf) {
     int n = L.size();
     ArrayXd dks = ArrayXd::Zero(m + 1);
     dks(0) = 1;
@@ -25,16 +25,16 @@ Eigen::ArrayXd d1_i_vE(const Eigen::ArrayXd& L, const int m, double& lscf) {
         uk = L * (dks(k - 1) + uk);
         dks(k) = uk.sum() / (2 * k);
         if(uk.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks(k) /= 1e10;
             uk /= 1e10;
-            lscf -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
 }
 
 // // [[Rcpp::export]]
-Eigen::ArrayXd d1_i_mE(const Eigen::MatrixXd& A, const int m, double& lscf) {
+Eigen::ArrayXd d1_i_mE(const Eigen::MatrixXd& A, const int m, Eigen::ArrayXd& lscf) {
     Eigen::SelfAdjointEigenSolver<MatrixXd> eigA(A, Eigen::EigenvaluesOnly);
     ArrayXd L = eigA.eigenvalues();
     return d1_i_vE(L, m, lscf);
@@ -42,7 +42,7 @@ Eigen::ArrayXd d1_i_mE(const Eigen::MatrixXd& A, const int m, double& lscf) {
 
 // // [[Rcpp::export]]
 Eigen::ArrayXd dtil1_i_vE(const Eigen::ArrayXd& L, const Eigen::ArrayXd& mu,
-    const int m, double& lscf) {
+    const int m, Eigen::ArrayXd& lscf) {
     int n = L.size();
     ArrayXd D = square(mu);
     ArrayXd dks = ArrayXd::Zero(m + 1);
@@ -55,10 +55,10 @@ Eigen::ArrayXd dtil1_i_vE(const Eigen::ArrayXd& L, const Eigen::ArrayXd& mu,
         vk = D * uk + L * vk;
         dks(k) = (uk + vk).sum() / (2 * k);
         if(uk.maxCoeff() > thr || vk.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks(k) /= 1e10;
             uk /= 1e10;
             vk /= 1e10;
-            lscf -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -66,7 +66,7 @@ Eigen::ArrayXd dtil1_i_vE(const Eigen::ArrayXd& L, const Eigen::ArrayXd& mu,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXd dtil1_i_mE(const Eigen::MatrixXd& A, const Eigen::VectorXd& mu,
-        const int m, double& lscf) {
+        const int m, Eigen::ArrayXd& lscf) {
     Eigen::SelfAdjointEigenSolver<MatrixXd> eigA(A);
     ArrayXd L = eigA.eigenvalues();
     ArrayXd mud = eigA.eigenvectors().transpose() * mu;
@@ -76,7 +76,7 @@ Eigen::ArrayXd dtil1_i_mE(const Eigen::MatrixXd& A, const Eigen::VectorXd& mu,
 // // [[Rcpp::export]]
 Eigen::ArrayXXd arl_vE(const Eigen::ArrayXd& L, const Eigen::ArrayXd& D, const int m) {
     const int n = L.size();
-    double lscf = 0;
+    ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXXd arls = ArrayXXd::Zero(m + 1, m + 1);
     arls.col(0) = d1_i_vE(L, m, lscf);
     ArrayXXd wrls = ArrayXXd::Zero(n, m);
@@ -101,7 +101,7 @@ Eigen::ArrayXXd arl_mE(const Eigen::MatrixXd& A, const Eigen::VectorXd& mu, cons
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const int m, const int p, double& lscf) {
+         const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -121,9 +121,9 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
             dks(i, k) = G_k_i.block(0, i * n, n, n).trace() / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -131,7 +131,7 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const int m, const int p, double& lscf) {
+         const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -150,9 +150,9 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k) = G_k_i.col(i).sum() / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -161,7 +161,7 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const int m, double& lscf) {
+         const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
@@ -182,9 +182,9 @@ Eigen::ArrayXXd d2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
             dks(i, k) = G_k_i.block(0, i * n, n, n).trace() / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -192,7 +192,7 @@ Eigen::ArrayXXd d2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const int m, double& lscf) {
+         const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
@@ -212,9 +212,9 @@ Eigen::ArrayXXd d2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k) = G_k_i.col(i).sum() / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -222,7 +222,7 @@ Eigen::ArrayXXd d2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, double& lscf) {
+         const Eigen::VectorXd& mu, const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
@@ -252,10 +252,10 @@ Eigen::ArrayXXd h2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
             dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -263,7 +263,7 @@ Eigen::ArrayXXd h2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, double& lscf) {
+         const Eigen::ArrayXd& mu, const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
@@ -292,10 +292,10 @@ Eigen::ArrayXXd h2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -303,7 +303,7 @@ Eigen::ArrayXXd h2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, const int p, double& lscf) {
+         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -332,10 +332,10 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -343,7 +343,7 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) {
+         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -370,10 +370,10 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -381,7 +381,7 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, const int p, double& lscf) {
+         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -410,10 +410,10 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -421,7 +421,7 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) {
+         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -448,10 +448,10 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks /= 1e10;
+            dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf -= log(1e10);
+            lscf.rightCols(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -459,7 +459,7 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int p, const int q) { //, double& lscf) {
+         const Eigen::VectorXd& mu, const int p, const int q) { //, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, q + 1);
@@ -495,7 +495,7 @@ Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int p, const int q) { //, double& lscf) {
+         const Eigen::ArrayXd& mu, const int p, const int q) { //, Eigen::ArrayXXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, q + 1);
     dks(0, 0) = 1;
@@ -531,7 +531,7 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                          const int m, double& lscf, int nthreads) {
+                          const int m, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -587,9 +587,9 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
             dks(i, k * (m + 1)) = Gn.block(0, k * n * (m + 1) + i * n, n, n).trace() / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -597,7 +597,7 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                          const int m, double& lscf) { // , int nthreads) {
+                          const int m, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -651,9 +651,9 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
             dks(i, k * (m + 1)) = Gn.col(k * (m + 1) + i).sum() / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -661,7 +661,7 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                             const int m, const int p, double& lscf, int nthreads) {
+                             const int m, const int p, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -712,9 +712,9 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
             dks(i, k * (m + 1)) = Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -722,7 +722,7 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const int m, const int p, double& lscf) { // , int nthreads) {
+                            const int m, const int p, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -776,9 +776,9 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
             dks(i, k * (m + 1)) = Gn.col(k * (p + 1) + i).sum() / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -786,7 +786,7 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, double& lscf, int nthreads) {
+                            const Eigen::VectorXd& mu, const int m, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -868,10 +868,10 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (m + 1) + i * n, n, n).trace() + gn.col(k * (m + 1) + i).dot(mu)) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -879,7 +879,7 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, double& lscf) { // , int nthreads) {
+                            const Eigen::ArrayXd& mu, const int m, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -959,10 +959,10 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
             dks(i, k * (m + 1)) = (Gn.col(k * (m + 1) + i).sum() + (mu * gn.col(k * (m + 1) + i)).sum()) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -970,7 +970,7 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf, int nthreads) {
+                            const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -1048,10 +1048,10 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -1059,7 +1059,7 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) { // , int nthreads) {
+                            const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1137,10 +1137,10 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k * (m + 1)) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -1148,7 +1148,7 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd& mu, const int m, const int p, double& lscf, int nthreads) {
+                            const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -1226,10 +1226,10 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -1237,7 +1237,7 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int m, const int p, double& lscf) { // , int nthreads) {
+                            const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1317,10 +1317,10 @@ Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks(i, k * (m + 1)) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            dks /= 1e10;
+            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            lscf -= log(1e10);
+            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
         }
     }
     return dks;
@@ -1328,7 +1328,7 @@ Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd mu, const int p, const int q, const int r) { //, double& lscf) {
+                            const Eigen::VectorXd mu, const int p, const int q, const int r) { //, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     const int m = q + r;
@@ -1418,7 +1418,7 @@ Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil3_pqr_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int p, const int q, const int r) { //, double& lscf) {
+                            const Eigen::ArrayXd& mu, const int p, const int q, const int r) { //, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const int m = q + r;
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (q + 1) * (r + 1));

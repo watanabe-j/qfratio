@@ -78,7 +78,8 @@ Eigen::MatrixXd ResizeFor3d(const Eigen::VectorXd& X) {
 //'
 // [[Rcpp::export]]
 Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
-                      const double a1, const double b, const double lconst) {
+                       const double a1, const double b, const double lconst,
+                       const Eigen::ArrayXd& lscf) {
     const int m = dks.size() - 1;
     ArrayXd Alnum = get_lrf(a1, m + 1);
     ArrayXd Alden = get_lrf(b, m + 1);
@@ -90,7 +91,7 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
     // for(int i = 1; i <= m; i ++) {
     //     Asgns(i) = Asgns(i - 1) * sgn(a1 + double(i) - 1);
     // }
-    ansseq = exp(Alnum - Alden + log(abs(dks)) + lconst);
+    ansseq = exp(Alnum - Alden + log(abs(dks)) + lconst - lscf);
     ansseq *= Asgns * sign(dks);
     return ansseq;
 }
@@ -101,7 +102,8 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
                         const double a1, const double a2,
-                        const double b, const double lconst) {
+                        const double b, const double lconst,
+                        const Eigen::ArrayXXd& lscf) {
     const int m = dks.rows() - 1;
     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
     VectorXd Alnumi = get_lrf(a1, m + 1);
@@ -125,7 +127,7 @@ Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
     // }
     ansmat = exp((Alnumi.rowwise().replicate(m + 1) +
                   Alnumj.transpose().colwise().replicate(m + 1)).array()
-                 - Alden + log(abs(dks)) + lconst);
+                 - Alden + log(abs(dks)) + lconst - lscf);
     ansmat *= (Asgnsi.matrix() * Asgnsj.matrix().transpose()).array() * sign(dks);
     return ansmat;
 }
@@ -136,7 +138,8 @@ Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
 // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
                         const double a1, const double a2, const double a3,
-                        const double b, const double lconst) {
+                        const double b, const double lconst,
+                        const Eigen::ArrayXXd& lscf) {
     const int m = dks.rows() - 1;
     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
     VectorXd Alnumi = get_lrf(a1, m + 1);
@@ -168,7 +171,7 @@ Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
     ansmat = exp( (Alnumi.rowwise().replicate(m + 1) +
                    Alnumj.transpose().colwise().replicate(m + 1) ).rowwise().replicate(m + 1).array() +
                    ResizeFor3d(Alnumk).array()
-                 - Alden + log(abs(dks)) + lconst);
+                 - Alden + log(abs(dks)) + lconst - lscf);
     ansmat *= ( (Asgnsi.matrix() * Asgnsj.matrix().transpose()).rowwise().replicate(m + 1) ).array() *
               ResizeFor3d(Asgnsk.matrix()).array() * sign(dks);
     return ansmat;
