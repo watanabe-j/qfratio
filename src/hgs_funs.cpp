@@ -74,9 +74,11 @@ Eigen::MatrixXd ResizeFor3d(const Eigen::VectorXd& X) {
     return mX.transpose().colwise().replicate(n);
 }
 
-//'
-//'
-// [[Rcpp::export]]
+// C++ version of hgs_1d
+//
+// Takes lscf as a separate parameter
+//
+// // [[Rcpp::export]]
 Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
                        const double a1, const double b, const double lconst,
                        const Eigen::ArrayXd& lscf) {
@@ -97,9 +99,9 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 }
 
 
-//'
-//'
-// [[Rcpp::export]]
+// C++ version of hgs_2d
+//
+// // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
                         const double a1, const double a2,
                         const double b, const double lconst,
@@ -133,9 +135,9 @@ Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
 }
 
 
-//'
-//'
-// [[Rcpp::export]]
+// C++ version of hgs_3d
+//
+// // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
                         const double a1, const double a2, const double a3,
                         const double b, const double lconst,

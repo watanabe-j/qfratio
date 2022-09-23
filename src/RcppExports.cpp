@@ -11,51 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// hgs_1dE
-Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks, const double a1, const double b, const double lconst);
-RcppExport SEXP _qfratio_hgs_1dE(SEXP dksSEXP, SEXP a1SEXP, SEXP bSEXP, SEXP lconstSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::ArrayXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
-    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_1dE(dks, a1, b, lconst));
-    return rcpp_result_gen;
-END_RCPP
-}
-// hgs_2dE
-Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks, const double a1, const double a2, const double b, const double lconst);
-RcppExport SEXP _qfratio_hgs_2dE(SEXP dksSEXP, SEXP a1SEXP, SEXP a2SEXP, SEXP bSEXP, SEXP lconstSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::ArrayXXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
-    Rcpp::traits::input_parameter< const double >::type a2(a2SEXP);
-    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_2dE(dks, a1, a2, b, lconst));
-    return rcpp_result_gen;
-END_RCPP
-}
-// hgs_3dE
-Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks, const double a1, const double a2, const double a3, const double b, const double lconst);
-RcppExport SEXP _qfratio_hgs_3dE(SEXP dksSEXP, SEXP a1SEXP, SEXP a2SEXP, SEXP a3SEXP, SEXP bSEXP, SEXP lconstSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::ArrayXXd& >::type dks(dksSEXP);
-    Rcpp::traits::input_parameter< const double >::type a1(a1SEXP);
-    Rcpp::traits::input_parameter< const double >::type a2(a2SEXP);
-    Rcpp::traits::input_parameter< const double >::type a3(a3SEXP);
-    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const double >::type lconst(lconstSEXP);
-    rcpp_result_gen = Rcpp::wrap(hgs_3dE(dks, a1, a2, a3, b, lconst));
-    return rcpp_result_gen;
-END_RCPP
-}
 // Ap_int_cmE
 SEXP Ap_int_cmE(const Eigen::MatrixXd A, const double p);
 RcppExport SEXP _qfratio_Ap_int_cmE(SEXP ASEXP, SEXP pSEXP) {
@@ -878,9 +833,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_qfratio_hgs_1dE", (DL_FUNC) &_qfratio_hgs_1dE, 4},
-    {"_qfratio_hgs_2dE", (DL_FUNC) &_qfratio_hgs_2dE, 5},
-    {"_qfratio_hgs_3dE", (DL_FUNC) &_qfratio_hgs_3dE, 6},
     {"_qfratio_Ap_int_cmE", (DL_FUNC) &_qfratio_Ap_int_cmE, 2},
     {"_qfratio_Ap_int_nmE", (DL_FUNC) &_qfratio_Ap_int_nmE, 3},
     {"_qfratio_ABpq_int_cvE", (DL_FUNC) &_qfratio_ABpq_int_cvE, 4},
