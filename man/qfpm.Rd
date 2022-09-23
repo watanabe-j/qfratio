@@ -11,9 +11,11 @@ qfm_Ap_int(
   A,
   p = 1,
   mu = rep.int(0, n),
+  Sigma,
   use_cpp = FALSE,
   cpp_method = "Eigen",
-  tol_zero = .Machine$double.eps * 100
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
 )
 
 qfpm_ABpq_int(
@@ -22,9 +24,11 @@ qfpm_ABpq_int(
   p = 1,
   q = 1,
   mu = rep.int(0, n),
+  Sigma,
   use_cpp = FALSE,
   cpp_method = "Eigen",
-  tol_zero = .Machine$double.eps * 100
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
 )
 
 qfpm_ABDpqr_int(
@@ -35,9 +39,11 @@ qfpm_ABDpqr_int(
   q = 1,
   r = 1,
   mu = rep.int(0, n),
+  Sigma,
   use_cpp = FALSE,
   cpp_method = "Eigen",
-  tol_zero = .Machine$double.eps * 100
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps
 )
 }
 \arguments{
@@ -49,6 +55,8 @@ If unsure, specify all explicitly.}
 
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}}
+
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
@@ -58,6 +66,9 @@ as only one method (using \code{RcppEigen}) is implemented.}
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
+
+\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
+The eigenvalues smaller than this are considered zero.}
 }
 \description{
 Functions to obtain (compound) moments
@@ -65,7 +76,7 @@ of a product of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
   \right) },
-where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 
 \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
 

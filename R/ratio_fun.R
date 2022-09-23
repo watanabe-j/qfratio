@@ -520,7 +520,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
 #' \eqn{ \mathrm{E} \left(
 #'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #'
 #' These functions implement the super-short recursion algorithms described in
 #' Hillier et al. (2014: sec. 3.1--3.2 and 4). At present, only positive integers
@@ -536,6 +536,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 #'   respectively. By default, these are set to the same value.
 #'   If unsure, specify all explicitly.
+#' @param Sigma
+#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}
 #'
 #' @seealso
 #' \code{\link{qfrm}} and \code{\link{qfmrm}} for moments of ratios
@@ -585,9 +587,10 @@ NULL
 #'
 #' @export
 #'
-qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n),
-                          use_cpp = FALSE, cpp_method = "Eigen",
-                             tol_zero = .Machine$double.eps * 100) {
+qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma,
+                       use_cpp = FALSE, cpp_method = "Eigen",
+                       tol_zero = .Machine$double.eps * 100,
+                       tol_sing = .Machine$double.eps) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
@@ -600,6 +603,30 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n),
         },
         "mu should be an n-vector" = length(mu) == n
     )
+    zeros <- rep.int(0, n)
+    ## If Sigma is given, transform A, B, D, and mu, and
+    ## call this function recursively with new arguments
+    if(!missing(Sigma)) {
+        KiKS <- KiK(Sigma, tol_sing)
+        K <- KiKS$K
+        iK <- KiKS$iK
+        KtAK <- t(K) %*% A %*% K
+        iKmu <- iK %*% mu
+        ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
+        if(ncol(K) != n) {
+            okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero)) ||
+                    (iseq(crossprod(iK, KtAK %*% iK), A))
+            if(!okay) {
+                stop("For singular Sigma, certain condition need to be met ",
+                     "for A or mu.\n  ",
+                     "Function for situations not satisfying this has not ",
+                     "developed.\n  See documentation for details.")
+            }
+        }
+        return(qfm_Ap_int(KtAK, p, mu = iKmu, use_cpp = use_cpp,
+                           cpp_method = cpp_method, tol_zero = tol_zero))
+    }
     A <- (A + t(A)) / 2
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     if(use_cpp) {
@@ -640,9 +667,10 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n),
 #'
 #' @export
 #'
-qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n),
+qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma,
                           use_cpp = FALSE, cpp_method = "Eigen",
-                          tol_zero = .Machine$double.eps * 100) {
+                          tol_zero = .Machine$double.eps * 100,
+                          tol_sing = .Machine$double.eps) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -674,6 +702,33 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n),
         },
         "mu should be an n-vector" = length(mu) == n
     )
+    zeros <- rep.int(0, n)
+    ## If Sigma is given, transform A, B, D, and mu, and
+    ## call this function recursively with new arguments
+    if(!missing(Sigma)) {
+        KiKS <- KiK(Sigma, tol_sing)
+        K <- KiKS$K
+        iK <- KiKS$iK
+        KtAK <- t(K) %*% A %*% K
+        KtBK <- t(K) %*% B %*% K
+        iKmu <- iK %*% mu
+        ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
+        if(ncol(K) != n) {
+            okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)) ||
+                    (iseq(crossprod(iK, KtAK %*% iK), A) &&
+                     iseq(crossprod(iK, KtBK %*% iK), B))
+            if(!okay) {
+                stop("For singular Sigma, certain condition need to be met ",
+                     "for A, B, or mu.\n  ",
+                     "Function for situations not satisfying this has not ",
+                     "developed.\n  See documentation for details.")
+            }
+        }
+        return(qfpm_ABpq_int(KtAK, KtBK, p, q, mu = iKmu,
+                             use_cpp = use_cpp, cpp_method = cpp_method,
+                             tol_zero = tol_zero))
+    }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
     ## Rotate A and mu with eigenvectors of B
@@ -736,9 +791,10 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n),
 #'
 #' @export
 #'
-qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma,
                             use_cpp = FALSE, cpp_method = "Eigen",
-                             tol_zero = .Machine$double.eps * 100) {
+                            tol_zero = .Machine$double.eps * 100,
+                            tol_sing = .Machine$double.eps) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A, B, or D is missing, let it be an identity matrix
@@ -785,6 +841,36 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         },
         "mu should be an n-vector" = length(mu) == n
     )
+    zeros <- rep.int(0, n)
+    ## If Sigma is given, transform A, B, D, and mu, and
+    ## call this function recursively with new arguments
+    if(!missing(Sigma)) {
+        KiKS <- KiK(Sigma, tol_sing)
+        K <- KiKS$K
+        iK <- KiKS$iK
+        KtAK <- t(K) %*% A %*% K
+        KtBK <- t(K) %*% B %*% K
+        KtDK <- t(K) %*% D %*% K
+        iKmu <- iK %*% mu
+        ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
+        if(ncol(K) != n) {
+            okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)
+                          && iseq(D %*% mu, zeros, tol_zero)) ||
+                    (iseq(crossprod(iK, KtAK %*% iK), A) &&
+                     iseq(crossprod(iK, KtBK %*% iK), B) &&
+                     iseq(crossprod(iK, KtDK %*% iK), D))
+            if(!okay) {
+                stop("For singular Sigma, certain condition need to be met ",
+                     "for A, B, D, or mu.\n  ",
+                     "Function for situations not satisfying this has not ",
+                     "developed.\n  See documentation for details.")
+            }
+        }
+        return(qfpm_ABDpqr_int(KtAK, KtBK, KtDK, p, q, r, mu = iKmu,
+                               use_cpp = use_cpp, cpp_method = cpp_method,
+                               tol_zero = tol_zero))
+    }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
     ## Rotate A and mu with eigenvectors of B
