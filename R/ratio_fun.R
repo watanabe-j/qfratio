@@ -203,7 +203,7 @@
 #' # Use larger m to evaluate higher-order terms
 #' plot(print(qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma, m = 300)))
 #'
-qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
+qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps, ...) {
     ##
@@ -226,10 +226,9 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
     }
     if(missing(p) && !missing(q)) p <- q
     zeros <- rep.int(0, n)
-    if(missing(mu)) mu <- zeros
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma)) {
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing) # }, check_convergence = FALSE) {
         K <- KiKS$K
         iK <- KiKS$iK
@@ -409,7 +408,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu, Sigma,
 #' (res5 <- qfmrm(B = D, D = solve(D), p = 2, q = 1, r = 1))
 #' plot(res5)
 #'
-qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
+qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps, ...) {
     ##
@@ -444,7 +443,6 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
     }
     if(missing(p) && (!missing(q) || !missing(r))) p <- q + r
     zeros <- rep.int(0, n)
-    if(missing(mu)) mu <- zeros
     ## If any pair of the three arguments are equal,
     ## reduce the problem to a simple ratio
     if(iseq(B, D, tol_zero)) {
@@ -458,7 +456,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu, Sigma,
     }
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma)) {
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -587,7 +585,7 @@ NULL
 #'
 #' @export
 #'
-qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma,
+qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                        use_cpp = FALSE, cpp_method = "Eigen",
                        tol_zero = .Machine$double.eps * 100,
                        tol_sing = .Machine$double.eps) {
@@ -606,7 +604,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma,
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma)) {
+    if(!missing(Sigma) && !iseq(Sigma, diag(n), tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -667,7 +665,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma,
 #'
 #' @export
 #'
-qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma,
+qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n),
                           use_cpp = FALSE, cpp_method = "Eigen",
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = .Machine$double.eps) {
@@ -705,7 +703,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma,
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma)) {
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -791,7 +789,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma,
 #'
 #' @export
 #'
-qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma,
+qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma = diag(n),
                             use_cpp = FALSE, cpp_method = "Eigen",
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = .Machine$double.eps) {
@@ -844,7 +842,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma)) {
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK

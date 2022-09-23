@@ -14,8 +14,8 @@ qfrm(
   p = 1,
   q = p,
   m = 100L,
-  mu,
-  Sigma,
+  mu = rep.int(0, n),
+  Sigma = diag(n),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps,
   ...
