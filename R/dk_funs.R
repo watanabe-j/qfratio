@@ -2392,6 +2392,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
+    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
     gc <- list()
@@ -2947,6 +2948,7 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
+    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
     gc <- list()
