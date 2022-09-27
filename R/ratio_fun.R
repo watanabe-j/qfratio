@@ -952,15 +952,16 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
 #' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
 #' positive integral \eqn{p}.
 #'
-#' *Dependency note*: An exact expression is available for
-#' \code{qfrm_ApIq_int()}, but this requires evaluation of
+#' *Dependency note*: An exact expression of the moment is available when
+#' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
+#' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 #' a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 #' (Hillier et al. 2014: theorem 4).
 #' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 #' available (which this package \code{Suggests}). Otherwise, the function uses
 #' the ordinary infinite series expression, which is less accurate and slow,
-#' and throws a warning. It is recommended to install that package if
-#' an accurate estimate is desired for that case.
+#' and throws a warning (once per sessino). It is recommended to install
+#' that package if an accurate estimate is desired for that case.
 #'
 # #' @importFrom gsl hyperg_1F1
 #'
@@ -1022,9 +1023,11 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
                 ## which is less accurate (by truncation) and slower
-                warning("This expression is suboptimal with a nonzero mean.\n  ",
-                        "An exact alternative is available with ",
-                        "the package \"gsl\" (recommended).")
+                rlang::warn(paste0("  When using qfrm_ApIq_int() with nonzero mu, ",
+                            "it is recommended to\n  install the package \"gsl\", ",
+                            "with which an exact expression is available.\n  ",
+                            "See \"Details\" in documentation of this function."),
+                            .frequency = "once", .frequency_id = "use_gsl")
                 dks <- d2_ij_m(A, tcrossprod(mu), m, p = p)[p + 1, ]
                 ansseq <- exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
                               + lgamma(n / 2 + p - q + 0:m) - 0:m * log(2)
@@ -1186,11 +1189,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         # }
     } else {
         if(error_bound) {
-            warning("Error bound is unavailable for qfrm_ApIq_npi ",
-                    "when mu is nonzero")
+            rlang::warn(paste0("Error bound is unavailable for qfrm_ApIq_npi() ",
+                        "when mu is nonzero"), .frequency = "once",
+                        .frequency_id = "errorb_ApIq_npi_noncentral")
+            errorb <- NA_real_
+        } else {
+            errorb <- NULL
         }
         errseq <- NULL
-        errorb <- NULL
     }
     structure(list(statistic = sum(ansseq), error_bound = errorb,
                    res_seq = ansseq, err_seq = errseq), class = "qfrm")

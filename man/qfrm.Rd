@@ -215,15 +215,16 @@ Values larger than 1 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold
 (see the references cited above).
 
-\emph{Dependency note}: An exact expression is available for
-\code{qfrm_ApIq_int()}, but this requires evaluation of
+\emph{Dependency note}: An exact expression of the moment is available when
+\eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
+(handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 (Hillier et al. 2014: theorem 4).
 This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 available (which this package \code{Suggests}). Otherwise, the function uses
 the ordinary infinite series expression, which is less accurate and slow,
-and throws a warning. It is recommended to install that package if
-an accurate estimate is desired for that case.
+and throws a warning (once per sessino). It is recommended to install
+that package if an accurate estimate is desired for that case.
 }
 \examples{
 ## Some symmetric matrices and parameters
