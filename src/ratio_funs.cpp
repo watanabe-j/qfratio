@@ -20,6 +20,7 @@ using Eigen::VectorXd;
 using Eigen::SelfAdjointEigenSolver;
 
 
+// Eigen version of \code{sum_counterdiag()}
 Eigen::ArrayXd sum_counterdiagE(const Eigen::ArrayXXd& X) {
     const int n = X.rows();
     ArrayXd ans = ArrayXd::Zero(n);
@@ -33,6 +34,8 @@ Eigen::ArrayXd sum_counterdiagE(const Eigen::ArrayXXd& X) {
     return ans;
 }
 
+// Eigen version of \code{sum_counterdiag3D()}
+// X is a wide ArrayXXd, n * (n * n)
 Eigen::ArrayXd sum_counterdiag3DE(const Eigen::ArrayXXd& X) {
     const int n = X.rows();
     ArrayXd ans = ArrayXd::Zero(n);
@@ -49,7 +52,9 @@ Eigen::ArrayXd sum_counterdiag3DE(const Eigen::ArrayXXd& X) {
 }
 
 
-
+//' @describeIn qfrm_cpp
+//'   \code{qfm_Ap_int()}, central
+//'
 // [[Rcpp::export]]
 SEXP Ap_int_cmE(const Eigen::MatrixXd A, const double p = 1) {
     ArrayXd lscf = ArrayXd::Zero(p + 1);
@@ -58,6 +63,9 @@ SEXP Ap_int_cmE(const Eigen::MatrixXd A, const double p = 1) {
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfm_Ap_int()}, noncentral
+//'
 // [[Rcpp::export]]
 SEXP Ap_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
                 const double p = 1) {
@@ -68,6 +76,9 @@ SEXP Ap_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABpq_int()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ABpq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double p = 1, const double q = 1) {
@@ -78,6 +89,9 @@ SEXP ABpq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABpq_int()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ABpq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double p = 1, const double q = 1) {
@@ -89,6 +103,9 @@ SEXP ABpq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABpq_int()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ABpq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd mu,
@@ -99,6 +116,9 @@ SEXP ABpq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABpq_int()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ABpq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd mu,
@@ -111,6 +131,9 @@ SEXP ABpq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABDpqr_int()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ABDpqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
@@ -123,6 +146,9 @@ SEXP ABDpqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABDpqr_int()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,
@@ -136,6 +162,9 @@ SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABDpqr_int()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ABDpqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD, const Eigen::ArrayXd mu,
@@ -146,6 +175,9 @@ SEXP ABDpqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfpm_ABDpqr_int()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ABDpqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D, const Eigen::ArrayXd mu,
@@ -158,7 +190,8 @@ SEXP ABDpqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 
-//'
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApIq_int()}, central
 //'
 // [[Rcpp::export]]
 SEXP ApIq_int_cmE(const Eigen::MatrixXd A,
@@ -172,7 +205,8 @@ SEXP ApIq_int_cmE(const Eigen::MatrixXd A,
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
-//' Requires gsl
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApIq_int()}, noncentral
 //'
 // [[Rcpp::export]]
 SEXP ApIq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
@@ -203,7 +237,8 @@ SEXP ApIq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
 }
 
 
-//'
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApIq_npi()}, central
 //'
 // [[Rcpp::export]]
 SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
@@ -242,7 +277,8 @@ SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
     }
 }
 
-//'
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApIq_npi()}, noncentral
 //'
 // [[Rcpp::export]]
 SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double b1,
@@ -264,6 +300,9 @@ SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const doubl
 
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_int()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b2,
@@ -313,6 +352,9 @@ SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     }
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_int()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
                   const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
@@ -368,6 +410,9 @@ SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     }
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_int()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b2, const Eigen::ArrayXd mu,
@@ -414,6 +459,9 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     }
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_int()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
                   const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
@@ -465,6 +513,9 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_npi()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b1, const double b2,
@@ -482,6 +533,9 @@ SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_npi()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                   const double b1, const double b2,
@@ -499,6 +553,9 @@ SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_npi()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b1, const double b2, const Eigen::ArrayXd mu,
@@ -516,6 +573,9 @@ SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_ApBq_npi()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                   const double b1, const double b2, const Eigen::ArrayXd mu,
@@ -535,7 +595,8 @@ SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 
-//'
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_int()}, central & vector
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -588,8 +649,8 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     }
 }
 
-//'
-//' For internal use in qfmrm_ApBIqr_int; assumes symmetric A.
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_int()}, central & matrix
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
@@ -647,6 +708,9 @@ SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     }
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_int()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double b2, const Eigen::ArrayXd mu,
@@ -700,6 +764,9 @@ SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     }
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_int()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
                     const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
@@ -757,6 +824,9 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_npi()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double b1, const double b2,
@@ -775,6 +845,9 @@ SEXP ApBIqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_npi()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double b1, const double b2,
@@ -793,6 +866,9 @@ SEXP ApBIqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double b1, const double b2, const Eigen::ArrayXd mu,
@@ -811,6 +887,9 @@ SEXP ApBIqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double b1, const double b2, const Eigen::ArrayXd mu,
@@ -830,6 +909,9 @@ SEXP ApBIqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_IpBDqr_gen()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
                     const double b2, const double b3,
@@ -847,6 +929,9 @@ SEXP IpBDqr_gen_cvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_IpBDqr_gen()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
                     const double b2, const double b3,
@@ -864,6 +949,9 @@ SEXP IpBDqr_gen_cmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
                     const double b2, const double b3, const Eigen::ArrayXd mu,
@@ -882,6 +970,9 @@ SEXP IpBDqr_gen_nvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
                     const double b2, const double b3, const Eigen::ArrayXd mu,
@@ -901,6 +992,9 @@ SEXP IpBDqr_gen_nmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_int()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
@@ -923,6 +1017,9 @@ SEXP ApBDqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_int()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,
@@ -945,6 +1042,9 @@ SEXP ApBDqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_int()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
@@ -968,6 +1068,9 @@ SEXP ApBDqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_int()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,
@@ -992,6 +1095,9 @@ SEXP ApBDqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_npi()}, central & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
@@ -1012,6 +1118,9 @@ SEXP ApBDqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_npi()}, central & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,
@@ -1032,6 +1141,9 @@ SEXP ApBDqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral & vector
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
@@ -1053,6 +1165,9 @@ SEXP ApBDqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     return Rcpp::List::create(Rcpp::Named("ansseq") = ansseq);
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral & matrix
+//'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,

@@ -67,3 +67,65 @@
 # #' @importFrom Rcpp sourceCpp
 # #' @exportPattern "^[[:alpha:]]+"
 NULL
+
+## Documentation of C++ functions
+#' Internal C++ functions
+#'
+#' These are internal \code{C++} functions called from
+#' the corresponding \code{R} functions when \code{use_cpp = TRUE}.
+#' Direct access by the user is **not** assumed.
+#' All parameters are assumed to be appropriately structured.
+#'
+#' At present, \code{ApIq_int_nmE()} calls the \code{R} function
+#' \code{gsl::hyperg_1F1()}, so will not be much faster than
+#' the \code{R} equivalent.
+#' Ideally, the \code{C++} library \code{gsl} (or the like) should be used with
+#' \code{RcppGSL}, but this is not done (commented out in the source code)
+#' to increase portability.
+#'
+#' \code{rqfrE}, \code{rqfmrE}, and \code{rqfpE} use \code{Rcpp::rnorm()},
+#' which may not be particularly efficient.
+#'
+#' @param A,B,D
+#'   Argument matrices passed as \code{Eigen::MatrixXd}.
+#'   Symmetry is assumed.
+#' @param LA,LB,LD
+#'   Eigenvalues of the argument matrices passed as \code{Eigen::ArrayXd}
+#' @param UA
+#'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}} corresponding to
+#'   \code{LA}.  Passed as \code{Eigen::MatrixXd}.
+#' @param b1,b2,b3
+#'   Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+#'   and \eqn{\mathbf{D}}.  Passed as \code{double}.
+#' @param mu
+#'   Mean vector \eqn{\bf{\mu}} for \eqn{\mathbf{x}}
+#'   passed as \code{Eigen::ArrayXd}
+#' @param Sigma
+#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+#'   Passed as \code{Eigen::MatrixXd}.
+#' @param p,q,r
+#'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
+#'   Passed as \code{double}.
+#' @param m
+#'   Order of polynomials at which the series expression is truncated,
+#'   Passed as \code{int}.
+#' @param error_bound
+#'   \code{bool} to specify whether the error bound is returned.
+#' @param nthreads
+#'   \code{int} to specify the number of threads in \code{OpenMP}-enabled
+#'   functions.  See "Details" in \code{\link{qfmrm}}.
+#' @param nit
+#'   \code{int} to specify the number of iteration or sample size.
+#'
+#' @return
+#'   All return a list via \code{Rcpp::List} of the following (as appropriate):
+#'   \itemize{
+#'      \item{\code{ans}}{Exact moment, from \code{double}}
+#'      \item{\code{ansseq}}{Series for the moment, from \code{Eigen::ArrayXd}}
+#'      \item{\code{errseq}}{Series of errors, from \code{Eigen::ArrayXd}}
+#'      \item{\code{twosided}}{Logical, from \code{bool}}
+#'   }
+#'
+#' @name qfrm_cpp
+#'
+NULL

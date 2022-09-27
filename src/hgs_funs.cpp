@@ -13,6 +13,7 @@ using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 
 
+// Eigen function to put cumulative sum of Data into Out
 void set_cumsum(const Eigen::ArrayXd& Data, Eigen::ArrayXd& Out) {
     std::partial_sum(Data.data(), Data.data() + Data.size(), Out.data());
 }
@@ -32,6 +33,10 @@ void set_cumsum(const Eigen::ArrayXd& Data, Eigen::ArrayXd& Out) {
 //     return (x > T(0)) - (x < T(0));
 // }
 
+// Eigen function to calculate a series of log (of absolute value of)
+// rising factorial (a)_k from parameter a and length n (k = 0, 1, ... n - 1).
+// When a is a negative integer, the result will be NaN from the (a+1)-th term
+// (as it should be)
 Eigen::ArrayXd get_lrf(const double a, const int n) {
     ArrayXd ans(n);
     if((a < 0) && (double(int(a)) == a)) { // If a is negative integer
@@ -46,6 +51,8 @@ Eigen::ArrayXd get_lrf(const double a, const int n) {
     return ans;
 }
 
+// Eigen function to obtain the signs of a series of rising factorial (a)_k
+// from parameter a and length n (k = 0, 1, ... n - 1)
 Eigen::ArrayXd get_sign_rf(const double a, const int n) {
     ArrayXd ans(n);
     ArrayXd Signs = sign(ArrayXd::LinSpaced(n, a - 1, a + n - 2));
@@ -54,6 +61,7 @@ Eigen::ArrayXd get_sign_rf(const double a, const int n) {
     return ans;
 }
 
+// Eigen function to obtain the signs of a series of rising factorial (a+1)_k
 Eigen::ArrayXd get_sign_rfp1(const double a, const int n) {
     ArrayXd ans(n);
     ArrayXd Signs = sign(ArrayXd::LinSpaced(n, a, a + n - 1));
@@ -74,7 +82,7 @@ Eigen::MatrixXd ResizeFor3d(const Eigen::VectorXd& X) {
     return mX.transpose().colwise().replicate(n);
 }
 
-// C++ version of hgs_1d
+// Eigen version of hgs_1d()
 //
 // Takes lscf as a separate parameter
 //
@@ -99,7 +107,7 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 }
 
 
-// C++ version of hgs_2d
+// Eigen version of hgs_2d()
 //
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
@@ -135,7 +143,7 @@ Eigen::ArrayXXd hgs_2dE(const Eigen::ArrayXXd& dks,
 }
 
 
-// C++ version of hgs_3d
+// Eigen version of hgs_3d()
 //
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,

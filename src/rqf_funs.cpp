@@ -8,6 +8,8 @@ using Eigen::VectorXd;
 // using Eigen::LDLT;
 
 
+// Eigen function to obtain matrix square root via Cholesky decomposition
+// with pivoting (accommodates singular matrices)
 inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
     Eigen::LDLT<MatrixXd> ldltX(X);
     MatrixXd D = ldltX.vectorD();
@@ -15,6 +17,8 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
     return D.array().sqrt().matrix().asDiagonal() * U * ldltX.transpositionsP();
 }
 
+// // Eigen function to obtain matrix square root via Cholesky decomposition
+// // without pivoting (does not work for singular matrices)
 // inline Eigen::MatrixXd cholpiv_LE(const Eigen::MatrixXd& X) {
 //     Eigen::LDLT<MatrixXd> ldltX(X);
 //     MatrixXd D = ldltX.vectorD();
@@ -22,12 +26,16 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
 //     return ldltX.transpositionsP().transpose() * L * D.array().sqrt().matrix().asDiagonal();
 // }
 
+// // Eigen function to obtain matrix square root via eigendecomposition
 // inline Eigen::MatrixXd matsqrtE(const Eigen::MatrixXd& X) {
 //     Eigen::SelfAdjointEigenSolver<MatrixXd> eigX(X);
 //     return eigX.operatorSqrt();
 // }
 
-// [[Rcpp::export]]
+// Eigen function to obtain multivariate normal variables
+// with specified mean vector and covariance
+// This uses Rcpp::rnorm(), which may not be particularly efficient
+// // [[Rcpp::export]]
 Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
                       const Eigen::MatrixXd& Sigma) {
     const int nv = Sigma.rows();
@@ -48,6 +56,9 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
     return X;
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{rqfr()}
+//'
 // [[Rcpp::export]]
 Eigen::ArrayXd rqfrE(const int nit,
                      const Eigen::MatrixXd A, const Eigen::MatrixXd B,
@@ -64,6 +75,9 @@ Eigen::ArrayXd rqfrE(const int nit,
     return ans;
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{rqfmr()}
+//'
 // [[Rcpp::export]]
 Eigen::ArrayXd rqfmrE(const int nit,
                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
@@ -77,6 +91,9 @@ Eigen::ArrayXd rqfmrE(const int nit,
     return ans;
 }
 
+//' @describeIn qfrm_cpp
+//'   \code{rqfp()}
+//'
 // [[Rcpp::export]]
 Eigen::ArrayXd rqfpE(const int nit,
                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
