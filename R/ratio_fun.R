@@ -1160,14 +1160,10 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
                        - lgamma(n / 2 + 0:m + 1) + lgamma(n / 2 + p - q)
                        + (p - q) * log(2) - p * log(b1))
-            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) - exp((lcoefe + log(cumsum(dkst[1:(m + 1)] / exp(lscf)))))
-            # errseq1 <- exp(lcoefe - sum(log(1 - Lp)) / 2) # The determinant part times coefficients
-            # dkst_e_sc <- exp(outer(log(dkst), lcoefe, "+") - lscf) # dkst times coef before scaling back to avoid numerical overflow
-            # # errseq2 <- colSums(dkst_e_sc * upper.tri(dkst_e_sc, diag = TRUE)) # Cumulative sum part; requires too much RAM
-            # errseq2 <- sapply(1:(m + 1), function(i) sum(dkst_e_sc[1:i, i])) # Cumulative sum part
-            # # errseq2 <- sapply(1:(m + 1), function(i)
-            # #                   sum(exp((log(dkst[1:i]) + lcoefe[i]) - lscf[1:i]))) # Cumulative sum part
-            # errseq <- errseq1 - errseq2
+            errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
+                      exp((lcoefe + log(cumsum(dkst[1:(m + 1)] /
+                                        exp(lscf[1:(m + 1)] - lscf[m + 1])))) -
+                          lscf[m + 1])
             errseq <- errseq * cumprod(sign(-p + 0:m))
         }
         errorb <- errseq[length(errseq)]
@@ -1415,13 +1411,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                         - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q)
                         + (p - q) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-                      exp(lcoefe + log(cumsum(dkst / exp(lscft))))
-            # errseq1 <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2))
-            # # dkst_e_sc <- exp(outer(log(dkst), lcoefe, "+") - lscft) # dkst times coef before scaling back to avoid numerical overflow
-            # # errseq2 <- sapply(1:(m + 1), function(i) sum(dkst_e_sc[1:i, i])) # Cumulative sum part
-            # errseq2 <- sapply(1:(m + 1), function(i)
-            #                   sum(exp((log(dkst[1:i]) + lcoefe[i]) - lscft[1:i]))) # Cumulative sum part
-            # errseq <- errseq1 - errseq2
+                      exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
+                          - lscft[m + 1])
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
@@ -1839,13 +1830,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                        - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
-                      exp(lcoefe + log(cumsum(dkst / exp(lscft))))
-            # errseq1 <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2))
-            # # dkst_e_sc <- exp(outer(log(dkst), lcoefe, "+") - lscft) # dkst times coef before scaling back to avoid numerical overflow
-            # # errseq2 <- sapply(1:(m + 1), function(i) sum(dkst_e_sc[1:i, i])) # Cumulative sum part
-            # errseq2 <- sapply(1:(m + 1), function(i)
-            #                   sum(exp((log(dkst[1:i]) + lcoefe[i]) - lscft[1:i]))) # Cumulative sum part
-            # errseq <- errseq1 - errseq2
+                      exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
+                          - lscft[m + 1])
         }
         errorb <- errseq[length(errseq)]
         attr(errseq, "twosided") <- twosided
