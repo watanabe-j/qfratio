@@ -1,13 +1,13 @@
 #' @exportS3Method
 #'
-print.qfrm <- function(x, digits = getOption("digits"),
+print.qfrm <- function(x, digits = getOption("digits") + 2,
                        show_range = !is.null(x$error_bound),
                        prefix = "\t", ...) {
     stat <- x$statistic
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     cat("\n")
-    cat(strwrap("Moment of ratio of quadratic form", prefix = prefix), sep = "\n")
+    cat(strwrap("Moment of ratio of quadratic forms", prefix = prefix), sep = "\n")
     cat("\n")
     out <- character()
     if(!is.null(stat)) {
@@ -71,4 +71,19 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
                col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
                lty = c(lty_m, lty_e))
     }
+}
+
+#' @exportS3Method
+#'
+print.qfpm <- function(x, digits = getOption("digits") + 2,
+                       prefix = "\t", ...) {
+    stat <- x$statistic
+    cat("\n")
+    cat(strwrap("Moment of (product of) quadratic form(s)", prefix = prefix), sep = "\n")
+    cat("\n")
+    out <- paste("Moment =", format(stat, digits = max(1L, digits - 2L)))
+    cat(strwrap(paste(out, collapse = ", ")), sep = "\n")
+    cat("This value is exact\n")
+    cat("\n")
+    invisible(x)
 }

@@ -650,7 +650,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
     attr(errseq, "exact") <- TRUE
     errorb <- errseq
     structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ###############################
@@ -777,7 +777,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
     attr(errseq, "exact") <- TRUE
     errorb <- errseq
     structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ##### qfpm_ABDpqr_int #####
@@ -926,7 +926,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
     attr(errseq, "exact") <- TRUE
     errorb <- errseq
     structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 
