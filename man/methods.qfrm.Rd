@@ -109,3 +109,6 @@ plot(res1, ylim_f = c(0.8, 1.2), pos_leg = "topleft")
 plot(res2)
 
 }
+\seealso{
+\code{\link{new_qfrm}}: descriptions of the classes and their ``constructors''
+}

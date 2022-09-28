@@ -113,7 +113,7 @@
 #'   Tolerance against which the convergence of series is (roughly) determined
 #'
 #' @return
-#' A list consisting of the following:
+#' A list of the class \code{qfrm} consisting of the following:
 #' \itemize{
 #'   \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
 #'   \item{\code{$res_seq}: }{vector of truncated series up to the order \code{m}}
@@ -537,6 +537,11 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu = rep.int(0, n)
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}
 #'
+#' @return
+#' A list of the class \code{qfpm} which has the same elements as those
+#' returned by the \code{\link{qfrm}} functions.
+#' Use \code{$statistic} to access the value of the moment.
+#'
 #' @seealso
 #' \code{\link{qfrm}} and \code{\link{qfmrm}} for moments of ratios
 #'
@@ -645,12 +650,13 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
         }
         ans <- 2 ^ p * factorial(p) * dp
     }
-    ansseq <- ans
-    errseq <- 0
-    attr(errseq, "exact") <- TRUE
-    errorb <- errseq
-    structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
+    new_qfpm(ans)
+    # ansseq <- ans
+    # errseq <- 0
+    # attr(errseq, "exact") <- TRUE
+    # errorb <- errseq
+    # structure(list(statistic = ans, error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ###############################
@@ -772,12 +778,13 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
         }
         ans <- 2 ^ (p + q) * factorial(p) * factorial(q) * dpq
     }
-    ansseq <- ans
-    errseq <- 0
-    attr(errseq, "exact") <- TRUE
-    errorb <- errseq
-    structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
+    new_qfpm(ans)
+    # ansseq <- ans
+    # errseq <- 0
+    # attr(errseq, "exact") <- TRUE
+    # errorb <- errseq
+    # structure(list(statistic = ans, error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ##### qfpm_ABDpqr_int #####
@@ -921,12 +928,13 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
         }
         ans <- 2 ^ (p + q + r) * factorial(p) * factorial(q) * factorial(r) * dpqr
     }
-    ansseq <- ans
-    errseq <- 0
-    attr(errseq, "exact") <- TRUE
-    errorb <- errseq
-    structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfpm")
+    new_qfpm(ans)
+    # ansseq <- ans
+    # errseq <- 0
+    # attr(errseq, "exact") <- TRUE
+    # errorb <- errseq
+    # structure(list(statistic = ans, error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 
@@ -1041,15 +1049,12 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     if(exact) {
         errseq <- ans - cumsum(ansseq)
-        errorb <- errseq[length(errseq)]
-        attr(errorb, "exact") <- TRUE
-        attr(errseq, "exact") <- TRUE
     } else {
-        errorb <- NA_real_
-        errseq <- NULL
+        errseq <- NA_real_
     }
-    structure(list(statistic = ans, error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+    new_qfrm(statistic = ans, res_seq = ansseq, err_seq = errseq, exact = exact)
+    # structure(list(statistic = ans, error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfrm_ApIq_npi #####
@@ -1147,6 +1152,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             tol_conv, "\n  Check sensitivity with different m?")
         }
     }
+    singularA <- any(LA < tol_sing)
+    alphaout <- alphaA > 1
     if(error_bound && central) {
         if(use_cpp) {
             errseq <- cppres$errseq
@@ -1170,20 +1177,13 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           lscf[m + 1])
             errseq <- errseq * cumprod(sign(-p + 0:m))
         }
-        errorb <- errseq[length(errseq)]
-        attr(errseq, "twosided") <- twosided
-        attr(errorb, "twosided") <- twosided
-        if(any(LA < tol_sing)) {
+        if(singularA) {
             warning("Argument matrix is numerically close to singular.\n  ",
             "If it is singular, this error bound is invalid.")
-            attr(errseq, "singular") <- TRUE
-            attr(errorb, "singular") <- TRUE
         }
-        if(alphaA > 1) {
+        if(alphaout) {
             warning("Error bound is unreliable when alphaA > 1\n  ",
             "It is returned purely for heuristic purpose")
-            attr(errseq, "alphaout") <- TRUE
-            attr(errorb, "alphaout") <- TRUE
         }
         # if(check_convergence) {
         #     lines(errseq + cumsum(ansseq), col = "tomato", lty = 2)
@@ -1193,14 +1193,15 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             rlang::warn(paste0("Error bound is unavailable for qfrm_ApIq_npi() ",
                         "when mu is nonzero"), .frequency = "once",
                         .frequency_id = "errorb_ApIq_npi_noncentral")
-            errorb <- NA_real_
+            errseq <- NA_real_
         } else {
-            errorb <- NULL
+            errseq <- NULL
         }
-        errseq <- NULL
     }
-    structure(list(statistic = sum(ansseq), error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = errseq,
+             twosided = FALSE, alphaout = alphaout, singular_arg = singularA)
+    # structure(list(statistic = sum(ansseq), error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 
@@ -1364,6 +1365,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             tol_conv, "\n  Check sensitivity with different m?")
         }
     }
+    singularB <- any(LB < tol_sing)
+    alphaout <- alphaB > 1
     if(error_bound) {
         if(use_cpp) {
             errseq <- cppres$errseq
@@ -1421,31 +1424,26 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
         }
-        errorb <- errseq[length(errseq)]
-        attr(errseq, "twosided") <- twosided
-        attr(errorb, "twosided") <- twosided
-        if(any(LB < tol_sing)) {
+        if(singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
                     "If it is singular, this error bound is invalid.")
-            attr(errseq, "singular") <- TRUE
-            attr(errorb, "singular") <- TRUE
         }
-        if(alphaB > 1) {
+        if(alphaout) {
             warning("Error bound is unreliable ",
                     "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
-            attr(errseq, "alphaout") <- TRUE
-            attr(errorb, "alphaout") <- TRUE
         }
         # if(check_convergence) {
         #     lines(errseq + cumsum(ansseq), col = "tomato", lty = 2)
         # }
     } else {
         errseq <- NULL
-        errorb <- NULL
+        twosided <- NULL
     }
-    structure(list(statistic = sum(ansseq), error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = errseq, twosided = twosided,
+             alphaout = alphaout, singular_arg = singularB)
+    # structure(list(statistic = sum(ansseq), error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfrm_ApBq_npi #####
@@ -1604,8 +1602,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             tol_conv, "\n  Check sensitivity with different m?")
         }
     }
-    structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-                   res_seq = ansseq, err_seq = NULL), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
+    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 
@@ -1776,6 +1775,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
+    singularB <- any(LB < tol_sing)
+    alphaout <- alphaB > 1
     if(error_bound) {
         if(use_cpp) {
             errseq <- cppres$errseq
@@ -1840,28 +1841,23 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
         }
-        errorb <- errseq[length(errseq)]
-        attr(errseq, "twosided") <- twosided
-        attr(errorb, "twosided") <- twosided
-        if(any(LB < tol_sing)) {
+        if(singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
                     "If it is singular, this error bound is invalid.")
-            attr(errseq, "singular") <- TRUE
-            attr(errorb, "singular") <- TRUE
         }
-        if(alphaB > 1) {
+        if(alphaout) {
             warning("Error bound is unreliable ",
                     "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
-            attr(errseq, "alphaout") <- TRUE
-            attr(errorb, "alphaout") <- TRUE
         }
     } else {
         errseq <- NULL
-        errorb <- NULL
+        twosided <- NULL
     }
-    structure(list(statistic = sum(ansseq), error_bound = errorb,
-                   res_seq = ansseq, err_seq = errseq), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = errseq,
+             twosided = twosided, alphaout = alphaout, singular_arg = singularB)
+    # structure(list(statistic = sum(ansseq), error_bound = errorb,
+    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfmrm_ApBIqr_npi #####
@@ -2039,8 +2035,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-                   res_seq = ansseq, err_seq = NULL), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
+    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_IpBDqr_gen #####
@@ -2210,8 +2207,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-                   res_seq = ansseq, err_seq = NULL), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
+    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_ApBDqr_int #####
@@ -2412,8 +2410,9 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-                   res_seq = ansseq, err_seq = NULL), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
+    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_ApBDqr_npi #####
@@ -2624,6 +2623,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-                   res_seq = ansseq, err_seq = NULL), class = "qfrm")
+    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
+    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }

@@ -125,7 +125,7 @@ See "Details".}
 \item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
 }
 \value{
-A list consisting of the following:
+A list of the class \code{qfrm} consisting of the following:
 \itemize{
 \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
 \item{\code{$res_seq}: }{vector of truncated series up to the order \code{m}}

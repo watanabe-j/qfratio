@@ -70,6 +70,11 @@ the identity matrix, etc.}
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
 The eigenvalues smaller than this are considered zero.}
 }
+\value{
+A list of the class \code{qfpm} which has the same elements as those
+returned by the \code{\link{qfrm}} functions.
+Use \code{$statistic} to access the value of the moment.
+}
 \description{
 Functions to obtain (compound) moments
 of a product of quadratic forms in normal variables, i.e.,

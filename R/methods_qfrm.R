@@ -1,3 +1,109 @@
+##### new_qfrm #####
+#' Construct qfrm object
+#'
+#' These are internal ``constructor'' functions used to make \code{qfrm} and
+#' \code{qfpm} objects, which are used as a return value from the
+#' \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
+#'
+#' @param statistic
+#'   Terminal value (truncated sum) of the moment.
+#'   When missing, obtained as \code{sum(res_seq)}.
+#' @param error_bound
+#'   Terminal error bound.
+#'   When missing, obtained as \code{err_seq[length(err_seq)]}.
+#' @param res_seq
+#'   Series expression for the moment along varying polynomial degrees
+#' @param err_seq
+#'   Error bound corresponding to \code{res_seq}
+#' @param exact,twosided,alphaout,singular_arg
+#'   Logicals used to append attributes to the resultant error bound (see "Value")
+#' @param class
+#'   Character vector to (pre-)append classes to the return value
+#' @param ...
+#'   Additional arguments for accommodating subclasses
+#'
+#' @return
+#' \code{new_qfrm()} and \code{new_qfpm()} return a list of class \code{qfrm}
+#' and \code{c(qfpm, qfrm)}, respectively.
+#' These classes are defined for the \code{print} and \code{plot} methods.
+#'
+#' The return object is a list of 4 elements which are intended to be:
+#' \itemize{
+#'   \item{\code{$statistic}: }{evaluation result}
+#'   \item{\code{$res_seq}: }{vector of truncated series}
+#'   \item{\code{$errorb}: }{error bound of \code{statistic}}
+#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
+#' }
+#' For the \code{qfpm} class, only \code{$statistic} is of practical importance
+#' (because the result is always exact).
+#'
+#' When the relevant flags are provided in the constructor, \code{$errorb}
+#' and \code{$err_seq} have the following attributes which control behaviors of
+#' the \code{print} and \code{plot} methods:
+#' \itemize{
+#'   \item{\code{"exact"}: }{Indicates the moment is exact}
+#'   \item{\code{"twosided"}: }{Indicates the error bounds are two-sided}
+#'   \item{\code{"alphaout"}: }{Indicates whether any of the scaling parameters
+#'                (\code{alphaA}, \code{alphaB}, \code{alphaD}) is outside
+#'                0 and 1, in which case error bound does not strictly hold}
+#'   \item{\code{"singular"}: }{Indicates whether the relevant argument matrix
+#'                is (numerically) singular, in which case the error bound is
+#'                invalid}
+#' }
+#'
+#' @seealso
+#' \code{\link{qfrm}}, \code{\link{qfmrm}}, \code{\link{qfpm}}: functions
+#' that return objects of these classes
+#'
+#' \code{\link{methods.qfrm}}: the \code{print} and \code{plot} methods
+#'
+#' @name new_qfrm
+#'
+new_qfrm <- function(statistic, error_bound = NULL,
+                     res_seq = statistic, err_seq = NULL,
+                     exact = FALSE, twosided = FALSE, alphaout = FALSE,
+                     singular_arg = FALSE, ...,
+                     class = character()) {
+    if(missing(statistic) && !missing(res_seq)) {
+        statistic <- sum(res_seq)
+    }
+    if(missing(error_bound) && !missing(err_seq)) {
+        error_bound <- err_seq[length(err_seq)]
+    }
+    if(!is.null(err_seq)) {
+        if(is.na(error_bound) && all(is.na(error_bound)) && !all(is.nan(error_bound))) {
+            err_seq <- NULL
+        }
+    }
+    if(isTRUE(exact)) {
+        if(!is.null(error_bound)) attr(error_bound, "exact") <- TRUE
+        if(!is.null(err_seq)) attr(err_seq, "exact") <- TRUE
+    }
+    if(isTRUE(twosided)) {
+        if(!is.null(error_bound)) attr(error_bound, "twosided") <- TRUE
+        if(!is.null(err_seq)) attr(err_seq, "twosided") <- TRUE
+    }
+    if(isTRUE(alphaout)) {
+        if(!is.null(error_bound)) attr(error_bound, "alphaout") <- TRUE
+        if(!is.null(err_seq)) attr(err_seq, "alphaout") <- TRUE
+    }
+    if(isTRUE(singular_arg)) {
+        if(!is.null(error_bound)) attr(error_bound, "singular") <- TRUE
+        if(!is.null(err_seq)) attr(err_seq, "singular") <- TRUE
+    }
+    structure(list(statistic = statistic, error_bound = error_bound,
+                   res_seq = res_seq, err_seq = err_seq),
+              class = c(class, "qfrm"))
+}
+
+#' @rdname new_qfrm
+#'
+new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
+    error <- 0
+    new_qfrm(statistic, error, statistic, error, exact = exact, ...,
+             class = c(class, "qfpm"))
+}
+
 ##### methods.qfrm (documentation) #####
 #' Methods for qfrm and qfpm objects
 #'
@@ -52,6 +158,9 @@
 #'   with the generic method).
 #'
 #' @name methods.qfrm
+#'
+#' @seealso
+#' \code{\link{new_qfrm}}: descriptions of the classes and their ``constructors''
 #'
 #' @examples
 #' nv <- 4
