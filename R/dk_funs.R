@@ -11,7 +11,7 @@
 #' The former is related to the top-order zonal polynomial
 #' \eqn{C_{[k]}(\mathbf{A})} in the following way:
 #' \eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k C_{[k]}(\mathbf{A}) },
-#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}.
+#' where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}.
 #'
 #' These functions calculate the coefficients based on the super-short
 #' recursion algorithm described in Hillier et al. (2014: 3.2, eqs. 28--30).
@@ -69,7 +69,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two or three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used to calculate moments of a product of two or
 #' three quadratic forms.
 #'
@@ -131,7 +131,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving two or three quadratic forms.
 #'
@@ -143,7 +143,7 @@ NULL
 #' \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
 #'      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
 #'      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
-#' where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}
+#' where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}
 #' (Chikuse 1987; Hillier et al. 2009).
 #'
 #' \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
@@ -155,7 +155,7 @@ NULL
 #' \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
 #' in Hillier et al. (2014), used to calculate an error bound for
 #' truncated sum for moments of a ratio of quadratic forms.
-#' The mean vector \eqn{\bf{\mu}} is a parameter in all these.
+#' The mean vector \eqn{\bm{\mu}} is a parameter in all these.
 #'
 #' There are two different situations in which these coefficients are used
 #' in calculation of moments of ratios of quadratic forms:
@@ -268,7 +268,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving three quadratic forms.
 #'
@@ -285,8 +285,8 @@ NULL
 #'
 #' \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
 #'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
-#' \eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}, and
-#' \eqn{\hat{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
+#' \eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
+#' \eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
 #' respectively, as described in Watanabe (forthcoming). These are equivalent
 #' to similar coefficients described in Bao & Kan (2013) and
 #' Hillier et al. (2014).
@@ -992,7 +992,7 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
 ##### arl #####
 #' Recursion for a_{r,l}
 #'
-#' \code{arl()} is an internal function to calculate \eqn{a_{k,l}} as defined
+#' \code{arl()} is an internal function to calculate \eqn{a_{r,l}} as defined
 #' in Hillier et al. (2014; eq. 24), which is used in the calculation of
 #' the moment of such a ratio of quadratic forms in normal variables
 #' where the denominator matrix is identity.

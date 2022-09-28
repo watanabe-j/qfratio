@@ -127,10 +127,10 @@ See "Details".}
 \value{
 A list consisting of the following:
 \itemize{
-\item{$statistic}{evaluation result (\code{sum(res_seq)})}
-\item{$res_seq}{vector of truncated series up to the order \code{m}}
-\item{$errorb}{error bound of \code{statistic}}
-\item{$err_seq}{vector of error bounds corresponding to \code{res_seq}}
+\item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
+\item{\code{$res_seq}: }{vector of truncated series up to the order \code{m}}
+\item{\code{$errorb}: }{error bound of \code{statistic}}
+\item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
 }
 }
 \description{
@@ -213,7 +213,7 @@ the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
 The default is 1, which should suffice for most purposes.
 Values larger than 1 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold
-(see the references cited above).
+(see Hillier et al. 2009, 2014).
 
 \emph{Dependency note}: An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
@@ -221,10 +221,11 @@ recommended as the error bound will not strictly hold
 a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 (Hillier et al. 2014: theorem 4).
 This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
-available (which this package \code{Suggests}). Otherwise, the function uses
-the ordinary infinite series expression, which is less accurate and slow,
-and throws a warning (once per sessino). It is recommended to install
-that package if an accurate estimate is desired for that case.
+installed (which this package \code{Suggests}). Otherwise, the function uses
+the ordinary infinite series expression (Hillier et al. 2009), which is
+less accurate and slow, and throws a warning (once per session).
+It is recommended to install that package if an accurate estimate
+is desired for that case.
 }
 \examples{
 ## Some symmetric matrices and parameters

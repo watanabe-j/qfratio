@@ -217,7 +217,7 @@ Symmetry is assumed.}
 \item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
 Passed as \code{double}.}
 
-\item{mu}{Mean vector \eqn{\bf{\mu}} for \eqn{\mathbf{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 passed as \code{Eigen::ArrayXd}}
 
 \item{LA, LB, LD}{Eigenvalues of the argument matrices passed as \code{Eigen::ArrayXd}}
@@ -228,15 +228,15 @@ functions.  See "Details" in \code{\link{qfmrm}}.}
 \item{b1, b2, b3}{Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{\mathbf{D}}.  Passed as \code{double}.}
 
-\item{m}{Order of polynomials at which the series expression is truncated,
-Passed as \code{int}.}
+\item{m}{\code{int} to specify the order of polynomials at which the series
+expression is truncated}
 
-\item{error_bound}{\code{bool} to specify whether the error bound is returned.}
+\item{error_bound}{\code{bool} to specify whether the error bound is returned}
 
 \item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}} corresponding to
 \code{LA}.  Passed as \code{Eigen::MatrixXd}.}
 
-\item{nit}{\code{int} to specify the number of iteration or sample size.}
+\item{nit}{\code{int} to specify the number of iteration or sample size}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
 Passed as \code{Eigen::MatrixXd}.}
@@ -244,15 +244,15 @@ Passed as \code{Eigen::MatrixXd}.}
 \value{
 All return a list via \code{Rcpp::List} of the following (as appropriate):
 \itemize{
-\item{\code{ans}}{Exact moment, from \code{double}}
-\item{\code{ansseq}}{Series for the moment, from \code{Eigen::ArrayXd}}
-\item{\code{errseq}}{Series of errors, from \code{Eigen::ArrayXd}}
-\item{\code{twosided}}{Logical, from \code{bool}}
+\item{\code{$ans}: }{Exact moment, from \code{double}}
+\item{\code{$ansseq}: }{Series for the moment, from \code{Eigen::ArrayXd}}
+\item{\code{$errseq}: }{Series of errors, from \code{Eigen::ArrayXd}}
+\item{\code{$twosided}: }{Logical, from \code{bool}}
 }
 }
 \description{
 These are internal \code{C++} functions called from
-the corresponding \code{R} functions when \code{use_cpp = TRUE}.
+corresponding \code{R} functions when \code{use_cpp = TRUE}.
 Direct access by the user is \strong{not} assumed.
 All parameters are assumed to be appropriately structured.
 }

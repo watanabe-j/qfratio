@@ -79,10 +79,11 @@ diag(Sigma) <- 1
 rqfr(5, A, mu = 1:p / p, Sigma = Sigma)
 
 ## Compare Monte Carlo mean and analytic expression
+set.seed(3)
 mcres <- rqfr(1000, A, p = 2)
 mean(mcres)
-sd(mcres)
-qfrm(A, p = 2)
+(anres <- qfrm(A, p = 2))
+stats::t.test(mcres, mu = anres$statistic)
 
 }
 \seealso{

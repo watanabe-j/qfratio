@@ -1,9 +1,26 @@
 ## Documentation of the package
 #' qfratio: Moments of Ratios of Quadratic Forms Using Recursion
 #'
-#' This package provides functions to evaluate moments of ratios
+#' This package provides functions to evaluate moments of ratios (and products)
 #' of quadratic forms of normal variables, specifically using recursive
-#' algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
+#' algorithms developed by Hillier, Bao, Kan and colleagues.
+#'
+#' The primary front-end functions of this package are
+#' \code{\link{qfrm}()} and \code{\link{qfmrm}()} for evaluating moments of
+#' ratios of quadratic forms.
+#' These pass arguments to one of the several ``internal'' (though exported)
+#' functions which do actual calculations, depending on the argument matrices
+#' and exponents.
+#' In addition, there are a few functions to calculate moments of products
+#' of quadratic forms (integer exponents only; \code{\link{qfpm}}).
+#'
+#' There are many internal functions for calculating coefficients in
+#' power-series expansion of generating functions for these moments
+#' (\code{\link{d1_i}}, \code{\link{d2_ij}}, \code{\link{d3_ijk}},
+#' \code{\link{dtil2_pq}}) using ``super-short'' recursions
+#' (Bao & Kan, 2013; Hillier et al. 2014).
+#' Some of these coefficients are related to the top-order zonal and invariant
+#' polynomials of matrix arguments.
 #'
 #' The DESCRIPTION file:
 #' \packageDESCRIPTION{qfratio}
@@ -40,20 +57,54 @@
 #' @seealso
 #'   \code{\link{qfrm}}: Moment of simple ratio of quadratic forms
 #'
+#'   \code{\link{qfmrm}}: Moment of multiple ratio of quadratic forms
+#'
+#'   \code{\link{qfpm}}: Moment of product of quadratic forms
+#'
+#'   \code{\link{rqfr}}: Monte Carlo sampling of ratio/product of quadratic forms
+#'
 #' @examples
 #' ## Symmetric matrices
 #' nv <- 4
 #' A <- diag(nv:1)
 #' B <- diag(sqrt(1:nv))
+#' D <- diag((1:nv)^2 / nv)
+#' mu <- nv:1 / nv
+#' Sigma <- matrix(0.5, nv, nv)
+#' diag(Sigma) <- 1
 #'
 #' ## Expectation of (x^T A x)^2 / (x^T x)^2 where x ~ N(0, I)
 #' qfrm(A, p = 2)
+#' ## And a Monte Carlo mean of the same
+#' mean(rqfr(1000, A = A, p = 2))
 #'
 #' ## Expectation of (x^T A x)^1/2 / (x^T x)^1/2 where x ~ N(0, I)
-#' qfrm(A, p = 1/2)
+#' (res1 <- qfrm(A, p = 1/2))
+#' plot(res1)
+#' ## A Monte Carlo mean
+#' mean(rqfr(1000, A = A, p = 1/2))
 #'
-#' ## (x^T A x)^2 / (x^T B x)^3 where x ~ N(0, I)
-#' qfrm(A, B, p = 2, q = 3)
+#' ## (x^T A x)^2 / (x^T B x)^3 where x ~ N(mu, Sigma)
+#' (res2 <- qfrm(A, B, p = 2, q = 3, mu = mu, Sigma = Sigma))
+#' plot(res2)
+#' ## A Monte Carlo mean
+#' mean(rqfr(1000, A = A, B = B, p = 2, q = 3, mu = mu, Sigma = Sigma))
+#'
+#' ## Expectation of (x^T A x)^2 / (x^T B x) (x^T x) where x ~ N(0, I)
+#' (res3 <- qfmrm(A, B, p = 2, q = 1, r = 1))
+#' plot(res3)
+#' ## A Monte Carlo mean
+#' mean(rqfmr(1000, A = A, B = B, p = 2, q = 1, r = 1))
+#'
+#' ## Expectation of (x^T A x)^2 where x ~ N(0, I)
+#' qfm_Ap_int(A, 2)
+#' ## A Monte Carlo mean
+#' mean(rqfp(1000, A = A, p = 2, q = 0, r = 0))
+#'
+#' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, I)
+#' qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu)
+#' ## A Monte Carlo mean
+#' mean(rqfp(1000, A = A, B = B, D = D, p = 1, q = 1, r = 1, mu = mu))
 #'
 #' @docType package
 #' @name qfratio-package
@@ -72,7 +123,7 @@ NULL
 #' Internal C++ functions
 #'
 #' These are internal \code{C++} functions called from
-#' the corresponding \code{R} functions when \code{use_cpp = TRUE}.
+#' corresponding \code{R} functions when \code{use_cpp = TRUE}.
 #' Direct access by the user is **not** assumed.
 #' All parameters are assumed to be appropriately structured.
 #'
@@ -98,7 +149,7 @@ NULL
 #'   Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 #'   and \eqn{\mathbf{D}}.  Passed as \code{double}.
 #' @param mu
-#'   Mean vector \eqn{\bf{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
 #'   passed as \code{Eigen::ArrayXd}
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
@@ -107,23 +158,23 @@ NULL
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
 #'   Passed as \code{double}.
 #' @param m
-#'   Order of polynomials at which the series expression is truncated,
-#'   Passed as \code{int}.
+#'   \code{int} to specify the order of polynomials at which the series
+#'   expression is truncated
 #' @param error_bound
-#'   \code{bool} to specify whether the error bound is returned.
+#'   \code{bool} to specify whether the error bound is returned
 #' @param nthreads
 #'   \code{int} to specify the number of threads in \code{OpenMP}-enabled
 #'   functions.  See "Details" in \code{\link{qfmrm}}.
 #' @param nit
-#'   \code{int} to specify the number of iteration or sample size.
+#'   \code{int} to specify the number of iteration or sample size
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):
 #'   \itemize{
-#'      \item{\code{ans}}{Exact moment, from \code{double}}
-#'      \item{\code{ansseq}}{Series for the moment, from \code{Eigen::ArrayXd}}
-#'      \item{\code{errseq}}{Series of errors, from \code{Eigen::ArrayXd}}
-#'      \item{\code{twosided}}{Logical, from \code{bool}}
+#'      \item{\code{$ans}: }{Exact moment, from \code{double}}
+#'      \item{\code{$ansseq}: }{Series for the moment, from \code{Eigen::ArrayXd}}
+#'      \item{\code{$errseq}: }{Series of errors, from \code{Eigen::ArrayXd}}
+#'      \item{\code{$twosided}: }{Logical, from \code{bool}}
 #'   }
 #'
 #' @name qfrm_cpp

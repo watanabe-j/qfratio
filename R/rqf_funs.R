@@ -71,10 +71,11 @@
 #' rqfr(5, A, mu = 1:p / p, Sigma = Sigma)
 #'
 #' ## Compare Monte Carlo mean and analytic expression
+#' set.seed(3)
 #' mcres <- rqfr(1000, A, p = 2)
 #' mean(mcres)
-#' sd(mcres)
-#' qfrm(A, p = 2)
+#' (anres <- qfrm(A, p = 2))
+#' stats::t.test(mcres, mu = anres$statistic)
 #'
 rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
     if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {

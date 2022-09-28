@@ -27,7 +27,7 @@ the argument matrix: vectors of \eqn{\delta_i}}
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \description{
-\code{arl()} is an internal function to calculate \eqn{a_{k,l}} as defined
+\code{arl()} is an internal function to calculate \eqn{a_{r,l}} as defined
 in Hillier et al. (2014; eq. 24), which is used in the calculation of
 the moment of such a ratio of quadratic forms in normal variables
 where the denominator matrix is identity.

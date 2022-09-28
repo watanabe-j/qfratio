@@ -110,7 +110,7 @@ the \eqn{(p,q,r)}-th order).
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving three quadratic forms.
 }
@@ -128,8 +128,8 @@ in \code{\link{d2_ij}}.
 
 \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
 calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
-\eqn{\tilde{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}, and
-\eqn{\hat{h}_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
+\eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
+\eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
 respectively, as described in Watanabe (forthcoming). These are equivalent
 to similar coefficients described in Bao & Kan (2013) and
 Hillier et al. (2014).

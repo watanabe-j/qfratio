@@ -100,6 +100,8 @@ A <- diag(nv:1)
 B <- diag(sqrt(1:nv))
 D <- diag((1:nv)^2 / nv)
 mu <- nv:1 / nv
+Sigma <- matrix(0.5, nv, nv)
+diag(Sigma) <- 1
 
 ## Expectation of (x^T A x)^2 where x ~ N(0, I)
 qfm_Ap_int(A, 2)
@@ -114,8 +116,8 @@ qfpm_ABpq_int(A, p = 2, q = 0)
 ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 qfpm_ABDpqr_int(A, B, D, 1, 1, 1)
 
-## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, I)
-qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu)
+## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, Sigma)
+qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu, Sigma = Sigma)
 
 ## Expectations of (x^T x)^2 where x ~ N(0, I) and x ~ N(mu, I)
 ## i.e., roundabout way to obtain moments of

@@ -105,7 +105,7 @@ to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bf{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving two or three quadratic forms.
 }
@@ -118,7 +118,7 @@ These are also related to the top-order invariant polynomials
 \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
-where \eqn{(x)_k = x (x + 1)) \dots (x + k - 1)}
+where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}
 (Chikuse 1987; Hillier et al. 2009).
 
 \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
@@ -130,7 +130,7 @@ in Bao & Kan (2013). Note that the latter is denoted by the symbol
 \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
 in Hillier et al. (2014), used to calculate an error bound for
 truncated sum for moments of a ratio of quadratic forms.
-The mean vector \eqn{\bf{\mu}} is a parameter in all these.
+The mean vector \eqn{\bm{\mu}} is a parameter in all these.
 
 There are two different situations in which these coefficients are used
 in calculation of moments of ratios of quadratic forms:

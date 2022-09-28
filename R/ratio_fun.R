@@ -68,7 +68,7 @@
 #' The default is 1, which should suffice for most purposes.
 #' Values larger than 1 often yield faster convergence, but are *not*
 #' recommended as the error bound will not strictly hold
-#' (see the references cited above).
+#' (see Hillier et al. 2009, 2014).
 #'
 #' @param A,B
 #'   Argument matrices. Should be square. Will be automatically symmetrized.
@@ -115,10 +115,10 @@
 #' @return
 #' A list consisting of the following:
 #' \itemize{
-#'   \item{$statistic}{evaluation result (\code{sum(res_seq)})}
-#'   \item{$res_seq}{vector of truncated series up to the order \code{m}}
-#'   \item{$errorb}{error bound of \code{statistic}}
-#'   \item{$err_seq}{vector of error bounds corresponding to \code{res_seq}}
+#'   \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
+#'   \item{\code{$res_seq}: }{vector of truncated series up to the order \code{m}}
+#'   \item{\code{$errorb}: }{error bound of \code{statistic}}
+#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
 #'  }
 #'
 #' @references
@@ -549,8 +549,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu = rep.int(0, n)
 #' B <- diag(sqrt(1:nv))
 #' D <- diag((1:nv)^2 / nv)
 #' mu <- nv:1 / nv
-# #' Sigma <- matrix(0.5, nv, nv)
-# #' diag(Sigma) <- 1
+#' Sigma <- matrix(0.5, nv, nv)
+#' diag(Sigma) <- 1
 #'
 #' ## Expectation of (x^T A x)^2 where x ~ N(0, I)
 #' qfm_Ap_int(A, 2)
@@ -565,8 +565,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu = rep.int(0, n)
 #' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 #' qfpm_ABDpqr_int(A, B, D, 1, 1, 1)
 #'
-#' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, I)
-#' qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu)
+#' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(mu, Sigma)
+#' qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu, Sigma = Sigma)
 #'
 #' ## Expectations of (x^T x)^2 where x ~ N(0, I) and x ~ N(mu, I)
 #' ## i.e., roundabout way to obtain moments of
@@ -958,10 +958,11 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
 #' a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
 #' (Hillier et al. 2014: theorem 4).
 #' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
-#' available (which this package \code{Suggests}). Otherwise, the function uses
-#' the ordinary infinite series expression, which is less accurate and slow,
-#' and throws a warning (once per sessino). It is recommended to install
-#' that package if an accurate estimate is desired for that case.
+#' installed (which this package \code{Suggests}). Otherwise, the function uses
+#' the ordinary infinite series expression (Hillier et al. 2009), which is
+#' less accurate and slow, and throws a warning (once per session).
+#' It is recommended to install that package if an accurate estimate
+#' is desired for that case.
 #'
 # #' @importFrom gsl hyperg_1F1
 #'
