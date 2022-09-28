@@ -126,7 +126,6 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'   \code{qfrm} or \code{qfpm} object
 #' @param digits
 #'   Number of significant digits to be printed.
-#'   By default 2 digits larger than the setting in options.
 #' @param show_range
 #'   Logical to specify whether the possible range for the moment
 #'   is printed (when available).  Default \code{TRUE} when available.
@@ -190,42 +189,45 @@ NULL
 #'
 #' @exportS3Method
 #'
-print.qfrm <- function(x, digits = getOption("digits") + 2,
+print.qfrm <- function(x, digits = getOption("digits"),
                        show_range = !is.null(x$error_bound),
                        prefix = "\t", ...) {
     stat <- x$statistic
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
+    twosided <- isTRUE(attr(errorb, "twosided"))
     cat("\n")
     cat(strwrap("Moment of ratio of quadratic forms", prefix = prefix), sep = "\n")
     cat("\n")
     out <- character()
     if(!is.null(stat)) {
-        out <- c(out, paste("Moment =", format(stat,
-            digits = max(1L, digits - 2L))))
+        out <- c(out, paste("Moment =", format(stat, digits = max(1L, digits))))
     }
-    if(length(errorb) > 0 && !xor(all(is.na(errorb)), all(is.nan(errorb))) && !exact) {
-        out <- c(out, paste("Error =", format(errorb,
-            digits = max(1L, digits - 2L))))
+    # Is errorb all NA? (NaN should be excluded as it returns TRUE for is.na())
+    all_na_errorb <- xor(all(is.na(errorb)), all(is.nan(errorb)))
+    if(length(errorb) > 0 && !all_na_errorb && !exact) {
+        out <- c(out,
+                 paste("Error =", format(errorb, digits = max(1L, digits)),
+                       if(twosided) " (two-sided)" else " (one-sided)"))
     }
     cat(strwrap(paste(out, collapse = ", ")), sep = "\n")
     if(exact) {
         cat("This value is exact\n")
-    } else if(length(errorb) > 0 && xor(all(is.na(errorb)), all(is.nan(errorb)))) {
+    } else if(length(errorb) > 0 && all_na_errorb) {
         cat("Error bound unavailable; recommended to inspect plot() of this object\n")
     } else if(show_range) {
-        if(isTRUE(attr(errorb, "twosided"))) {
+        if(twosided) {
             ra <- sort(c(stat - errorb, stat + errorb))
         } else {
             ra <- sort(c(stat, stat + errorb))
         }
         cat("Possible range:\n ",
-        paste(format(ra, digits = digits), collapse = " "), "\n", sep = "")
+        paste(format(ra, digits = digits + 2L), collapse = " "), "\n", sep = "")
     }
-    if(isTRUE(attr(errorb, "singular"))) {
+    if(isTRUE(attr(errorb, "singular")) && !all_na_errorb) {
         cat(paste("Note: Argument matrix (numerically) singular, so error bound is unreliable\n"))
     }
-    if(isTRUE(attr(errorb, "alphaout"))) {
+    if(isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
         cat(paste("Note: Adjustment parameter(s) alpha above 1, so error bound is unreliable\n"))
     }
     cat("\n")
@@ -275,15 +277,17 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
 #'
 #' @exportS3Method
 #'
-print.qfpm <- function(x, digits = getOption("digits") + 2,
+print.qfpm <- function(x, digits = getOption("digits"),
                        prefix = "\t", ...) {
     stat <- x$statistic
+    errorb <- x$error_bound
+    exact <- isTRUE(attr(errorb, "exact"))
     cat("\n")
     cat(strwrap("Moment of (product of) quadratic form(s)", prefix = prefix), sep = "\n")
     cat("\n")
-    out <- paste("Moment =", format(stat, digits = max(1L, digits - 2L)))
+    out <- paste("Moment =", format(stat, digits = max(1L, digits)))
     cat(strwrap(paste(out, collapse = ", ")), sep = "\n")
-    cat("This value is exact\n")
+    if(exact) cat("This value is exact\n")
     cat("\n")
     invisible(x)
 }

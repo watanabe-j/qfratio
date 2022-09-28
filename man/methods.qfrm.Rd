@@ -9,13 +9,13 @@
 \usage{
 \method{print}{qfrm}(
   x,
-  digits = getOption("digits") + 2,
+  digits = getOption("digits"),
   show_range = !is.null(x$error_bound),
   prefix = "\\t",
   ...
 )
 
-\method{print}{qfpm}(x, digits = getOption("digits") + 2, prefix = "\\t", ...)
+\method{print}{qfpm}(x, digits = getOption("digits"), prefix = "\\t", ...)
 
 \method{plot}{qfrm}(
   x,
@@ -38,8 +38,7 @@
 \arguments{
 \item{x}{\code{qfrm} or \code{qfpm} object}
 
-\item{digits}{Number of significant digits to be printed.
-By default 2 digits larger than the setting in options.}
+\item{digits}{Number of significant digits to be printed.}
 
 \item{show_range}{Logical to specify whether the possible range for the moment
 is printed (when available).  Default \code{TRUE} when available.}
