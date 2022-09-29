@@ -56,40 +56,40 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
     return X;
 }
 
-//' @describeIn qfrm_cpp
-//'   \code{rqfr()}
-//'
-// [[Rcpp::export]]
-Eigen::ArrayXd rqfrE(const int nit,
-                     const Eigen::MatrixXd A, const Eigen::MatrixXd B,
-                     const double p, const double q,
-                     const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
-    MatrixXd X = rmvnE(nit, mu, Sigma);
-    // MatrixXd cAL = cholpiv_LE(A);
-    // MatrixXd cBL = cholpiv_LE(B);
-    // ArrayXd Num = (X * cAL).rowwise().squaredNorm().array().pow(p);
-    // ArrayXd Den = (X * cBL).rowwise().squaredNorm().array().pow(q);
-    ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
-    ArrayXd Den = (X * B * X.transpose()).diagonal().array().pow(q);
-    ArrayXd ans = Num / Den;
-    return ans;
-}
+// //' @describeIn qfrm_cpp
+// //'   \code{rqfr()}
+// //'
+// // [[Rcpp::export]]
+// Eigen::ArrayXd rqfrE(const int nit,
+//                      const Eigen::MatrixXd A, const Eigen::MatrixXd B,
+//                      const double p, const double q,
+//                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
+//     MatrixXd X = rmvnE(nit, mu, Sigma);
+//     // MatrixXd cAL = cholpiv_LE(A);
+//     // MatrixXd cBL = cholpiv_LE(B);
+//     // ArrayXd Num = (X * cAL).rowwise().squaredNorm().array().pow(p);
+//     // ArrayXd Den = (X * cBL).rowwise().squaredNorm().array().pow(q);
+//     ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
+//     ArrayXd Den = (X * B * X.transpose()).diagonal().array().pow(q);
+//     ArrayXd ans = Num / Den;
+//     return ans;
+// }
 
-//' @describeIn qfrm_cpp
-//'   \code{rqfmr()}
-//'
-// [[Rcpp::export]]
-Eigen::ArrayXd rqfmrE(const int nit,
-                     const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
-                     const double p, const double q, const double r,
-                     const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
-    MatrixXd X = rmvnE(nit, mu, Sigma);
-    ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
-    ArrayXd Den1 = (X * B * X.transpose()).diagonal().array().pow(q);
-    ArrayXd Den2 = (X * D * X.transpose()).diagonal().array().pow(r);
-    ArrayXd ans = Num / Den1 / Den2;
-    return ans;
-}
+// //' @describeIn qfrm_cpp
+// //'   \code{rqfmr()}
+// //'
+// // [[Rcpp::export]]
+// Eigen::ArrayXd rqfmrE(const int nit,
+//                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
+//                      const double p, const double q, const double r,
+//                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
+//     MatrixXd X = rmvnE(nit, mu, Sigma);
+//     ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
+//     ArrayXd Den1 = (X * B * X.transpose()).diagonal().array().pow(q);
+//     ArrayXd Den2 = (X * D * X.transpose()).diagonal().array().pow(r);
+//     ArrayXd ans = Num / Den1 / Den2;
+//     return ans;
+// }
 
 //' @describeIn qfrm_cpp
 //'   \code{rqfp()}

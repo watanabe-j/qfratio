@@ -43,8 +43,6 @@
 \alias{ApBDqr_npi_cmE}
 \alias{ApBDqr_npi_nvE}
 \alias{ApBDqr_npi_nmE}
-\alias{rqfrE}
-\alias{rqfmrE}
 \alias{rqfpE}
 \alias{qfrm_cpp}
 \title{Internal C++ functions}
@@ -204,10 +202,6 @@ ApBDqr_npi_nmE(
   nthreads = 0L
 )
 
-rqfrE(nit, A, B, p, q, mu, Sigma)
-
-rqfmrE(nit, A, B, D, p, q, r, mu, Sigma)
-
 rqfpE(nit, A, B, D, p, q, r, mu, Sigma)
 }
 \arguments{
@@ -264,7 +258,7 @@ Ideally, the \code{C++} library \code{gsl} (or the like) should be used with
 \code{RcppGSL}, but this is not done (commented out in the source code)
 to increase portability.
 
-\code{rqfrE}, \code{rqfmrE}, and \code{rqfpE} use \code{Rcpp::rnorm()},
+\code{rqfpE} uses \code{Rcpp::rnorm()},
 which may not be particularly efficient.
 }
 \section{Functions}{
@@ -352,10 +346,6 @@ which may not be particularly efficient.
 \item \code{ApBDqr_npi_nvE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector
 
 \item \code{ApBDqr_npi_nmE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix
-
-\item \code{rqfrE()}: \code{rqfr()}
-
-\item \code{rqfmrE()}: \code{rqfmr()}
 
 \item \code{rqfpE()}: \code{rqfp()}
 

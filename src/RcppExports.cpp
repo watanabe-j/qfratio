@@ -763,42 +763,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rqfrE
-Eigen::ArrayXd rqfrE(const int nit, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const double p, const double q, const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma);
-RcppExport SEXP _qfratio_rqfrE(SEXP nitSEXP, SEXP ASEXP, SEXP BSEXP, SEXP pSEXP, SEXP qSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type nit(nitSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type B(BSEXP);
-    Rcpp::traits::input_parameter< const double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< const double >::type q(qSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type Sigma(SigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rqfrE(nit, A, B, p, q, mu, Sigma));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rqfmrE
-Eigen::ArrayXd rqfmrE(const int nit, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D, const double p, const double q, const double r, const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma);
-RcppExport SEXP _qfratio_rqfmrE(SEXP nitSEXP, SEXP ASEXP, SEXP BSEXP, SEXP DSEXP, SEXP pSEXP, SEXP qSEXP, SEXP rSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type nit(nitSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type B(BSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type D(DSEXP);
-    Rcpp::traits::input_parameter< const double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< const double >::type q(qSEXP);
-    Rcpp::traits::input_parameter< const double >::type r(rSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type Sigma(SigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rqfmrE(nit, A, B, D, p, q, r, mu, Sigma));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rqfpE
 Eigen::ArrayXd rqfpE(const int nit, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D, const double p, const double q, const double r, const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma);
 RcppExport SEXP _qfratio_rqfpE(SEXP nitSEXP, SEXP ASEXP, SEXP BSEXP, SEXP DSEXP, SEXP pSEXP, SEXP qSEXP, SEXP rSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
@@ -862,8 +826,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_ApBDqr_npi_cmE", (DL_FUNC) &_qfratio_ApBDqr_npi_cmE, 11},
     {"_qfratio_ApBDqr_npi_nvE", (DL_FUNC) &_qfratio_ApBDqr_npi_nvE, 11},
     {"_qfratio_ApBDqr_npi_nmE", (DL_FUNC) &_qfratio_ApBDqr_npi_nmE, 12},
-    {"_qfratio_rqfrE", (DL_FUNC) &_qfratio_rqfrE, 7},
-    {"_qfratio_rqfmrE", (DL_FUNC) &_qfratio_rqfmrE, 9},
     {"_qfratio_rqfpE", (DL_FUNC) &_qfratio_rqfpE, 9},
     {NULL, NULL, 0}
 };

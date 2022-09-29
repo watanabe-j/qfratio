@@ -134,7 +134,7 @@ NULL
 #' \code{RcppGSL}, but this is not done (commented out in the source code)
 #' to increase portability.
 #'
-#' \code{rqfrE}, \code{rqfmrE}, and \code{rqfpE} use \code{Rcpp::rnorm()},
+#' \code{rqfpE} uses \code{Rcpp::rnorm()},
 #' which may not be particularly efficient.
 #'
 #' @param A,B,D

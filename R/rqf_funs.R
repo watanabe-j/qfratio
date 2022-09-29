@@ -13,6 +13,8 @@
 #' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} } (\code{rqfmr()}), and
 #' \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
 #' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+#' (Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
+#' with negative exponents.)
 #'
 #' When only one of \code{p} and \code{q} are provided in \code{rqfr()},
 #' the other (missing) one is set to the same value.
@@ -78,9 +80,6 @@
 #' stats::t.test(mcres, mu = anres$statistic)
 #'
 rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
-    if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
-        stop("Package \"mvtnorm\" is required to use this function.")
-    }
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
@@ -99,12 +98,7 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
     if(missing(p) && !missing(q)) p <- q
     if(missing(mu)) mu <- rep.int(0, n)
     if(missing(Sigma)) Sigma <- In
-    # X <- eigvaldisp::rmvn(nit, mean = mu, Sigma = Sigma)
-    if(use_cpp) {
-        return(rqfrE(nit, A, B, p, q, mu, Sigma))
-    }
-    X <- mvtnorm::rmvnorm(nit, mean = mu, sigma = Sigma)
-    diag(tcrossprod(tcrossprod(X, A), X)) ^ p / diag(tcrossprod(tcrossprod(X, B), X)) ^ q
+    rqfp(nit, A, B, p = p, q = -q, r = 0, mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
 
 ##### rqfmr #####
@@ -112,9 +106,6 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
 #' @export
 #'
 rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q, mu, Sigma, use_cpp = FALSE) {
-    if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
-        stop("Package \"mvtnorm\" is required to use this function.")
-    }
     if(missing(A)) {
         if(missing(B)) {
             if(missing(D)) {
@@ -146,12 +137,7 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q, mu, Sigma, use_
     if(missing(p) && !missing(q)) p <- q + r
     if(missing(mu)) mu <- rep.int(0, n)
     if(missing(Sigma)) Sigma <- In
-    if(use_cpp) {
-        return(rqfmrE(nit, A, B, D, p, q, r, mu, Sigma))
-    }
-    # X <- eigvaldisp::rmvn(nit, mean = mu, Sigma = Sigma)
-    X <- mvtnorm::rmvnorm(nit, mean = mu, sigma = Sigma)
-    diag(tcrossprod(tcrossprod(X, A), X)) ^ p / diag(tcrossprod(tcrossprod(X, B), X)) ^ q / diag(tcrossprod(tcrossprod(X, D), X)) ^ r
+    rqfp(nit, A, B, D, p = p, q = -q, r = -r, mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
 
 ##### rqfp #####

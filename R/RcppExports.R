@@ -296,20 +296,6 @@ ApBDqr_npi_nmE <- function(A, LB, D, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 10
 }
 
 #' @describeIn qfrm_cpp
-#'   \code{rqfr()}
-#'
-rqfrE <- function(nit, A, B, p, q, mu, Sigma) {
-    .Call(`_qfratio_rqfrE`, nit, A, B, p, q, mu, Sigma)
-}
-
-#' @describeIn qfrm_cpp
-#'   \code{rqfmr()}
-#'
-rqfmrE <- function(nit, A, B, D, p, q, r, mu, Sigma) {
-    .Call(`_qfratio_rqfmrE`, nit, A, B, D, p, q, r, mu, Sigma)
-}
-
-#' @describeIn qfrm_cpp
 #'   \code{rqfp()}
 #'
 rqfpE <- function(nit, A, B, D, p, q, r, mu, Sigma) {
