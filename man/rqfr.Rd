@@ -53,7 +53,7 @@ where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 (Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
 with negative exponents.)
 
-When only one of \code{p} and \code{q} are provided in \code{rqfr()},
+When only one of \code{p} and \code{q} is provided in \code{rqfr()},
 the other (missing) one is set to the same value.
 
 In \code{rqfmr()}, \code{q} and \code{r} are set to \code{p/2}
@@ -61,18 +61,32 @@ when both missing, and set to the same value when only one is missing.
 When \code{p} is missing, this is set to be \code{q + r}.
 If unsure, specify all these explicitly.
 
-In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default.
+In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default,
+provided that the corresponding argument matrices are given.
+If both an argument matrix and its exponent (e.g., \code{D} and \code{r})
+are missing, the exponent is set to \code{0} so that the factor be unity.
 }
 \examples{
 p <- 4
 A <- diag(1:p)
 B <- diag(p:1)
 D <- diag(sqrt(1:p))
-rqfr(5, A) ## By default B = I, p = q = 1, x ~ N(0, I)
 
+## By default B = I, p = q = 1;
+## i.e., (x^T A x) / (x^T x), x ~ N(0, I)
+rqfr(5, A)
+
+## (x^T A x) / ((x^T B x)(x^T D x))^(1/2), x ~ N(0, I)
 rqfmr(5, A, B, D, 1, 1/2, 1/2)
 
-rqfp(5, A, B, D, 1, 1, 1)
+## (x^T A x), x ~ N(0, I)
+rqfp(5, A)
+
+## (x^T A x) (x^T B x), x ~ N(0, I)
+rqfp(5, A, B)
+
+## (x^T A x) (x^T B x) (x^T D x), x ~ N(0, I)
+rqfp(5, A, B, D)
 
 ## Example with non-standard normal
 mu <- 1:p / p
@@ -80,7 +94,7 @@ Sigma <- matrix(0.5, p, p)
 diag(Sigma) <- 1
 rqfr(5, A, mu = 1:p / p, Sigma = Sigma)
 
-## Compare Monte Carlo mean and analytic expression
+## Compare Monte Carlo sample and analytic expression
 set.seed(3)
 mcres <- rqfr(1000, A, p = 2)
 mean(mcres)

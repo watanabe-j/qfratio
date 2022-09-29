@@ -100,9 +100,24 @@ Eigen::ArrayXd rqfpE(const int nit,
                      const double p, const double q, const double r,
                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
     MatrixXd X = rmvnE(nit, mu, Sigma);
-    ArrayXd Num1 = (X * A * X.transpose()).diagonal().array().pow(p);
-    ArrayXd Num2 = (X * B * X.transpose()).diagonal().array().pow(q);
-    ArrayXd Num3 = (X * D * X.transpose()).diagonal().array().pow(r);
-    ArrayXd ans = Num1 * Num2 * Num3;
+    ArrayXd qfAp(nit);
+    ArrayXd qfBq(nit);
+    ArrayXd qfDr(nit);
+    if(p == 0) {
+        qfAp.setOnes();
+    } else {
+        qfAp = (X * A * X.transpose()).diagonal().array().pow(p);
+    }
+    if(q == 0) {
+        qfBq.setOnes();
+    } else {
+        qfBq = (X * B * X.transpose()).diagonal().array().pow(q);
+    }
+    if(r == 0) {
+        qfDr.setOnes();
+    } else {
+        qfDr = (X * D * X.transpose()).diagonal().array().pow(r);
+    }
+    ArrayXd ans = qfAp * qfBq * qfDr;
     return ans;
 }

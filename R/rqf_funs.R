@@ -16,7 +16,7 @@
 #' (Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
 #' with negative exponents.)
 #'
-#' When only one of \code{p} and \code{q} are provided in \code{rqfr()},
+#' When only one of \code{p} and \code{q} is provided in \code{rqfr()},
 #' the other (missing) one is set to the same value.
 #'
 #' In \code{rqfmr()}, \code{q} and \code{r} are set to \code{p/2}
@@ -24,7 +24,10 @@
 #' When \code{p} is missing, this is set to be \code{q + r}.
 #' If unsure, specify all these explicitly.
 #'
-#' In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default.
+#' In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default,
+#' provided that the corresponding argument matrices are given.
+#' If both an argument matrix and its exponent (e.g., \code{D} and \code{r})
+#' are missing, the exponent is set to \code{0} so that the factor be unity.
 #'
 #' @param nit
 #'   Number of iteration or sample size.  Should be an integer-alike of
@@ -53,18 +56,27 @@
 #'
 #' @name rqfr
 #'
-#' @export
-#'
 #' @examples
 #' p <- 4
 #' A <- diag(1:p)
 #' B <- diag(p:1)
 #' D <- diag(sqrt(1:p))
-#' rqfr(5, A) ## By default B = I, p = q = 1, x ~ N(0, I)
 #'
+#' ## By default B = I, p = q = 1;
+#' ## i.e., (x^T A x) / (x^T x), x ~ N(0, I)
+#' rqfr(5, A)
+#'
+#' ## (x^T A x) / ((x^T B x)(x^T D x))^(1/2), x ~ N(0, I)
 #' rqfmr(5, A, B, D, 1, 1/2, 1/2)
 #'
-#' rqfp(5, A, B, D, 1, 1, 1)
+#' ## (x^T A x), x ~ N(0, I)
+#' rqfp(5, A)
+#'
+#' ## (x^T A x) (x^T B x), x ~ N(0, I)
+#' rqfp(5, A, B)
+#'
+#' ## (x^T A x) (x^T B x) (x^T D x), x ~ N(0, I)
+#' rqfp(5, A, B, D)
 #'
 #' ## Example with non-standard normal
 #' mu <- 1:p / p
@@ -72,12 +84,14 @@
 #' diag(Sigma) <- 1
 #' rqfr(5, A, mu = 1:p / p, Sigma = Sigma)
 #'
-#' ## Compare Monte Carlo mean and analytic expression
+#' ## Compare Monte Carlo sample and analytic expression
 #' set.seed(3)
 #' mcres <- rqfr(1000, A, p = 2)
 #' mean(mcres)
 #' (anres <- qfrm(A, p = 2))
 #' stats::t.test(mcres, mu = anres$statistic)
+#'
+#' @export
 #'
 rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
     if(missing(A)) {
@@ -160,6 +174,7 @@ rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp =
         }
         In <- diag(n)
         A <- In
+        if(missing(p)) p <- 0
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
@@ -167,11 +182,13 @@ rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp =
     }
     if(missing(B)) {
         B <- In
+        if(missing(q)) q <- 0
     } else {
         B <- (B + t(B)) / 2
     }
     if(missing(D)) {
         D <- In
+        if(missing(r)) r <- 0
     } else {
         D <- (D + t(D)) / 2
     }
@@ -184,5 +201,20 @@ rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp =
     }
     # X <- eigvaldisp::rmvn(nit, mean = mu, Sigma = Sigma)
     X <- mvtnorm::rmvnorm(nit, mean = mu, sigma = Sigma)
-    diag(tcrossprod(tcrossprod(X, A), X)) ^ p * diag(tcrossprod(tcrossprod(X, B), X)) ^ q * diag(tcrossprod(tcrossprod(X, D), X)) ^ r
+    if(p == 0) {
+        qfAp <- rep.int(1, nit)
+    } else {
+        qfAp <- diag(tcrossprod(tcrossprod(X, A), X)) ^ p
+    }
+    if(q == 0) {
+        qfBq <- rep.int(1, nit)
+    } else {
+        qfBq <- diag(tcrossprod(tcrossprod(X, B), X)) ^ q
+    }
+    if(r == 0) {
+        qfDr <- rep.int(1, nit)
+    } else {
+        qfDr <- diag(tcrossprod(tcrossprod(X, D), X)) ^ r
+    }
+    qfAp * qfBq * qfDr
 }
