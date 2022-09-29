@@ -183,7 +183,7 @@ functions for actual calculation, as appropriate.
 positive-integral \eqn{p}
 
 \code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
-non-positive-integral \eqn{p}
+non-integral \eqn{p}
 
 \code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}
 
@@ -191,7 +191,7 @@ non-positive-integral \eqn{p}
 and \eqn{\mathbf{D}}, and positive-integral \eqn{p}
 
 \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}
+and \eqn{\mathbf{D}}, and non-integral \eqn{p}
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which
@@ -204,7 +204,7 @@ be swapped with \code{D} and \code{r}, respectively, before
 \code{qfmrm_ApBIqr_***()} is called.
 
 The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-This is similar to, but slightly differs from, that
+This is similar to, though slightly different from, that
 in \code{qfrm_ApBq_int()}.
 
 Smith (1989: p. 258) stated the existence condition for the moments

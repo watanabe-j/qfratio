@@ -87,8 +87,7 @@ qfrm_ApBq_npi(
 
 \item{p, q}{Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
 respectively. When only one is provided, the other is set to the same value.
-In \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()}, \eqn{p} should
-be a positive integer (an error results otherwise).}
+Should be length-one numeric (see "Details" for further conditions).}
 
 \item{m}{Order of polynomials at which the series expression is truncated.
 \eqn{M} in Hillier et al. (2009, 2014).}
@@ -145,7 +144,7 @@ the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{p}. Usually the best one is automatically selected.
 
 \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
-positive integral \eqn{p}.
+positive-integral \eqn{p}.
 
 \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
 non-positive-integral \eqn{p} (typically fraction or negative).
@@ -154,7 +153,7 @@ non-positive-integral \eqn{p} (typically fraction or negative).
 positive-integral \eqn{p}.
 
 \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}} and
-non-positive-integral \eqn{p}.
+non-integral \eqn{p}.
 }
 \details{
 These functions use infinite series expressions based on the joint
@@ -170,8 +169,18 @@ up to the order of polynomials specified by \code{m}, its sum,
 and error bounds corresponding to these (see "Values").
 The \code{print} method only displays the terminal truncated sum and its
 error bound (when available).
-Use the \code{plot} method for visual inspection, or the ordinary list
+Use \code{plot()} for visual inspection, or the ordinary list
 element access as required.
+
+In most cases, \code{p} and \code{q} should be nonnegative
+(in addition, \code{p} should be an integer in
+\code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()} when used directly),
+and an error is thrown otherwise. The only exception is
+\code{qfrm_ApIq_npi()} which accepts negative exponents to accommodate
+\eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}}.
+Even in the latter case, the exponents should have the same sign.
+(Technically, not all of these conditions are necessary for the mathematical
+results to hold, but they are enforced for the sake of simplicity).
 
 When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 a truncation error bound following Hillier et al. (2009: theorem 6) or

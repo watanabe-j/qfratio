@@ -24,8 +24,18 @@
 #' and error bounds corresponding to these (see "Values").
 #' The \code{print} method only displays the terminal truncated sum and its
 #' error bound (when available).
-#' Use the \code{plot} method for visual inspection, or the ordinary list
+#' Use \code{plot()} for visual inspection, or the ordinary list
 #' element access as required.
+#'
+#' In most cases, \code{p} and \code{q} should be nonnegative
+#' (in addition, \code{p} should be an integer in
+#' \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()} when used directly),
+#' and an error is thrown otherwise. The only exception is
+#' \code{qfrm_ApIq_npi()} which accepts negative exponents to accommodate
+#' \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}}.
+#' Even in the latter case, the exponents should have the same sign.
+#' (Technically, not all of these conditions are necessary for the mathematical
+#' results to hold, but they are enforced for the sake of simplicity).
 #'
 #' When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 #' a truncation error bound following Hillier et al. (2009: theorem 6) or
@@ -75,8 +85,7 @@
 #' @param p,q
 #'   Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
 #'   respectively. When only one is provided, the other is set to the same value.
-#'   In \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()}, \eqn{p} should
-#'   be a positive integer (an error results otherwise).
+#'   Should be length-one numeric (see "Details" for further conditions).
 #' @param m
 #'   Order of polynomials at which the series expression is truncated.
 #'   \eqn{M} in Hillier et al. (2009, 2014).
@@ -290,7 +299,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 #' \code{qfmrm_ApBIqr_***()} is called.
 #'
 #' The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-#' This is similar to, but slightly differs from, that
+#' This is similar to, though slightly different from, that
 #' in \code{qfrm_ApBq_int()}.
 # #' See \code{vignette("qfratio")} for technical details.
 #'
@@ -958,7 +967,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
 #' Positive integer moment of ratio of quadratic forms in normal variables
 #'
 #' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
-#' positive integral \eqn{p}.
+#' positive-integral \eqn{p}.
 #'
 #' *Dependency note*: An exact expression of the moment is available when
 #' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
@@ -1081,7 +1090,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         "A should be a square matrix" = all(c(dim(A)) == n),
         # "mu should be an n-vector" = length(mu) == n,
         "p should be a real number" = length(p) == 1,
-        "q should be a real number" = length(q) == 1
+        "q should be a real number" = length(q) == 1,
+        "p and q should have the same sign" = p * q >= 0
     )
     if((p %% 1) == 0 && p > 0) {
         warning("For integral p, qfrm_ApIq_int() works better")
@@ -1450,7 +1460,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' Non-positive-integer moment of ratio of quadratic forms
 #'
 #' \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}} and
-#' non-positive-integral \eqn{p}.
+#' non-integral \eqn{p}.
 #'
 #' @rdname qfrm
 #'
@@ -1864,7 +1874,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' Non-positive-integer moment of multiple ratio when D is identity
 #'
 #' \code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
-#' non-positive-integral \eqn{p}
+#' non-integral \eqn{p}
 #'
 #'
 #' @rdname qfmrm
@@ -2419,7 +2429,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 #' Positive integer moment of multiple ratio
 #'
 #' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{\mathbf{D}}, and non-positive-integral \eqn{p}
+#' and \eqn{\mathbf{D}}, and non-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'
