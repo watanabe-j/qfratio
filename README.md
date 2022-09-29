@@ -6,20 +6,22 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-This package provides functions to evaluate moments of ratios of
-quadratic forms in normal variables, specifically using recursive
-algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
+This package provides functions to evaluate moments of ratios (and
+products) of quadratic forms in normal variables, specifically using
+recursive algorithms developed by Hillier, Bao, Kan and colleagues.
+Generating functions for these moments are closely related to the
+top-order zonal and invariant polynomials of matrix arguments.
 
 There exist a couple of `Matlab` programs developed by Raymond Kan
 (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R`
-package has been developed independently with added functionalities.
+package has been developed independently with different functionalities.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
-quantitative genetics.
+evolutionary quantitative genetics.
 
 This project is **under active development**. Most planned
 functionalities have been implemented, but some may lack comprehensive
-documentation. At present, substantial restructuring might be possible.
+documentation. Substantial restructuring may happen in the future.
 
 ## Installation
 
@@ -30,9 +32,9 @@ devtools::install_github("watanabe-j/qfratio")
 
 This package has the following dependencies:
 
-    Imports: Rcpp (>= 1.0.8.3)
+    Imports: Rcpp, rlang (>= 0.4.7)
     LinkingTo: Rcpp, RcppEigen
-    Suggests: gsl, mvtnorm
+    Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)
 
 ## Examples
 
@@ -47,9 +49,9 @@ B <- diag(sqrt(nv:1))
 ## Expectation of (x^T A x)^2 / (x^T x)^2 where x ~ N(0, I)
 qfrm(A, p = 2)
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 6.6667
+#> Moment = 6.666667
 #> This value is exact
 
 ## Compare with Monte Carlo mean
@@ -59,11 +61,11 @@ mean(rqfr(1000, A = A, p = 2))
 ## Expectation of (x^T A x)^1/2 / (x^T x)^1/2
 (mom_A0.5 <- qfrm(A, p = 1/2))
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 1.5672, Error = -6.3358e-19
+#> Moment = 1.567224, Error = -6.335806e-19 (one-sided)
 #> Possible range:
-#>  1.567224 1.567224
+#>  1.56722381 1.56722381
 
 ## Monte Carlo mean
 mean(rqfr(1000, A = A, p = 1/2))
@@ -80,11 +82,11 @@ plot(mom_A0.5)
 ##   = "average conditional evolvability"
 (avr_cevoA <- qfrm(diag(nv), solve(A)))
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 2.1168, Error = 2.7756e-15
+#> Moment = 2.11678, Error = 2.775558e-15 (one-sided)
 #> Possible range:
-#>  2.11678 2.11678
+#>  2.11677962 2.11677962
 
 mean(rqfr(1000, A = diag(nv), B = solve(A), p = 1))
 #> [1] 2.124956
@@ -99,9 +101,9 @@ plot(avr_cevoA)
 ##   = "average autonomy"
 (avr_autoA <- qfmrm(diag(nv), A, solve(A), p = 2, q = 1, r = 1))
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 0.84166
+#> Moment = 0.8416553
 #> Error bound unavailable; recommended to inspect plot() of this object
 
 mean(rqfmr(1000, A = diag(nv), B = A, D = solve(A), p = 2, q = 1, r = 1))
@@ -120,9 +122,9 @@ plot(avr_autoA)
 (avr_rcorA <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
                     p = 1, q = 1/2, r = 1/2))
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 0.84622
+#> Moment = 0.8462192
 #> Error bound unavailable; recommended to inspect plot() of this object
 
 mean(rqfmr(1000, A = crossprod(A, B), B = crossprod(A), D = crossprod(B),
@@ -143,11 +145,11 @@ Sigma <- diag(runif(nv) * 3)
 (mom_A2B3 <- qfrm(A, B, p = 2, q = 3, mu = mu, Sigma = Sigma,
                   m = 500, use_cpp = TRUE))
 #> 
-#>  Moment of ratio of quadratic form
+#>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 0.51095, Error = 0
+#> Moment = 0.510947, Error = 0 (two-sided)
 #> Possible range:
-#>  0.510947 0.510947
+#>  0.510946975 0.510946975
 plot(mom_A2B3)
 ```
 
@@ -166,7 +168,8 @@ recursions for top-order invariant polynomials with applications.
 [10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
 
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and short
-recursions, with applications to the moments of quadratic forms in doi:
+recursions, with applications to the moments of quadratic forms in
+noncentral normal vectors. *Econometric Theory*, **30**, 436–473. doi:
 [10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
 
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in

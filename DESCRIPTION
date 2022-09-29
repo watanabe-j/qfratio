@@ -10,6 +10,8 @@ Description: This package provides functions to evaluate moments of ratios
     Generating functions for these moments are closely related to the top-order
     zonal and invariant polynomials of matrix arguments.
 License: GPL (>= 3)
+URL: https://github.com/watanabe-j/qfratio
+BugReports: https://github.com/watanabe-j/qfratio/issues
 Imports: Rcpp, rlang (>= 0.4.7)
 LinkingTo: Rcpp, RcppEigen
 Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)

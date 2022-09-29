@@ -23,11 +23,24 @@ set.seed(64501)
 <!-- badges: end -->
 
 
-This package provides functions to evaluate moments of ratios of quadratic forms in normal variables, specifically using recursive algorithms developed by Chikuse, Hillier, Bao, Kan and colleagues.
+This package provides functions to evaluate moments of ratios
+(and products) of quadratic forms in normal variables, specifically using
+recursive algorithms developed by Hillier, Bao, Kan and colleagues.
+Generating functions for these moments are closely related to the
+top-order zonal and invariant polynomials of matrix arguments.
 
-There exist a couple of `Matlab` programs developed by Raymond Kan (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R` package has been developed independently with added functionalities. This has originally been developed for a biological application, specifically for evaluating average evolvability measures in quantitative genetics.
+There exist a couple of `Matlab` programs developed by Raymond Kan
+(available from <https://www-2.rotman.utoronto.ca/~kan/>), but this
+`R` package has been developed independently with different
+functionalities.
+This has originally been developed for a biological application,
+specifically for evaluating average evolvability measures in
+evolutionary quantitative genetics.
 
-This project is **under active development**. Most planned functionalities have been implemented, but some may lack comprehensive documentation. At present, substantial restructuring might be possible.
+This project is **under active development**.
+Most planned functionalities have been implemented, but some may lack
+comprehensive documentation.
+Substantial restructuring may happen in the future.
 
 
 
@@ -40,9 +53,9 @@ devtools::install_github("watanabe-j/qfratio")
 
 This package has the following dependencies:
 
-    Imports: Rcpp (>= 1.0.8.3)
+    Imports: Rcpp, rlang (>= 0.4.7)
     LinkingTo: Rcpp, RcppEigen
-    Suggests: gsl, mvtnorm
+    Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)
 
 
 ## Examples
@@ -107,12 +120,26 @@ plot(mom_A2B3)
 
 ## References
 
-Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in normal random variables. *Journal of Multivariate Analysis*, **117**, 229--245. doi: [10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+normal random variables. *Journal of Multivariate Analysis*, **117**,
+229--245.
+doi: [10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
 
-Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions for top-order invariant polynomials with applications. *Econometric Theory*, **25**, 211--242. doi: [10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient
+recursions for top-order invariant polynomials with applications.
+*Econometric Theory*, **25**, 211--242.
+doi: [10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
 
-Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and short recursions, with applications to the moments of quadratic forms in doi: [10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and short
+recursions, with applications to the moments of quadratic forms in
+noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
+doi: [10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
 
-Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257. doi: [10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1)
+Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in
+normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
+doi: [10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1)
 
-Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal variables: evaluating some top-order invariant polynomials. *Australian Journal of Statistics*, **35**, 271--282. doi: [10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.1993.tb01335.x).
+Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
+variables: evaluating some top-order invariant polynomials.
+*Australian Journal of Statistics*, **35**, 271--282.
+doi: [10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.1993.tb01335.x).
