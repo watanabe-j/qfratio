@@ -16,11 +16,51 @@
 #' These functions calculate the coefficients based on the super-short
 #' recursion algorithm described in Hillier et al. (2014: 3.2, eqs. 28--30).
 #'
+#' ## Scaling:
+#' The coefficients described herein (and in \code{\link{d2_ij}} and
+#' \code{\link{d3_ijk}}) can become very large for higher-order terms,
+#' so there is a practical risk of numerical overflow when applied to
+#' large (\eqn{n > 100}, say) matrices.
+#' To avoid numerical overflow, these functions automatically scale
+#' coefficients (and temporary objects used to calculate them) by a large number
+#' (\code{1e10} at present) when any value in the temporary objects
+#' exceeds a predefined threshold (\code{.Machine$double.xmax / 100 / n}).
+#' This scaling happens order-wise; i.e., it influences all the coefficients
+#' of the same order in multidimensional coefficients (in \code{\link{d2_ij}}
+#' and \code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
+#'
+#' These scaling factors are recorded in the attribute \code{"logscale"} of the
+#' return value, which is a vector/matrix/array whose size is identical to the
+#' return value, so that \code{value / exp(attr(value, "logscale"))} equals
+#' the original quantities to be obtained (if there were no overflow).
+#'
+#' The \code{qfrm} and \code{qfmrm} functions handle return values of these
+#' functions by first multiplying them with hypergeometric coefficients
+#' (which are typically \eqn{\ll 1}) and then scaling the products back
+#' to the original scale using the recorded scaling factors.
+#' (To be precise, this typically happens within \code{\link{hgs}} functions.)
+#' The \code{C++} functions handle the problem similarly (but by using
+#' separate objects rather than attributes).
+#'
+#' However, this procedure does not always mitigate the problem in
+#' multidimensional coefficients; when there are very large and very small
+#' coefficients in the same order, smaller ones can diminish to the numerical
+#' \code{0} after repeated scaling.
+#' (The problem can be difficult to detect, but is typically diagnosed by a sudden
+#' plateau rather than a gradual saturation of the profile of series expression.)
+#' As this seems technically difficult to avoid without implementing
+#' cumbersome and inefficient coefficient-wise scaling, no workaround has
+#' been implemented in the present version of this package.
+#' It is planned that this will be handled by using the \code{long double} type
+#' with \code{RcppEigen} in future versions.
+#'
 #' @return
-#' A vector of length \code{m + 1}, corresponding to
+#' Vector of length \code{m + 1}, corresponding to
 #' the 0th, 1st, ..., and mth order terms.
 #' Hence, the \code{[m + 1]}-th element should be extracted
 #' when the coefficient for the mth order term is required.
+#'
+#' Has the attribute \code{"logscale"} as described in "Scaling" above.
 #'
 #' @param L
 #'   Vector of eigenvalues of the argument matrix
@@ -203,14 +243,17 @@ NULL
 #' in the signs of some terms.
 #'
 #' @return
-#' A \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
+#' \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
 #'
-#' A \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
+#' \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 #'
 #' The rows and columns correspond to increasing orders for
 #' \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
 #' And the 1st row/column of each dimension corresponds
 #' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
+#'
+#' Has the attribute \code{"logscale"} as described in the "Scaling" section
+#' in \code{\link{d1_i}}. This is a matrix of the same size as the return itself.
 #'
 #' @param A1,A2
 #'   Argument matrices. Assumed to be symmetric and of the same order.
@@ -321,9 +364,9 @@ NULL
 #'
 #' @return
 #'
-#' A \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
+#' \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
 #'
-#' A \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
+#' \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
 #' (by default; see "Details").
 #'
 #' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
@@ -331,6 +374,9 @@ NULL
 #' And the 1st row/column of each dimension corresponds
 #' to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
 #' the \eqn{(p,q,r)}-th order).
+#'
+#' Has the attribute \code{"logscale"} as described in the "Scaling" section
+#' in \code{\link{d1_i}}. This is an array of the same size as the return itself.
 #'
 #' @inheritParams d2_ij
 #' @param A1,A2,A3

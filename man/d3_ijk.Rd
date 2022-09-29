@@ -95,9 +95,9 @@ the output matrix should be filled.}
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-A \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
+\code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
 
-A \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
+\code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
 (by default; see "Details").
 
 The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
@@ -105,6 +105,9 @@ The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
 And the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
 the \eqn{(p,q,r)}-th order).
+
+Has the attribute \code{"logscale"} as described in the "Scaling" section
+in \code{\link{d1_i}}. This is an array of the same size as the return itself.
 }
 \description{
 These are internal functions to calculate the coefficients

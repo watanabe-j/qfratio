@@ -92,14 +92,17 @@ See "Details".}
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 }
 \value{
-A \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
+\code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
 
-A \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
+\code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 
 The rows and columns correspond to increasing orders for
 \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
 And the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
+
+Has the attribute \code{"logscale"} as described in the "Scaling" section
+in \code{\link{d1_i}}. This is a matrix of the same size as the return itself.
 }
 \description{
 These are internal functions to calculate the coefficients
