@@ -14,16 +14,16 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
     Eigen::LDLT<MatrixXd> ldltX(X);
     MatrixXd D = ldltX.vectorD();
     MatrixXd U = ldltX.matrixU();
-    return D.array().sqrt().matrix().asDiagonal() * U * ldltX.transpositionsP();
+    return D.array().sqrt().matrix().asDiagonal() * U * ldltX.transpositionsP().transpose();
 }
 
 // // Eigen function to obtain matrix square root via Cholesky decomposition
-// // without pivoting (does not work for singular matrices)
+// // with pivoting; lower  triangular
 // inline Eigen::MatrixXd cholpiv_LE(const Eigen::MatrixXd& X) {
 //     Eigen::LDLT<MatrixXd> ldltX(X);
 //     MatrixXd D = ldltX.vectorD();
 //     MatrixXd L = ldltX.matrixL();
-//     return ldltX.transpositionsP().transpose() * L * D.array().sqrt().matrix().asDiagonal();
+//     return ldltX.transpositionsP() * L * D.array().sqrt().matrix().asDiagonal();
 // }
 
 // // Eigen function to obtain matrix square root via eigendecomposition
