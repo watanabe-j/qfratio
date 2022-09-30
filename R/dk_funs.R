@@ -539,7 +539,7 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
 #             hs[[il2(i1, i2)]] <- ht
 #             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, ht))) / (2 * k)
 #         }
-#         # if(max(tG) > thr || max(ht) > thr) {
+#         # if(max(unlist(Gs)) > thr || max(unlist(hs)) > thr) {
 #         #     dks <- dks / 1e10
 #         #     Gs <- lapply(Gs, function(x) x / 1e10)
 #         #     hs <- lapply(hs, function(x) x / 1e10)
@@ -576,7 +576,7 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
 #             hs[[il2(i1, i2)]] <- ht
 #             dks[i1 + 1L, i2 + 1L] <- (sum(tG) + sum(mu * ht)) / (2 * k)
 #         }
-#         # if(max(tG) > thr || max(ht) > thr) {
+#         # if(max(unlist(Gs)) > thr || max(ht) > thr) {
 #         #     dks <- dks / 1e10
 #         #     Gs <- lapply(Gs, function(x) x / 1e10)
 #         #     hs <- lapply(hs, function(x) x / 1e10)
@@ -624,7 +624,7 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (tr(tG) + c(crossprod(mu, th))) / (2 * k)
 #             }
 #         }
-#         # if(max(tG) > thr || max(th) > thr) {
+#         # if(max(unlist(Gs)) > thr || max(unlist(hs)) > thr) {
 #         #     dks <- dks / 1e10
 #         #     Gs <- lapply(Gs, function(x) x / 1e10)
 #         #     hs <- lapply(hs, function(x) x / 1e10)
@@ -670,7 +670,7 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (sum(tG) + sum(mu * th)) / (2 * k)
 #             }
 #         }
-#         # if(max(tG) > thr || max(th) > thr) {
+#         # if(max(unlist(Gs)) > thr || max(unlist(hs)) > thr) {
 #         #     dks <- dks / 1e10
 #         #     Gs <- lapply(Gs, function(x) x / 1e10)
 #         #     hs <- lapply(hs, function(x) x / 1e10)
@@ -1146,7 +1146,7 @@ arl.default <-  function(L, D, m = 10L) {
 #             Gs[, i1 + 1L, i2 + 1L] <- tG
 #             dks[i1 + 1L, i2 + 1L] <- sum(tG) / (2 * k)
 #         }
-#         if(max(tG) > thr) {
+#         if(max(unlist(Gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- Gs / 1e10
 #             attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
@@ -1183,7 +1183,7 @@ d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !m
             Gs[[il2(i1, i2)]] <- tG
             dks[i1 + 1L, i2 + 1L] <- tr(tG) / (2 * k)
         }
-        if(max(tG) > thr) {
+        if(max(unlist(Gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1221,7 +1221,7 @@ d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, fill_all = !missing(p) || !m
             Gs[[il2(i1, i2)]] <- tG
             dks[i1 + 1L, i2 + 1L] <- sum(tG) / (2 * k)
         }
-        if(max(tG) > thr) {
+        if(max(unlist(Gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1507,7 +1507,7 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- tr(tG) / (2 * k)
             }
         }
-        if(max(tG) > thr) {
+        if(max(unlist(Gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1557,7 +1557,7 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- sum(tG) / (2 * k)
             }
         }
-        if(max(tG) > thr) {
+        if(max(unlist(Gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1803,7 +1803,7 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
             gs[[il2(i1, i2)]] <- tg
             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
         }
-        if(max(tG) > thr || max(tg) > thr) {
+        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1849,7 +1849,7 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
             gs[[il2(i1, i2)]] <- tg
             dks[i1 + 1L, i2 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
         }
-        if(max(tG) > thr || max(tg) > thr) {
+        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1891,7 +1891,7 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #             gs[[il2(i1, i2)]] <- tg
 #             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -1928,7 +1928,7 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #             gs[[il2(i1, i2)]] <- tg
 #             dks[i1 + 1L, i2 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2166,7 +2166,7 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
             }
         }
-        if(max(tG) > thr || max(tg) > thr) {
+        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -2221,7 +2221,7 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
             }
         }
-        if(max(tG) > thr || max(tg) > thr) {
+        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -2272,7 +2272,7 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
 #             }
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2318,7 +2318,7 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
 #             }
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2559,7 +2559,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
 #             gs[[il2(i1, i2)]] <- tg
 #             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2595,7 +2595,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
 #             gs[[sum(c(i1, i2) * c(1L, p + 1L)) + 1L]] <- tg
 #             dks[i1 + 1L, i2 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2828,7 +2828,7 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
 #             }
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
@@ -2874,7 +2874,7 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
 #             }
 #         }
-#         if(max(tG) > thr || max(tg) > thr) {
+#         if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
 #             dks <- dks / 1e10
 #             Gs <- lapply(Gs, function(x) x / 1e10)
 #             gs <- lapply(gs, function(x) x / 1e10)
