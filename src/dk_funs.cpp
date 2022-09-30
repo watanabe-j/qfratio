@@ -161,30 +161,36 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const int m, Eigen::ArrayXXd& lscf) {
+                         const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    MatrixXd tG(n, n);
-    MatrixXd G_k_i = MatrixXd::Zero(n, n * (m + 1));
-    for(int i = 1; i <= m; i++) {
-        G_k_i.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
-        dks(i, 0) = G_k_i.block(0, i * n, n, n).trace() / (2 * i);
-    }
+    MatrixXd Go = MatrixXd::Zero(n, n * m);
+    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 1));
     for(int k = 1; k <= m; k++) {
-        G_k_i.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
-        dks(0, k) = G_k_i.block(0, 0, n, n).trace() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            G_k_i.block(0, i * n, n, n) = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
-                                          A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
-            dks(i, k) = G_k_i.block(0, i * n, n, n).trace() / (2 * (k + i));
+        Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
+
+        Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
+        for(int i1 = 1; i1 < k; i1++) {
+            Gn.block(0, n * i1, n, n) =
+                A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
+            dks(i1, k - i1) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
         }
-        if(G_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+        Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
+
+        if(Gn.maxCoeff() > thr) {
+            for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
+            Gn /= 1e10;
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+                    lscf(i1, i2) -= log(1e10);
+                }
+            }
         }
     }
     return dks;
@@ -192,29 +198,34 @@ Eigen::ArrayXXd d2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const int m, Eigen::ArrayXXd& lscf) {
-    const int n = A1.size();
+                         const int m, Eigen::ArrayXXd& lscf) {
+    const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    ArrayXd tG(n);
-    ArrayXXd G_k_i = ArrayXXd::Zero(n, m + 1);
-    for(int i = 1; i <= m; i++) {
-        G_k_i.col(i) = A1 * (dks(i - 1, 0) + G_k_i.col(i - 1));
-        dks(i, 0) = G_k_i.col(i).sum() / (2 * i);
-    }
+    ArrayXXd Go = ArrayXXd::Zero(n, m);
+    ArrayXXd Gn = ArrayXXd::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
-        G_k_i.col(0) = A2 * (dks(0, k - 1) + G_k_i.col(0));
-        dks(0, k) = G_k_i.col(0).sum() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            G_k_i.col(i) = A1 * (dks(i - 1, k) + G_k_i.col(i - 1)) +
-                           A2 * (dks(i, k - 1) + G_k_i.col(i));
-            dks(i, k) = G_k_i.col(i).sum() / (2 * (k + i));
+        Go.block(0, 0, n, k) = Gn.block(0, 0, n, k);
+
+        Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
+        dks(0, k) = Gn.col(0).sum() / (2 * k);
+        for(int i1 = 1; i1 < k; i1++) {
+            Gn.col(i1) = A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
+                         A2 * (dks(i1, k - i1 - 1) + Go.col(i1));
+            dks(i1, k - i1) = Gn.col(i1).sum() / (2 * k);
         }
-        if(G_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+        Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
+        dks(k, 0) = Gn.col(k).sum() / (2 * k);
+
+        if(Gn.maxCoeff() > thr) {
+            for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
+            Gn /= 1e10;
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+                    lscf(i1, i2) -= log(1e10);
+                }
+            }
         }
     }
     return dks;
@@ -222,40 +233,52 @@ Eigen::ArrayXXd d2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, Eigen::ArrayXXd& lscf) {
+                         const Eigen::VectorXd& mu, const int m, Eigen::ArrayXXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
     MatrixXd tG(n, n);
-    MatrixXd G_k_i = MatrixXd::Zero(n, n * (m + 1));
-    MatrixXd g_k_i = MatrixXd::Zero(n, m + 1);
-    for(int i = 1; i <= m; i++) {
-        tG = A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
-        g_k_i.col(i) = (tG - G_k_i.block(0, (i - 1) * n, n, n) - (dks(i - 1, 0) * In)) * mu + A1 * g_k_i.col(i - 1);
-        G_k_i.block(0, i * n, n, n) = tG;
-        dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
-    }
+    MatrixXd Go = MatrixXd::Zero(n, n * m);
+    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 1));
+    MatrixXd go = MatrixXd::Zero(n, m);
+    MatrixXd gn = MatrixXd::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
-        tG = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
-        g_k_i.col(0) = (tG - G_k_i.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * g_k_i.col(0);
-        G_k_i.block(0, 0, n, n) = tG;
-        dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
-            g_k_i.col(i) = (tG - G_k_i.block(0, (i - 1) * n, n, n) - G_k_i.block(0, i * n, n, n)
-                            - ((dks(i - 1, k) + dks(i, k - 1)) * In)) * mu +
-                           A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
-            G_k_i.block(0, i * n, n, n) = tG;
-            dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
+        Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
+        go.block(0, 0, n, k) = gn.block(0, 0, n, k);
+
+        tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        gn.col(0) = (tG - Go.block(0, 0, n, n)
+             - ((dks(0, k - 1)) * In)) * mu + A2 * go.col(0);
+        Gn.block(0, 0, n, n) = tG;
+        dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
+        for(int i1 = 1; i1 < k; i1++) {
+            tG = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
+            gn.col(i1) =
+                (tG - Go.block(0, n * (i1 - 1), n, n) -
+                 Go.block(0, n * i1, n, n)
+                 - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)) * In)) * mu +
+                A1 * go.col(i1 - 1) + A2 * go.col(i1);
+            Gn.block(0, n * i1, n, n) = tG;
+            dks(i1, k - i1) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
         }
-        if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+        tG = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        gn.col(k) = (tG - Go.block(0, n * (k - 1), n, n)
+             - ((dks(k - 1, 0)) * In)) * mu + A1 * go.col(k - 1);
+        Gn.block(0, n * k, n, n) = tG;
+        dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
+
+        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
+            for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
+            Gn /= 1e10;
+            gn /= 1e10;
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+                    lscf(i1, i2) -= log(1e10);
+                }
+            }
         }
     }
     return dks;
@@ -263,39 +286,51 @@ Eigen::ArrayXXd h2_ij_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h2_ij_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, Eigen::ArrayXXd& lscf) {
-    const int n = A1.size();
+                         const Eigen::ArrayXd& mu, const int m, Eigen::ArrayXXd& lscf) {
+    const int n = A1.rows();
     ArrayXXd dks = ArrayXXd::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
     ArrayXd tG(n);
-    ArrayXXd G_k_i = ArrayXXd::Zero(n, m + 1);
-    ArrayXXd g_k_i = ArrayXXd::Zero(n, m + 1);
-    for(int i = 1; i <= m; i++) {
-        tG = A1 * (dks(i - 1, 0) + G_k_i.col(i - 1));
-        g_k_i.col(i) = (tG - G_k_i.col(i - 1) - dks(i - 1, 0)) * mu + A1 * g_k_i.col(i - 1);
-        G_k_i.col(i) = tG;
-        dks(i, 0) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * i);
-    }
+    ArrayXXd Go = ArrayXXd::Zero(n, m);
+    ArrayXXd Gn = ArrayXXd::Zero(n, m + 1);
+    ArrayXXd go = ArrayXXd::Zero(n, m);
+    ArrayXXd gn = ArrayXXd::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
-        tG = A2 * (dks(0, k - 1) + G_k_i.col(0));
-        g_k_i.col(0) = (tG - G_k_i.col(0) - dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
-        G_k_i.col(0) = tG;
-        dks(0, k) = (G_k_i.col(0).sum() + (g_k_i.col(0) * mu).sum()) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k) + G_k_i.col(i - 1)) +
-                 A2 * (dks(i, k - 1) + G_k_i.col(i));
-            g_k_i.col(i) = (tG - G_k_i.col(i - 1) - G_k_i.col(i)
-                            - dks(i - 1, k) - dks(i, k - 1)) * mu +
-                           A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
-            G_k_i.col(i) = tG;
-            dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
+        Go.block(0, 0, n, k) = Gn.block(0, 0, n, k);
+        go.block(0, 0, n, k) = gn.block(0, 0, n, k);
+
+        tG = A2 * (dks(0, k - 1) + Go.col(0));
+        gn.col(0) = (tG - Go.col(0)
+             - ((dks(0, k - 1)))) * mu + A2 * go.col(0);
+        Gn.col(0) = tG;
+        dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
+        for(int i1 = 1; i1 < k; i1++) {
+            tG = A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
+                 A2 * (dks(i1, k - i1 - 1) + Go.col(i1));
+            gn.col(i1) =
+                (tG - Go.col(i1 - 1) -
+                 Go.col(i1)
+                 - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)))) * mu +
+                A1 * go.col(i1 - 1) + A2 * go.col(i1);
+            Gn.col(i1) = tG;
+            dks(i1, k - i1) = (Gn.col(i1).sum() + (mu * gn.col(i1)).sum()) / (2 * k);
         }
-        if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+        tG = A1 * (dks(k - 1, 0) + Go.col(k - 1));
+        gn.col(k) = (tG - Go.col(k - 1)
+             - ((dks(k - 1, 0)))) * mu + A1 * go.col(k - 1);
+        Gn.col(k) = tG;
+        dks(k, 0) = (Gn.col(k).sum() + (mu * gn.col(k)).sum()) / (2 * k);
+
+        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
+            for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
+            Gn /= 1e10;
+            gn /= 1e10;
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+                    lscf(i1, i2) -= log(1e10);
+                }
+            }
         }
     }
     return dks;
@@ -529,9 +564,22 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 }
 
 
+// This is a utility function used in d/h3_ijk_*E() for indexing of
+// Gn and the like, which represent triangular grids of order k:
+//    0 ... k (i2)
+//  0 x x x x
+//  . x x x o
+//  . x x o o
+//  k x o o o
+// (i1)
+// This function returns the index of (i1, i2)-th x.
+inline int id3(int i1, int i2, int k) { 
+    return i1 + (k + 1) * i2 - (i2 - 1) * i2 / 2;
+}
+
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                          const int m, Eigen::ArrayXXd& lscf, int nthreads) {
+                            const int m, Eigen::ArrayXXd& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -541,55 +589,66 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    MatrixXd Go = MatrixXd::Zero(n, n * (m + 1) * m);
-    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 1) * (m + 1));
-    for(int i = 1; i <= m; i++) {
-        Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
-        dks(i, 0) = Gn.block(0, i * n, n, n).trace() / (2 * i);
-    }
+    MatrixXd Go = MatrixXd::Zero(n, n * (m + 1) * m / 2);
+    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
-        Go.block(0, 0, n, k * n * (m + 1)) = Gn.block(0, 0, n, k * n * (m + 1));
-        Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-        dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            Gn.block(0, i * n, n, n) =
-                A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
-                A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
-            dks(i, k) = Gn.block(0, i * n, n, n).trace() / (2 * (k + i));
+        Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
+
+        Gn.block(0, 0, n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
+        dks(0, k * (m + 1)) = Gn.block(0, 0, n, n).trace() / (2 * k);
+        for(int i2 = 1; i2 < k; i2++) {
+            int i3 = k - i2;
+            Gn.block(0, n * id3(0, i2, k), n, n) =
+                A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
+                A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(0, i2, k - 1), n, n));
+            dks(0, i2 + i3 * (m + 1)) = Gn.block(0, n * id3(0, i2, k), n, n).trace() / (2 * k);
         }
+        Gn.block(0, n * id3(0, k, k), n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
+        dks(0, k) = Gn.block(0, n * id3(0, k, k), n, n).trace() / (2 * k);
 #ifdef _OPENMP
 #pragma omp parallel
 {
 #pragma omp for
 #endif
-        for(int j = 1; j < k; j++) {
-            Gn.block(0, j * n * (m + 1), n, n) =
-                A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1), n, n)) +
-                A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (m + 1), n, n));
-            dks(0, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (m + 1), n, n).trace() / (2 * k);
-            for(int i = 1; i <= (m - k); i++) {
-                Gn.block(0, j * n * (m + 1) + i * n, n, n) =
-                    A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (m + 1) + (i - 1) * n, n, n)) +
-                    A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1) + i * n, n, n)) +
-                    A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (m + 1) + i * n, n, n));
-                dks(i, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (m + 1) + i * n, n, n).trace() / (2 * (k + i));
+        for(int i1 = 1; i1 < k; i1++) {
+            Gn.block(0, n * i1, n, n) =
+                A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
+            dks(i1, (k - i1) * (m + 1)) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
+            for(int i2 = 1; i2 < k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                Gn.block(0, n * id3(i1, i2, k), n, n) =
+                    A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n)) +
+                    A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n)) +
+                    A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(i1, i2, k - 1), n, n));
+                dks(i1, i2 + i3 * (m + 1)) = Gn.block(0, n * id3(i1, i2, k), n, n).trace() / (2 * k);
             }
+            Gn.block(0, n * id3(i1, k - i1, k), n, n) =
+                A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n)) +
+                A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n));
+            dks(i1, k - i1) = Gn.block(0, n * id3(i1, k - i1, k), n, n).trace() / (2 * k);
         }
 #ifdef _OPENMP
 }
 #endif
-        Gn.block(0, k * n * (m + 1), n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1), n, n));
-        dks(0, k * (m + 1)) = Gn.block(0, k * n * (m + 1), n, n).trace() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            Gn.block(0, k * n * (m + 1) + i * n, n, n) =
-                A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (m + 1) + (i - 1) * n, n, n)) +
-                A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1) + i * n, n, n));
-            dks(i, k * (m + 1)) = Gn.block(0, k * n * (m + 1) + i * n, n, n).trace() / (2 * (k + i));
-        }
+        //
+        Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
+
         if(Gn.maxCoeff() > thr) {
-            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
+            for(int i1 = 0; i1 <= k; i1++) {
+                for(int i2 = 0; i2 <= k - i1; i2++) {
+                    dks(i1, i2 + (k - i1 - i2) * (m + 1)) /= 1e10;
+                }
+            }
             Gn /= 1e10;
-            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = 0; i2 <= m - i1; i2++) {
+                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    }
+                }
+            }
         }
     }
     return dks;
@@ -597,7 +656,7 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                          const int m, Eigen::ArrayXXd& lscf) { // , int nthreads) {
+                            const int m, Eigen::ArrayXXd& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -606,58 +665,70 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    ArrayXXd Go = ArrayXXd::Zero(n, (m + 1) * m);
-    ArrayXXd Gn = ArrayXXd::Zero(n, (m + 1) * (m + 1));
-    for(int i = 1; i <= m; i++) {
-        Gn.col(i) = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
-        dks(i, 0) = Gn.col(i).sum() / (2 * i);
-    }
+    ArrayXXd Go = ArrayXXd::Zero(n, (m + 1) * m / 2);
+    ArrayXXd Gn = ArrayXXd::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
-        Go.block(0, 0, n, k * (m + 1)) = Gn.block(0, 0, n, k * (m + 1));
-        Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
-        dks(0, k) = Gn.col(0).sum() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            Gn.col(i) = A1 * (dks(i - 1, k) + Gn.col(i - 1)) +
-                        A2 * (dks(i, k - 1) + Go.col(i));
-            dks(i, k) = Gn.col(i).sum() / (2 * (k + i));
+        Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
+
+        Gn.col(0) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col(0));
+        dks(0, k * (m + 1)) = Gn.col(0).sum() / (2 * k);
+        for(int i2 = 1; i2 < k; i2++) {
+            int i3 = k - i2;
+            Gn.col(id3(0, i2, k)) =
+                A2 * (dks(0, i2 - 1 + i3 * (m + 1)) + Go.col(id3(0, i2 - 1, k - 1))) +
+                A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) + Go.col(id3(0, i2, k - 1)));
+            dks(0, i2 + i3 * (m + 1)) = Gn.col(id3(0, i2, k)).sum() / (2 * k);
         }
+        Gn.col(id3(0, k, k)) = A2 * (dks(0, k - 1) + Go.col(id3(0, k - 1, k - 1)));
+        dks(0, k) = Gn.col(id3(0, k, k)).sum() / (2 * k);
 // #ifdef _OPENMP
 // #pragma omp parallel
 // {
 // #pragma omp for
 // #endif
-        for(int j = 1; j < k; j++) {
-            Gn.col(j * (m + 1)) =
-                A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1))) +
-                A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (m + 1)));
-            dks(0, (k - j) + j * (m + 1)) = Gn.col(j * (m + 1)).sum() / (2 * k);
-            for(int i = 1; i <= (m - k); i++) {
-                Gn.col(j * (m + 1) + i) =
-                    A1 * (dks(i - 1, (k - j) + j * (m + 1)) + Gn.col(j * (m + 1) + i - 1)) +
-                    A2 * (dks(i, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1) + i)) +
-                    A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (m + 1) + i));
-                dks(i, (k - j) + j * (m + 1)) = Gn.col(j * (m + 1) + i).sum() / (2 * (k + i));
+        for(int i1 = 1; i1 < k; i1++) {
+            Gn.col(i1) =
+                A1 * (dks(i1 - 1, (k - i1) * (m + 1)) + Go.col(i1 - 1)) +
+                A3 * (dks(i1, (k - i1 - 1) * (m + 1)) + Go.col(i1));
+            dks(i1, (k - i1) * (m + 1)) = Gn.col(i1).sum() / (2 * k);
+            for(int i2 = 1; i2 < k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                Gn.col(id3(i1, i2, k)) =
+                    A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) + Go.col(id3(i1 - 1, i2, k - 1))) +
+                    A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) + Go.col(id3(i1, i2 - 1, k - 1))) +
+                    A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) + Go.col(id3(i1, i2, k - 1)));
+                dks(i1, i2 + i3 * (m + 1)) = Gn.col(id3(i1, i2, k)).sum() / (2 * k);
             }
+            Gn.col(id3(i1, k - i1, k)) =
+                A1 * (dks(i1 - 1, k - i1) + Go.col(id3(i1 - 1, k - i1, k - 1))) +
+                A2 * (dks(i1, k - i1 - 1) + Go.col(id3(i1, k - i1 - 1, k - 1)));
+            dks(i1, k - i1) = Gn.col(id3(i1, k - i1, k)).sum() / (2 * k);
         }
 // #ifdef _OPENMP
 // }
 // #endif
-        Gn.col(k * (m + 1)) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1)));
-        dks(0, k * (m + 1)) = Gn.col(k * (m + 1)).sum() / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            Gn.col(k * (m + 1) + i) =
-                A1 * (dks(i - 1, k * (m + 1)) + Gn.col(k * (m + 1) + i - 1)) +
-                A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1) + i));
-            dks(i, k * (m + 1)) = Gn.col(k * (m + 1) + i).sum() / (2 * (k + i));
-        }
+        Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
+        dks(k, 0) = Gn.col(k).sum() / (2 * k);
+
         if(Gn.maxCoeff() > thr) {
-            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
+            for(int i1 = 0; i1 <= k; i1++) {
+                for(int i2 = 0; i2 <= k - i1; i2++) {
+                    dks(i1, i2 + (k - i1 - i2) * (m + 1)) /= 1e10;
+                }
+            }
             Gn /= 1e10;
-            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = 0; i2 <= m - i1; i2++) {
+                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    }
+                }
+            }
         }
     }
     return dks;
 }
+
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
@@ -797,81 +868,100 @@ Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
     MatrixXd tG(n, n);
-    MatrixXd Go = MatrixXd::Zero(n, n * (m + 1) * m);
-    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 1) * (m + 1));
-    MatrixXd go = MatrixXd::Zero(n, (m + 1) * m);
-    MatrixXd gn = MatrixXd::Zero(n, (m + 1) * (m + 1));
-    for(int i = 1; i <= m; i++) {
-        tG = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
-        gn.col(i) = (tG - Gn.block(0, (i - 1) * n, n, n) - (dks(i - 1, 0) * In)) * mu + A1 * gn.col(i - 1);
-        Gn.block(0, i * n, n, n) = tG;
-        dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
-    }
+    MatrixXd Go = MatrixXd::Zero(n, n * (m + 1) * m / 2);
+    MatrixXd Gn = MatrixXd::Zero(n, n * (m + 2) * (m + 1) / 2);
+    MatrixXd go = MatrixXd::Zero(n, (m + 1) * m / 2);
+    MatrixXd gn = MatrixXd::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
-        Go.block(0, 0, n, k * n * (m + 1)) = Gn.block(0, 0, n, k * n * (m + 1));
-        go.block(0, 0, n, k * (m + 1)) = gn.block(0, 0, n, k * (m + 1));
-        tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-        gn.col(0) = (tG - Go.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
+        Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
+        go.block(0, 0, n, k * (k + 1) / 2) = gn.block(0, 0, n, k * (k + 1) / 2);
+
+        tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
+        gn.col(0) = (tG - Go.block(0, 0, n, n)
+             - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
-        dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
-            gn.col(i) = (tG - Gn.block(0, (i - 1) * n, n, n) - Go.block(0, i * n, n, n)
-                         - ((dks(i - 1, k) + dks(i, (k - 1))) * In)) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
-            Gn.block(0, i * n, n, n) = tG;
-            dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
+        dks(0, k * (m + 1)) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
+        for(int i2 = 1; i2 < k; i2++) {
+            int i3 = k - i2;
+            tG = A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
+                 A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(0, i2, k - 1), n, n));
+            gn.col(id3(0, i2, k)) =
+                (tG -
+                 Go.block(0, n * id3(0, i2 - 1, k - 1), n, n) - Go.block(0, n * id3(0, i2, k - 1), n, n)
+                 - ((dks(0, i2 - 1 + i3 * (m + 1)) +
+                    dks(0, i2 + (i3 - 1) * (m + 1))) * In)) * mu +
+                A2 * go.col(id3(0, i2 - 1, k - 1)) + A3 * go.col(id3(0, i2, k - 1));
+            Gn.block(0, n * id3(0, i2, k), n, n) = tG;
+            dks(0, i2 + i3 * (m + 1)) = (Gn.block(0, n * id3(0, i2, k), n, n).trace() + gn.col(id3(0, i2, k)).dot(mu)) / (2 * k);
         }
+        tG = A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
+        gn.col(id3(0, k, k)) = (tG - Go.block(0, n * id3(0, k - 1, k - 1), n, n)
+             - ((dks(0, k - 1)) * In)) * mu + A2 * go.col(id3(0, k - 1, k - 1));
+        Gn.block(0, n * id3(0, k, k), n, n) = tG;
+        dks(0, k) = (Gn.block(0, n * id3(0, k, k), n, n).trace() + gn.col(id3(0, k, k)).dot(mu)) / (2 * k);
 #ifdef _OPENMP
 #pragma omp parallel private(tG)
 {
 #pragma omp for
 #endif
-        for(int j = 1; j < k; j++) {
-            tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1), n, n)) +
-                 A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (m + 1), n, n));
-            gn.col(j * (m + 1)) =
-                (tG - Go.block(0, j * n * (m + 1), n, n) - Go.block(0, (j - 1) * n * (m + 1), n, n)
-                 - ((dks(0, (k - j - 1) + j * (m + 1)) + dks(0, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
-                A2 * go.col(j * (m + 1)) + A3 * go.col((j - 1) * (m + 1));
-            Gn.block(0, j * n * (m + 1), n, n) = tG;
-            dks(0, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (m + 1), n, n).trace() + gn.col(j * (m + 1)).dot(mu)) / (2 * k);
-            for(int i = 1; i <= (m - k); i++) {
-                tG = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (m + 1) + (i - 1) * n, n, n)) +
-                     A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (m + 1) + i * n, n, n)) +
-                     A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (m + 1) + i * n, n, n));
-                gn.col(j * (m + 1) + i) =
-                    (tG - Gn.block(0, j * n * (m + 1) + (i - 1) * n, n, n) - Go.block(0, j * n * (m + 1) + i * n, n, n) - Go.block(0, (j - 1) * n * (m + 1) + i * n, n, n)
-                     - ((dks(i - 1, (k - j) + j * (m + 1)) + dks(i, (k - j - 1) + j * (m + 1)) + dks(i, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
-                    A1 * gn.col(j * (m + 1) + i - 1) + A2 * go.col(j * (m + 1) + i) + A3 * go.col((j - 1) * (m + 1) + i);
-                Gn.block(0, j * n * (m + 1) + i * n, n, n) = tG;
-                dks(i, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (m + 1) + i * n, n, n).trace() + gn.col(j * (m + 1) + i).dot(mu)) / (2 * (k + i));
+        for(int i1 = 1; i1 < k; i1++) {
+            tG = A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                 A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
+            gn.col(i1) =
+                (tG - Go.block(0, n * (i1 - 1), n, n) - Go.block(0, n * i1, n, n)
+                 - ((dks(i1 - 1, (k - i1) * (m + 1)) + dks(i1, (k - i1 - 1) * (m + 1))) * In)) * mu +
+                A1 * go.col(i1 - 1) + A3 * go.col(i1);
+            Gn.block(0, n * i1, n, n) = tG;
+            dks(i1, (k - i1) * (m + 1)) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
+            for(int i2 = 1; i2 < k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                tG = A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n)) +
+                     A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n)) +
+                     A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(i1, i2, k - 1), n, n));
+                gn.col(id3(i1, i2, k)) =
+                    (tG - Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n) -
+                     Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n) - Go.block(0, n * id3(i1, i2, k - 1), n, n)
+                     - ((dks(i1 - 1, i2 + i3 * (m + 1)) + dks(i1, i2 - 1 + i3 * (m + 1)) +
+                        dks(i1, i2 + (i3 - 1) * (m + 1))) * In)) * mu +
+                    A1 * go.col(id3(i1 - 1, i2, k - 1)) + A2 * go.col(id3(i1, i2 - 1, k - 1)) + A3 * go.col(id3(i1, i2, k - 1));
+                Gn.block(0, n * id3(i1, i2, k), n, n) = tG;
+                dks(i1, i2 + i3 * (m + 1)) = (Gn.block(0, n * id3(i1, i2, k), n, n).trace() + gn.col(id3(i1, i2, k)).dot(mu)) / (2 * k);
             }
+            tG = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n)) +
+                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n));
+            gn.col(id3(i1, k - i1, k)) =
+                (tG - Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n) -
+                 Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n)
+                 - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)) * In)) * mu +
+                A1 * go.col(id3(i1 - 1, k - i1, k - 1)) + A2 * go.col(id3(i1, k - i1 - 1, k - 1));
+            Gn.block(0, n * id3(i1, k - i1, k), n, n) = tG;
+            dks(i1, k - i1) = (Gn.block(0, n * id3(i1, k - i1, k), n, n).trace() + gn.col(id3(i1, k - i1, k)).dot(mu)) / (2 * k);
         }
 #ifdef _OPENMP
 }
 #endif
-        tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1), n, n));
-        gn.col(k * (m + 1)) = (tG - Go.block(0, (k - 1) * n * (m + 1), n, n)
-                               - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (m + 1));
-        Gn.block(0, k * n * (m + 1), n, n) = tG;
-        dks(0, k * (m + 1)) = (Gn.block(0, k * n * (m + 1), n, n).trace() + gn.col(k * (m + 1)).dot(mu)) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (m + 1) + (i - 1) * n, n, n)) +
-                 A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (m + 1) + i * n, n, n));
-            gn.col(k * (m + 1) + i) =
-                (tG - Gn.block(0, k * n * (m + 1) + (i - 1) * n, n, n) - Go.block(0, (k - 1) * n * (m + 1) + i * n, n, n)
-                 - ((dks(i - 1, k * (m + 1)) + dks(i, (k - 1) * (m + 1))) * In)) * mu +
-                A1 * gn.col(k * (m + 1) + i - 1) + A3 * go.col((k - 1) * (m + 1) + i);
-            Gn.block(0, k * n * (m + 1) + i * n, n, n) = tG;
-            dks(i, k * (m + 1)) = (Gn.block(0, k * n * (m + 1) + i * n, n, n).trace() + gn.col(k * (m + 1) + i).dot(mu)) / (2 * (k + i));
-        }
+        //
+        tG = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        gn.col(k) = (tG - Go.block(0, n * (k - 1), n, n)
+             - ((dks(k - 1, 0)) * In)) * mu + A1 * go.col(k - 1);
+        Gn.block(0, n * k, n, n) = tG;
+        dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
+
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
+            for(int i1 = 0; i1 <= k; i1++) {
+                for(int i2 = 0; i2 <= k - i1; i2++) {
+                    dks(i1, i2 + (k - i1 - i2) * (m + 1)) /= 1e10;
+                }
+            }
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = 0; i2 <= m - i1; i2++) {
+                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    }
+                }
+            }
         }
     }
     return dks;
@@ -888,81 +978,99 @@ Eigen::ArrayXXd h3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
     ArrayXXd dks = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    ArrayXXd tG(n, n);
-    ArrayXXd Go = ArrayXXd::Zero(n, (m + 1) * m);
-    ArrayXXd Gn = ArrayXXd::Zero(n, (m + 1) * (m + 1));
-    ArrayXXd go = ArrayXXd::Zero(n, (m + 1) * m);
-    ArrayXXd gn = ArrayXXd::Zero(n, (m + 1) * (m + 1));
-    for(int i = 1; i <= m; i++) {
-        tG = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
-        gn.col(i) = (tG - Gn.col(i - 1) - dks(i - 1, 0)) * mu + A1 * gn.col(i - 1);
-        Gn.col(i) = tG;
-        dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
-    }
+    ArrayXd tG(n);
+    ArrayXXd Go = ArrayXXd::Zero(n, (m + 1) * m / 2);
+    ArrayXXd Gn = ArrayXXd::Zero(n, (m + 2) * (m + 1) / 2);
+    ArrayXXd go = ArrayXXd::Zero(n, (m + 1) * m / 2);
+    ArrayXXd gn = ArrayXXd::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
-        Go.block(0, 0, n, k * (m + 1)) = Gn.block(0, 0, n, k * (m + 1));
-        go.block(0, 0, n, k * (m + 1)) = gn.block(0, 0, n, k * (m + 1));
-        tG = A2 * (dks(0, k - 1) + Go.col(0));
-        gn.col(0) = (tG - Go.col(0) - (dks(0, k - 1))) * mu + A2 * go.col(0);
+        Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
+        go.block(0, 0, n, k * (k + 1) / 2) = gn.block(0, 0, n, k * (k + 1) / 2);
+
+        tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col(0));
+        gn.col(0) = (tG - Go.col(0)
+             - (dks(0, (k - 1) * (m + 1)))) * mu + A3 * go.col(0);
         Gn.col(0) = tG;
-        dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k) + Gn.col(i - 1)) +
-                 A2 * (dks(i, k - 1) + Go.col(i));
-            gn.col(i) = (tG - Gn.col(i - 1) - Go.col(i)
-                         - (dks(i - 1, k) + dks(i, k - 1))) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
-            Gn.col(i) = tG;
-            dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
+        dks(0, k * (m + 1)) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
+        for(int i2 = 1; i2 < k; i2++) {
+            int i3 = k - i2;
+            tG = A2 * (dks(0, i2 - 1 + i3 * (m + 1)) + Go.col(id3(0, i2 - 1, k - 1))) +
+                 A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) + Go.col(id3(0, i2, k - 1)));
+            gn.col(id3(0, i2, k)) =
+                (tG - Go.col(id3(0, i2 - 1, k - 1)) - Go.col(id3(0, i2, k - 1))
+                 - ((dks(0, i2 - 1 + i3 * (m + 1)) +
+                    dks(0, i2 + (i3 - 1) * (m + 1))))) * mu +
+                A2 * go.col(id3(0, i2 - 1, k - 1)) + A3 * go.col(id3(0, i2, k - 1));
+            Gn.col(id3(0, i2, k)) = tG;
+            dks(0, i2 + i3 * (m + 1)) = (Gn.col(id3(0, i2, k)).sum() + (mu * gn.col(id3(0, i2, k))).sum()) / (2 * k);
         }
+        tG = A2 * (dks(0, k - 1) + Go.col(id3(0, k - 1, k - 1)));
+        gn.col(id3(0, k, k)) = (tG - Go.col(id3(0, k - 1, k - 1))
+             - ((dks(0, k - 1)))) * mu + A2 * go.col(id3(0, k - 1, k - 1));
+        Gn.col(id3(0, k, k)) = tG;
+        dks(0, k) = (Gn.col(id3(0, k, k)).sum() + (mu * gn.col(id3(0, k, k))).sum()) / (2 * k);
 // #ifdef _OPENMP
 // #pragma omp parallel private(tG)
 // {
 // #pragma omp for
 // #endif
-        for(int j = 1; j < k; j++) {
-            tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1))) +
-                 A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (m + 1)));
-            gn.col(j * (m + 1)) =
-                (tG - Go.col(j * (m + 1)) - Go.col((j - 1) * (m + 1))
-                 - ((dks(0, (k - j - 1) + j * (m + 1)) + dks(0, (k - j) + (j - 1) * (m + 1))))) * mu +
-                A2 * go.col(j * (m + 1)) + A3 * go.col((j - 1) * (m + 1));
-            Gn.col(j * (m + 1)) = tG;
-            dks(0, (k - j) + j * (m + 1)) = (Gn.col(j * (m + 1)).sum() + (mu * gn.col(j * (m + 1))).sum()) / (2 * k);
-            for(int i = 1; i <= (m - k); i++) {
-                tG = A1 * (dks(i - 1, (k - j) + j * (m + 1)) + Gn.col(j * (m + 1) + i - 1)) +
-                     A2 * (dks(i, (k - j - 1) + j * (m + 1)) + Go.col(j * (m + 1) + i)) +
-                     A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (m + 1) + i));
-                gn.col(j * (m + 1) + i) =
-                    (tG - Gn.col(j * (m + 1) + i - 1) - Go.col(j * (m + 1) + i) - Go.col((j - 1) * (m + 1) + i)
-                     - ((dks(i - 1, (k - j) + j * (m + 1)) + dks(i, (k - j - 1) + j * (m + 1)) + dks(i, (k - j) + (j - 1) * (m + 1))))) * mu +
-                    A1 * gn.col(j * (m + 1) + i - 1) + A2 * go.col(j * (m + 1) + i) + A3 * go.col((j - 1) * (m + 1) + i);
-                Gn.col(j * (m + 1) + i) = tG;
-                dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (m + 1) + i).sum() + (mu * gn.col(j * (m + 1) + i)).sum()) / (2 * (k + i));
+        for(int i1 = 1; i1 < k; i1++) {
+            tG = A1 * (dks(i1 - 1, (k - i1) * (m + 1)) + Go.col(i1 - 1)) +
+                 A3 * (dks(i1, (k - i1 - 1) * (m + 1)) + Go.col(i1));
+            gn.col(i1) =
+                (tG - Go.col(i1 - 1) - Go.col(i1)
+                 - ((dks(i1 - 1, (k - i1) * (m + 1)) + dks(i1, (k - i1 - 1) * (m + 1))))) * mu +
+                A1 * go.col(i1 - 1) + A3 * go.col(i1);
+            Gn.col(i1) = tG;
+            dks(i1, (k - i1) * (m + 1)) = (Gn.col(i1).sum() + (mu * gn.col(i1)).sum()) / (2 * k);
+            for(int i2 = 1; i2 < k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                tG = A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) + Go.col(id3(i1 - 1, i2, k - 1))) +
+                     A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) + Go.col(id3(i1, i2 - 1, k - 1))) +
+                     A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) + Go.col(id3(i1, i2, k - 1)));
+                gn.col(id3(i1, i2, k)) =
+                    (tG - Go.col(id3(i1 - 1, i2, k - 1)) -
+                     Go.col(id3(i1, i2 - 1, k - 1)) - Go.col(id3(i1, i2, k - 1))
+                     - ((dks(i1 - 1, i2 + i3 * (m + 1)) + dks(i1, i2 - 1 + i3 * (m + 1)) +
+                        dks(i1, i2 + (i3 - 1) * (m + 1))))) * mu +
+                    A1 * go.col(id3(i1 - 1, i2, k - 1)) + A2 * go.col(id3(i1, i2 - 1, k - 1)) + A3 * go.col(id3(i1, i2, k - 1));
+                Gn.col(id3(i1, i2, k)) = tG;
+                dks(i1, i2 + i3 * (m + 1)) = (Gn.col(id3(i1, i2, k)).sum() + (mu * gn.col(id3(i1, i2, k))).sum()) / (2 * k);
             }
+            tG = A1 * (dks(i1 - 1, k - i1) + Go.col(id3(i1 - 1, k - i1, k - 1))) +
+                 A2 * (dks(i1, k - i1 - 1) + Go.col(id3(i1, k - i1 - 1, k - 1)));
+            gn.col(id3(i1, k - i1, k)) =
+                (tG - Go.col(id3(i1 - 1, k - i1, k - 1)) -
+                 Go.col(id3(i1, k - i1 - 1, k - 1))
+                 - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)))) * mu +
+                A1 * go.col(id3(i1 - 1, k - i1, k - 1)) + A2 * go.col(id3(i1, k - i1 - 1, k - 1));
+            Gn.col(id3(i1, k - i1, k)) = tG;
+            dks(i1, k - i1) = (Gn.col(id3(i1, k - i1, k)).sum() + (mu * gn.col(id3(i1, k - i1, k))).sum()) / (2 * k);
         }
 // #ifdef _OPENMP
 // }
 // #endif
-        tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1)));
-        gn.col(k * (m + 1)) = (tG - Go.col((k - 1) * (m + 1)) - (dks(0, (k - 1) * (m + 1)))) * mu + A3 * go.col((k - 1) * (m + 1));
-        Gn.col(k * (m + 1)) = tG;
-        dks(0, k * (m + 1)) = (Gn.col(k * (m + 1)).sum() + (mu * gn.col(k * (m + 1))).sum()) / (2 * k);
-        for(int i = 1; i <= (m - k); i++) {
-            tG = A1 * (dks(i - 1, k * (m + 1)) + Gn.col(k * (m + 1) + i - 1)) +
-                 A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (m + 1) + i));
-            gn.col(k * (m + 1) + i) =
-                (tG - Gn.col(k * (m + 1) + i - 1) - Go.col((k - 1) * (m + 1) + i)
-                 - (dks(i - 1, k * (m + 1)) + dks(i, (k - 1) * (m + 1)))) * mu +
-                A1 * gn.col(k * (m + 1) + i - 1) + A3 * go.col((k - 1) * (m + 1) + i);
-            Gn.col(k * (m + 1) + i) = tG;
-            dks(i, k * (m + 1)) = (Gn.col(k * (m + 1) + i).sum() + (mu * gn.col(k * (m + 1) + i)).sum()) / (2 * (k + i));
-        }
+        tG = A1 * (dks(k - 1, 0) + Go.col(k - 1));
+        gn.col(k) = (tG - Go.col(k - 1)
+             - ((dks(k - 1, 0)))) * mu + A1 * go.col(k - 1);
+        Gn.col(k) = tG;
+        dks(k, 0) = (Gn.col(k).sum() + (mu * gn.col(k)).sum()) / (2 * k);
+
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <=k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
+            for(int i1 = 0; i1 <= k; i1++) {
+                for(int i2 = 0; i2 <= k - i1; i2++) {
+                    dks(i1, i2 + (k - i1 - i2) * (m + 1)) /= 1e10;
+                }
+            }
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <=k; j++) lscf.block(0, (k - j) + j * (m + 1), m + 1, m + 1 - (k - j)) -= log(1e10);
+            for(int i1 = 0; i1 <= m; i1++) {
+                for(int i2 = 0; i2 <= m - i1; i2++) {
+                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    }
+                }
+            }
         }
     }
     return dks;
