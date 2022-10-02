@@ -785,10 +785,8 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
@@ -852,10 +850,8 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
@@ -1165,10 +1161,8 @@ Eigen::ArrayXXd htil3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
@@ -1257,10 +1251,8 @@ Eigen::ArrayXXd htil3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
@@ -1349,10 +1341,8 @@ Eigen::ArrayXXd hhat3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
@@ -1443,10 +1433,8 @@ Eigen::ArrayXXd hhat3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j <= m; j++) {
-                int kmj = std::max(k - j, 0);
-                lscf.block(0, kmj + j * (m + 1), p + 1, m + 1 - kmj) -= log(1e10);
-            }
+            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
         }
     }
     return dks;
