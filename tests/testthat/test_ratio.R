@@ -1,4 +1,4 @@
-test_that("Expect average eigenvalues when nv = q = 1", {
+test_that("Expect average eigenvalues when p = q = 1", {
     nvs <- 2:10
     # ks <- 1:5
     for(nv in nvs) {
@@ -11,7 +11,7 @@ test_that("Expect average eigenvalues when nv = q = 1", {
         # mu <- 1:nv / nv
 
         trA1 <- tr(A1)
-        A1I1 <- qfrm(A1, nv = 1)$statistic
+        A1I1 <- qfrm(A1, p = 1)$statistic
 
         expect_equal(trA1 / nv, A1I1)
     }
