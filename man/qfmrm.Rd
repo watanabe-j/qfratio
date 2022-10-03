@@ -207,17 +207,19 @@ The error bound is only available for \code{qfmrm_ApBIqr_int()}.
 This is similar to, though slightly different from, that
 in \code{qfrm_ApBq_int()}.
 
-Smith (1989: p. 258) stated the existence condition for the moments
-of this multiple ratio for nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}.
-For singular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}, only a sufficient condition
-seems to be known (Watanabe forthcoming); this is to assume a common
-nonnull subspace of \eqn{\mathbf{B}} and \eqn{\mathbf{D}}, reduce the
-problem to a simple ratio with a matrix spanned by a basis of the subspace,
-and apply the criteria for a simple ratio by Bao & Kan (2013: proposition 1).
-As this only sets sufficient conditions, a warning is thrown even when
-the conditions are not met, unlike \code{qfrm()} which throws an error
-based on the necessary and sufficient conditions for the simple ratio.
-Use careful consideration when this warning is encountered.
+The existence conditions for the moments of this multiple ratio can be
+reduced to those for a simple ratio, provided that one of the ranges
+of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
+(including the case they are the entire space).
+The conditions of Bao & Kan (2013: proposition 1) can then be
+applied by replacing \eqn{q} and \eqn{m} there by \eqn{q + r} and
+the rank of the subspace, respectively (see also Smith 1989: p. 258 for
+nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}).
+An error is thrown if these conditions are not met in this case.
+Otherwise (i.e., \eqn{\mathbf{B}} and \eqn{\mathbf{D}} are both singular
+and neither of their ranges is a subspace of the other), the same conditions
+seem to be only sufficient.
+A warning is thrown if the conditions are not met in the latter case.
 
 Note that these functions may take a substantially longer computational time
 than those pertaining to a simple ratio, because multiple matrices means

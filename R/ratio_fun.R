@@ -303,17 +303,19 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 #' in \code{qfrm_ApBq_int()}.
 # #' See \code{vignette("qfratio")} for technical details.
 #'
-#' Smith (1989: p. 258) stated the existence condition for the moments
-#' of this multiple ratio for nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}.
-#' For singular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}, only a sufficient condition
-#' seems to be known (Watanabe forthcoming); this is to assume a common
-#' nonnull subspace of \eqn{\mathbf{B}} and \eqn{\mathbf{D}}, reduce the
-#' problem to a simple ratio with a matrix spanned by a basis of the subspace,
-#' and apply the criteria for a simple ratio by Bao & Kan (2013: proposition 1).
-#' As this only sets sufficient conditions, a warning is thrown even when
-#' the conditions are not met, unlike \code{qfrm()} which throws an error
-#' based on the necessary and sufficient conditions for the simple ratio.
-#' Use careful consideration when this warning is encountered.
+#' The existence conditions for the moments of this multiple ratio can be
+#' reduced to those for a simple ratio, provided that one of the ranges
+#' of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
+#' (including the case they are the entire space).
+#' The conditions of Bao & Kan (2013: proposition 1) can then be
+#' applied by replacing \eqn{q} and \eqn{m} there by \eqn{q + r} and
+#' the rank of the subspace, respectively (see also Smith 1989: p. 258 for
+#' nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}).
+#' An error is thrown if these conditions are not met in this case.
+#' Otherwise (i.e., \eqn{\mathbf{B}} and \eqn{\mathbf{D}} are both singular
+#' and neither of their ranges is a subspace of the other), the same conditions
+#' seem to be only sufficient.
+#' A warning is thrown if the conditions are not met in the latter case.
 #'
 #' Note that these functions may take a substantially longer computational time
 #' than those pertaining to a simple ratio, because multiple matrices means
@@ -2128,34 +2130,45 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         b3 <- alphaD / max(LD)
         LBh <- rep.int(1, n) - b2 * LB
         LDh <- rep.int(1, n) - b3 * LD
-        ## Common range of B and D
-        nzBD <- (LB > tol_sing) * (LD > tol_sing)
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LD <- eigD$values
         b3 <- alphaD / max(LD)
         Bh <- In - b2 * diag(LB)
         Dh <- In - b3 * D
+    }
+    ## Check condition for existence of moment
+    nzB <- (LB > tol_sing)
+    nzD <- (LD > tol_sing)
+    if(use_vec) {
         ## Common range of B and D
-        D_on_nzB <- crossprod(D[LB > tol_sing, ])
+        nzBD <- nzB * nzD
+    } else {
+        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
         eigBD <- eigen(D_on_nzB, symmetric = TRUE)
         nzBD <- eigBD$values > tol_sing
     }
     rBD <- sum(nzBD)
-    ## Check condition for existence of moment
     ## When A == I, the condition simplifies as A12 == 0 and A22 != 0
     if(rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
+        necess_cond <- TRUE
     } else {
         # A12z <- all(abs(A[nzBD, !nzBD]) < tol_zero)
         # A22z <- all(abs(A[!nzBD, !nzBD]) < tol_zero)
         cond_exist <- rBD / 2 > q + r              ## condition(2)(iii)
+        necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
     stopifnot("B should be nonnegative definite" = all(LB >= 0),
               "D should be nonnegative definite" = all(LD >= 0))
     if(!cond_exist) {
-        warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                "eigenstructures of B and D")
+        if(necess_cond) {
+            stop("Moment does not exist in this combination of p, q, r, and\n  ",
+                 "eigenstructures of A, B, and D")
+        } else {
+            warning("Moment may not exist in this combination of p, q, r, and\n  ",
+                    "eigenstructures of A, B, and D")
+        }
     }
     if(use_cpp) {
         if(central) {
@@ -2310,29 +2323,25 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero) && is_diagonal(D, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    # LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    # LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
+    LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    ## Check condition for existence of moment
+    nzB <- (LB > tol_sing)
+    nzD <- (LD > tol_sing)
     if(use_vec) {
-        LA <- diag(A)
-        LD <- diag(D)
-        ## For moment existence condition:
         ## common nonzero space of B and D, and A "rotated" with its basis
-        nzBD <- (LB > tol_sing) * (LD > tol_sing)
+        nzBD <- nzB * nzD
         Ar <- A
     } else {
-        LA <- eigen(A, symmetric = TRUE)$values
-        LD <- eigen(D, symmetric = TRUE)$values
-        ## For moment existence condition:
-        ## common nonzero space of B and D, and A "rotated" with its basis
-        D_on_nzB <- crossprod(D[LB > tol_sing, ])
+        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
         eigBD <- eigen(D_on_nzB, symmetric = TRUE)
         nzBD <- eigBD$values > tol_sing
         Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
     }
     rBD <- sum(nzBD)
-    ## Check condition for existence of moment
     if(rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
+        necess_cond <- TRUE
     } else {
         A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
         A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
@@ -2345,12 +2354,18 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                         rBD / 2 + p > q + r      ## condiiton(2)(i)
                     }
                 }
+        necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
     stopifnot("B should be nonnegative definite" = all(LB >= 0),
               "D should be nonnegative definite" = all(LD >= 0))
     if(!cond_exist) {
-        warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                "eigenstructures of A, B, and D")
+        if(necess_cond) {
+            stop("Moment does not exist in this combination of p, q, r, and\n  ",
+                 "eigenstructures of A, B, and D")
+        } else {
+            warning("Moment may not exist in this combination of p, q, r, and\n  ",
+                    "eigenstructures of A, B, and D")
+        }
     }
     b3 <- alphaD / max(LD)
     if(use_cpp) {
@@ -2522,29 +2537,25 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero) && is_diagonal(D, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    # LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    # LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
+    LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    ## Check condition for existence of moment
+    nzB <- (LB > tol_sing)
+    nzD <- (LD > tol_sing)
     if(use_vec) {
-        LA <- diag(A)
-        LD <- diag(D)
-        ## For moment existence condition:
         ## common nonzero space of B and D, and A "rotated" with its basis
-        nzBD <- (LB > tol_sing) * (LD > tol_sing)
+        nzBD <- nzB * nzD
         Ar <- A
     } else {
-        LA <- eigen(A, symmetric = TRUE)$values
-        LD <- eigen(D, symmetric = TRUE)$values
-        ## For moment existence condition:
-        ## common nonzero space of B and D, and A "rotated" with its basis
-        D_on_nzB <- crossprod(D[LB > tol_sing, ])
+        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
         eigBD <- eigen(D_on_nzB, symmetric = TRUE)
         nzBD <- eigBD$values > tol_sing
         Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
     }
     rBD <- sum(nzBD)
-    ## Check condition for existence of moment
     if(rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
+        necess_cond <- TRUE
     } else {
         A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
         A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
@@ -2557,12 +2568,16 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                         rBD / 2 + p > q + r      ## condiiton(2)(i)
                     }
                 }
+        necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
-              "D should be nonnegative definite" = all(LD >= 0))
     if(!cond_exist) {
-        warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                "eigenstructures of A, B, and D")
+        if(necess_cond) {
+            stop("Moment does not exist in this combination of p, q, r, and\n  ",
+                 "eigenstructures of A, B, and D")
+        } else {
+            warning("Moment may not exist in this combination of p, q, r, and\n  ",
+                    "eigenstructures of A, B, and D")
+        }
     }
     b1 <- alphaA / max(abs(LA))
     b3 <- alphaD / max(LD)
