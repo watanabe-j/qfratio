@@ -20,7 +20,7 @@ qfmrm(
   mu = rep.int(0, n),
   Sigma = diag(n),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps,
+  tol_sing = .Machine$double.eps * 100,
   ...
 )
 
@@ -40,7 +40,7 @@ qfmrm_ApBIqr_int(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfmrm_ApBIqr_npi(
@@ -59,7 +59,7 @@ qfmrm_ApBIqr_npi(
   check_convergence = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfmrm_IpBDqr_gen(
@@ -78,7 +78,7 @@ qfmrm_IpBDqr_gen(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfmrm_ApBDqr_int(
@@ -98,7 +98,7 @@ qfmrm_ApBDqr_int(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfmrm_ApBDqr_npi(
@@ -119,7 +119,7 @@ qfmrm_ApBDqr_npi(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 }
 \arguments{

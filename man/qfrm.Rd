@@ -17,7 +17,7 @@ qfrm(
   mu = rep.int(0, n),
   Sigma = diag(n),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps,
+  tol_sing = .Machine$double.eps * 100,
   ...
 )
 
@@ -45,7 +45,7 @@ qfrm_ApIq_npi(
   cpp_method = "Eigen",
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfrm_ApBq_int(
@@ -62,7 +62,7 @@ qfrm_ApBq_int(
   cpp_method = "Eigen",
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 
 qfrm_ApBq_npi(
@@ -79,7 +79,7 @@ qfrm_ApBq_npi(
   cpp_method = "Eigen",
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps
+  tol_sing = .Machine$double.eps * 100
 )
 }
 \arguments{

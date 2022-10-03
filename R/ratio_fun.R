@@ -214,7 +214,7 @@
 #'
 qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps, ...) {
+                 tol_sing = .Machine$double.eps * 100, ...) {
     ##
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
@@ -421,7 +421,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 #'
 qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps, ...) {
+                 tol_sing = .Machine$double.eps * 100, ...) {
     ##
     ## If A, B, or D is missing, let it be an identity matrix
     ## If they are given, symmetrize
@@ -604,7 +604,7 @@ NULL
 qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                        use_cpp = FALSE, cpp_method = "Eigen",
                        tol_zero = .Machine$double.eps * 100,
-                       tol_sing = .Machine$double.eps) {
+                       tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
@@ -685,7 +685,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n),
                           use_cpp = FALSE, cpp_method = "Eigen",
                           tol_zero = .Machine$double.eps * 100,
-                          tol_sing = .Machine$double.eps) {
+                          tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -810,7 +810,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
 qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma = diag(n),
                             use_cpp = FALSE, cpp_method = "Eigen",
                             tol_zero = .Machine$double.eps * 100,
-                            tol_sing = .Machine$double.eps) {
+                            tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A, B, or D is missing, let it be an identity matrix
@@ -1084,7 +1084,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     use_cpp = FALSE, cpp_method = "Eigen",
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
@@ -1102,11 +1102,11 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     eigA <- eigen(A, symmetric = TRUE)
     LA <- eigA$values
     UA <- eigA$vectors
-    nndefA <- all(LA >= 0)
+    nndefA <- all(LA >= -tol_sing)
     if(!nndefA && ((p %% 1) != 0 || p < 0)) {
-        warning("(Numerically) negative eigenvalue(s) detected.\n  ",
-                "Ensure A is nonnegative definite, as non-positive-integer ",
-                "moment of\n  the quadratic form is not well defined otherwise.")
+        stop("(Numerically) negative eigenvalue(s) detected for A.\n  ",
+             "Ensure A is nonnegative definite, as non-positive-integer ",
+             "moment of\n  the quadratic form is not well defined otherwise.")
     }
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     cond_exist <- n / 2 + p > q ## condition(1)
@@ -1235,7 +1235,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     use_cpp = FALSE, cpp_method = "Eigen",
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1300,7 +1300,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
     use_vec <- is_diagonal(A, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
@@ -1475,7 +1475,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     use_cpp = FALSE, cpp_method = "Eigen",
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1543,7 +1543,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
     use_vec <- is_diagonal(A, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
@@ -1643,7 +1643,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1709,7 +1709,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
     use_vec <- is_diagonal(A, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
@@ -1891,7 +1891,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1965,7 +1965,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
     use_vec <- is_diagonal(A, tol_zero)
     central <- iseq(mu, rep.int(0, n), tol_zero)
@@ -2069,7 +2069,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2137,6 +2137,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         Bh <- In - b2 * diag(LB)
         Dh <- In - b3 * D
     }
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
+              "D should be nonnegative definite" = all(LD >= -tol_sing))
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
@@ -2159,8 +2161,6 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         cond_exist <- rBD / 2 > q + r              ## condition(2)(iii)
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
-              "D should be nonnegative definite" = all(LD >= 0))
     if(!cond_exist) {
         if(necess_cond) {
             stop("Moment does not exist in this combination of p, q, r, and\n  ",
@@ -2253,7 +2253,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2325,6 +2325,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
+              "D should be nonnegative definite" = all(LD >= -tol_sing))
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
@@ -2356,8 +2358,6 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                 }
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= 0),
-              "D should be nonnegative definite" = all(LD >= 0))
     if(!cond_exist) {
         if(necess_cond) {
             stop("Moment does not exist in this combination of p, q, r, and\n  ",
@@ -2459,7 +2459,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps) {
+                    tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2539,6 +2539,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
+              "D should be nonnegative definite" = all(LD >= -tol_sing))
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
