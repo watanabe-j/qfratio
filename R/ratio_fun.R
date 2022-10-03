@@ -749,7 +749,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    use_vec <- is_diagonal(A, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     if(use_vec) LA <- diag(A)
     if(use_cpp) {
@@ -893,7 +893,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    use_vec <- is_diagonal(A, tol_zero) && is_diagonal(D, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     if(use_vec) {
         LA <- diag(A)
@@ -1302,7 +1302,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
-    use_vec <- is_diagonal(A, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LA <- diag(A)
@@ -1545,7 +1545,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
-    use_vec <- is_diagonal(A, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     b1 <- alphaA / max(abs(LA))
@@ -1711,7 +1711,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
-    use_vec <- is_diagonal(A, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LA <- diag(A)
@@ -1967,7 +1967,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
-    use_vec <- is_diagonal(A, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LA <- diag(A)
@@ -2123,7 +2123,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     ## Rotate D and mu with eigenvectors of B
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    use_vec <- is_diagonal(D, tol_zero)
+    use_vec <- is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
         LD <- diag(D)
@@ -2321,7 +2321,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    use_vec <- is_diagonal(A, tol_zero) && is_diagonal(D, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
@@ -2535,7 +2535,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    use_vec <- is_diagonal(A, tol_zero) && is_diagonal(D, tol_zero)
+    use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values

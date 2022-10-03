@@ -146,7 +146,7 @@ iseq <- function(x, y = rep.int(0, length(x)),
 #' Is this matrix diagonal?
 #'
 #' This internal function is used to determine whether a square matrix
-#' is diagonal (within the specified tolerance).
+#' is diagonal (within a specified tolerance).
 #' Returns \code{TRUE} when the absolute values of all off-diagonal elements
 #' are below \code{tol}, using \code{all.equal()}.
 #'
@@ -154,11 +154,20 @@ iseq <- function(x, y = rep.int(0, length(x)),
 #'
 #' @param A
 #'   Square matrix. No check is done.
+#' @param symmetric
+#'   If \code{FALSE} (default), sum of absolute values of the corresponding
+#'   lower and upper triangular elements are examined with a doubled \code{tol}.
+#'   If \code{TRUE}, only the lower triangular elements are examined
+#'   assuming symmetry.
 #'
 #' @seealso \code{\link[base]{all.equal}}
 #'
-is_diagonal <- function(A, tol = .Machine$double.eps * 100) {
+is_diagonal <- function(A, tol = .Machine$double.eps * 100, symmetric = FALSE) {
     n <- dim(A)[1]
-    In <- diag(n)
-    isTRUE(all.equal(as.numeric(abs(A) > tol), c(In)))
+    if(symmetric) {
+        return(isTRUE(all.equal(A[lower.tri(A)], rep.int(0, n * (n - 1) / 2), tol)))
+    } else {
+        A <- abs(A)
+        return(isTRUE(all.equal((A + t(A))[lower.tri(A)], rep.int(0, n * (n - 1) / 2), tol * 2)))
+    }
 }
