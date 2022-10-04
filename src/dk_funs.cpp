@@ -12,6 +12,15 @@ using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using Eigen::Matrix;
+using Eigen::Array;
+using Eigen::MatrixBase;
+using Eigen::ArrayBase;
+using Eigen::Dynamic;
+
+typedef Eigen::Array<long double, Eigen::Dynamic, 1> ArrayXl;
+typedef Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic> ArrayXXl;
+typedef Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> MatrixXl;
 
 
 // // [[Rcpp::export]]
@@ -731,19 +740,24 @@ Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
 
 
 // // [[Rcpp::export]]
-Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                             const int m, const int p, Eigen::ArrayXXd& lscf, int nthreads) {
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>& A2, const Eigen::MatrixBase<Derived>& A3,
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
 #endif
+    typedef typename Derived::Scalar Scalar;
+    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
+    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const int n = A1.rows();
-    const MatrixXd In = MatrixXd::Identity(n, n);
-    ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
+    const MatrixXx In = MatrixXx::Identity(n, n);
+    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    MatrixXd Go = MatrixXd::Zero(n, n * (p + 1) * m);
-    MatrixXd Gn = MatrixXd::Zero(n, n * (p + 1) * (m + 1));
+    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
+    MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
     for(int i = 1; i <= p; i++) {
         Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
         dks(i, 0) = Gn.block(0, i * n, n, n).trace() / (2 * i);
@@ -791,20 +805,30 @@ Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, 
     }
     return dks;
 }
+template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
+                const MatrixBase<MatrixXd>& A2, const MatrixBase<MatrixXd>& A3,
+                const int m, const int p, ArrayXXd& lscf, int nthreads);
+template ArrayXXl d3_pjk_mE(const MatrixBase<MatrixXl>& A1,
+                const MatrixBase<MatrixXl>& A2, const MatrixBase<MatrixXl>& A3,
+                const int m, const int p, ArrayXXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
-Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const int m, const int p, Eigen::ArrayXXd& lscf) { // , int nthreads) {
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2, const Eigen::ArrayBase<Derived>& A3,
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
 // #endif
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const int n = A1.rows();
-    ArrayXXd dks = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
+    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    double thr = std::numeric_limits<double>::max() / 100 / double(n);
-    ArrayXXd Go = ArrayXXd::Zero(n, (p + 1) * m);
-    ArrayXXd Gn = ArrayXXd::Zero(n, (p + 1) * (m + 1));
+    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
+    ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     for(int i = 1; i <= p; i++) {
         Gn.col(i) = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
         dks(i, 0) = Gn.col(i).sum() / (2 * i);
@@ -856,6 +880,12 @@ Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, co
     }
     return dks;
 }
+template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
+                    const ArrayBase<ArrayXd>& A2, const ArrayBase<ArrayXd>& A3,
+                    const int m, const int p, ArrayXXd& lscf);
+template ArrayXXl d3_pjk_vE(const ArrayBase<ArrayXl>& A1,
+                    const ArrayBase<ArrayXl>& A2, const ArrayBase<ArrayXl>& A3,
+                    const int m, const int p, ArrayXXl& lscf);
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,

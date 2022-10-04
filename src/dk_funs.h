@@ -44,10 +44,17 @@ Eigen::ArrayXXd d3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const int m, Eigen::ArrayXXd& lscf, int nthreads);
 Eigen::ArrayXXd d3_ijk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
     const Eigen::ArrayXd& A3, const int m, Eigen::ArrayXXd& lscf); // , int nthreads);
-Eigen::ArrayXXd d3_pjk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-    const Eigen::MatrixXd& A3, const int m, const int p, Eigen::ArrayXXd& lscf, int nthreads);
-Eigen::ArrayXXd d3_pjk_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-    const Eigen::ArrayXd& A3, const int m, const int p, Eigen::ArrayXXd& lscf); // , int nthreads);
+
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>& A2, const Eigen::MatrixBase<Derived>& A3,
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf, int nthreads);
+
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2, const Eigen::ArrayBase<Derived>& A3,
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf);
+
 Eigen::ArrayXXd h3_ijk_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
     const Eigen::MatrixXd& A3, const Eigen::VectorXd& mu, const int m,
     Eigen::ArrayXXd& lscf, int nthreads);
