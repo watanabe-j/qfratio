@@ -256,7 +256,8 @@ SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
     if(error_bound) {
         ArrayXd cumsum_dkst(m + 1);
         ArrayXd signseq = get_sign_rfp1(-p, m + 1);
-        set_cumsum(dks / exp(lscf - lscf(m)), cumsum_dkst);
+        dks /= exp(lscf - lscf(m));
+        set_cumsum(dks, cumsum_dkst);
         // set_cumprod_sign(-p, m + 1, signseq);
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, -p + 1, -p + 1 + m).lgamma() - lgamma(-p) -
@@ -329,7 +330,8 @@ SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             dkst = dks;
         }
         ArrayXd cumsum_dkst(m + 1);
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = d1_i_vE(LAp / LB / b2, int(p), lscfdp)(p);
         double lBdet = log(LB * b2).sum();
@@ -386,7 +388,8 @@ SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             dkst = dks;
         }
         ArrayXd cumsum_dkst(m + 1);
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         MatrixXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = d1_i_mE(Bisqr * Ap * Bisqr / b2, int(p), lscfdp)(p);
@@ -436,7 +439,8 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         ArrayXd dkst = hhat2_pj_vE(LAp, LBh, mu, m, int(p), lscf).row(p);
         lscfp = lscf.row(p);
         ArrayXd cumsum_dkst(m + 1);
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = dtil1_i_vE(LAp / LB / b2, mub, int(p), lscfdp)(p);
         double lBdet = log(LB * b2).sum();
@@ -487,7 +491,8 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         ArrayXd dkst = hhat2_pj_mE(Ap, Bh, mu, m, int(p), lscf).row(p);
         lscfp = lscf.row(p);
         ArrayXd cumsum_dkst(m + 1);
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         MatrixXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = dtil1_i_mE(Bisqr * Ap * Bisqr / b2, mub, int(p), lscfdp)(p);
@@ -626,7 +631,8 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         } else {
             dkst = dks;
         }
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = d1_i_vE(LAp / LB / b2, int(p), lscfdp)(p);
         double lBdet = log(LB * b2).sum();
@@ -684,7 +690,8 @@ SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             Ap = A;
             dkst = dks;
         }
-        set_cumsum(dkst / exp(lscfp - lscfp(m)), cumsum_dkst);
+        dkst /= exp(lscfp - lscfp(m));
+        set_cumsum(dkst, cumsum_dkst);
         MatrixXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = d1_i_mE(Bisqr * Ap * Bisqr / b2, int(p), lscfdp)(p);
@@ -741,7 +748,8 @@ SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         ArrayXd dkst = sum_counterdiagE(dkstm);
         ArrayXd cumsum_dkst(m + 1);
         ArrayXd lscfp0 = lscf.row(p).head(m + 1);
-        set_cumsum(dkst / exp(lscfp0 - lscfp0(m)), cumsum_dkst);
+        dkst /= exp(lscfp0 - lscfp0(m));
+        set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = dtil1_i_vE(LAp / LB / b2, mub, int(p), lscfdp)(p);
         double lBdet = log(LB * b2).sum();
@@ -799,7 +807,8 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         ArrayXd dkst = sum_counterdiagE(dkstm);
         ArrayXd cumsum_dkst(m + 1);
         ArrayXd lscfp0 = lscf.row(p).head(m + 1);
-        set_cumsum(dkst / exp(lscfp0 - lscfp0(m)), cumsum_dkst);
+        dkst /= exp(lscfp0 - lscfp0(m));
+        set_cumsum(dkst, cumsum_dkst);
         MatrixXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
         double dp = dtil1_i_mE(Bisqr * Ap * Bisqr / b2, mub, int(p), lscfdp)(p);
