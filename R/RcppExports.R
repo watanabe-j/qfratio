@@ -296,6 +296,20 @@ ApBDqr_npi_nmE <- function(A, LB, D, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 10
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_int()}, central & vector, long double
+#'
+ApBDqr_int_cvEl <- function(LA, LB, LD, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L) {
+    .Call(`_qfratio_ApBDqr_int_cvEl`, LA, LB, LD, b2, b3, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_int()}, central & matrix, long double
+#'
+ApBDqr_int_cmEl <- function(A, LB, D, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_int_cmEl`, A, LB, D, b2, b3, p, q, r, m, nthreads)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{rqfp()}
 #'
 rqfpE <- function(nit, A, B, D, p, q, r, mu, Sigma) {

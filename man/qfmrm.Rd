@@ -96,7 +96,7 @@ qfmrm_ApBDqr_int(
   alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = c("double", "long_double"),
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,

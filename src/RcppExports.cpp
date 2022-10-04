@@ -763,6 +763,45 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ApBDqr_int_cvEl
+SEXP ApBDqr_int_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, const Eigen::Array<long double, Eigen::Dynamic, 1> LB, const Eigen::Array<long double, Eigen::Dynamic, 1> LD, const long double b2, const long double b3, const long double p, const long double q, const long double r, const int m);
+RcppExport SEXP _qfratio_ApBDqr_int_cvEl(SEXP LASEXP, SEXP LBSEXP, SEXP LDSEXP, SEXP b2SEXP, SEXP b3SEXP, SEXP pSEXP, SEXP qSEXP, SEXP rSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type LA(LASEXP);
+    Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type LB(LBSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type LD(LDSEXP);
+    Rcpp::traits::input_parameter< const long double >::type b2(b2SEXP);
+    Rcpp::traits::input_parameter< const long double >::type b3(b3SEXP);
+    Rcpp::traits::input_parameter< const long double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< const long double >::type q(qSEXP);
+    Rcpp::traits::input_parameter< const long double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< const int >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p, q, r, m));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ApBDqr_int_cmEl
+SEXP ApBDqr_int_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A, const Eigen::Array<long double, Eigen::Dynamic, 1> LB, const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> D, const long double b2, const long double b3, const long double p, const long double q, const long double r, const int m, int nthreads);
+RcppExport SEXP _qfratio_ApBDqr_int_cmEl(SEXP ASEXP, SEXP LBSEXP, SEXP DSEXP, SEXP b2SEXP, SEXP b3SEXP, SEXP pSEXP, SEXP qSEXP, SEXP rSEXP, SEXP mSEXP, SEXP nthreadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type LB(LBSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> >::type D(DSEXP);
+    Rcpp::traits::input_parameter< const long double >::type b2(b2SEXP);
+    Rcpp::traits::input_parameter< const long double >::type b3(b3SEXP);
+    Rcpp::traits::input_parameter< const long double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< const long double >::type q(qSEXP);
+    Rcpp::traits::input_parameter< const long double >::type r(rSEXP);
+    Rcpp::traits::input_parameter< const int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
+    rcpp_result_gen = Rcpp::wrap(ApBDqr_int_cmEl(A, LB, D, b2, b3, p, q, r, m, nthreads));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rqfpE
 Eigen::ArrayXd rqfpE(const int nit, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D, const double p, const double q, const double r, const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma);
 RcppExport SEXP _qfratio_rqfpE(SEXP nitSEXP, SEXP ASEXP, SEXP BSEXP, SEXP DSEXP, SEXP pSEXP, SEXP qSEXP, SEXP rSEXP, SEXP muSEXP, SEXP SigmaSEXP) {
@@ -826,6 +865,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_ApBDqr_npi_cmE", (DL_FUNC) &_qfratio_ApBDqr_npi_cmE, 11},
     {"_qfratio_ApBDqr_npi_nvE", (DL_FUNC) &_qfratio_ApBDqr_npi_nvE, 11},
     {"_qfratio_ApBDqr_npi_nmE", (DL_FUNC) &_qfratio_ApBDqr_npi_nmE, 12},
+    {"_qfratio_ApBDqr_int_cvEl", (DL_FUNC) &_qfratio_ApBDqr_int_cvEl, 9},
+    {"_qfratio_ApBDqr_int_cmEl", (DL_FUNC) &_qfratio_ApBDqr_int_cmEl, 10},
     {"_qfratio_rqfpE", (DL_FUNC) &_qfratio_rqfpE, 9},
     {NULL, NULL, 0}
 };

@@ -43,6 +43,8 @@
 \alias{ApBDqr_npi_cmE}
 \alias{ApBDqr_npi_nvE}
 \alias{ApBDqr_npi_nmE}
+\alias{ApBDqr_int_cvEl}
+\alias{ApBDqr_int_cmEl}
 \alias{rqfpE}
 \alias{qfrm_cpp}
 \title{Internal C++ functions}
@@ -202,6 +204,21 @@ ApBDqr_npi_nmE(
   nthreads = 0L
 )
 
+ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBDqr_int_cmEl(
+  A,
+  LB,
+  D,
+  b2,
+  b3,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
 rqfpE(nit, A, B, D, p, q, r, mu, Sigma)
 }
 \arguments{
@@ -346,6 +363,10 @@ which may not be particularly efficient.
 \item \code{ApBDqr_npi_nvE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector
 
 \item \code{ApBDqr_npi_nmE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix
+
+\item \code{ApBDqr_int_cvEl()}: \code{qfmrm_ApBDqr_int()}, central & vector, long double
+
+\item \code{ApBDqr_int_cmEl()}: \code{qfmrm_ApBDqr_int()}, central & matrix, long double
 
 \item \code{rqfpE()}: \code{rqfp()}
 
