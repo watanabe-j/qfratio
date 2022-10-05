@@ -133,7 +133,7 @@ Eigen::ArrayXXd arl_mE(const Eigen::MatrixXd& A, const Eigen::VectorXd& mu, cons
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -155,7 +155,8 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
         if(G_k_i.maxCoeff() > thr) {
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -163,7 +164,7 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -184,7 +185,8 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         if(G_k_i.maxCoeff() > thr) {
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -197,7 +199,7 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -225,27 +227,28 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         if(Gn.maxCoeff() > thr) {
             for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
             Gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-                    lscf(i1, i2) -= log(1e10);
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+            //         lscf(i1, i2) -= log(1e10);
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
 }
 template ArrayXXd d2_ij_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                            const Eigen::MatrixBase<MatrixXd>& A2,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXd& lscf);
 template ArrayXXl d2_ij_mE(const Eigen::MatrixBase<MatrixXl>& A1,
                            const Eigen::MatrixBase<MatrixXl>& A2,
-                           const int m, ArrayXXl& lscf);
+                           const int m, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2,
-         const int m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         const int m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const int n = A1.rows();
@@ -270,21 +273,22 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
         if(Gn.maxCoeff() > thr) {
             for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
             Gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-                    lscf(i1, i2) -= log(1e10);
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+            //         lscf(i1, i2) -= log(1e10);
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
 }
 template ArrayXXd d2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXd& lscf);
 template ArrayXXl d2_ij_vE(const Eigen::ArrayBase<ArrayXl>& A1,
                            const Eigen::ArrayBase<ArrayXl>& A2,
-                           const int m, ArrayXXl& lscf);
+                           const int m, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -293,7 +297,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -337,11 +341,12 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-                    lscf(i1, i2) -= log(1e10);
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+            //         lscf(i1, i2) -= log(1e10);
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -349,11 +354,11 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd h2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const MatrixBase<MatrixXd>& A2,
                            const VectorXd& mu, const int m,
-                           ArrayXXd& lscf);
+                           ArrayXd& lscf);
 template ArrayXXl h2_ij_mE(const MatrixBase<MatrixXl>& A1,
                            const MatrixBase<MatrixXl>& A2,
                            const VectorXl& mu, const int m,
-                           ArrayXXl& lscf);
+                           ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -362,7 +367,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& A2,
          const Eigen::ArrayBase<Derived>& mu,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -405,11 +410,12 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
             for(int i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-                    lscf(i1, i2) -= log(1e10);
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
+            //         lscf(i1, i2) -= log(1e10);
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -417,15 +423,15 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd h2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
                            const Eigen::ArrayBase<ArrayXd>& mu,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXd& lscf);
 template ArrayXXl h2_ij_vE(const Eigen::ArrayBase<ArrayXl>& A1,
                            const Eigen::ArrayBase<ArrayXl>& A2,
                            const Eigen::ArrayBase<ArrayXl>& mu,
-                           const int m, ArrayXXl& lscf);
+                           const int m, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -457,7 +463,8 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -465,7 +472,7 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -495,7 +502,8 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -503,7 +511,7 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const Eigen::VectorXd& mu, const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
@@ -535,7 +543,8 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -543,7 +552,7 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXXd& lscf) {
+         const Eigen::ArrayXd& mu, const int m, const int p, Eigen::ArrayXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, m + 1);
     dks(0, 0) = 1;
@@ -573,7 +582,8 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            lscf.rightCols(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -581,7 +591,7 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
-         const Eigen::VectorXd& mu, const int p, const int q) { //, Eigen::ArrayXXd& lscf) {
+         const Eigen::VectorXd& mu, const int p, const int q) { //, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     ArrayXXd dks = ArrayXXd::Zero(p + 1, q + 1);
@@ -617,7 +627,7 @@ Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
-         const Eigen::ArrayXd& mu, const int p, const int q) { //, Eigen::ArrayXXd& lscf) {
+         const Eigen::ArrayXd& mu, const int p, const int q) { //, Eigen::ArrayXd& lscf) {
     const int n = A1.size();
     ArrayXXd dks = ArrayXXd::Zero(p + 1, q + 1);
     dks(0, 0) = 1;
@@ -671,7 +681,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::MatrixBase<Derived>& A2,
           const Eigen::MatrixBase<Derived>& A3,
           const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -738,13 +748,14 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                 }
             }
             Gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = 0; i2 <= m - i1; i2++) {
-                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                    }
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = 0; i2 <= m - i1; i2++) {
+            //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //         }
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -752,11 +763,11 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd d3_ijk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                             const Eigen::MatrixBase<MatrixXd>& A2,
                             const Eigen::MatrixBase<MatrixXd>& A3,
-                            const int m, ArrayXXd& lscf, int nthreads);
+                            const int m, ArrayXd& lscf, int nthreads);
 template ArrayXXl d3_ijk_mE(const Eigen::MatrixBase<MatrixXl>& A1,
                             const Eigen::MatrixBase<MatrixXl>& A2,
                             const Eigen::MatrixBase<MatrixXl>& A3,
-                            const int m, ArrayXXl& lscf, int nthreads);
+                            const int m, ArrayXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -765,7 +776,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
           const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -829,13 +840,14 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                 }
             }
             Gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = 0; i2 <= m - i1; i2++) {
-                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                    }
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = 0; i2 <= m - i1; i2++) {
+            //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //         }
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -843,17 +855,17 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd d3_ijk_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                             const Eigen::ArrayBase<ArrayXd>& A2,
                             const Eigen::ArrayBase<ArrayXd>& A3,
-                            const int m, ArrayXXd& lscf);
+                            const int m, ArrayXd& lscf);
 template ArrayXXl d3_ijk_vE(const Eigen::ArrayBase<ArrayXl>& A1,
                             const Eigen::ArrayBase<ArrayXl>& A2,
                             const Eigen::ArrayBase<ArrayXl>& A3,
-                            const int m, ArrayXXl& lscf);
+                            const int m, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>& A2, const Eigen::MatrixBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf, int nthreads) {
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -909,24 +921,25 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
 }
 template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                 const MatrixBase<MatrixXd>& A2, const MatrixBase<MatrixXd>& A3,
-                const int m, const int p, ArrayXXd& lscf, int nthreads);
+                const int m, const int p, ArrayXd& lscf, int nthreads);
 template ArrayXXl d3_pjk_mE(const MatrixBase<MatrixXl>& A1,
                 const MatrixBase<MatrixXl>& A2, const MatrixBase<MatrixXl>& A3,
-                const int m, const int p, ArrayXXl& lscf, int nthreads);
+                const int m, const int p, ArrayXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2, const Eigen::ArrayBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -984,18 +997,19 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
 }
 template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                     const ArrayBase<ArrayXd>& A2, const ArrayBase<ArrayXd>& A3,
-                    const int m, const int p, ArrayXXd& lscf);
+                    const int m, const int p, ArrayXd& lscf);
 template ArrayXXl d3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                     const ArrayBase<ArrayXl>& A2, const ArrayBase<ArrayXl>& A3,
-                    const int m, const int p, ArrayXXl& lscf);
+                    const int m, const int p, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1005,7 +1019,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::MatrixBase<Derived>& A3,
           const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
           const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -1107,13 +1121,14 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             }
             Gn /= 1e10;
             gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = 0; i2 <= m - i1; i2++) {
-                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                    }
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = 0; i2 <= m - i1; i2++) {
+            //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //         }
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1122,12 +1137,12 @@ template ArrayXXd  h3_ijk_mE(const MatrixBase<MatrixXd>& A1,
                              const MatrixBase<MatrixXd>& A2,
                              const MatrixBase<MatrixXd>& A3,
                              const VectorXd mu, const int m,
-                             ArrayXXd& lscf, int nthreads);
+                             ArrayXd& lscf, int nthreads);
 template ArrayXXl  h3_ijk_mE(const MatrixBase<MatrixXl>& A1,
                              const MatrixBase<MatrixXl>& A2,
                              const MatrixBase<MatrixXl>& A3,
                              const VectorXl mu, const int m,
-                             ArrayXXl& lscf, int nthreads);
+                             ArrayXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1136,7 +1151,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
           const Eigen::ArrayBase<Derived>& mu, const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1234,13 +1249,14 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             }
             Gn /= 1e10;
             gn /= 1e10;
-            for(int i1 = 0; i1 <= m; i1++) {
-                for(int i2 = 0; i2 <= m - i1; i2++) {
-                    for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                    }
-                }
-            }
+            // for(int i1 = 0; i1 <= m; i1++) {
+            //     for(int i2 = 0; i2 <= m - i1; i2++) {
+            //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
+            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //         }
+            //     }
+            // }
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1249,12 +1265,12 @@ template ArrayXXd h3_ijk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
                             const ArrayBase<ArrayXd>& mu, const int m,
-                            ArrayXXd& lscf);
+                            ArrayXd& lscf);
 template ArrayXXl h3_ijk_vE(const ArrayBase<ArrayXl>& A1,
                             const ArrayBase<ArrayXl>& A2,
                             const ArrayBase<ArrayXl>& A3,
                             const ArrayBase<ArrayXl>& mu, const int m,
-                            ArrayXXl& lscf);
+                            ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1264,7 +1280,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -1349,8 +1365,9 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1359,12 +1376,12 @@ template ArrayXXd htil3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const MatrixBase<MatrixXd>& A2,
                                const MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const int m, const int p,
-                               ArrayXXd& lscf, int nthreads);
+                               ArrayXd& lscf, int nthreads);
 template ArrayXXl htil3_pjk_mE(const MatrixBase<MatrixXl>& A1,
                                const MatrixBase<MatrixXl>& A2,
                                const MatrixBase<MatrixXl>& A3,
                                const VectorXl mu, const int m, const int p,
-                               ArrayXXl& lscf, int nthreads);
+                               ArrayXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1374,7 +1391,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1458,8 +1475,9 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1468,12 +1486,12 @@ template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf);
+                               const int m, const int p, ArrayXd& lscf);
 template ArrayXXl htil3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                                const ArrayBase<ArrayXl>& A2,
                                const ArrayBase<ArrayXl>& A3,
                                const ArrayBase<ArrayXl>& mu,
-                               const int m, const int p, ArrayXXl& lscf);
+                               const int m, const int p, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1483,7 +1501,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -1568,8 +1586,9 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1578,12 +1597,12 @@ template ArrayXXd hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                                const Eigen::MatrixBase<MatrixXd>& A2,
                                const Eigen::MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const int m, const int p,
-                               ArrayXXd& lscf, int nthreads);
+                               ArrayXd& lscf, int nthreads);
 template ArrayXXl hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXl>& A1,
                                const Eigen::MatrixBase<MatrixXl>& A2,
                                const Eigen::MatrixBase<MatrixXl>& A3,
                                const VectorXl mu, const int m, const int p,
-                               ArrayXXl& lscf, int nthreads);
+                               ArrayXl& lscf, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1593,7 +1612,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1679,8 +1698,9 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
+            lscf.tail(m + 1 - k) -= log(1e10);
         }
     }
     return dks;
@@ -1689,16 +1709,16 @@ template ArrayXXd hhat3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf);
+                               const int m, const int p, ArrayXd& lscf);
 template ArrayXXl hhat3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                                const ArrayBase<ArrayXl>& A2,
                                const ArrayBase<ArrayXl>& A3,
                                const ArrayBase<ArrayXl>& mu,
-                               const int m, const int p, ArrayXXl& lscf);
+                               const int m, const int p, ArrayXl& lscf);
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2, const Eigen::MatrixXd& A3,
-                            const Eigen::VectorXd mu, const int p, const int q, const int r) { //, Eigen::ArrayXXd& lscf) {
+                            const Eigen::VectorXd mu, const int p, const int q, const int r) { //, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const MatrixXd In = MatrixXd::Identity(n, n);
     const int m = q + r;
@@ -1788,7 +1808,7 @@ Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
 
 // // [[Rcpp::export]]
 Eigen::ArrayXXd dtil3_pqr_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2, const Eigen::ArrayXd& A3,
-                            const Eigen::ArrayXd& mu, const int p, const int q, const int r) { //, Eigen::ArrayXXd& lscf) {
+                            const Eigen::ArrayXd& mu, const int p, const int q, const int r) { //, Eigen::ArrayXd& lscf) {
     const int n = A1.rows();
     const int m = q + r;
     ArrayXXd dks = ArrayXXd::Zero(p + 1, (q + 1) * (r + 1));

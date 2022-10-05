@@ -197,7 +197,8 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 Eigen::ArrayXXd
 hgs_2dE(const Eigen::ArrayXXd& dks,
         const double a1, const double a2, const double b,
-        const double lconst, const Eigen::ArrayXXd& lscf) {
+        // const double lconst, const Eigen::ArrayXXd& lscf) {
+        const double lconst, const Eigen::ArrayXd& lscf) {
     const int m = dks.rows() - 1;
     ArrayXd Alnumi = get_lrf(a1, m + 1);
     ArrayXd Alnumj = get_lrf(a2, m + 1);
@@ -217,7 +218,10 @@ hgs_2dE(const Eigen::ArrayXXd& dks,
         for(int i = 0; i <= k; i++) ansmat(i, k - i) -= lden;
     }
     ansmat += log(abs(dks)) + lconst;
-    ansmat -= lscf;
+    // ansmat -= lscf;
+    for(int k = 0; k <= m; k++) {
+        for(int i = 0; i <= k; i++) ansmat(i, k - i) -= lscf(k);
+    }
     ansmat = exp(ansmat);
     ansmat.colwise() *= Asgnsi;
     ansmat.rowwise() *= Asgnsj.transpose();
@@ -232,7 +236,8 @@ Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>
 hgs_2dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         const long double a1, const long double a2, const long double b,
         const long double lconst,
-        const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+        // const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+        const Eigen::Array<long double, Eigen::Dynamic, 1>& lscf) {
     const int m = dks.rows() - 1;
     ArrayXl Alnumi = get_lrf(a1, m + 1);
     ArrayXl Alnumj = get_lrf(a2, m + 1);
@@ -246,7 +251,10 @@ hgs_2dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         for(int i = 0; i <= k; i++) ansmat(i, k - i) -= lden;
     }
     ansmat += log(abs(dks)) + lconst;
-    ansmat -= lscf;
+    // ansmat -= lscf;
+    for(int k = 0; k <= m; k++) {
+        for(int i = 0; i <= k; i++) ansmat(i, k - i) -= lscf(k);
+    }
     ansmat = exp(ansmat);
     ansmat.colwise() *= Asgnsi;
     ansmat.rowwise() *= Asgnsj.transpose();
@@ -310,7 +318,8 @@ hgs_2dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
 Eigen::ArrayXXd
 hgs_3dE(const Eigen::ArrayXXd& dks,
         const double a1, const double a2, const double a3,
-        const double b, const double lconst, const Eigen::ArrayXXd& lscf) {
+        // const double b, const double lconst, const Eigen::ArrayXXd& lscf) {
+        const double b, const double lconst, const Eigen::ArrayXd& lscf) {
     const int m = dks.rows() - 1;
     ArrayXd Alnumi = get_lrf(a1, m + 1);
     ArrayXd Alnumj = get_lrf(a2, m + 1);
@@ -338,7 +347,14 @@ hgs_3dE(const Eigen::ArrayXXd& dks,
         }
     }
     ansmat += log(abs(dks)) + lconst;
-    ansmat -= lscf;
+    // ansmat -= lscf;
+    for(int k = 0; k <= m; k++) {
+        for(int i = 0; i <= k; i++) {
+            for(int j = 0; j <= k - i; j++) {
+                ansmat(i, j + (k - i - j) * (m + 1)) -= lscf(k);
+            }
+        }
+    }
     ansmat = exp(ansmat);
     ansmat.colwise() *= Asgnsi;
     for(int k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1).rowwise() *= Asgnsj.transpose();
@@ -354,7 +370,8 @@ Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>
 hgs_3dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         const long double a1, const long double a2, const long double a3,
         const long double b, const long double lconst,
-        const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+        // const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+        const Eigen::Array<long double, Eigen::Dynamic, 1>& lscf) {
     const int m = dks.rows() - 1;
     ArrayXl Alnumi = get_lrf(a1, m + 1);
     ArrayXl Alnumj = get_lrf(a2, m + 1);
@@ -375,7 +392,14 @@ hgs_3dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         }
     }
     ansmat += log(abs(dks)) + lconst;
-    ansmat -= lscf;
+    // ansmat -= lscf;
+    for(int k = 0; k <= m; k++) {
+        for(int i = 0; i <= k; i++) {
+            for(int j = 0; j <= k - i; j++) {
+                ansmat(i, j + (k - i - j) * (m + 1)) -= lscf(k);
+            }
+        }
+    }
     ansmat = exp(ansmat);
     ansmat.colwise() *= Asgnsi;
     for(int k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1).rowwise() *= Asgnsj.transpose();

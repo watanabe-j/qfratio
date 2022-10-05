@@ -33,12 +33,14 @@ Eigen::ArrayXd hgs_1dE(const Eigen::ArrayXd& dks,
 Eigen::ArrayXXd
 hgs_2dE(const Eigen::ArrayXXd& dks,
         const double a1, const double a2, const double b,
-        const double lconst, const Eigen::ArrayXXd& lscf);
+        // const double lconst, const Eigen::ArrayXXd& lscf);
+        const double lconst, const Eigen::ArrayXd& lscf);
 Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>
 hgs_2dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         const long double a1, const long double a2, const long double b,
         const long double lconst,
-        const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf);
+        // const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf);
+        const Eigen::Array<long double, Eigen::Dynamic, 1>& lscf);
 
 // template <typename Derived>
 // Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
@@ -50,11 +52,12 @@ hgs_2dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
 Eigen::ArrayXXd
 hgs_3dE(const Eigen::ArrayXXd& dks,
         const double a1, const double a2, const double a3,
-        const double b, const double lconst, const Eigen::ArrayXXd& lscf);
+        // const double b, const double lconst, const Eigen::ArrayXXd& lscf);
+        const double b, const double lconst, const Eigen::ArrayXd& lscf);
 Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>
 hgs_3dE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& dks,
         const long double a1, const long double a2, const long double a3,
         const long double b, const long double lconst,
-        const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf);
-
+        // const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& lscf);
+        const Eigen::Array<long double, Eigen::Dynamic, 1>& lscf);
 #endif
