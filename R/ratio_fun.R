@@ -1122,12 +1122,12 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1,
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
     stopifnot(
         "A should be a square matrix" = all(c(dim(A)) == n),
@@ -1158,7 +1158,11 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(central) {
             cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound)
         } else {
-            cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m)
+            if(cpp_method == "long_double") {
+                cppres <- ApIq_npi_nvEl(LA, UA, b1, mu, p, q, m)
+            } else {
+                cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m)
+            }
         }
         ansseq <- cppres$ansseq
     } else {
@@ -1513,12 +1517,12 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -1593,15 +1597,31 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBq_npi_cvEl(LA, LB, b1, b2, p, q, m)
+                } else {
+                    cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m)
+                }
             } else {
-                cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBq_npi_cmEl(A, LB, b1, b2, p, q, m)
+                } else {
+                    cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m)
+                }
             }
         } else {
             if(use_vec) {
-                cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBq_npi_nvEl(LA, LB, b1, b2, mu, p, q, m)
+                } else {
+                    cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m)
+                }
             } else {
-                cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBq_npi_nmEl(A, LB, b1, b2, mu, p, q, m)
+                } else {
+                    cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m)
+                }
             }
         }
         ansseq <- cppres$ansseq
@@ -1680,13 +1700,13 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -1776,9 +1796,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
+                } else {
+                    cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
+                }
             } else {
-                cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
+                } else {
+                    cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
+                }
             }
         }
         # browser()
@@ -1927,14 +1955,14 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaA = 1, alphaB = 1,
                     # fun = c("dki1", "dk2"),
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -2035,15 +2063,31 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_npi_cvEl(LA, LB, b1, b2, p, q, r, m)
+                } else {
+                    cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m)
+                }
             } else {
-                cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_npi_cmEl(A, LB, b1, b2, p, q, r, m)
+                } else {
+                    cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m)
+                }
             }
         } else {
             if(use_vec) {
-                cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                } else {
+                    cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                }
             } else {
-                cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m, nthreads)
+                } else {
+                    cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m, nthreads)
+                }
             }
         }
         ansseq <- cppres$ansseq
@@ -2106,13 +2150,13 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L, alphaB = 1, alphaD = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(B)) {
         if(missing(D)) stop("Provide at least one of B and D")
@@ -2214,15 +2258,31 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m)
+                if(cpp_method == "long_double") {
+                    cppres <- IpBDqr_gen_cvEl(LB, LD, b2, b3, p, q, r, m)
+                } else {
+                    cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m)
+                }
             } else {
-                cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m)
+                if(cpp_method == "long_double") {
+                    cppres <- IpBDqr_gen_cmEl(LB, D, b2, b3, p, q, r, m)
+                } else {
+                    cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m)
+                }
             }
         } else {
             if(use_vec) {
-                cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                } else {
+                    cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                }
             } else {
-                cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                } else {
+                    cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                }
             }
         }
         ansseq <- cppres$ansseq
@@ -2426,9 +2486,17 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                } else {
+                    cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                }
             } else {
-                cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                } else {
+                    cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                }
             }
         }
         ansseq <- cppres$ansseq
@@ -2504,13 +2572,13 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     alphaA = 1, alphaB = 1, alphaD = 1,
                     # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
+    cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) {
@@ -2635,15 +2703,31 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
+                } else {
+                    cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
+                }
             } else {
-                cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+                } else {
+                    cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+                }
             }
         } else {
             if(use_vec) {
-                cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
+                } else{
+                    cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
+                }
             } else {
-                cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
+                if(cpp_method == "long_double") {
+                    cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
+                } else {
+                    cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
+                }
             }
         }
         ansseq <- cppres$ansseq

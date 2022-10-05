@@ -43,8 +43,29 @@
 \alias{ApBDqr_npi_cmE}
 \alias{ApBDqr_npi_nvE}
 \alias{ApBDqr_npi_nmE}
+\alias{ApIq_npi_nvEl}
+\alias{ApBq_npi_cvEl}
+\alias{ApBq_npi_cmEl}
+\alias{ApBq_npi_nvEl}
+\alias{ApBq_npi_nmEl}
+\alias{ApBIqr_int_nvEl}
+\alias{ApBIqr_int_nmEl}
+\alias{ApBIqr_npi_cvEl}
+\alias{ApBIqr_npi_cmEl}
+\alias{ApBIqr_npi_nvEl}
+\alias{ApBIqr_npi_nmEl}
+\alias{IpBDqr_gen_cvEl}
+\alias{IpBDqr_gen_cmEl}
+\alias{IpBDqr_gen_nvEl}
+\alias{IpBDqr_gen_nmEl}
 \alias{ApBDqr_int_cvEl}
 \alias{ApBDqr_int_cmEl}
+\alias{ApBDqr_int_nvEl}
+\alias{ApBDqr_int_nmEl}
+\alias{ApBDqr_npi_cvEl}
+\alias{ApBDqr_npi_cmEl}
+\alias{ApBDqr_npi_nvEl}
+\alias{ApBDqr_npi_nmEl}
 \alias{rqfpE}
 \alias{qfrm_cpp}
 \title{Internal C++ functions}
@@ -204,6 +225,91 @@ ApBDqr_npi_nmE(
   nthreads = 0L
 )
 
+ApIq_npi_nvEl(LA, UA, b1, mu, p = 1L, q = 1L, m = 100L, error_bound = FALSE)
+
+ApBq_npi_cvEl(LA, LB, b1, b2, p = 1L, q = 1L, m = 100L, error_bound = FALSE)
+
+ApBq_npi_cmEl(A, LB, b1, b2, p = 1L, q = 1L, m = 100L, error_bound = FALSE)
+
+ApBq_npi_nvEl(
+  LA,
+  LB,
+  b1,
+  b2,
+  mu,
+  p = 1L,
+  q = 1L,
+  m = 100L,
+  error_bound = FALSE
+)
+
+ApBq_npi_nmEl(A, LB, b1, b2, mu, p = 1L, q = 1L, m = 100L, error_bound = FALSE)
+
+ApBIqr_int_nvEl(
+  LA,
+  LB,
+  b2,
+  mu,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  error_bound = TRUE
+)
+
+ApBIqr_int_nmEl(
+  A,
+  LA,
+  UA,
+  LB,
+  b2,
+  mu,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  error_bound = TRUE,
+  nthreads = 0L
+)
+
+ApBIqr_npi_cvEl(LA, LB, b1, b2, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBIqr_npi_cmEl(A, LB, b1, b2, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBIqr_npi_nmEl(
+  A,
+  LB,
+  b1,
+  b2,
+  mu,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
+IpBDqr_gen_cvEl(LB, LD, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L)
+
+IpBDqr_gen_cmEl(LB, D, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L)
+
+IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p = 1L, q = 1L, r = 1L, m = 100L)
+
+IpBDqr_gen_nmEl(
+  LB,
+  D,
+  b2,
+  b3,
+  mu,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
 ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L)
 
 ApBDqr_int_cmEl(
@@ -212,6 +318,55 @@ ApBDqr_int_cmEl(
   D,
   b2,
   b3,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
+ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBDqr_int_nmEl(
+  A,
+  LB,
+  D,
+  b2,
+  b3,
+  mu,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
+ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBDqr_npi_cmEl(
+  A,
+  LB,
+  D,
+  b1,
+  b2,
+  b3,
+  p = 1L,
+  q = 1L,
+  r = 1L,
+  m = 100L,
+  nthreads = 0L
+)
+
+ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu, p = 1L, q = 1L, r = 1L, m = 100L)
+
+ApBDqr_npi_nmEl(
+  A,
+  LB,
+  D,
+  b1,
+  b2,
+  b3,
+  mu,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -364,9 +519,51 @@ which may not be particularly efficient.
 
 \item \code{ApBDqr_npi_nmE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix
 
+\item \code{ApIq_npi_nvEl()}: \code{qfrm_ApIq_npi()}, noncentral
+
+\item \code{ApBq_npi_cvEl()}: \code{qfrm_ApBq_npi()}, central & vector, long double
+
+\item \code{ApBq_npi_cmEl()}: \code{qfrm_ApBq_npi()}, central & matrix, long double
+
+\item \code{ApBq_npi_nvEl()}: \code{qfrm_ApBq_npi()}, noncentral & vector, long double
+
+\item \code{ApBq_npi_nmEl()}: \code{qfrm_ApBq_npi()}, noncentral & matrix, long double
+
+\item \code{ApBIqr_int_nvEl()}: \code{qfmrm_ApBIqr_int()}, noncentral & vector, long double
+
+\item \code{ApBIqr_int_nmEl()}: \code{qfmrm_ApBIqr_int()}, noncentral & matrix, long double
+
+\item \code{ApBIqr_npi_cvEl()}: \code{qfmrm_ApBIqr_npi()}, central & vector, long double
+
+\item \code{ApBIqr_npi_cmEl()}: \code{qfmrm_ApBIqr_npi()}, central & matrix, long double
+
+\item \code{ApBIqr_npi_nvEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral & vector, long double
+
+\item \code{ApBIqr_npi_nmEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, long double
+
+\item \code{IpBDqr_gen_cvEl()}: \code{qfmrm_IpBDqr_gen()}, central & vector, long double
+
+\item \code{IpBDqr_gen_cmEl()}: \code{qfmrm_IpBDqr_gen()}, central & matrix, long double
+
+\item \code{IpBDqr_gen_nvEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral & vector, long double
+
+\item \code{IpBDqr_gen_nmEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, long double
+
 \item \code{ApBDqr_int_cvEl()}: \code{qfmrm_ApBDqr_int()}, central & vector, long double
 
 \item \code{ApBDqr_int_cmEl()}: \code{qfmrm_ApBDqr_int()}, central & matrix, long double
+
+\item \code{ApBDqr_int_nvEl()}: \code{qfmrm_ApBDqr_int()}, noncentral & vector, long double
+
+\item \code{ApBDqr_int_nmEl()}: \code{qfmrm_ApBDqr_int()}, noncentral & matrix, long double
+
+\item \code{ApBDqr_npi_cvEl()}: \code{qfmrm_ApBDqr_npi()}, central & vector, long double
+
+\item \code{ApBDqr_npi_cmEl()}: \code{qfmrm_ApBDqr_npi()}, central & matrix, long double
+
+\item \code{ApBDqr_npi_nvEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector, long double
+
+\item \code{ApBDqr_npi_nmEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, long double
 
 \item \code{rqfpE()}: \code{rqfp()}
 

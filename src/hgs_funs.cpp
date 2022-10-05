@@ -29,7 +29,7 @@ void set_cumsum(const Eigen::DenseBase<Derived>& Data, Eigen::DenseBase<Derived>
 }
 // Template instantiations, so that these be used in other places via header
 template void set_cumsum<ArrayXd>(const Eigen::DenseBase<ArrayXd>& Data, Eigen::DenseBase<ArrayXd>& Out);
-// template void set_cumsum<ArrayXl>(const Eigen::DenseBase<ArrayXl>& Data, Eigen::DenseBase<ArrayXl>& Out);
+template void set_cumsum<ArrayXl>(const Eigen::DenseBase<ArrayXl>& Data, Eigen::DenseBase<ArrayXl>& Out);
 
 // // Eigen function to calculate a series of log (of absolute value of)
 // // rising factorial (a)_k from parameter a and length n (k = 0, 1, ... n - 1).
