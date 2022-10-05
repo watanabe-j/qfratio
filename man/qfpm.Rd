@@ -13,7 +13,7 @@ qfm_Ap_int(
   mu = rep.int(0, n),
   Sigma = diag(n),
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
 )
@@ -26,7 +26,7 @@ qfpm_ABpq_int(
   mu = rep.int(0, n),
   Sigma = diag(n),
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
 )
@@ -41,7 +41,7 @@ qfpm_ABDpqr_int(
   mu = rep.int(0, n),
   Sigma = diag(n),
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
 )
@@ -60,8 +60,8 @@ If unsure, specify all explicitly.}
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
-\item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
-as only one method (using \code{RcppEigen}) is implemented.}
+\item{cpp_method}{Variable type used in \code{C++} calculations.
+In these functions this is ignored.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals

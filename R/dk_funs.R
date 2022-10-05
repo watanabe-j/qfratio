@@ -49,10 +49,9 @@
 #' (The problem can be difficult to detect, but is typically diagnosed by a sudden
 #' plateau rather than a gradual saturation of the profile of series expression.)
 #' As this seems technically difficult to avoid without implementing
-#' cumbersome and inefficient coefficient-wise scaling, no workaround has
-#' been implemented in the present version of this package.
-#' It is planned that this will be handled by using the \code{long double} type
-#' with \code{RcppEigen} in future versions.
+#' cumbersome and inefficient coefficient-wise scaling, the only workaround
+#' implemented in this package is to use the \code{long double} variable type
+#' in \code{C++} versions (see \code{\link{qfrm}} and \code{\link{qfmrm}}).
 #'
 #' @return
 #' Vector of length \code{m + 1}, corresponding to

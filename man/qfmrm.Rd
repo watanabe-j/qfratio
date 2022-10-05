@@ -158,8 +158,9 @@ the appropriate ``internal'' function.}
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
-\item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
-as only one method (using \code{RcppEigen}) is implemented.}
+\item{cpp_method}{Variable type used in \code{C++} calculations; either \code{"double"} or
+\code{"long_double"}. The latter does not take effect unless involved in
+the default arguments in "Usage". See "Details".}
 
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
 See "Details".}
@@ -243,6 +244,14 @@ the same eigenvectors (so that the calculation only involves element-wise
 operations of eigenvalues), because the \code{OpenMP} parallelization
 does not seem to improve performance in that case
 (and this is typically fast anyway).
+
+Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
+\code{mu}, involve evaluation of double infinite series, which can suffer
+from numerical overflow and diminishing (see "Scaling" in
+\code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
+the \code{long double} variable type can be used in the \code{C++} versions
+of these functions. That option will take more time and memory, so use it
+with care.
 }
 \examples{
 ## Some symmetric matrices and parameters

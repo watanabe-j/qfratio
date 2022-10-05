@@ -70,6 +70,18 @@
 #' Bao & Kan (2013: proposition 1). An error will result if the conditions
 #' are not met.
 #'
+#' \code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}
+#' involve evaluation of double infinite series, which occasionally suffers
+#' from numerical overflow and diminishing of coefficients of the same order
+#' (see "Scaling" in \code{\link{d1_i}}), which result in numerical inaccuracy.
+#' To avoid this problem, the \code{C++} versions of these functions can use
+#' the \code{long double} variable type, as controlled by \code{cpp_method}.
+#' That option is usually less prone to numerical overflow/diminising
+#' (depending on local environments), but takes substantially long time and
+#' memory. Use it only when absolutely necessary.
+#' This argument will not take effect (ignored silently) in the other functions
+#' which involve only single infinite series.
+#'
 #' For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 #' \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
 #' the arguments \code{alphaA} and \code{alphaB}. These are the factors for
@@ -111,8 +123,9 @@
 #'   Logical to specify whether the calculation is done with \code{C++}
 #'   functions via \code{Rcpp}. \code{FALSE} by default.
 #' @param cpp_method
-#'   Character to specify the \code{C++} method. At present this is ignored,
-#'   as only one method (using \code{RcppEigen}) is implemented.
+#'   Variable type used in \code{C++} calculations; either \code{"double"} or
+#'   \code{"long_double"}. The latter does not take effect unless involved in
+#'   the default arguments in "Usage". See "Details".
 #' @param error_bound
 #'   Logical to specify whether the error bound is returned (if available).
 #' @param check_convergence
@@ -354,6 +367,14 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 #' does not seem to improve performance in that case
 #' (and this is typically fast anyway).
 #'
+#' Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
+#' \code{mu}, involve evaluation of double infinite series, which can suffer
+#' from numerical overflow and diminishing (see "Scaling" in
+#' \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
+#' the \code{long double} variable type can be used in the \code{C++} versions
+#' of these functions. That option will take more time and memory, so use it
+#' with care.
+#'
 #' @inheritParams qfrm
 #'
 #' @param A,B,D
@@ -588,6 +609,9 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #'   If unsure, specify all explicitly.
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}
+#' @param cpp_method
+#'   Variable type used in \code{C++} calculations.
+#'   In these functions this is ignored.
 #'
 #' @return
 #' A list of the class \code{qfpm} which has the same elements as those
@@ -643,7 +667,7 @@ NULL
 #' @export
 #'
 qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
-                       use_cpp = FALSE, cpp_method = "Eigen",
+                       use_cpp = FALSE, cpp_method = "double",
                        tol_zero = .Machine$double.eps * 100,
                        tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -724,7 +748,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 #' @export
 #'
 qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n),
-                          use_cpp = FALSE, cpp_method = "Eigen",
+                          use_cpp = FALSE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -849,7 +873,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
 #' @export
 #'
 qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma = diag(n),
-                            use_cpp = FALSE, cpp_method = "Eigen",
+                            use_cpp = FALSE, cpp_method = "double",
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -1031,7 +1055,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
 #' @export
 #'
 qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                          use_cpp = FALSE, cpp_method = "Eigen",
+                          use_cpp = FALSE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     # cpp_method <- match.arg(cpp_method)
@@ -1277,7 +1301,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaB = 1,
                     # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "Eigen",
+                    use_cpp = FALSE, cpp_method = "double",
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {

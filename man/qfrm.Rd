@@ -30,7 +30,7 @@ qfrm_ApIq_int(
   m = 100L,
   mu = rep.int(0, n),
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = "double",
   tol_zero = .Machine$double.eps * 100
 )
 
@@ -61,7 +61,7 @@ qfrm_ApBq_int(
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
-  cpp_method = "Eigen",
+  cpp_method = "double",
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
@@ -117,8 +117,9 @@ the appropriate ``internal'' function.}
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
-\item{cpp_method}{Character to specify the \code{C++} method. At present this is ignored,
-as only one method (using \code{RcppEigen}) is implemented.}
+\item{cpp_method}{Variable type used in \code{C++} calculations; either \code{"double"} or
+\code{"long_double"}. The latter does not take effect unless involved in
+the default arguments in "Usage". See "Details".}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
@@ -215,6 +216,18 @@ The existence of the moment is assessed by the eigenstructures of
 \eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
 Bao & Kan (2013: proposition 1). An error will result if the conditions
 are not met.
+
+\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}
+involve evaluation of double infinite series, which occasionally suffers
+from numerical overflow and diminishing of coefficients of the same order
+(see "Scaling" in \code{\link{d1_i}}), which result in numerical inaccuracy.
+To avoid this problem, the \code{C++} versions of these functions can use
+the \code{long double} variable type, as controlled by \code{cpp_method}.
+That option is usually less prone to numerical overflow/diminising
+(depending on local environments), but takes substantially long time and
+memory. Use it only when absolutely necessary.
+This argument will not take effect (ignored silently) in the other functions
+which involve only single infinite series.
 
 For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
