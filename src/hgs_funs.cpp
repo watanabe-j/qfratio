@@ -238,27 +238,33 @@ template ArrayXXl hgs_2dE(const ArrayBase<ArrayXXl>& dks,
 // }
 
 
-// Eigen version of hgs_3d()
+// Eigen temlate version of hgs_3d()
 //
 // // [[Rcpp::export]]
-Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
-                        const double a1, const double a2, const double a3,
-                        const double b, const double lconst,
-                        const Eigen::ArrayXXd& lscf) {
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+hgs_3dE(const Eigen::ArrayBase<Derived>& dks, const typename Derived::Scalar a1,
+        const typename Derived::Scalar a2, const typename Derived::Scalar a3,
+        const double b, const typename Derived::Scalar lconst,
+        const Eigen::ArrayBase<Derived>& lscf) {
     const int m = dks.rows() - 1;
+    typedef Matrix<typename Derived::Scalar, Dynamic, 1> VectorXx;
+    typedef Array<typename Derived::Scalar, Dynamic, 1> ArrayXx;
+    typedef Array<typename Derived::Scalar, Dynamic, Dynamic> ArrayXXx;
     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
-    VectorXd Alnumi = get_lrf(a1, m + 1);
-    VectorXd Alnumj = get_lrf(a2, m + 1);
-    VectorXd Alnumk = get_lrf(a3, m + 1);
-    ArrayXXd Alden(m + 1, (m + 1) * (m + 1));
-    Alden = (b + (seq0m.rowwise().replicate(m + 1) +
+    VectorXx Alnumi = get_lrf(a1, m + 1);
+    VectorXx Alnumj = get_lrf(a2, m + 1);
+    VectorXx Alnumk = get_lrf(a3, m + 1);
+    ArrayXXd Aldend(m + 1, (m + 1) * (m + 1));
+    Aldend = (b + (seq0m.rowwise().replicate(m + 1) +
                       seq0m.transpose().colwise().replicate(m + 1)).rowwise().replicate(m + 1).array() +
              ResizeFor3d(seq0m).array()).lgamma();
-    Alden -= lgamma(b);
-    ArrayXXd ansmat(m + 1, (m + 1) * (m + 1));
-    ArrayXd Asgnsi = get_sign_rf(a1, m + 1);
-    ArrayXd Asgnsj = get_sign_rf(a2, m + 1);
-    ArrayXd Asgnsk = get_sign_rf(a3, m + 1);
+    Aldend -= lgamma(b);
+    ArrayXXx Alden = Aldend.cast<typename Derived::Scalar>();
+    ArrayXXx ansmat(m + 1, (m + 1) * (m + 1));
+    ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
+    ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
+    ArrayXx Asgnsk = get_sign_rf(a3, m + 1);
     ansmat = exp( (Alnumi.rowwise().replicate(m + 1) +
                    Alnumj.transpose().colwise().replicate(m + 1) ).rowwise().replicate(m + 1).array() +
                    ResizeFor3d(Alnumk).array()
@@ -267,3 +273,71 @@ Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
               ResizeFor3d(Asgnsk.matrix()).array() * sign(dks);
     return ansmat;
 }
+template ArrayXXd hgs_3dE(const ArrayBase<ArrayXXd>& dks, const double a1,
+                          const double a2, const double a3,
+                          const double b, const double lconst,
+                          const ArrayBase<ArrayXXd>& lscf);
+template ArrayXXl hgs_3dE(const ArrayBase<ArrayXXl>& dks, const long double a1,
+                          const long double a2, const long double a3,
+                          const double b, const long double lconst,
+                          const ArrayBase<ArrayXXl>& lscf);
+
+// // Eigen version of hgs_3d(), double
+// //
+// // // [[Rcpp::export]]
+// Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
+//                         const double a1, const double a2, const double a3,
+//                         const double b, const double lconst,
+//                         const Eigen::ArrayXXd& lscf) {
+//     const int m = dks.rows() - 1;
+//     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
+//     VectorXd Alnumi = get_lrf(a1, m + 1);
+//     VectorXd Alnumj = get_lrf(a2, m + 1);
+//     VectorXd Alnumk = get_lrf(a3, m + 1);
+//     ArrayXXd Alden(m + 1, (m + 1) * (m + 1));
+//     Alden = (b + (seq0m.rowwise().replicate(m + 1) +
+//                       seq0m.transpose().colwise().replicate(m + 1)).rowwise().replicate(m + 1).array() +
+//              ResizeFor3d(seq0m).array()).lgamma();
+//     Alden -= lgamma(b);
+//     ArrayXXd ansmat(m + 1, (m + 1) * (m + 1));
+//     ArrayXd Asgnsi = get_sign_rf(a1, m + 1);
+//     ArrayXd Asgnsj = get_sign_rf(a2, m + 1);
+//     ArrayXd Asgnsk = get_sign_rf(a3, m + 1);
+//     ansmat = exp( (Alnumi.rowwise().replicate(m + 1) +
+//                    Alnumj.transpose().colwise().replicate(m + 1) ).rowwise().replicate(m + 1).array() +
+//                    ResizeFor3d(Alnumk).array()
+//                  - Alden + log(abs(dks)) + lconst - lscf);
+//     ansmat *= ( (Asgnsi.matrix() * Asgnsj.matrix().transpose()).rowwise().replicate(m + 1) ).array() *
+//               ResizeFor3d(Asgnsk.matrix()).array() * sign(dks);
+//     return ansmat;
+// }
+//
+// // Eigen version of hgs_3d(), long double
+// //
+// // // [[Rcpp::export]]
+// ArrayXXl hgs_3dE(const ArrayXXl& dks,
+//                  const long double a1, const long double a2, const long double a3,
+//                  const double b, const long double lconst, const ArrayXXl& lscf) {
+//     const int m = dks.rows() - 1;
+//     VectorXd seq0m = VectorXd::LinSpaced(m + 1, 0, m);
+//     VectorXl Alnumi = get_lrf(a1, m + 1);
+//     VectorXl Alnumj = get_lrf(a2, m + 1);
+//     VectorXl Alnumk = get_lrf(a3, m + 1);
+//     ArrayXXd Aldend(m + 1, (m + 1) * (m + 1));
+//     Aldend = (b + (seq0m.rowwise().replicate(m + 1) +
+//                       seq0m.transpose().colwise().replicate(m + 1)).rowwise().replicate(m + 1).array() +
+//              ResizeFor3d(seq0m).array()).lgamma();
+//     Aldend -= lgamma(b);
+//     ArrayXXl Alden = Aldend.cast<long double>();
+//     ArrayXXl ansmat(m + 1, (m + 1) * (m + 1));
+//     ArrayXl Asgnsi = get_sign_rf(a1, m + 1);
+//     ArrayXl Asgnsj = get_sign_rf(a2, m + 1);
+//     ArrayXl Asgnsk = get_sign_rf(a3, m + 1);
+//     ansmat = exp( (Alnumi.rowwise().replicate(m + 1) +
+//                    Alnumj.transpose().colwise().replicate(m + 1) ).rowwise().replicate(m + 1).array() +
+//                    ResizeFor3d(Alnumk).array()
+//                  - Alden + log(abs(dks)) + lconst - lscf);
+//     ansmat *= ( (Asgnsi.matrix() * Asgnsj.matrix().transpose()).rowwise().replicate(m + 1) ).array() *
+//               ResizeFor3d(Asgnsk.matrix()).array() * sign(dks);
+//     return ansmat;
+// }

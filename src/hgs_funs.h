@@ -30,8 +30,11 @@ hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
         const double b, const typename Derived::Scalar lconst,
         const Eigen::ArrayBase<Derived>& lscf);
 
-Eigen::ArrayXXd hgs_3dE(const Eigen::ArrayXXd& dks,
-    const double a1, const double a2, const double a3,
-    const double b, const double lconst, const Eigen::ArrayXXd& lscf);
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+hgs_3dE(const Eigen::ArrayBase<Derived>& dks, const typename Derived::Scalar a1,
+        const typename Derived::Scalar a2, const typename Derived::Scalar a3,
+        const double b, const typename Derived::Scalar lconst,
+        const Eigen::ArrayBase<Derived>& lscf);
 
 #endif
