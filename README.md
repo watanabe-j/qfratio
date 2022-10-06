@@ -25,8 +25,9 @@ documentation. Substantial restructuring may happen in the future.
 
 ## Installation
 
-***WARNING*** Installation size of this package is very large (\~100
-MB), as it involves lots of `RcppEigen` functions.
+***WARNING*** Installation size of this package can be very large (\~100
+MB on Linux; \~3 MB on Windows with `Rtools42`), as it involves lots of
+`RcppEigen` functions.
 
 ``` r
 # install.packages("devtools")
