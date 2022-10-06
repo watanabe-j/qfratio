@@ -25,6 +25,9 @@ documentation. Substantial restructuring may happen in the future.
 
 ## Installation
 
+***WARNING*** Installation size of this package is very large (\~100
+MB), as it involves lots of `RcppEigen` functions.
+
 ``` r
 # install.packages("devtools")
 devtools::install_github("watanabe-j/qfratio")
@@ -35,6 +38,11 @@ This package has the following dependencies:
     Imports: Rcpp, rlang (>= 0.4.7)
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)
+
+It is recommended to have the packages `gsl` and `mvtnorm` installed for
+full functionality. You can use
+`install_github(..., dependencies = TRUE)` to automatically install the
+suggested packages.
 
 ## Examples
 
