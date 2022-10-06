@@ -217,17 +217,22 @@ The existence of the moment is assessed by the eigenstructures of
 Bao & Kan (2013: proposition 1). An error will result if the conditions
 are not met.
 
-\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}
-involve evaluation of double infinite series, which occasionally suffers
-from numerical overflow and diminishing of coefficients of the same order
-(see "Scaling" in \code{\link{d1_i}}), which result in numerical inaccuracy.
+Straightforward implementation of the original recursive algorithms can
+suffer from numerical overflow when the problem is large.
+Internal functions (\code{\link{d1_i}}, \code{\link{d2_ij}},
+\code{\link{d3_ijk}}) are desinged to avoid overflow by order-wise scaling.
+However, when evaluation of multiple series is required
+(\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
+the scaling occasionally yields diminishing/underflow of some terms to
+numerical \code{0}, which result in numerical inaccuracy. A warning is
+thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
 To avoid this problem, the \code{C++} versions of these functions can use
 the \code{long double} variable type, as controlled by \code{cpp_method}.
 That option is usually less prone to numerical overflow/diminising
 (depending on local environments), but takes substantially long time and
 memory. Use it only when absolutely necessary.
 This argument will not take effect (ignored silently) in the other functions
-which involve only single infinite series.
+which involve only single series.
 
 For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via

@@ -43,11 +43,11 @@
 #' separate objects rather than attributes).
 #'
 #' However, this procedure does not always mitigate the problem in
-#' multidimensional coefficients; when there are very large and very small
-#' coefficients in the same order, smaller ones can diminish to the numerical
-#' \code{0} after repeated scaling.
-#' (The problem can be difficult to detect, but is typically diagnosed by a sudden
-#' plateau rather than a gradual saturation of the profile of series expression.)
+#' multiple series; when there are very large and very small
+#' coefficients in the same order, smaller ones can diminish/underflow to
+#' the numerical \code{0} after repeated scaling.
+#' (The \code{qfrm} and \code{qfmrm} functions try to detect and warn against
+#' this by examining whether any of the highest-order terms is \code{0}.)
 #' As this seems technically difficult to avoid without implementing
 #' cumbersome and inefficient coefficient-wise scaling, the only workaround
 #' implemented in this package is to use the \code{long double} variable type

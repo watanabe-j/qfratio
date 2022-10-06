@@ -246,7 +246,7 @@ does not seem to improve performance in that case
 (and this is typically fast anyway).
 
 Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
-\code{mu}, involve evaluation of double infinite series, which can suffer
+\code{mu}, involve evaluation of multiple series, which can suffer
 from numerical overflow and diminishing (see "Scaling" in
 \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
 the \code{long double} variable type can be used in the \code{C++} versions
