@@ -36,7 +36,7 @@ devtools::install_github("watanabe-j/qfratio")
 
 This package has the following dependencies:
 
-    Imports: Rcpp, rlang (>= 0.4.7)
+    Imports: Rcpp, MASS, rlang (>= 0.4.7)
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0)
 

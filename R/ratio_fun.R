@@ -2303,9 +2303,14 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         ## Common range of B and D
         nzBD <- nzB * nzD
     } else {
-        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
-        eigBD <- eigen(D_on_nzB, symmetric = TRUE)
-        nzBD <- eigBD$values > tol_sing
+        if(all(nzB) && all(nzD)) {
+            nzBD <- rep.int(TRUE, n)
+        } else {
+            zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            nzBD <- eigBD$values > tol_sing
+        }
     }
     rBD <- sum(nzBD)
     ## When A == I, the condition simplifies as A12 == 0 and A22 != 0
@@ -2509,8 +2514,14 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    if(use_vec) {
+        LA <- diag(A)
+        LD <- diag(D)
+    } else {
+        eigD <- eigen(D, symmetric = TRUE)
+        LA <- eigen(A, symmetric = TRUE)$values
+        LD <- eigD$values
+    }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "D should be nonnegative definite" = all(LD >= -tol_sing))
     ## Check condition for existence of moment
@@ -2521,10 +2532,16 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         nzBD <- nzB * nzD
         Ar <- A
     } else {
-        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
-        eigBD <- eigen(D_on_nzB, symmetric = TRUE)
-        nzBD <- eigBD$values > tol_sing
-        Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        if(all(nzB) && all(nzD)) {
+            nzBD <- rep.int(TRUE, n)
+            Ar <- A
+        } else {
+            zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            nzBD <- eigBD$values > tol_sing
+            Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        }
     }
     rBD <- sum(nzBD)
     if(rBD == n) {
@@ -2748,8 +2765,14 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    LD <- if(use_vec) diag(D) else eigen(D, symmetric = TRUE)$values
+    if(use_vec) {
+        LA <- diag(A)
+        LD <- diag(D)
+    } else {
+        eigD <- eigen(D, symmetric = TRUE)
+        LA <- eigen(A, symmetric = TRUE)$values
+        LD <- eigD$values
+    }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "D should be nonnegative definite" = all(LD >= -tol_sing))
     ## Check condition for existence of moment
@@ -2760,10 +2783,16 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         nzBD <- nzB * nzD
         Ar <- A
     } else {
-        D_on_nzB <- crossprod(D[nzB, , drop = FALSE])
-        eigBD <- eigen(D_on_nzB, symmetric = TRUE)
-        nzBD <- eigBD$values > tol_sing
-        Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        if(all(nzB) && all(nzD)) {
+            nzBD <- rep.int(TRUE, n)
+            Ar <- A
+        } else {
+            zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            nzBD <- eigBD$values > tol_sing
+            Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        }
     }
     rBD <- sum(nzBD)
     if(rBD == n) {
