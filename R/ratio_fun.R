@@ -1426,7 +1426,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # eigA <- eigen(A, symmetric = TRUE)
             # UA <- eigA$vectors
             # LA <- eigA$values
-            Bh <- In - b2 * diag(LB)
+            Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
                 # dks <- d2_ij_m(A, Bh, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- d2_pj_m(A, Bh, m, p = p)
@@ -1682,7 +1682,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # LA <- eigA$values
             # b1 <- alphaA / max(abs(LA))
             Ah <- In - b1 * A
-            Bh <- In - b2 * diag(LB)
+            Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
                 dksm <- d2_ij_m(Ah, Bh, m)
             } else {
@@ -1831,7 +1831,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         eigA <- eigen(A, symmetric = TRUE)
         UA <- eigA$vectors
         LA <- eigA$values
-        Bh <- In - b2 * diag(LB)
+        Bh <- In - b2 * diag(LB, nrow = n)
     }
     if(use_cpp) {
         # if(cpp_method == "arma") {
@@ -2112,7 +2112,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         LA <- eigA$values
         b1 <- alphaA / max(abs(LA))
         Ah <- In - b1 * A
-        Bh <- In - b2 * diag(LB)
+        Bh <- In - b2 * diag(LB, nrow = n)
         # if(central) {
         #     dksm <- d2_ij_m(Ah, Bh, m)
         # } else {
@@ -2291,7 +2291,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         eigD <- eigen(D, symmetric = TRUE)
         LD <- eigD$values
         b3 <- alphaD / max(LD)
-        Bh <- In - b2 * diag(LB)
+        Bh <- In - b2 * diag(LB, nrow = n)
         Dh <- In - b3 * D
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
@@ -2621,7 +2621,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             # eigD <- eigen(D, symmetric = TRUE)
             # LD <- eigD$values
             # b3 <- alphaD / max(LD)
-            Bh <- In - b2 * diag(LB)
+            Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
             if(central) {
                 # dksm <- d3_ijk_m(A, Bh, Dh, m, p = p)[p + 1, , ]
@@ -2877,7 +2877,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             # b1 <- alphaA / max(abs(LA))
             # b3 <- alphaD / max(LD)
             Ah <- In - b1 * A
-            Bh <- In - b2 * diag(LB)
+            Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
             if(central) {
                 dksm <- d3_ijk_m(Ah, Bh, Dh, m)

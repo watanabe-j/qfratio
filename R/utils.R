@@ -64,8 +64,8 @@ KiK <- function(S, tol = .Machine$double.eps * 100) {
     u <- svdS$u
     if(any(d < 0)) stop("Covariance matrix should be nonnegative definite")
     pos <- d > tol
-    K <- u[, pos] %*% diag(sqrt(d[pos]))
-    iK <- diag(1 / sqrt(d[pos])) %*% t(u[, pos])
+    K <- u[, pos] %*% diag(sqrt(d[pos]), nrow = sum(pos))
+    iK <- diag(1 / sqrt(d[pos]), nrow = sum(pos)) %*% t(u[, pos])
     list(K = K, iK = iK)
 }
 
