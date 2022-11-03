@@ -276,8 +276,9 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
                     expect_error(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE, use_cpp = TRUE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE, use_cpp = TRUE))
-                    expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
+                    # ## Here A1 is indefinite and moment is undefined
+                    # expect_silent(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE, use_cpp = TRUE))
+                    # expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
                 }
             }
         }
@@ -433,10 +434,11 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE, use_cpp = TRUE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE, use_cpp = TRUE))
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE, use_cpp = TRUE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE, use_cpp = TRUE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
+                        # ## Here A1 is indefinite and moment is undefined
+                        # expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE, use_cpp = TRUE))
+                        # expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE, use_cpp = TRUE))
+                        # expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE, use_cpp = TRUE))
+                        # expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
                     }
                 }
             }
