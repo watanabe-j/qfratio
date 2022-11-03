@@ -1172,11 +1172,10 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     eigA <- eigen(A, symmetric = TRUE)
     LA <- eigA$values
     UA <- eigA$vectors
-    nndefA <- all(LA >= -tol_sing)
-    if(!nndefA && ((p %% 1) != 0 || p < 0)) {
-        stop("(Numerically) negative eigenvalue(s) detected for A.\n  ",
-             "Ensure A is nonnegative definite, as non-positive-integer ",
-             "moment of\n  the quadratic form is not well defined otherwise.")
+    if(any(LA < -tol_sing) && ((p %% 1) != 0 || p < 0)) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
+             "non-integer power of quadratic form is not well defined.\n  ",
+             "If you know them to be 0, use larger tol_sing to suppress this error.")
     }
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     cond_exist <- n / 2 + p > q ## condition(1)
@@ -1634,6 +1633,11 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     diminished <- FALSE
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     b1 <- alphaA / max(abs(LA))
+    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
+             "non-integer power of quadratic form is not well defined.\n  ",
+             "If you know them to be 0, use larger tol_sing to suppress this error.")
+    }
     if(use_cpp) {
         if(central) {
             if(use_vec) {
@@ -2118,6 +2122,11 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         # } else {
         #     dksm <- h2_ij_m(Ah, Bh, mu, m)
         # }
+    }
+    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
+             "non-integer power of quadratic form is not well defined.\n  ",
+             "If you know them to be 0, use larger tol_sing to suppress this error.")
     }
     if(use_cpp) {
         if(central) {
@@ -2820,6 +2829,11 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             warning("Moment may not exist in this combination of p, q, r, and\n  ",
                     "eigenstructures of A, B, and D")
         }
+    }
+    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
+             "non-integer power of quadratic form is not well defined.\n  ",
+             "If you know them to be 0, use larger tol_sing to suppress this error.")
     }
     b1 <- alphaA / max(abs(LA))
     b3 <- alphaD / max(LD)
