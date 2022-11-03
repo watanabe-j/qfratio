@@ -109,32 +109,3 @@ hgs_3d <- function (dks, a1, a2, a3, b, lconst = 0) {
                     cumprod(c(1, sign(a3 + 0:(m - 1))))) * sign(dks)
     ansmat * sgnseq
 }
-
-# #' Calculate 2D hypergeometric series
-# #'
-# #' \code{hgs_dmu_2d()} calculates the hypergeometric series
-# #' for a ratio of quadratic forms as in Hillier et al. (2009: eq. 84)
-# #'
-# #' @rdname hgs
-# #'
-# hgs_dmu_2d <- function (dks, a1, a2, b, lconst = 0) {
-#     m <- ncol(dks) - 1
-#     if(a1 < 0 && (a1 %% 1) == 0) {
-#         lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
-#     } else {
-#         lnum_i <- lgamma(a1 + 0:m) - lgamma(a1)
-#     }
-#     if(a2 < 0 && (a2 %% 1) == 0) {
-#         lnum_j <- cumsum(suppressWarnings(log(c(1, -a2 - 0:(m - 1)))))
-#     } else {
-#         lnum_j <- lgamma(a2 + 0:m) - lgamma(a2)
-#     }
-#     lden_ij <- lgamma(b + outer(0:m, 0:m, "+")) - lgamma(b)
-#     lden_ij <- t(t(lden_ij) + 0:m * log(2) + lgamma(1 / 2 + 0:m) - lgamma(1 / 2))
-#     lcoefm <- (outer(lnum_i, lnum_j, "+") - lden_ij)
-#     ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
-#     ## Signs for (a1)_i and (a2)_j, where i = 0:m is along the rows
-#     sgnseq <- outer(cumprod(c(1, sign(a1 + 0:(m - 1)))),
-#                     cumprod(c(1, sign(a2 + 0:(m - 1))))) * sign(dks)
-#     ansmat * sgnseq
-# }

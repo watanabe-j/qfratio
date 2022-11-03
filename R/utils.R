@@ -14,17 +14,6 @@ S_fromUL <- function(evec = evec, evalues = evalues) {
     crossprod(te * evalues, te)
 }
 
-# matsqrt_K <- function(S, tol = .Machine$double.eps * 100) {
-#     if(!isSymmetric(S)) stop("Covariance matrix should be symmetric")
-#     svdS <- svd(S, nv = 0)
-#     d <- svdS$d
-#     u <- svdS$u
-#     if(any(d < 0)) stop("Covariance matrix should be nonnegative definite")
-#     pos <- d > tol
-#     u[, pos] %*% diag(sqrt(d[pos]))
-#     # t(t(u[, pos]) * sqrt(d[pos]))
-# }
-
 ##### KiK #####
 #' Matrix square root and generalized inverse
 #'
