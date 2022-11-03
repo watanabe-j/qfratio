@@ -513,7 +513,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(A, B, tol_zero) && p >= q) {
-        return(qfrm(A, D, p - r, r, m = m, mu = mu, Sigma = Sigma,
+        return(qfrm(A, D, p - q, r, m = m, mu = mu, Sigma = Sigma,
                     error_bound = error_bound,
                     check_convergence = check_convergence,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
