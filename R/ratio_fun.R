@@ -234,7 +234,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
                  error_bound = TRUE, check_convergence = TRUE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
-    ##
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -466,7 +465,6 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                   error_bound = TRUE, check_convergence = TRUE,
                   tol_zero = .Machine$double.eps * 100,
                   tol_sing = .Machine$double.eps * 100, ...) {
-    ##
     ## If A, B, or D is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -676,7 +674,6 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                        tol_zero = .Machine$double.eps * 100,
                        tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
     stopifnot(
         "A should be a square matrix" = all(c(dim(A)) == n),
@@ -732,12 +729,6 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
         ans <- 2 ^ p * factorial(p) * dp
     }
     new_qfpm(ans)
-    # ansseq <- ans
-    # errseq <- 0
-    # attr(errseq, "exact") <- TRUE
-    # errorb <- errseq
-    # structure(list(statistic = ans, error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ###############################
@@ -757,7 +748,6 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -840,32 +830,20 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
     } else {
         if(central) {
             if(use_vec) {
-                # LA <- diag(A)
-                # dpq <- d2_ij_v(LA, LB, m = p + q, p, q)[p + 1, q + 1]
                 dpq <- d2_pj_v(LA, LB, m = p + q, p)[p + 1, q + 1]
             } else {
-                # dpq <- d2_ij_m(A, diag(LB), m = p + q, p, q)[p + 1, q + 1]
                 dpq <- d2_pj_m(A, diag(LB), m = p + q, p)[p + 1, q + 1]
             }
         } else {
             if(use_vec) {
-                # LA <- diag(A)
-                # dpq <- dtil2_ij_v(LA, LB, mu, m = p + q, p, q)[p + 1, q + 1]
                 dpq <- dtil2_pq_v(LA, LB, mu, p, q)[p + 1, q + 1]
             } else {
-                # dpq <- dtil2_ij_m(A, diag(LB), mu, m = p + q, p, q)[p + 1, q + 1]
                 dpq <- dtil2_pq_m(A, diag(LB), mu, p, q)[p + 1, q + 1]
             }
         }
         ans <- 2 ^ (p + q) * factorial(p) * factorial(q) * dpq
     }
     new_qfpm(ans)
-    # ansseq <- ans
-    # errseq <- 0
-    # attr(errseq, "exact") <- TRUE
-    # errorb <- errseq
-    # structure(list(statistic = ans, error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 ##### qfpm_ABDpqr_int #####
@@ -882,7 +860,6 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
     ## If A, B, or D is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) {
@@ -985,37 +962,22 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
         }
         ans <- cppres$ans
     } else {
-
         if(central) {
             if(use_vec) {
-                # LA <- diag(A)
-                # LD <- diag(D)
-                # dpqr <- d3_ijk_v(LA, LB, LD, m = p + q + r, p, q, r)[p + 1, q + 1, r + 1]
                 dpqr <- d3_pjk_v(LA, LB, LD, q + r, p)[p + 1, q + 1, r + 1]
             } else {
-                # dpqr <- d3_ijk_m(A, diag(LB), D, m = p + q + r, p, q, r)[p + 1, q + 1, r + 1]
                 dpqr <- d3_pjk_m(A, diag(LB), D, q + r, p)[p + 1, q + 1, r + 1]
             }
         } else {
             if(use_vec) {
-                # LA <- diag(A)
-                # LD <- diag(D)
-                # dpqr <- dtil3_ijk_v(LA, LB, LD, mu, m = p + q + r, p, q, r)[p + 1, q + 1, r + 1]
                 dpqr <- dtil3_pqr_v(LA, LB, LD, mu, p, q, r)[p + 1, q + 1, r + 1]
             } else {
-                # dpqr <- dtil3_ijk_m(A, diag(LB), D, mu, m = p + q + r, p, q, r)[p + 1, q + 1, r + 1]
                 dpqr <- dtil3_pqr_m(A, diag(LB), D, mu, p, q, r)[p + 1, q + 1, r + 1]
             }
         }
         ans <- 2 ^ (p + q + r) * factorial(p) * factorial(q) * factorial(r) * dpqr
     }
     new_qfpm(ans)
-    # ansseq <- ans
-    # errseq <- 0
-    # attr(errseq, "exact") <- TRUE
-    # errorb <- errseq
-    # structure(list(statistic = ans, error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfpm")
 }
 
 
@@ -1063,7 +1025,6 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           use_cpp = FALSE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
     stopifnot(
         "A should be a square matrix" = all(c(dim(A)) == n),
@@ -1134,8 +1095,6 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         errseq <- NA_real_
     }
     new_qfrm(statistic = ans, res_seq = ansseq, err_seq = errseq, exact = exact)
-    # structure(list(statistic = ans, error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfrm_ApIq_npi #####
@@ -1218,8 +1177,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dks[(m + 1):1, ]) == 0)
         }
-        # scf <- attr(dks, "scale")
-        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1239,9 +1196,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 "\n  Consider using the option 'cpp_method = \"long_double\"'.")
     }
     if(check_convergence) {
-        # try(plot(seq_along(ansseq) - 1L, cumsum(ansseq), type = "l", col = "royalblue4",
-        #      ylim = sum(ansseq) * c(0.9, 1.1), xlab = "Order of polynomials",
-        #      ylab = "Moment of ratio"))
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
             warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
@@ -1254,15 +1208,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             errseq <- cppres$errseq
             twosided <- FALSE
         } else {
-            # if(!nndefA && (p %% 2) == 1) {
-            #     Lp <- abs(LAh)
-            #     dkst <- d1_i(Lp, m = m)
-            #     twosided <- TRUE
-            # } else {
             Lp <- LAh
             dkst <- dks
             twosided <- FALSE
-            # }
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
                        - lgamma(n / 2 + 0:m + 1) + lgamma(n / 2 + p - q)
                        + (p - q) * log(2) - p * log(b1))
@@ -1280,9 +1228,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             warning("Error bound is unreliable when alphaA > 1\n  ",
             "It is returned purely for heuristic purpose")
         }
-        # if(check_convergence) {
-        #     lines(errseq + cumsum(ansseq), col = "tomato", lty = 2)
-        # }
     } else {
         if(error_bound) {
             rlang::warn(paste0("Error bound is unavailable for qfrm_ApIq_npi() ",
@@ -1295,8 +1240,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     new_qfrm(res_seq = ansseq, err_seq = errseq,
              twosided = FALSE, alphaout = alphaout, singular_arg = singularA)
-    # structure(list(statistic = sum(ansseq), error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 
@@ -1320,7 +1263,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
-    # cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -1411,26 +1353,17 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         ansseq <- cppres$ansseq
     } else {
         if(use_vec) {
-            # UA <- In
-            # LA <- diag(A)
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
-                # dks <- d2_ij_v(LA, LBh, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- d2_pj_v(LA, LBh, m, p = p)
             } else {
-                # dks <- htil2_ij_v(LA, LBh, mu, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- htil2_pj_v(LA, LBh, mu, m, p = p)
             }
         } else {
-            # eigA <- eigen(A, symmetric = TRUE)
-            # UA <- eigA$vectors
-            # LA <- eigA$values
             Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
-                # dks <- d2_ij_m(A, Bh, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- d2_pj_m(A, Bh, m, p = p)
             } else {
-                # dks <- htil2_ij_m(A, Bh, mu, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- htil2_pj_m(A, Bh, mu, m, p = p)
             }
         }
@@ -1438,8 +1371,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
         ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q) * log(2) + q * log(b2)
                          + lgamma(p + 1) + lgamma(n / 2 + p - q) - lgamma(n / 2 + p) - lscf))
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1452,9 +1383,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         attr(ansseq, "truncated") <- TRUE
     }
     if(check_convergence) {
-        # try(plot(seq_along(ansseq) - 1L, cumsum(ansseq), type = "l", col = "royalblue4",
-        #      ylim = sum(ansseq) * c(0.9, 1.1), xlab = "Order of polynomials",
-        #      ylab = "Moment of ratio"))
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
             warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
@@ -1479,15 +1407,12 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                         dkstm <- d2_ij_m(Ap, Bh, m, p = p)
                     }
                 } else {
-                    # LAp <- LA
                     Ap <- A
                     dkstm <- dksm
                 }
                 if(use_vec) {
                     dp <- d1_i(LAp / LB / b2, p)[p + 1]
                 } else {
-                    # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
-                    # dp <- d1_i(eigen(Bisqr %*% Ap %*% Bisqr, symmetric = TRUE)$values / b2, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE)$values / b2, p)[p + 1]
                 }
@@ -1496,15 +1421,11 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 mub <- sqrt(2 / b2) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 if(use_vec) {
-                    # dkst <- hhat2_ij_v(LAp, LBh, mu, m, p = p)[p + 1, 1:(m + 1)]
                     dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p)
                     dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    # dkst <- hhat2_ij_m(Ap, Bh, mu, m, p = p)[p + 1, 1:(m + 1)]
                     dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p)
-                    # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
-                    # dp <- dtil1_i_m(Bisqr %*% Ap %*% Bisqr / b2, mub, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
                     dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2, mub, p)[p + 1]
                 }
@@ -1528,17 +1449,12 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
         }
-        # if(check_convergence) {
-        #     lines(errseq + cumsum(ansseq), col = "tomato", lty = 2)
-        # }
     } else {
         errseq <- NULL
         twosided <- NULL
     }
     new_qfrm(res_seq = ansseq, err_seq = errseq, twosided = twosided,
              alphaout = alphaout, singular_arg = singularB)
-    # structure(list(statistic = sum(ansseq), error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfrm_ApBq_npi #####
@@ -1672,8 +1588,6 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            # LA <- diag(A)
-            # b1 <- alphaA / max(abs(LA))
             LAh <- rep.int(1, n) - b1 * LA
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
@@ -1682,9 +1596,6 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 dksm <- h2_ij_v(LAh, LBh, mu, m)
             }
         } else {
-            # eigA <- eigen(A, symmetric = TRUE)
-            # LA <- eigA$values
-            # b1 <- alphaA / max(abs(LA))
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
@@ -1698,8 +1609,6 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                          - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q) -
                          lgamma(n / 2) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
         diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
     }
     ## If there's any NaN, truncate series before summing up
@@ -1720,17 +1629,12 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 "\n  Consider using the option 'cpp_method = \"long_double\"'.")
     }
     if(check_convergence) {
-        # try(plot(seq_along(ansseq) - 1L, cumsum(ansseq), type = "l", col = "royalblue4",
-        #      ylim = sum(ansseq) * c(0.9, 1.1), xlab = "Order of polynomials",
-        #      ylab = "Moment of ratio"))
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
             warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
         }
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
-    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 
@@ -1751,7 +1655,6 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1,
-                    # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
@@ -1838,10 +1741,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         Bh <- In - b2 * diag(LB, nrow = n)
     }
     if(use_cpp) {
-        # if(cpp_method == "arma") {
-        #     ansseq <- ApBDqr_int_vA(LA, LBh, b2, p, q, r, m)
-        # } else {
-        # }
         if(central) {
             if(use_vec) {
                 cppres <- ApBIqr_int_cvE(LA, LB, b2, p, q, r, m, error_bound)
@@ -1864,15 +1763,12 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             diminished <- cppres$diminished
         }
-        # browser()
         ansseq <- cppres$ansseq
     } else {
         if(central) {
             if(use_vec) {
-                # dks <- d2_ij_v(LA, LBh, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- d2_pj_v(LA, LBh, m, p = p)
             } else {
-                # dks <- d2_ij_m(A, Bh, m, p = p)[p + 1, 1:(m + 1)]
                 dksm <- d2_pj_m(A, Bh, m, p = p)
             }
             dks <- dksm[p + 1, 1:(m + 1)]
@@ -1881,10 +1777,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
         } else {
             if(use_vec) {
-                # dksm <- htil3_ijk_v(LA, LBh, rep.int(0, n), mu, m, p = p)[p + 1, , ]
                 dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p)
             } else {
-                # dksm <- htil3_ijk_m(A, Bh, matrix(0, n, n), mu, m, p = p)[p + 1, , ]
                 dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p)
             }
             dks <- dksm[p + 1, , ]
@@ -1895,8 +1789,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dks[(m + 1):1, ]) == 0)
         }
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1933,15 +1825,12 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 s <- q
                 if(twosided) {
                     if(use_vec) {
-                        # dkst <- d2_ij_v(LAp, LBh, m, p = p)[p + 1, 1:(m + 1)]
                         dkstm <- d2_pj_v(LAp, LBh, m, p = p)
                     } else {
                         Ap <- S_fromUL(UA, LAp)
-                        # dkst <- d2_ij_m(Ap, Bh, m, p = p)[p + 1, 1:(m + 1)]
                         dkstm <- d2_pj_m(Ap, Bh, m, p = p)
                     }
                 } else {
-                    # LAp <- LA
                     Ap <- A
                     dkstm <- dksm
                 }
@@ -1949,8 +1838,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 if(use_vec) {
                     dp <- d1_i(LAp / LB / b2, p)[p + 1]
                 } else {
-                    # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
-                    # dp <- d1_i(eigen(Bisqr %*% Ap %*% Bisqr, symmetric = TRUE)$values / b2, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE)$values / b2, p)[p + 1]
                 }
@@ -1961,22 +1848,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 s <- max(q, r)
                 if(use_vec) {
-                    # dksmt <- hhat3_ijk_v(LAp, LBh, rep.int(0, n), mu, m, p = p)[p + 1, , ]
                     dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p)
                     dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    # dksmt <- hhat3_ijk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)[p + 1, , ]
                     dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)
-                    # Bisqr <- S_fromUL(In, 1 / sqrt(LB))
-                    # dp <- dtil1_i_m(Bisqr %*% Ap %*% Bisqr / b2, mub, p)[p + 1]
                     Bisqr <- 1 / sqrt(LB)
                     dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2, mub, p)[p + 1]
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
                 lscft <- attr(dkstm, "logscale")[p + 1, , 1]
             }
-            # lscft <- attr(dkstm, "logscale")
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
                        - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q - r)
@@ -2000,8 +1882,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     new_qfrm(res_seq = ansseq, err_seq = errseq,
              twosided = twosided, alphaout = alphaout, singular_arg = singularB)
-    # structure(list(statistic = sum(ansseq), error_bound = errorb,
-    #                res_seq = ansseq, err_seq = errseq), class = "qfrm")
 }
 
 ##### qfmrm_ApBIqr_npi #####
@@ -2106,22 +1986,12 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         b1 <- alphaA / max(abs(LA))
         LAh <- rep.int(1, n) - b1 * LA
         LBh <- rep.int(1, n) - b2 * LB
-        # if(central) {
-        #     dksm <- d2_ij_v(LAh, LBh, m)
-        # } else {
-        #     dksm <- h2_ij_v(LAh, LBh, mu, m)
-        # }
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         LA <- eigA$values
         b1 <- alphaA / max(abs(LA))
         Ah <- In - b1 * A
         Bh <- In - b2 * diag(LB, nrow = n)
-        # if(central) {
-        #     dksm <- d2_ij_m(Ah, Bh, m)
-        # } else {
-        #     dksm <- h2_ij_m(Ah, Bh, mu, m)
-        # }
     }
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
@@ -2189,8 +2059,6 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 if(diminished) break
             }
         }
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -2214,8 +2082,6 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             tol_conv, "\n  Check sensitivity with different m?")
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
-    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_IpBDqr_gen #####
@@ -2327,8 +2193,6 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         cond_exist <- n / 2 + p > q + r ## condition(1)
         necess_cond <- TRUE
     } else {
-        # A12z <- all(abs(A[nzBD, !nzBD]) < tol_zero)
-        # A22z <- all(abs(A[!nzBD, !nzBD]) < tol_zero)
         cond_exist <- rBD / 2 > q + r              ## condition(2)(iii)
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
@@ -2402,13 +2266,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                 if(diminished) break
             }
         }
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
     }
-    # ansmat <- hgs_2d(dksm, q, r, n / 2, ((p - q - r) * log(2)
-    #                  + q * log(b2) + r * log(b3) + lgamma(n / 2 + p - q - r)
-    #                  - lgamma(n / 2)))
-    # ansseq <- sum_counterdiag(ansmat)
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
     if(any(nans_ansseq)) {
@@ -2431,8 +2289,6 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             tol_conv, "\n  Check sensitivity with different m?")
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
-    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_ApBDqr_int #####
@@ -2614,29 +2470,19 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            # LA <- diag(A)
-            # LD <- diag(D)
-            # b3 <- alphaD / max(LD)
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
             if(central) {
-                # dksm <- d3_ijk_v(LA, LBh, LDh, m, p = p)[p + 1, , ]
                 dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p)
             } else {
-                # dksm <- htil3_ijk_v(LA, LBh, LDh, mu, m, p = p)[p + 1, , ]
                 dksm <- htil3_pjk_v(LA, LBh, LDh, mu, m, p = p)
             }
         } else {
-            # eigD <- eigen(D, symmetric = TRUE)
-            # LD <- eigD$values
-            # b3 <- alphaD / max(LD)
             Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
             if(central) {
-                # dksm <- d3_ijk_m(A, Bh, Dh, m, p = p)[p + 1, , ]
                 dksm <- d3_pjk_m(A, Bh, Dh, m, p = p)
             } else {
-                # dksm <- htil3_ijk_m(A, Bh, Dh, mu, m, p = p)[p + 1, , ]
                 dksm <- htil3_pjk_m(A, Bh, Dh, mu, m, p = p)
             }
         }
@@ -2646,11 +2492,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                          + q * log(b2) + r * log(b3) + lgamma(p + 1)
                          + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
         diminished <- any(diag(dks[(m + 1):1, ]) == 0)
     }
-    # browser()
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
     if(any(nans_ansseq)) {
@@ -2673,8 +2516,6 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             tol_conv, "\n  Check sensitivity with different m?")
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
-    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }
 
 ##### qfmrm_ApBDqr_npi #####
@@ -2871,10 +2712,6 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            # LA <- diag(A)
-            # LD <- diag(D)
-            # b1 <- alphaA / max(abs(LA))
-            # b3 <- alphaD / max(LD)
             LAh <- rep.int(1, n) - b1 * LA
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
@@ -2884,12 +2721,6 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                 dksm <- h3_ijk_v(LAh, LBh, LDh, mu, m)
             }
         } else {
-            # eigA <- eigen(A, symmetric = TRUE)
-            # eigD <- eigen(D, symmetric = TRUE)
-            # LA <- eigA$values
-            # LD <- eigD$values
-            # b1 <- alphaA / max(abs(LA))
-            # b3 <- alphaD / max(LD)
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
@@ -2904,8 +2735,6 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                          - p * log(b1) + q * log(b2) + r * log(b3)
                          + lgamma(n / 2 + p - q - r) - lgamma(n / 2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
-        # scf <- attr(dksm, "scale")
-        # ansseq <- ansseq / scf
         for(k in 1:(m + 1)) {
             diminished <- any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
             if(diminished) break
@@ -2933,6 +2762,4 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             tol_conv, "\n  Check sensitivity with different m?")
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
-    # structure(list(statistic = sum(ansseq), error_bound = NA_real_,
-    #                res_seq = ansseq, err_seq = NULL), class = "qfrm")
 }

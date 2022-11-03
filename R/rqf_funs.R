@@ -192,14 +192,11 @@ rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp =
     } else {
         D <- (D + t(D)) / 2
     }
-    # if(missing(q) && !missing(r)) q <- r
-    # if(missing(p) && !missing(q)) p <- q
     if(missing(mu)) mu <- rep.int(0, n)
     if(missing(Sigma)) Sigma <- In
     if(use_cpp) {
         return(rqfpE(nit, A, B, D, p, q, r, mu, Sigma))
     }
-    # X <- eigvaldisp::rmvn(nit, mean = mu, Sigma = Sigma)
     X <- mvtnorm::rmvnorm(nit, mean = mu, sigma = Sigma)
     if(p == 0) {
         qfAp <- rep.int(1, nit)

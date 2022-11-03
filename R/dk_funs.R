@@ -692,7 +692,6 @@ dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
     In <- diag(n)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
@@ -716,12 +715,6 @@ dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
                                A1 %*% g_k_i[[i]] + A2 %*% g_k_i[[i + 1L]]
             dks[i + 1L, k + 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * (k + i))
         }
-        # if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
-        #     dks <- dks / 1e10
-        #     G_k_i <- lapply(G_k_i, function(x) x / 1e10)
-        #     g_k_i <- lapply(g_k_i, function(x) x / 1e10)
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -737,12 +730,11 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
     In <- diag(n)
     dks <- matrix(0, 2L, q + 1L)
     dks[1L, 1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- matrix(0, n, n)
-    G_k_1 <- A1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
-    g_k_1 <- G_k_1 %*% mu # + A1 %*% g_k_0
+    g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
     for(k in 1L:q) {
         G_k_0 <- A2 %*% (dks[1L, k] * In + G_k_0)
@@ -752,12 +744,6 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
                  A2 %*% (dks[2L, k] * In + G_k_1)
         g_k_1 <- G_k_1 %*% mu + A1 %*% g_k_0 + A2 %*% g_k_1
         dks[2L, k + 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / (2 * (k + 1))
-        # if(max(G_k_1) > thr) {
-        #     dks <- dks / 1e10
-        #     G_k_0 <- G_k_0 / 1e10
-        #     G_k_1 <- G_k_1 / 1e10
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -773,7 +759,6 @@ dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
     n <- length(L1)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     zeros <- rep.int(0, n)
     G_k_i <- list()
@@ -796,12 +781,6 @@ dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
                                L1 * g_k_i[[i]] + L2 * g_k_i[[i + 1L]]
             dks[i + 1L, k + 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * (k + i))
         }
-        # if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
-        #     dks <- dks / 1e10
-        #     G_k_i <- lapply(G_k_i, function(x) x / 1e10)
-        #     g_k_i <- lapply(g_k_i, function(x) x / 1e10)
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -816,12 +795,11 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
     n <- length(L1)
     dks <- matrix(0, 2L, q + 1L)
     dks[1L, 1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- rep.int(0, n)
-    G_k_1 <- L1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
-    g_k_1 <- G_k_1 * mu # + L1 %*% g_k_0
+    g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
     for(k in 1L:q) {
         G_k_0 <- L2 * (dks[1L, k] + G_k_0)
@@ -830,14 +808,6 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
         G_k_1 <- L1 * (dks[1L, k + 1L] + G_k_0) + L2 * (dks[2L, k] + G_k_1)
         g_k_1 <- G_k_1 * mu + L1 * g_k_0 + L2 * g_k_1
         dks[2L, k + 1L] <- sum(G_k_1 + mu * g_k_1) / (2 * (k + 1))
-        # if(max(G_k_1) > thr || max(g_k_1) > thr) {
-        #     dks <- dks / 1e10
-        #     G_k_0 <- G_k_0 / 1e10
-        #     G_k_1 <- G_k_1 / 1e10
-        #     g_k_0 <- g_k_0 / 1e10
-        #     g_k_1 <- g_k_1 / 1e10
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -855,7 +825,6 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
     m <- q + r
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
@@ -929,12 +898,6 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
             Gn <- c(Gn, list(0))
             gn <- c(gn, list(0))
         }
-        # if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
-        #     dks <- dks / 1e10
-        #     Gn <- lapply(Gn, function(x) lapply(x, function(y) y / 1e10))
-        #     gn <- lapply(gn, function(x) lapply(x, function(y) y / 1e10))
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -950,7 +913,6 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
     m <- q + r
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
-    # attr(dks, "logscale") <- 0
     thr <- .Machine$double.xmax / 100 / n
     zeros <- rep.int(0, n)
     Gc <- list()
@@ -1023,12 +985,6 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
             Gn <- c(Gn, list(0))
             gn <- c(gn, list(0))
         }
-        # if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
-        #     dks <- dks / 1e10
-        #     Gn <- lapply(Gn, function(x) lapply(x, function(y) y / 1e10))
-        #     gn <- lapply(gn, function(x) lapply(x, function(y) y / 1e10))
-        #     attr(dks, "logscale") <- attr(dks, "logscale") - log(1e10)
-        # }
     }
     return(dks)
 }
@@ -1162,7 +1118,6 @@ arl.default <-  function(L, D, m = 10L) {
 #'
 d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
-    # tr <- function(X) sum(diag(X))
     n <- ncol(A1)
     In <- diag(n)
     zeromat <- matrix(0, n, n)
@@ -1288,7 +1243,7 @@ d2_1j_m <- function(A1, A2, m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- matrix(0, n, n)
-    G_k_1 <- A1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- A1
     dks[2L, 1L] <- tr(G_k_1) / 2
     for(k in 1L:m) {
         G_k_0 <- A2 %*% (dks[1L, k] * In + G_k_0)
@@ -1361,7 +1316,7 @@ d2_1j_v <- function(L1, L2, m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- rep.int(0, n)
-    G_k_1 <- L1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- L1
     dks[2L, 1L] <- sum(G_k_1) / 2
     for(k in 1L:m) {
         G_k_0 <- L2 * (dks[1L, k] + G_k_0)
@@ -1475,7 +1430,7 @@ d2_1j_v <- function(L1, L2, m = 100L) {
 #' @rdname d3_ijk
 #'
 d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) { # , verbose = m > 200L) {
+                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- ncol(A1)
     p1 <- p + 1L
@@ -1497,7 +1452,6 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
                 i3 <- k - i1 - i2
                 if(fill_across[3L] && i1 + i2 + r > kmax) next
                 if(fill_across[2L] && i1 + i3 + q > kmax) next
-                # if(fill_across[1] && i2 + i3 + p > kmax) next
                 tG <- zeromat
                 if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
                 if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
@@ -1513,7 +1467,6 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
             Gs <- lapply(Gs, function(x) x / 1e10)
             lscf[ind_lscf] <- lscf[ind_lscf] - log(1e10)
         }
-        # if((k %% 10 == 0) && verbose) cat("  k =", k, "done\n")
     }
     attr(dks, "logscale") <- lscf
     return(dks)
@@ -1526,7 +1479,7 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
 #' @rdname d3_ijk
 #'
 d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) { # , verbose = m > 200L) {
+                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- length(L1)
     p1 <- p + 1L
@@ -1547,7 +1500,6 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
                 i3 <- k - i1 - i2
                 if(fill_across[3L] && i1 + i2 + r > kmax) next
                 if(fill_across[2L] && i1 + i3 + q > kmax) next
-                # if(fill_across[1] && i2 + i3 + p > kmax) next
                 tG <- zeros
                 if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
                 if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
@@ -1563,7 +1515,6 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
             Gs <- lapply(Gs, function(x) x / 1e10)
             lscf[ind_lscf] <- lscf[ind_lscf] - log(1e10)
         }
-        # if((k %% 10 == 0) && verbose) cat("  k =", k, "done\n")
     }
     attr(dks, "logscale") <- lscf
     return(dks)
@@ -1651,7 +1602,6 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
-    # count <- 0
     zeros <- rep.int(0, n)
     Gc <- list()
     Gc[1L:p1] <- list(zeros)
@@ -1692,10 +1642,8 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L) {
         }
         Gn <- c(Gn, list(Gc))
         if(max(unlist(Gn)) > thr) {
-            # count <- count + 1
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
-            # cat("Scaling at k =", k, ", count =", count, ", range of dks before scaling:", range(dks[ind_dks]), "\n")
             dks[ind_dks] <- dks[ind_dks] / 1e10
             Gn <- lapply(Gn, function(x) lapply(x, function(y) y / 1e10))
             lscf[ind_lscf] <- lscf[ind_lscf] - log(1e10)
@@ -2004,9 +1952,9 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- matrix(0, n, n)
-    G_k_1 <- A1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
-    g_k_1 <- G_k_1 %*% mu # + A1 %*% g_k_0
+    g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
     for(k in 1L:m) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_0)
@@ -2095,9 +2043,9 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- rep.int(0, n)
-    G_k_1 <- L1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
-    g_k_1 <- G_k_1 * mu # + L1 %*% g_k_0
+    g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
     for(k in 1L:m) {
         tG <- L2 * (dks[1L, k] + G_k_0)
@@ -2129,7 +2077,7 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #' @rdname d3_ijk
 #'
 h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) { # , verbose = m > 200L) {
+                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- ncol(A1)
     In <- diag(n)
@@ -2151,7 +2099,6 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
                 i3 <- k - i1 - i2
                 if(fill_across[3L] && i1 + i2 + r > kmax) next
                 if(fill_across[2L] && i1 + i3 + q > kmax) next
-                # if(fill_across[1] && i2 + i3 + p > kmax) next
                 tG <- zeromat
                 if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
                 if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
@@ -2173,7 +2120,6 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
             gs <- lapply(gs, function(x) x / 1e10)
             lscf[ind_lscf] <- lscf[ind_lscf] - log(1e10)
         }
-        # if((k %% 10 == 0) && verbose) cat("  k =", k, "done\n")
     }
     attr(dks, "logscale") <- lscf
     return(dks)
@@ -2186,7 +2132,7 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
 #' @rdname d3_ijk
 #'
 h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) { # , verbose = m > 200L) {
+                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)
@@ -2206,7 +2152,6 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
                 i3 <- k - i1 - i2
                 if(fill_across[3L] && i1 + i2 + r > kmax) next
                 if(fill_across[2L] && i1 + i3 + q > kmax) next
-                # if(fill_across[1] && i2 + i3 + p > kmax) next
                 tG <- zeros
                 if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
                 if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
@@ -2228,7 +2173,6 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
             gs <- lapply(gs, function(x) x / 1e10)
             lscf[ind_lscf] <- lscf[ind_lscf] - log(1e10)
         }
-        # if((k %% 10 == 0) && verbose) cat("  k =", k, "done\n")
     }
     attr(dks, "logscale") <- lscf
     return(dks)
@@ -2504,7 +2448,6 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
         }
         Gn <- c(Gn, list(Gc))
         gn <- c(gn, list(gc))
-        # if(!isFALSE(max(unlist(Gc)) > thr || max(unlist(gc)) > thr)) browser()
         if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
@@ -2671,9 +2614,9 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- matrix(0, n, n)
-    G_k_1 <- A1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
-    g_k_1 <- G_k_1 %*% mu # + A1 %*% g_k_0
+    g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
     for(k in 1L:m) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_0)
@@ -2762,9 +2705,9 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- rep.int(0, n)
-    G_k_1 <- L1 # * (dks[1L, 1L] + G_k_0)
+    G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
-    g_k_1 <- G_k_1 * mu # + L1 %*% g_k_0
+    g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
     for(k in 1L:m) {
         tG <- L2 * (dks[1L, k] + G_k_0)
