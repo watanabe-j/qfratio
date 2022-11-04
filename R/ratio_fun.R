@@ -337,18 +337,22 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 # #' See \code{vignette("qfratio")} for technical details.
 #'
 #' The existence conditions for the moments of this multiple ratio can be
-#' reduced to those for a simple ratio, provided that one of the ranges
+#' reduced to those for a simple ratio, provided that one of the null spaces
 #' of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
-#' (including the case they are the entire space).
+#' (including the case they are null).
 #' The conditions of Bao & Kan (2013: proposition 1) can then be
 #' applied by replacing \eqn{q} and \eqn{m} there by \eqn{q + r} and
-#' the rank of the subspace, respectively (see also Smith 1989: p. 258 for
+#' \eqn{\min{( \mathrm{rank}(\mathbf{B}), \mathrm{rank}(\mathbf{D}) )}},
+#' respectively (see also Smith 1989: p. 258 for
 #' nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}).
 #' An error is thrown if these conditions are not met in this case.
 #' Otherwise (i.e., \eqn{\mathbf{B}} and \eqn{\mathbf{D}} are both singular
-#' and neither of their ranges is a subspace of the other), the same conditions
-#' seem to be only sufficient.
-#' A warning is thrown if the conditions are not met in the latter case.
+#' and neither of their null spaces is a subspace of the other), it seems
+#' difficult to define general moment existence conditions.  A sufficient
+#' condition can be obtained by applying the same proposition with a new
+#' denominator matrix whose null space is union of those of \eqn{\mathbf{B}}
+#' and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
+#' condition is not met in this case.
 #'
 #' Note that these functions may take a substantially longer computational time
 #' than those pertaining to a simple ratio, because multiple matrices means
