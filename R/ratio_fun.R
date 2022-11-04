@@ -412,6 +412,11 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
 #'   in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
 #'   doi:[10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1).
 #'
+#' Watanabe, J. (2022). Exact expressions and numerical evaluation of average
+#'   evolvability measures for characterizing and comparing **G** matrices.
+#'   *bioRxiv* preprint, 2022.11.02.514929.
+#'   doi:[10.1101/2022.11.02.514929](https://doi.org/10.1101/2022.11.02.514929).
+#'
 #' @seealso \code{\link{qfrm}} for simple ratio
 #'
 #' @name qfmrm

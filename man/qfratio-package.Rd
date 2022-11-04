@@ -104,6 +104,11 @@ Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
 variables: evaluating some top-order invariant polynomials.
 \emph{Australian Journal of Statistics}, \strong{35}, 271--282.
 doi:\href{https://doi.org/10.1111/j.1467-842X.1993.tb01335.x}{10.1111/j.1467-842X.1993.tb01335.x}.
+
+Watanabe, J. (2022). Exact expressions and numerical evaluation of average
+evolvability measures for characterizing and comparing \strong{G} matrices.
+\emph{bioRxiv} preprint, 2022.11.02.514929.
+doi:\href{https://doi.org/10.1101/2022.11.02.514929}{10.1101/2022.11.02.514929}.
 }
 \seealso{
 \code{\link{qfrm}}: Moment of simple ratio of quadratic forms

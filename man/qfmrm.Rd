@@ -305,6 +305,11 @@ doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
 in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
 doi:\href{https://doi.org/10.1016/0047-259X(89)90065-1}{10.1016/0047-259X(89)90065-1}.
+
+Watanabe, J. (2022). Exact expressions and numerical evaluation of average
+evolvability measures for characterizing and comparing \strong{G} matrices.
+\emph{bioRxiv} preprint, 2022.11.02.514929.
+doi:\href{https://doi.org/10.1101/2022.11.02.514929}{10.1101/2022.11.02.514929}.
 }
 \seealso{
 \code{\link{qfrm}} for simple ratio
