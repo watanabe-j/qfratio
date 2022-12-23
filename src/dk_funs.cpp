@@ -145,6 +145,9 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
         dks(i, 0) = G_k_i.block(0, i * n, n, n).trace() / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 10000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         G_k_i.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         dks(0, k) = G_k_i.block(0, 0, n, n).trace() / (2 * k);
         for(int i = 1; i <= p; i++) {
@@ -175,6 +178,9 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         dks(i, 0) = G_k_i.col(i).sum() / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 1000000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         G_k_i.col(0) = A2 * (dks(0, k - 1) + G_k_i.col(0));
         dks(0, k) = G_k_i.col(0).sum() / (2 * k);
         for(int i = 1; i <= p; i++) {
@@ -211,6 +217,9 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Go = MatrixXx::Zero(n, n * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 1));
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
 
         Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
@@ -258,6 +267,9 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
     ArrayXXx Go = ArrayXXx::Zero(n, m);
     ArrayXXx Gn = ArrayXXx::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k) = Gn.block(0, 0, n, k);
 
         Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
@@ -312,6 +324,9 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, m);
     MatrixXx gn = MatrixXx::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
         go.block(0, 0, n, k) = gn.block(0, 0, n, k);
 
@@ -381,6 +396,9 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, m);
     ArrayXXx gn = ArrayXXx::Zero(n, m + 1);
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k) = Gn.block(0, 0, n, k);
         go.block(0, 0, n, k) = gn.block(0, 0, n, k);
 
@@ -446,6 +464,9 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
         dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 10000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         tG = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         g_k_i.col(0) = (tG - G_k_i.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * g_k_i.col(0);
         G_k_i.block(0, 0, n, n) = tG;
@@ -486,6 +507,9 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         dks(i, 0) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 1000000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         tG = A2 * (dks(0, k - 1) + G_k_i.col(0));
         g_k_i.col(0) = (tG - G_k_i.col(0) - dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
         G_k_i.col(0) = tG;
@@ -526,6 +550,9 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
         dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 10000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         tG = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         g_k_i.col(0) = (tG + G_k_i.block(0, 0, n, n) + (dks(0, k - 1) * In)) * mu + A2 * g_k_i.col(0);
         G_k_i.block(0, 0, n, n) = tG;
@@ -566,6 +593,9 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         dks(i, 0) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 1000000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         tG = A2 * (dks(0, k - 1) + G_k_i.col(0));
         g_k_i.col(0) = (tG + G_k_i.col(0) + dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
         G_k_i.col(0) = tG;
@@ -605,6 +635,9 @@ Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
         dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= q; k++) {
+        if(k % 10000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         G_k_i.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         g_k_i.col(0) = G_k_i.block(0, 0, n, n) * mu + A2 * g_k_i.col(0);
         dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
@@ -640,6 +673,9 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         dks(i, 0) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * i);
     }
     for(int k = 1; k <= q; k++) {
+        if(k % 1000000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         G_k_i.col(0) = A2 * (dks(0, k - 1) + G_k_i.col(0));
         g_k_i.col(0) = G_k_i.col(0) * mu + A2 * g_k_i.col(0);
         dks(0, k) = (G_k_i.col(0).sum() + (g_k_i.col(0) * mu).sum()) / (2 * k);
@@ -698,6 +734,9 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Go = MatrixXx::Zero(n, n * (m + 1) * m / 2);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
+        if(k % 100 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
 
         Gn.block(0, 0, n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
@@ -791,6 +830,9 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx Go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx Gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
 
         Gn.col(0) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col(0));
@@ -885,6 +927,9 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
         dks(i, 0) = Gn.block(0, i * n, n, n).trace() / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
@@ -957,6 +1002,9 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
         dks(i, 0) = Gn.col(i).sum() / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
         Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
         dks(0, k) = Gn.col(0).sum() / (2 * k);
@@ -1039,6 +1087,9 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (m + 1) * m / 2);
     MatrixXx gn = MatrixXx::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
+        if(k % 100 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
         go.block(0, 0, n, k * (k + 1) / 2) = gn.block(0, 0, n, k * (k + 1) / 2);
 
@@ -1169,6 +1220,9 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
         go.block(0, 0, n, k * (k + 1) / 2) = gn.block(0, 0, n, k * (k + 1) / 2);
 
@@ -1305,6 +1359,9 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
@@ -1414,6 +1471,9 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         tG = A2 * (dks(0, k - 1) + Go.col(0));
@@ -1526,6 +1586,9 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 200 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
@@ -1635,6 +1698,9 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         tG = A2 * (dks(0, k - 1) + Go.col(0));
@@ -1737,6 +1803,9 @@ Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 2000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         if(k <= q) {
@@ -1825,6 +1894,9 @@ Eigen::ArrayXXd dtil3_pqr_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
     }
     for(int k = 1; k <= m; k++) {
+        if(k % 10000 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         if(k <= q) {
