@@ -1400,6 +1400,17 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
     if(error_bound) {
+        if(singularB) {
+            warning("Argument matrix B is numerically close to singular.\n  ",
+                    "When it is singular, this error bound is invalid.\n  ", 
+                    "If you know it to be, set \"error_bound = FALSE\" ", 
+                    "to avoid unexpected behaviors.")
+        }
+        if(alphaout) {
+            warning("Error bound is unreliable ",
+                    "when alphaB > 1\n  ",
+                    "It is returned purely for heuristic purpose")
+        }
         if(use_cpp) {
             errseq <- cppres$errseq
             twosided <- cppres$twosided
@@ -1448,15 +1459,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
-        }
-        if(singularB) {
-            warning("Argument matrix B is numerically close to singular.\n  ",
-                    "If it is singular, this error bound is invalid.")
-        }
-        if(alphaout) {
-            warning("Error bound is unreliable ",
-                    "when alphaB > 1\n  ",
-                    "It is returned purely for heuristic purpose")
         }
     } else {
         errseq <- NULL
@@ -1823,6 +1825,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
     if(error_bound) {
+        if(singularB) {
+            warning("Argument matrix B is numerically close to singular.\n  ",
+                    "When it is singular, this error bound is invalid.\n  ", 
+                    "If you know it to be, set \"error_bound = FALSE\" ", 
+                    "to avoid unexpected behaviors.")
+        }
+        if(alphaout) {
+            warning("Error bound is unreliable ",
+                    "when alphaB > 1\n  ",
+                    "It is returned purely for heuristic purpose")
+        }
         if(use_cpp) {
             errseq <- cppres$errseq
             twosided <- cppres$twosided
@@ -1875,15 +1888,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
-        }
-        if(singularB) {
-            warning("Argument matrix B is numerically close to singular.\n  ",
-                    "If it is singular, this error bound is invalid.")
-        }
-        if(alphaout) {
-            warning("Error bound is unreliable ",
-                    "when alphaB > 1\n  ",
-                    "It is returned purely for heuristic purpose")
         }
     } else {
         errseq <- NULL
