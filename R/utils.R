@@ -30,8 +30,8 @@ S_fromUL <- function(evec = evec, evalues = evalues) {
 #' @param S
 #'   Covariance matrix. Symmetry and positive (semi-)definiteness are checked.
 #' @param tol
-#'   Tolerance to determine the rank of \eqn{\mathbf{S}}.  Eigenvalues smaller than
-#'   this value is considered zero.
+#'   Tolerance to determine the rank of \eqn{\mathbf{S}}.
+#'   Eigenvalues smaller than this value is considered zero.
 #'
 #' @return
 #'   List with \code{K} and \code{iK}, with the latter being \eqn{\mathbf{K}^-}
@@ -72,8 +72,10 @@ tr <- function(X) sum(diag(X))
 #' Summing up counter-diagonal elements
 #'
 #' sum_counterdiag() sums up counter-diagonal elements of a square matrix from
-#' the upper-left; i.e., \code{c(X[1, 1], X[1, 2] + X[2, 1], X[1, 3] + X[2, 2] + X[3, 1], ...)}
-#' (or a sequence of \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
+#' the upper-left; i.e.,
+#' \code{c(X[1, 1], X[1, 2] + X[2, 1], X[1, 3] + X[2, 2] + X[3, 1], ...)}
+#' (or a sequence of
+#' \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
 #' sum_counterdiag3D() does a comparable in a 3D cubic array.
 #' No check is done on the structure of \code{X}.
 #'
@@ -154,9 +156,11 @@ iseq <- function(x, y = rep.int(0, length(x)),
 is_diagonal <- function(A, tol = .Machine$double.eps * 100, symmetric = FALSE) {
     n <- dim(A)[1]
     if(symmetric) {
-        return(isTRUE(all.equal(A[lower.tri(A)], rep.int(0, n * (n - 1) / 2), tol)))
+        return(isTRUE(all.equal(A[lower.tri(A)],
+                                rep.int(0, n * (n - 1) / 2), tol)))
     } else {
         A <- abs(A)
-        return(isTRUE(all.equal((A + t(A))[lower.tri(A)], rep.int(0, n * (n - 1) / 2), tol * 2)))
+        return(isTRUE(all.equal((A + t(A))[lower.tri(A)],
+                                rep.int(0, n * (n - 1) / 2), tol * 2)))
     }
 }

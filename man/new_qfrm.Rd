@@ -31,7 +31,8 @@ When missing, obtained as \code{err_seq[length(err_seq)]}.}
 
 \item{err_seq}{Error bound corresponding to \code{res_seq}}
 
-\item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound (see "Value")}
+\item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound
+(see "Value")}
 
 \item{...}{Additional arguments for accommodating subclasses}
 
@@ -47,7 +48,8 @@ The return object is a list of 4 elements which are intended to be:
 \item{\code{$statistic}: }{evaluation result}
 \item{\code{$res_seq}: }{vector of truncated series}
 \item{\code{$errorb}: }{error bound of \code{statistic}}
-\item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
+\item{\code{$err_seq}: }{vector of error bounds corresponding to
+\code{res_seq}}
 }
 For the \code{qfpm} class, only \code{$statistic} is of practical importance
 (because the result is always exact).

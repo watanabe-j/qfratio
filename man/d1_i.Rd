@@ -50,7 +50,8 @@ and takes the argument matrix rather than its eigenvalues.
 Hillier et al. (2009, 2014) and Bao & Kan (2013).
 The former is related to the top-order zonal polynomial
 \eqn{C_{[k]}(\mathbf{A})} in the following way:
-\eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k C_{[k]}(\mathbf{A}) },
+\eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k
+     C_{[k]}(\mathbf{A}) },
 where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}.
 
 These functions calculate the coefficients based on the super-short

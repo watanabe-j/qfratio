@@ -109,5 +109,6 @@ plot(res2)
 
 }
 \seealso{
-\code{\link{new_qfrm}}: descriptions of the classes and their ``constructors''
+\code{\link{new_qfrm}}: descriptions of the classes and their
+``constructors''
 }

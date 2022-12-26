@@ -102,7 +102,8 @@ And the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 
 Has the attribute \code{"logscale"} as described in the "Scaling" section
-in \code{\link{d1_i}}. This is a matrix of the same size as the return itself.
+in \code{\link{d1_i}}.
+This is a matrix of the same size as the return itself.
 }
 \description{
 These are internal functions to calculate the coefficients

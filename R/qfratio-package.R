@@ -66,7 +66,8 @@
 #'
 #'   \code{\link{qfpm}}: Moment of product of quadratic forms
 #'
-#'   \code{\link{rqfr}}: Monte Carlo sampling of ratio/product of quadratic forms
+#'   \code{\link{rqfr}}: Monte Carlo sampling of ratio/product of 
+#'                       quadratic forms
 #'
 #' @examples
 #' ## Symmetric matrices

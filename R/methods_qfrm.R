@@ -16,7 +16,8 @@
 #' @param err_seq
 #'   Error bound corresponding to \code{res_seq}
 #' @param exact,twosided,alphaout,singular_arg
-#'   Logicals used to append attributes to the resultant error bound (see "Value")
+#'   Logicals used to append attributes to the resultant error bound
+#'   (see "Value")
 #' @param class
 #'   Character vector to (pre-)append classes to the return value
 #' @param ...
@@ -32,7 +33,8 @@
 #'   \item{\code{$statistic}: }{evaluation result}
 #'   \item{\code{$res_seq}: }{vector of truncated series}
 #'   \item{\code{$errorb}: }{error bound of \code{statistic}}
-#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
+#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to
+#'                            \code{res_seq}}
 #' }
 #' For the \code{qfpm} class, only \code{$statistic} is of practical importance
 #' (because the result is always exact).
@@ -159,7 +161,8 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' @name methods.qfrm
 #'
 #' @seealso
-#' \code{\link{new_qfrm}}: descriptions of the classes and their ``constructors''
+#' \code{\link{new_qfrm}}: descriptions of the classes and their
+#' ``constructors''
 #'
 #' @examples
 #' nv <- 4
@@ -197,7 +200,8 @@ print.qfrm <- function(x, digits = getOption("digits"),
     exact <- isTRUE(attr(errorb, "exact"))
     twosided <- isTRUE(attr(errorb, "twosided"))
     cat("\n")
-    cat(strwrap("Moment of ratio of quadratic forms", prefix = prefix), sep = "\n")
+    cat(strwrap("Moment of ratio of quadratic forms", prefix = prefix),
+        sep = "\n")
     cat("\n")
     out <- character()
     if(!is.null(stat)) {
@@ -260,9 +264,11 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
          ylim = ylim, xlab = xlab,
          ylab = ylab, lwd = lwd_m, lty = lty_m, ...))
     if(add_error) {
-        graphics::lines(seq_along(ansseq) - 1L, errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
+        graphics::lines(seq_along(ansseq) - 1L, errseq + cumseq,
+                        col = col_e, lwd = lwd_e, lty = lty_e)
         if(isTRUE(attr(errseq, "twosided"))) {
-            graphics::lines(-errseq + cumseq, col = col_e, lwd = lwd_e, lty = lty_e)
+            graphics::lines(-errseq + cumseq,
+                            col = col_e, lwd = lwd_e, lty = lty_e)
         }
     }
     if(add_legend) {
@@ -283,7 +289,8 @@ print.qfpm <- function(x, digits = getOption("digits"),
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     cat("\n")
-    cat(strwrap("Moment of (product of) quadratic form(s)", prefix = prefix), sep = "\n")
+    cat(strwrap("Moment of (product of) quadratic form(s)", prefix = prefix),
+        sep = "\n")
     cat("\n")
     out <- paste("Moment =", format(stat, digits = max(1L, digits)))
     cat(strwrap(paste(out, collapse = ", ")), sep = "\n")

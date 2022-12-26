@@ -10,7 +10,8 @@
 #' Hillier et al. (2009, 2014) and Bao & Kan (2013).
 #' The former is related to the top-order zonal polynomial
 #' \eqn{C_{[k]}(\mathbf{A})} in the following way:
-#' \eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k C_{[k]}(\mathbf{A}) },
+#' \eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k
+#'      C_{[k]}(\mathbf{A}) },
 #' where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}.
 #'
 #' These functions calculate the coefficients based on the super-short
@@ -252,7 +253,8 @@ NULL
 #' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 #'
 #' Has the attribute \code{"logscale"} as described in the "Scaling" section
-#' in \code{\link{d1_i}}. This is a matrix of the same size as the return itself.
+#' in \code{\link{d1_i}}.
+#' This is a matrix of the same size as the return itself.
 #'
 #' @param A1,A2
 #'   Argument matrices. Assumed to be symmetric and of the same order.
@@ -375,7 +377,8 @@ NULL
 #' the \eqn{(p,q,r)}-th order).
 #'
 #' Has the attribute \code{"logscale"} as described in the "Scaling" section
-#' in \code{\link{d1_i}}. This is an array of the same size as the return itself.
+#' in \code{\link{d1_i}}.
+#' This is an array of the same size as the return itself.
 #'
 #' @inheritParams d2_ij
 #' @param A1,A2,A3
@@ -649,7 +652,8 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
 #'
 #' @rdname dtil2_pq
 #'
-dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) {
+dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n),
+                        p = 1L, q = 1L, r = 1L) {
     n <- ncol(A1)
     In <- diag(n)
     m <- q + r
@@ -738,7 +742,8 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) 
 #'
 #' @rdname dtil2_pq
 #'
-dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L) {
+dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
+                        p = 1L, q = 1L, r = 1L) {
     n <- length(L1)
     m <- q + r
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
@@ -900,7 +905,8 @@ arl.default <-  function(L, D, m = 10L) {
 #'
 #' @rdname d2_ij
 #'
-d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q)) {
+d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m,
+                    fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- ncol(A1)
     In <- diag(n)
@@ -939,7 +945,8 @@ d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !m
 #'
 #' @rdname d2_ij
 #'
-d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q)) {
+d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m,
+                    fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)
@@ -1638,8 +1645,9 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #'
 #' @rdname d3_ijk
 #'
-h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
+h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
+                     p = m, q = m, r = m,
+                     fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- ncol(A1)
     In <- diag(n)
@@ -1693,8 +1701,9 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = m, q = m, r =
 #'
 #' @rdname d3_ijk
 #'
-h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = m, q = m, r = m,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
+h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, 
+                     p = m, q = m, r = m,
+                     fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)

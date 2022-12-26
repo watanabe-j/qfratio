@@ -117,5 +117,6 @@ doi:\href{https://doi.org/10.1101/2022.11.02.514929}{10.1101/2022.11.02.514929}.
 
 \code{\link{qfpm}}: Moment of product of quadratic forms
 
-\code{\link{rqfr}}: Monte Carlo sampling of ratio/product of quadratic forms
+\code{\link{rqfr}}: Monte Carlo sampling of ratio/product of
+quadratic forms
 }
