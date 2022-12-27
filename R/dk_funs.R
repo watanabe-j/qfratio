@@ -525,7 +525,6 @@ dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
     In <- diag(n)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     G_k_i <- list()
@@ -563,7 +562,6 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
     In <- diag(n)
     dks <- matrix(0, 2L, q + 1L)
     dks[1L, 1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- matrix(0, n, n)
     G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
@@ -592,7 +590,6 @@ dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
     n <- length(L1)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     zeros <- rep.int(0, n)
     G_k_i <- list()
     g_k_i <- list()
@@ -628,7 +625,6 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
     n <- length(L1)
     dks <- matrix(0, 2L, q + 1L)
     dks[1L, 1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     G_k_0 <- rep.int(0, n)
     G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
@@ -659,7 +655,6 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n),
     m <- q + r
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     Gc <- list()
@@ -748,7 +743,6 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
     m <- q + r
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
-    thr <- .Machine$double.xmax / 100 / n
     zeros <- rep.int(0, n)
     Gc <- list()
     gc <- list()

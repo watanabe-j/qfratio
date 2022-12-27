@@ -1268,9 +1268,10 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         } else {
             errseq <- NULL
         }
+        twosided <- NULL
     }
-    new_qfrm(res_seq = ansseq, err_seq = errseq,
-             twosided = FALSE, alphaout = alphaout, singular_arg = singularA)
+    new_qfrm(res_seq = ansseq, err_seq = errseq, twosided = twosided,
+             alphaout = alphaout, singular_arg = singularA)
 }
 
 
@@ -1287,7 +1288,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaB = 1,
-                    # fun = c("dki1", "dk2"),
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "double",
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -1509,7 +1509,6 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1,
-                    # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -1955,7 +1954,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaA = 1, alphaB = 1,
-                    # fun = c("dki1", "dk2"),
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
                     check_convergence = TRUE,
@@ -2159,7 +2157,6 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L, alphaB = 1, alphaD = 1,
-                    # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
@@ -2373,7 +2370,6 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #'
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1, alphaD = 1,
-                    # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
@@ -2610,7 +2606,6 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1, alphaD = 1,
-                    # fun = c("dki1", "dk2"),
                     check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = c("double", "long_double"),
                     nthreads = 0,
