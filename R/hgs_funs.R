@@ -32,7 +32,7 @@ NULL
 #'
 #' @rdname hgs
 #'
-hgs_1d <- function (dks, a1, b, lconst = 0) {
+hgs_1d <- function(dks, a1, b, lconst = 0) {
     m <- length(dks) - 1
     if(a1 < 0 && (a1 %% 1) == 0) {
         lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
@@ -54,7 +54,7 @@ hgs_1d <- function (dks, a1, b, lconst = 0) {
 #'
 #' @rdname hgs
 #'
-hgs_2d <- function (dks, a1, a2, b, lconst = 0) {
+hgs_2d <- function(dks, a1, a2, b, lconst = 0) {
     m <- ncol(dks) - 1
     if(a1 < 0 && (a1 %% 1) == 0) {
         lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
@@ -82,7 +82,7 @@ hgs_2d <- function (dks, a1, a2, b, lconst = 0) {
 #'
 #' @rdname hgs
 #'
-hgs_3d <- function (dks, a1, a2, a3, b, lconst = 0) {
+hgs_3d <- function(dks, a1, a2, a3, b, lconst = 0) {
     m <- dim(dks)[1] - 1
     if(a1 < 0 && (a1 %% 1) == 0) {
         lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))

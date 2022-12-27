@@ -9,9 +9,13 @@
 #' results provided in this package.
 #'
 #' These functions generate a random smaple of
-#' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q} } (\code{rqfr()}),
-#' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} } (\code{rqfmr()}), and
-#' \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
+#' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q} }
+#' (\code{rqfr()}),
+#' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}
+#'            {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} }
+#' (\code{rqfmr()}), and
+#' \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
+#'       (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
 #' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #' (Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
 #' with negative exponents.)
@@ -112,14 +116,16 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
     if(missing(p) && !missing(q)) p <- q
     if(missing(mu)) mu <- rep.int(0, n)
     if(missing(Sigma)) Sigma <- In
-    rqfp(nit, A, B, p = p, q = -q, r = 0, mu = mu, Sigma = Sigma, use_cpp = use_cpp)
+    rqfp(nit, A, B, p = p, q = -q, r = 0,
+         mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
 
 ##### rqfmr #####
 #' @rdname rqfr
 #' @export
 #'
-rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q, mu, Sigma, use_cpp = FALSE) {
+rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
+                  mu, Sigma, use_cpp = FALSE) {
     if(missing(A)) {
         if(missing(B)) {
             if(missing(D)) {
@@ -151,14 +157,16 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q, mu, Sigma, use_
     if(missing(p) && !missing(q)) p <- q + r
     if(missing(mu)) mu <- rep.int(0, n)
     if(missing(Sigma)) Sigma <- In
-    rqfp(nit, A, B, D, p = p, q = -q, r = -r, mu = mu, Sigma = Sigma, use_cpp = use_cpp)
+    rqfp(nit, A, B, D, p = p, q = -q, r = -r,
+         mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
 
 ##### rqfp #####
 #' @rdname rqfr
 #' @export
 #'
-rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = FALSE) {
+rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1,
+                 mu, Sigma, use_cpp = FALSE) {
     if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
         stop("Package \"mvtnorm\" is required to use this function.")
     }

@@ -88,8 +88,8 @@ qfrm_ApBq_npi(
 \item{A, B}{Argument matrices. Should be square. Will be automatically symmetrized.}
 
 \item{p, q}{Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-respectively. When only one is provided, the other is set to the same value.
-Should be length-one numeric (see "Details" for further conditions).}
+respectively. When only one is provided, the other is set to the same
+value. Should be length-one numeric (see "Details" for further conditions).}
 
 \item{m}{Order of polynomials at which the series expression is truncated.
 \eqn{M} in Hillier et al. (2009, 2014).}

@@ -411,7 +411,8 @@ Passed as \code{Eigen::MatrixXd}.}
 All return a list via \code{Rcpp::List} of the following (as appropriate):
 \itemize{
 \item{\code{$ans}: }{Exact moment, from \code{double}}
-\item{\code{$ansseq}: }{Series for the moment, from \code{Eigen::ArrayXd}}
+\item{\code{$ansseq}: }{Series for the moment, from
+\code{Eigen::ArrayXd}}
 \item{\code{$errseq}: }{Series of errors, from \code{Eigen::ArrayXd}}
 \item{\code{$twosided}: }{Logical, from \code{bool}}
 }

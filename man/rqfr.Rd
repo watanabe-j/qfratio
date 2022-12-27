@@ -46,9 +46,13 @@ results provided in this package.
 }
 \details{
 These functions generate a random smaple of
-\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q} } (\code{rqfr()}),
-\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} } (\code{rqfmr()}), and
-\eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
+\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q} }
+(\code{rqfr()}),
+\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}
+           {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} }
+(\code{rqfmr()}), and
+\eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
+      (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
 where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 (Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
 with negative exponents.)

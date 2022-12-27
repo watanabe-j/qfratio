@@ -73,7 +73,8 @@ new_qfrm <- function(statistic, error_bound = NULL,
         error_bound <- err_seq[length(err_seq)]
     }
     if(!is.null(err_seq)) {
-        if(is.na(error_bound) && all(is.na(error_bound)) && !all(is.nan(error_bound))) {
+        if(is.na(error_bound) && all(is.na(error_bound))
+           && !all(is.nan(error_bound))) {
             err_seq <- NULL
         }
     }
@@ -218,7 +219,8 @@ print.qfrm <- function(x, digits = getOption("digits"),
     if(exact) {
         cat("This value is exact\n")
     } else if(length(errorb) > 0 && all_na_errorb) {
-        cat("Error bound unavailable; recommended to inspect plot() of this object\n")
+        cat("Error bound unavailable;",
+            "recommended to inspect plot() of this object\n")
     } else if(show_range) {
         if(twosided) {
             ra <- sort(c(stat - errorb, stat + errorb))
@@ -229,10 +231,12 @@ print.qfrm <- function(x, digits = getOption("digits"),
         paste(format(ra, digits = digits + 2L), collapse = " "), "\n", sep = "")
     }
     if(isTRUE(attr(errorb, "singular")) && !all_na_errorb) {
-        cat(paste("Note: Argument matrix (numerically) singular, so error bound is unreliable\n"))
+        cat("Note: Argument matrix (numerically) singular,",
+            "so error bound is unreliable\n")
     }
     if(isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
-        cat(paste("Note: Adjustment parameter(s) alpha above 1, so error bound is unreliable\n"))
+        cat("Note: Adjustment parameter(s) alpha above 1,",
+            "so error bound is unreliable\n")
     }
     cat("\n")
     invisible(x)
@@ -257,8 +261,9 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
     errseq <- x$err_seq
     cumseq <- cumsum(ansseq)
     if(isTRUE(attr(errseq, "exact"))) {
-        warning("plot method for this class is for inspection of truncated sums.\n  ",
-                "This object has an exact moment, in which case plot is moot.")
+        message("plot method for this class is provided for inspecting ",
+                "partial sums.\n  This object has an exact moment, ",
+                "so the plot method is inapplicable.")
     }
     try(plot(seq_along(ansseq) - 1L, cumseq, type = "l", col = col_m,
          ylim = ylim, xlab = xlab,

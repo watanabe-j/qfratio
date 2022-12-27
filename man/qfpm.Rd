@@ -79,8 +79,8 @@ Use \code{$statistic} to access the value of the moment.
 Functions to obtain (compound) moments
 of a product of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
-  (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
-  \right) },
+  (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
+  (\mathbf{x^\mathit{T} D x})^r \right) },
 where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 
 \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
@@ -91,9 +91,9 @@ where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 }
 \details{
 These functions implement the super-short recursion algorithms described in
-Hillier et al. (2014: sec. 3.1--3.2 and 4). At present, only positive integers
-are accepted as exponents (negative exponents yield ratios, of course).
-All these yield exact results.
+Hillier et al. (2014: sec. 3.1--3.2 and 4).
+At present, only positive integers are accepted as exponents
+(negative exponents yield ratios, of course). All these yield exact results.
 
 An error is thrown in the trivial case of \code{p = 0}
 (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()}).

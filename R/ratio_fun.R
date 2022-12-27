@@ -101,8 +101,8 @@
 #'   Argument matrices. Should be square. Will be automatically symmetrized.
 #' @param p,q
 #'   Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-#'   respectively. When only one is provided, the other is set to the same value.
-#'   Should be length-one numeric (see "Details" for further conditions).
+#'   respectively. When only one is provided, the other is set to the same
+#'   value. Should be length-one numeric (see "Details" for further conditions).
 #' @param m
 #'   Order of polynomials at which the series expression is truncated.
 #'   \eqn{M} in Hillier et al. (2009, 2014).
@@ -230,7 +230,8 @@
 #' # Use larger m to evaluate higher-order terms
 #' plot(print(qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma, m = 300)))
 #'
-qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+qfrm <- function(A, B, p = 1, q = p, m = 100L,
+                 mu = rep.int(0, n), Sigma = diag(n),
                  error_bound = TRUE, check_convergence = TRUE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
@@ -265,7 +266,8 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n), Sigma = diag(
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
         if(ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
-                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
             if(!okay) {
@@ -538,8 +540,9 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
         if(ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
-                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)
-                          && iseq(D %*% mu, zeros, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero) &&
+                     iseq(D %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B) &&
                      iseq(crossprod(iK, KtDK %*% iK), D))
@@ -573,17 +576,21 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
             return(qfmrm_ApBIqr_int(A = A, B = B, p = p, q = q, r = r, m = m,
                                     mu = mu, error_bound = error_bound,
                                     check_convergence = check_convergence,
-                                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+                                    tol_zero = tol_zero, tol_sing = tol_sing,
+                                    ...))
         } else {
             return(qfmrm_ApBIqr_npi(A = A, B = B, p = p, q = q, r = r, m = m,
-                                    mu = mu, check_convergence = check_convergence,
-                                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+                                    mu = mu,
+                                    check_convergence = check_convergence,
+                                    tol_zero = tol_zero, tol_sing = tol_sing,
+                                    ...))
         }
     }
     if((p %% 1) == 0) {
         return(qfmrm_ApBDqr_int(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
                                 mu = mu, check_convergence = check_convergence,
-                                tol_zero = tol_zero, tol_sing = tol_sing, ...))
+                                tol_zero = tol_zero, tol_sing = tol_sing,
+                                ...))
     } else {
         return(qfmrm_ApBDqr_npi(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
                                 mu = mu, check_convergence = check_convergence,
@@ -601,14 +608,14 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' Functions to obtain (compound) moments
 #' of a product of quadratic forms in normal variables, i.e.,
 #' \eqn{ \mathrm{E} \left(
-#'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r
-#'   \right) },
+#'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
+#'   (\mathbf{x^\mathit{T} D x})^r \right) },
 #' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #'
 #' These functions implement the super-short recursion algorithms described in
-#' Hillier et al. (2014: sec. 3.1--3.2 and 4). At present, only positive integers
-#' are accepted as exponents (negative exponents yield ratios, of course).
-#' All these yield exact results.
+#' Hillier et al. (2014: sec. 3.1--3.2 and 4).
+#' At present, only positive integers are accepted as exponents
+#' (negative exponents yield ratios, of course). All these yield exact results.
 #'
 #' An error is thrown in the trivial case of \code{p = 0}
 #' (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()}).
@@ -752,7 +759,8 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 #'
 #' @export
 #'
-qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n),
+qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
+                          mu = rep.int(0, n), Sigma = diag(n),
                           use_cpp = FALSE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = .Machine$double.eps * 100) {
@@ -799,7 +807,8 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
         if(ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
-                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
             if(!okay) {
@@ -864,7 +873,8 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1, mu = rep.int(0, n), Sigma = diag(n
 #'
 #' @export
 #'
-qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma = diag(n),
+qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
+                            mu = rep.int(0, n), Sigma = diag(n),
                             use_cpp = FALSE, cpp_method = "double",
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = .Machine$double.eps * 100) {
@@ -899,7 +909,8 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
     }
     ## Check basic requirements for arguments
     stopifnot(
-        "A and B should be square matrices" = all(c(dim(A), dim(B), dim(D)) == n),
+        "A and B should be square matrices" =
+            all(c(dim(A), dim(B), dim(D)) == n),
         "p, q, and r should be nonnegative integers" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
@@ -927,8 +938,9 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
         if(ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
-                    (iseq(A %*% mu, zeros, tol_zero) && iseq(B %*% mu, zeros, tol_zero)
-                          && iseq(D %*% mu, zeros, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero) &&
+                     iseq(D %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B) &&
                      iseq(crossprod(iK, KtDK %*% iK), D))
@@ -979,12 +991,15 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Si
             }
         } else {
             if(use_vec) {
-                dpqr <- dtil3_pqr_v(LA, LB, LD, mu, p, q, r)[p + 1, q + 1, r + 1]
+                dpqr <- dtil3_pqr_v(LA, LB, LD, mu,
+                                    p, q, r)[p + 1, q + 1, r + 1]
             } else {
-                dpqr <- dtil3_pqr_m(A, diag(LB), D, mu, p, q, r)[p + 1, q + 1, r + 1]
+                dpqr <- dtil3_pqr_m(A, diag(LB), D, mu,
+                                    p, q, r)[p + 1, q + 1, r + 1]
             }
         }
-        ans <- 2 ^ (p + q + r) * factorial(p) * factorial(q) * factorial(r) * dpqr
+        ans <- 2 ^ (p + q + r) *
+               factorial(p) * factorial(q) * factorial(r) * dpqr
     }
     new_qfpm(ans)
 }
@@ -1066,8 +1081,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         LA <- eigA$values
         if(central) {
             dp <- d1_i(LA, m = p)[p + 1]
-            ans <- exp((p - q) * log(2) + lgamma(p + 1) + lgamma(n / 2 + p - q)
-                       - lgamma(n / 2 + p)) * dp
+            ans <- exp((p - q) * log(2) + lgamma(p + 1) + lgamma(n/2 + p - q)
+                       - lgamma(n/2 + p)) * dp
             ansseq <- ans
         } else {
             mu <- c(mu)
@@ -1076,23 +1091,26 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 D <- c(crossprod(eigA$vectors, mu)) ^ 2
                 aps <- arl(LA, D, m = p)[p + 1, ]
                 ls <- 0:p
-                ansseq <- exp((p - q) * log(2) + lgamma(p + 1)
-                            + lgamma(n / 2 + p - q + ls) - ls * log(2)
-                            - lgamma(ls + 1) - lgamma(n / 2 + p + ls)) *
-                          gsl::hyperg_1F1(q, n / 2 + p + ls, -crossprod(mu) / 2) * aps
+                ansseq <-
+                    exp((p - q) * log(2) + lgamma(p + 1)
+                      + lgamma(n/2 + p - q + ls) - ls * log(2)
+                      - lgamma(ls + 1) - lgamma(n/2 + p + ls)) *
+                    gsl::hyperg_1F1(q, n / 2 + p + ls, -crossprod(mu) / 2) * aps
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
                 ## which is less accurate (by truncation) and slower
-                rlang::warn(paste0("  When using qfrm_ApIq_int() with nonzero mu, ",
-                            "it is recommended to\n  install the package \"gsl\", ",
-                            "with which an exact expression is available.\n  ",
-                            "See \"Details\" in documentation of this function."),
-                            .frequency = "once", .frequency_id = "use_gsl")
+                rlang::warn(
+                    paste0("  When using qfrm_ApIq_int() with nonzero mu, it ",
+                           "is recommended to\n  install the package \"gsl\", ",
+                           "with which an exact result is available.\n  See ",
+                           "\"Details\" in documentation of this function."),
+                    .frequency = "once", .frequency_id = "use_gsl")
                 dks <- d2_ij_m(A, tcrossprod(mu), m, p = p)[p + 1, ]
-                ansseq <- exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
-                              + lgamma(n / 2 + p - q + 0:m) - 0:m * log(2)
-                              - lgamma(1/2 + 0:m) + lgamma(1/2) - lgamma(n / 2 + p + 0:m)
-                              + log(dks))
+                ansseq <-
+                    exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
+                      + lgamma(n/2 + p - q + 0:m) - 0:m * log(2)
+                      - lgamma(1/2 + 0:m) + lgamma(1/2) - lgamma(n/2 + p + 0:m)
+                      + log(dks))
                 exact <- FALSE
             }
             ans <- sum(ansseq)
@@ -1141,13 +1159,15 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     LA <- eigA$values
     UA <- eigA$vectors
     if(any(LA < -tol_sing) && ((p %% 1) != 0 || p < 0)) {
-        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
-             "non-integer power of quadratic form is not well defined.\n  ",
-             "If you know them to be 0, use larger tol_sing to suppress this error.")
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this error.")
     }
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     cond_exist <- n / 2 + p > q ## condition(1)
-    stopifnot("Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
+    stopifnot("Moment does not exist in this combination of p, q, and rank(B)" =
+                  cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
     b1 <- alphaA / max(abs(LA))
@@ -1170,19 +1190,19 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             lscf <- attr(dks, "logscale")
             attributes(dks) <- NULL
             ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(b1)
-                             + lgamma(n / 2 + p - q) - lgamma(n / 2) - lscf))
+                             + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         } else {
             mu <- c(crossprod(UA, c(mu)))
             # ## This is based on recursion for d as in Hillier et al. (2009)
             # dks <- d2_ij_m(diag(LAh), tcrossprod(mu), m)
             # ansmat <- hgs_dmu_2d(dks, -p, n / 2 + p - q, n / 2,
             #                      ((p - q) * log(2) - c(crossprod(mu)) / 2
-            #                      - p * log(b1) + lgamma(n / 2 + p - q) - lgamma(n / 2)))
+            #                      - p * log(b1) + lgamma(n/2 + p - q) - lgamma(n/2)))
             ## This is based on recursion for h as in Hillier et al. (2014)
             dks <- h2_ij_v(LAh, rep.int(0, n), mu, m)
             lscf <- attr(dks, "logscale")
             ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(b1)
-                             + lgamma(n / 2 + p - q) - lgamma(n / 2) - lscf))
+                             + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dks[(m + 1):1, ]) == 0)
         }
@@ -1206,8 +1226,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+            warning("Last term of the series is larger than ",
+                    "specified tolerance, ", tol_conv,
+                    "\n  Check sensitivity with different m?")
         }
     }
     singularA <- any(LA < tol_sing)
@@ -1221,7 +1242,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             dkst <- dks
             twosided <- FALSE
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
-                       - lgamma(n / 2 + 0:m + 1) + lgamma(n / 2 + p - q)
+                       - lgamma(n/2 + 0:m + 1) + lgamma(n/2 + p - q)
                        + (p - q) * log(2) - p * log(b1))
             errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
                       exp((lcoefe + log(cumsum(dkst[1:(m + 1)] /
@@ -1239,8 +1260,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
     } else {
         if(error_bound) {
-            rlang::warn(paste0("Error bound is unavailable for qfrm_ApIq_npi() ",
-                        "when mu is nonzero"), .frequency = "once",
+            rlang::warn(paste0("Error bound is unavailable for ",
+                               "qfrm_ApIq_npi() when mu is nonzero"),
+                        .frequency = "once",
                         .frequency_id = "errorb_ApIq_npi_noncentral")
             errseq <- NA_real_
         } else {
@@ -1334,8 +1356,10 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
-              "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
+    stopifnot(
+        "B should be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, and rank(B)" =
+            cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
@@ -1356,7 +1380,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             if(use_vec) {
                 cppres <- ApBq_int_nvE(LA, LB, b2, mu, p, q, m, error_bound)
             } else {
-                cppres <- ApBq_int_nmE(A, LA, UA, LB, b2, mu, p, q, m, error_bound)
+                cppres <- ApBq_int_nmE(A, LA, UA, LB, b2, mu, p, q, m,
+                                       error_bound)
             }
         }
         ansseq <- cppres$ansseq
@@ -1378,8 +1403,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
         dks <- dksm[p + 1, 1:(m + 1)]
         lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
-        ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q) * log(2) + q * log(b2)
-                         + lgamma(p + 1) + lgamma(n / 2 + p - q) - lgamma(n / 2 + p) - lscf))
+        ansseq <- hgs_1d(dks, q, n/2 + p,
+                         ((p - q) * log(2) + q * log(b2) + lgamma(p + 1)
+                          + lgamma(n/2 + p - q) - lgamma(n/2 + p) - lscf))
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1393,8 +1419,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+            warning("Last term of the series is larger than ",
+                    "specified tolerance, ", tol_conv,
+                    "\n  Check sensitivity with different m?")
         }
     }
     singularB <- any(LB < tol_sing)
@@ -1402,8 +1429,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(error_bound) {
         if(singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
-                    "When it is singular, this error bound is invalid.\n  ", 
-                    "If you know it to be, set \"error_bound = FALSE\" ", 
+                    "When it is singular, this error bound is invalid.\n  ",
+                    "If you know it to be, set \"error_bound = FALSE\" ",
                     "to avoid unexpected behaviors.")
         }
         if(alphaout) {
@@ -1434,7 +1461,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     dp <- d1_i(LAp / LB / b2, p)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE)$values / b2, p)[p + 1]
+                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
+                                     symmetric = TRUE)$values / b2, p)[p + 1]
                 }
             } else {
                 twosided <- TRUE
@@ -1447,14 +1475,15 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     Ap <- S_fromUL(UA, LAp)
                     dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p)
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2, mub, p)[p + 1]
+                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
+                                    mub, p)[p + 1]
                 }
             }
             dkst <- dkstm[p + 1, 1:(m + 1)]
             lscft <- attr(dkstm, "logscale")[p + 1, 1:(m + 1)]
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
-                        - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q)
+                        - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q)
                         + (p - q) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
@@ -1553,17 +1582,20 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
-              "Moment does not exist in this combination of p, q, and rank(B)" = cond_exist)
+    stopifnot(
+        "B should be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, and rank(B)" =
+            cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
     b1 <- alphaA / max(abs(LA))
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
-        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
-             "non-integer power of quadratic form is not well defined.\n  ",
-             "If you know them to be 0, use larger tol_sing to suppress this error.")
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this error.")
     }
     if(use_cpp) {
         if(central) {
@@ -1616,9 +1648,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             }
         }
         lscf <- attr(dksm, "logscale")
-        ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q) * log(2)
-                         - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q) -
-                         lgamma(n / 2) - lscf))
+        ansmat <- hgs_2d(dksm, -p, q, n / 2,
+                         ((p - q) * log(2) - p * log(b1) + q * log(b2)
+                          + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag(ansmat)
         diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
     }
@@ -1641,8 +1673,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+            warning("Last term of the series is larger than",
+                    "specified tolerance, ", tol_conv,
+                    "\n  Check sensitivity with different m?")
         }
     }
     new_qfrm(res_seq = ansseq, err_seq = NA_real_)
@@ -1737,8 +1770,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
-              "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
+    stopifnot(
+        "B should be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, r, and rank(B)"
+        = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
@@ -1756,20 +1791,25 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             if(use_vec) {
                 cppres <- ApBIqr_int_cvE(LA, LB, b2, p, q, r, m, error_bound)
             } else {
-                cppres <- ApBIqr_int_cmE(A, LA, UA, LB, b2, p, q, r, m, error_bound)
+                cppres <- ApBIqr_int_cmE(A, LA, UA, LB, b2, p, q, r, m,
+                                         error_bound)
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
+                    cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m,
+                                              error_bound) # , nthreads)
                 } else {
-                    cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m, error_bound) # , nthreads)
+                    cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m,
+                                             error_bound) # , nthreads)
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
+                    cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m,
+                                              error_bound, nthreads)
                 } else {
-                    cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m, error_bound, nthreads)
+                    cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m,
+                                             error_bound, nthreads)
                 }
             }
             diminished <- cppres$diminished
@@ -1784,8 +1824,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             dks <- dksm[p + 1, 1:(m + 1)]
             lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
-            ansseq <- hgs_1d(dks, q, n / 2 + p, ((p - q - r) * log(2) + q * log(b2)
-                    + lgamma(p + 1) + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
+            ansseq <- hgs_1d(dks, q, n / 2 + p,
+                             ((p - q - r) * log(2) + q * log(b2) + lgamma(p + 1)
+                              + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
+                              - lscf))
         } else {
             if(use_vec) {
                 dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p)
@@ -1794,9 +1836,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             dks <- dksm[p + 1, , ]
             lscf <- attr(dksm, "logscale")[p + 1, , ]
-            ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
-                            + q * log(b2) + lgamma(p + 1)
-                            + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
+            ansmat <- hgs_2d(dks, q, r, n / 2 + p,
+                             ((p - q - r) * log(2) + q * log(b2) + lgamma(p + 1)
+                              + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
+                              - lscf))
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dks[(m + 1):1, ]) == 0)
         }
@@ -1827,8 +1870,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(error_bound) {
         if(singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
-                    "When it is singular, this error bound is invalid.\n  ", 
-                    "If you know it to be, set \"error_bound = FALSE\" ", 
+                    "When it is singular, this error bound is invalid.\n  ",
+                    "If you know it to be, set \"error_bound = FALSE\" ",
                     "to avoid unexpected behaviors.")
         }
         if(alphaout) {
@@ -1861,7 +1904,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     dp <- d1_i(LAp / LB / b2, p)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE)$values / b2, p)[p + 1]
+                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
+                                     symmetric = TRUE)$values / b2, p)[p + 1]
                 }
                 lscft <- attr(dkstm, "logscale")[p + 1, ]
             } else {
@@ -1876,14 +1920,15 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     Ap <- S_fromUL(UA, LAp)
                     dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2, mub, p)[p + 1]
+                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
+                                    mub, p)[p + 1]
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
                 lscft <- attr(dkstm, "logscale")[p + 1, , 1]
             }
             lBdet <- sum(log(LB * b2))
             lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
-                       - lgamma(n / 2 + p + 0:m + 1) + lgamma(n / 2 + p - q - r)
+                       - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(b2) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
@@ -1990,8 +2035,10 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     }
                 }
     }
-    stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
-              "Moment does not exist in this combination of p, q, r, and rank(B)" = cond_exist)
+    stopifnot(
+        "B should be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, r, and rank(B)"
+            = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     if(use_vec) {
@@ -2007,9 +2054,10 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         Bh <- In - b2 * diag(LB, nrow = n)
     }
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
-        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
-             "non-integer power of quadratic form is not well defined.\n  ",
-             "If you know them to be 0, use larger tol_sing to suppress this error.")
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this error.")
     }
     if(use_cpp) {
         if(central) {
@@ -2035,9 +2083,11 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m, nthreads)
+                    cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m,
+                                              nthreads)
                 } else {
-                    cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m, nthreads)
+                    cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m,
+                                             nthreads)
                 }
             }
         }
@@ -2052,8 +2102,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q - r) * log(2)
-                        - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q - r)
-                        - lgamma(n / 2) - lscf))
+                        - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
+                        - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
@@ -2064,11 +2114,12 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
-                        - p * log(b1) + q * log(b2) + lgamma(n / 2 + p - q - r)
-                        - lgamma(n / 2) - lscf))
+                        - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
+                        - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
             for(k in 1:(m + 1)) {
-                diminished <- any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                diminished <-
+                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
                 if(diminished) break
             }
         }
@@ -2195,7 +2246,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             nzBD <- rep.int(TRUE, n)
         } else {
             zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
-            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
+                       t(zerocols)
             eigBD <- eigen(In - projmat, symmetric = TRUE)
             nzBD <- eigBD$values > tol_sing
         }
@@ -2211,11 +2263,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     }
     if(!cond_exist) {
         if(necess_cond) {
-            stop("Moment does not exist in this combination of p, q, r, and\n  ",
-                 "eigenstructures of A, B, and D")
+            stop("Moment does not exist in this combination of p, q, r, and",
+                 "\n  eigenstructures of A, B, and D")
         } else {
-            warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                    "eigenstructures of A, B, and D")
+            warning("Moment may not exist in this combination of p, q, r, and",
+                    "\n  eigenstructures of A, B, and D")
         }
     }
     if(use_cpp) {
@@ -2242,9 +2294,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu,
+                                              p, q, r, m, nthreads)
                 } else {
-                    cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu,
+                                             p, q, r, m, nthreads)
                 }
             }
         }
@@ -2258,9 +2312,10 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                 dksm <- d2_ij_m(Bh, Dh, m)
             }
             lscf <- attr(dksm, "logscale")
-            ansmat <- hgs_2d(dksm, q, r, n / 2, ((p - q - r) * log(2)
-                             + q * log(b2) + r * log(b3) + lgamma(n / 2 + p - q - r)
-                             - lgamma(n / 2) - lscf))
+            ansmat <- hgs_2d(dksm, q, r, n / 2,
+                             ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                              + lgamma(n/2 + p - q - r) - lgamma(n/2)
+                              - lscf))
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
@@ -2270,12 +2325,14 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                 dksm <- h3_ijk_m(matrix(0, n, n), Bh, Dh, mu, m)
             }
             lscf <- attr(dksm, "logscale")
-            ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
-                            + q * log(b2) + r * log(b3) + lgamma(n / 2 + p - q - r)
-                            - lgamma(n / 2) - lscf))
+            ansarr <- hgs_3d(dksm, -p, q, r, n / 2,
+                             ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                              + lgamma(n/2 + p - q - r) - lgamma(n/2)
+                              - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
             for(k in 1:(m + 1)) {
-                diminished <- any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                diminished <-
+                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
                 if(diminished) break
             }
         }
@@ -2355,7 +2412,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     }
     ## Check basic requirements for arguments
     stopifnot(
-        "A, B and D should be square matrices" = all(c(dim(A), dim(B), dim(D)) == n),
+        "A, B and D should be square matrices" =
+            all(c(dim(A), dim(B), dim(D)) == n),
         "p should be a positive integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
@@ -2415,7 +2473,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             Ar <- A
         } else {
             zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
-            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
+                       t(zerocols)
             eigBD <- eigen(In - projmat, symmetric = TRUE)
             nzBD <- eigBD$values > tol_sing
             Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
@@ -2441,11 +2500,11 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     }
     if(!cond_exist) {
         if(necess_cond) {
-            stop("Moment does not exist in this combination of p, q, r, and\n  ",
-                 "eigenstructures of A, B, and D")
+            stop("Moment does not exist in this combination of p, q, r, and",
+                 "\n  eigenstructures of A, B, and D")
         } else {
-            warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                    "eigenstructures of A, B, and D")
+            warning("Moment may not exist in this combination of p, q, r, and",
+                    "\n  eigenstructures of A, B, and D")
         }
     }
     b3 <- alphaD / max(LD)
@@ -2459,23 +2518,29 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_cmEl(A, LB, D, b2, b3, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_int_cmEl(A, LB, D, b2, b3,
+                                              p, q, r, m, nthreads)
                 } else {
-                    cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3,
+                                             p, q, r, m, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu,
+                                              p, q, r, m) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu,
+                                             p, q, r, m) # , nthreads)
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu,
+                                              p, q, r, m, nthreads)
                 } else {
-                    cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu,
+                                             p, q, r, m, nthreads)
                 }
             }
         }
@@ -2501,9 +2566,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         }
         dks <- dksm[p + 1, , ]
         lscf <- attr(dksm, "logscale")[p + 1, , ]
-        ansmat <- hgs_2d(dks, q, r, n / 2 + p, ((p - q - r) * log(2)
-                         + q * log(b2) + r * log(b3) + lgamma(p + 1)
-                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2 + p) - lscf))
+        ansmat <- hgs_2d(dks, q, r, n / 2 + p,
+                         ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                          + lgamma(p + 1) + lgamma(n/2 + p - q - r)
+                          - lgamma(n/2 + p) - lscf))
         ansseq <- sum_counterdiag(ansmat)
         diminished <- any(diag(dks[(m + 1):1, ]) == 0)
     }
@@ -2583,7 +2649,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     ## Check basic requirements for arguments
     stopifnot(
-        "A, B and D should be square matrices" = all(c(dim(A), dim(B), dim(D)) == n),
+        "A, B and D should be square matrices" =
+            all(c(dim(A), dim(B), dim(D)) == n),
         "p should be a nonnegative real number" = {
             length(p) == 1 &&
             p >= 0
@@ -2651,7 +2718,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             Ar <- A
         } else {
             zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
-            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*% t(zerocols)
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
+                       t(zerocols)
             eigBD <- eigen(In - projmat, symmetric = TRUE)
             nzBD <- eigBD$values > tol_sing
             Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
@@ -2677,17 +2745,18 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     if(!cond_exist) {
         if(necess_cond) {
-            stop("Moment does not exist in this combination of p, q, r, and\n  ",
-                 "eigenstructures of A, B, and D")
+            stop("Moment does not exist in this combination of p, q, r, and",
+                 "\n  eigenstructures of A, B, and D")
         } else {
-            warning("Moment may not exist in this combination of p, q, r, and\n  ",
-                    "eigenstructures of A, B, and D")
+            warning("Moment may not exist in this combination of p, q, r, and",
+                    "\n  eigenstructures of A, B, and D")
         }
     }
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
-        stop("Detected negative eigenvalue(s) of A (< -tol_sing), with which\n  ",
-             "non-integer power of quadratic form is not well defined.\n  ",
-             "If you know them to be 0, use larger tol_sing to suppress this error.")
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this error.")
     }
     b1 <- alphaA / max(abs(LA))
     b3 <- alphaD / max(LD)
@@ -2695,29 +2764,37 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         if(central) {
             if(use_vec) {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3,
+                                              p, q, r, m) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3,
+                                             p, q, r, m) # , nthreads)
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3,
+                                              p, q, r, m, nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3,
+                                             p, q, r, m, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
-                } else{
-                    cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu,
+                                              p, q, r, m) # , nthreads)
+                } else {
+                    cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu,
+                                             p, q, r, m) # , nthreads)
                 }
             } else {
                 if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu,
+                                              p, q, r, m, nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
+                    cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu,
+                                             p, q, r, m, nthreads)
                 }
             }
         }
@@ -2746,7 +2823,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         lscf <- attr(dksm, "logscale")
         ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
                          - p * log(b1) + q * log(b2) + r * log(b3)
-                         + lgamma(n / 2 + p - q - r) - lgamma(n / 2) - lscf))
+                         + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
         for(k in 1:(m + 1)) {
             diminished <- any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)

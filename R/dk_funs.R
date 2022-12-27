@@ -1701,7 +1701,7 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
 #'
 #' @rdname d3_ijk
 #'
-h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, 
+h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L,
                      p = m, q = m, r = m,
                      fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
