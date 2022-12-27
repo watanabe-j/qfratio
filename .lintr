@@ -1,0 +1,8 @@
+linters: linters_with_defaults(
+    cyclocomp_linter = cyclocomp_linter(100L),
+    infix_spaces_linter = NULL,
+    object_name_linter = NULL,
+    spaces_left_parentheses_linter = NULL)
+exclusions: list(
+    "R/RcppExports.R",
+    "R/dk_funs.R" = list(line_length_linter = Inf))
