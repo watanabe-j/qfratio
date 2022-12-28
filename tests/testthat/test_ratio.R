@@ -62,8 +62,10 @@ test_that("Expect identical results for simultaneously rotated matrices", {
     }
 })
 
-# This yields a warning once per session
-qfrm(diag(4), p = 1/2, mu = rep.int(1, 4), check_convergence = FALSE)
+# This yields a message once per session, which is to be ignored
+suppressMessages(
+    qfrm(diag(4), p = 1/2, mu = rep.int(1, 4), check_convergence = FALSE)
+)
 
 test_that("Expect silence or warning around error bound", {
     nvs <- 4:6

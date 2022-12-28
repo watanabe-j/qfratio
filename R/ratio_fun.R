@@ -1099,7 +1099,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
                 ## which is less accurate (by truncation) and slower
-                rlang::warn(
+                rlang::inform(
                     paste0("  When using qfrm_ApIq_int() with nonzero mu, it ",
                            "is recommended to\n  install the package \"gsl\", ",
                            "with which an exact result is available.\n  See ",
@@ -1260,10 +1260,10 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
     } else {
         if(error_bound) {
-            rlang::warn(paste0("Error bound is unavailable for ",
-                               "qfrm_ApIq_npi() when mu is nonzero"),
-                        .frequency = "once",
-                        .frequency_id = "errorb_ApIq_npi_noncentral")
+            rlang::inform(paste0("Error bound is unavailable for ",
+                                 "qfrm_ApIq_npi() when mu is nonzero"),
+                          .frequency = "once",
+                          .frequency_id = "errorb_ApIq_npi_noncentral")
             errseq <- NA_real_
         } else {
             errseq <- NULL
