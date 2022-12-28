@@ -45,14 +45,15 @@ These classes are defined for the \code{print} and \code{plot} methods.
 
 The return object is a list of 4 elements which are intended to be:
 \itemize{
-\item{\code{$statistic}: }{evaluation result}
-\item{\code{$res_seq}: }{vector of truncated series}
+\item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
+\item{\code{$res_seq}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 \item{\code{$errorb}: }{error bound of \code{statistic}}
 \item{\code{$err_seq}: }{vector of error bounds corresponding to
-\code{res_seq}}
+partial sums (\code{cumsum(res_seq)})}
 }
-For the \code{qfpm} class, only \code{$statistic} is of practical importance
-(because the result is always exact).
+When the result is exact, \code{$res_seq} is of length 1 and equal to
+\code{$statistic}, so only the latter is of practical importance.
+This is always the case for the \code{qfpm} class.
 
 When the relevant flags are provided in the constructor, \code{$errorb}
 and \code{$err_seq} have the following attributes which control behaviors of

@@ -140,12 +140,13 @@
 #'   Tolerance against which the convergence of series is (roughly) determined
 #'
 #' @return
-#' A list of the class \code{qfrm} consisting of the following:
+#' A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
 #' \itemize{
 #'   \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
-#'   \item{\code{$res_seq}: }{vector of truncated series up to the order \code{m}}
+#'   \item{\code{$res_seq}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'   \item{\code{$errorb}: }{error bound of \code{statistic}}
-#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to \code{res_seq}}
+#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to
+#'                            partial sums (\code{cumsum(res_seq)})}
 #'  }
 #'
 #' @references
