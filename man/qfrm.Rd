@@ -44,7 +44,7 @@ qfrm_ApIq_npi(
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
-  cpp_method = c("double", "long_double"),
+  cpp_method = c("double", "long_double", "coef_wise"),
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
@@ -78,7 +78,7 @@ qfrm_ApBq_npi(
   alphaB = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
-  cpp_method = c("double", "long_double"),
+  cpp_method = c("double", "long_double", "coef_wise"),
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100

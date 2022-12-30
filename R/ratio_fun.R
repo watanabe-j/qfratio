@@ -1138,7 +1138,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1,
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
@@ -1176,7 +1176,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(central) {
             cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound)
         } else {
-            if(cpp_method == "long_double") {
+            if(cpp_method == "coef_wise") {
+                cppres <- ApIq_npi_nvEc(LA, UA, b1, mu, p, q, m)
+            } else if(cpp_method == "long_double") {
                 cppres <- ApIq_npi_nvEl(LA, UA, b1, mu, p, q, m)
             } else {
                 cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m)
@@ -1511,7 +1513,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
@@ -1600,13 +1602,17 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBq_npi_cvEc(LA, LB, b1, b2, p, q, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBq_npi_cvEl(LA, LB, b1, b2, p, q, m)
                 } else {
                     cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBq_npi_cmEc(A, LB, b1, b2, p, q, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBq_npi_cmEl(A, LB, b1, b2, p, q, m)
                 } else {
                     cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m)
@@ -1614,13 +1620,17 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBq_npi_nvEc(LA, LB, b1, b2, mu, p, q, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBq_npi_nvEl(LA, LB, b1, b2, mu, p, q, m)
                 } else {
                     cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBq_npi_nmEc(A, LB, b1, b2, mu, p, q, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBq_npi_nmEl(A, LB, b1, b2, mu, p, q, m)
                 } else {
                     cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m)
@@ -1700,7 +1710,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1,
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -1796,7 +1806,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_int_nvEc(LA, LB, b2, mu, p, q, r, m,
+                                              error_bound) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m,
                                               error_bound) # , nthreads)
                 } else {
@@ -1804,7 +1817,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                                              error_bound) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_int_nmEc(A, LA, UA, LB, b2, mu, p, q, r, m,
+                                              error_bound, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m,
                                               error_bound, nthreads)
                 } else {
@@ -1955,7 +1971,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaA = 1, alphaB = 1,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2061,13 +2077,17 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_npi_cvEc(LA, LB, b1, b2, p, q, r, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_npi_cvEl(LA, LB, b1, b2, p, q, r, m)
                 } else {
                     cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_npi_cmEc(A, LB, b1, b2, p, q, r, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_npi_cmEl(A, LB, b1, b2, p, q, r, m)
                 } else {
                     cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m)
@@ -2075,13 +2095,18 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_npi_nvEc(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
                 } else {
                     cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBIqr_npi_nmEc(A, LB, b1, b2, mu, p, q, r, m,
+                                              nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m,
                                               nthreads)
                 } else {
@@ -2159,7 +2184,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L, alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2271,13 +2296,17 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- IpBDqr_gen_cvEc(LB, LD, b2, b3, p, q, r, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- IpBDqr_gen_cvEl(LB, LD, b2, b3, p, q, r, m)
                 } else {
                     cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- IpBDqr_gen_cmEc(LB, D, b2, b3, p, q, r, m)
+                } else if(cpp_method == "long_double") {
                     cppres <- IpBDqr_gen_cmEl(LB, D, b2, b3, p, q, r, m)
                 } else {
                     cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m)
@@ -2285,13 +2314,18 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- IpBDqr_gen_nvEc(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
                 } else {
                     cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- IpBDqr_gen_nmEc(LB, D, b2, b3, mu,
+                                              p, q, r, m, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu,
                                               p, q, r, m, nthreads)
                 } else {
@@ -2372,7 +2406,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2508,13 +2542,18 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_int_cvEc(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
                 } else {
                     cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_int_cmEc(A, LB, D, b2, b3,
+                                              p, q, r, m, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_cmEl(A, LB, D, b2, b3,
                                               p, q, r, m, nthreads)
                 } else {
@@ -2524,7 +2563,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_int_nvEc(LA, LB, LD, b2, b3, mu,
+                                              p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu,
                                               p, q, r, m) # , nthreads)
                 } else {
@@ -2532,7 +2574,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                                              p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_int_nmEc(A, LB, D, b2, b3, mu,
+                                              p, q, r, m, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu,
                                               p, q, r, m, nthreads)
                 } else {
@@ -2608,7 +2653,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double"),
+                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2759,7 +2804,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_npi_cvEc(LA, LB, LD, b1, b2, b3,
+                                              p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3,
                                               p, q, r, m) # , nthreads)
                 } else {
@@ -2767,7 +2815,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                                              p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_npi_cmEc(A, LB, D, b1, b2, b3,
+                                              p, q, r, m, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3,
                                               p, q, r, m, nthreads)
                 } else {
@@ -2777,7 +2828,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             }
         } else {
             if(use_vec) {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_npi_nvEc(LA, LB, LD, b1, b2, b3, mu,
+                                              p, q, r, m) # , nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu,
                                               p, q, r, m) # , nthreads)
                 } else {
@@ -2785,7 +2839,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                                              p, q, r, m) # , nthreads)
                 }
             } else {
-                if(cpp_method == "long_double") {
+                if(cpp_method == "coef_wise") {
+                    cppres <- ApBDqr_npi_nmEc(A, LB, D, b1, b2, b3, mu,
+                                              p, q, r, m, nthreads)
+                } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu,
                                               p, q, r, m, nthreads)
                 } else {
