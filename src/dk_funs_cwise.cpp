@@ -117,14 +117,12 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
 
-        if(Gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                if(Gn.block(0, n * i1, n, n).maxCoeff() > thr) {
-                    dks(i1, k - i1) /= 1e10;
-                    Gn.block(0, n * i1, n, n) /= 1e10;
-                    lscf(i1, k - i1) -= log(1e10);
-                    update_scale_2D(lscf, i1, k - i1, m + 1);
-                }
+        for(int i1 = 0; i1 <= k; i1++) {
+            if(Gn.block(0, n * i1, n, n).maxCoeff() > thr) {
+                dks(i1, k - i1) /= 1e10;
+                Gn.block(0, n * i1, n, n) /= 1e10;
+                lscf(i1, k - i1) -= log(1e10);
+                update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
     }
@@ -166,14 +164,12 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
         Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         dks(k, 0) = Gn.col(k).sum() / (2 * k);
 
-        if(Gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                if(Gn.col(i1).maxCoeff() > thr) {
-                    dks(i1, k - i1) /= 1e10;
-                    Gn.col(i1) /= 1e10;
-                    lscf(i1, k - i1) -= log(1e10);
-                    update_scale_2D(lscf, i1, k - i1, m + 1);
-                }
+        for(int i1 = 0; i1 <= k; i1++) {
+            if(Gn.col(i1).maxCoeff() > thr) {
+                dks(i1, k - i1) /= 1e10;
+                Gn.col(i1) /= 1e10;
+                lscf(i1, k - i1) -= log(1e10);
+                update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
     }
@@ -237,15 +233,13 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, n * k, n, n) = tG;
         dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
 
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                if(Gn.block(0, n * i1, n, n).maxCoeff() > thr || gn.col(i1).maxCoeff() > thr) {
-                    dks(i1, k - i1) /= 1e10;
-                    Gn.block(0, n * i1, n, n) /= 1e10;
-                    gn.col(i1) /= 1e10;
-                    lscf(i1, k - i1) -= log(1e10);
-                    update_scale_2D(lscf, i1, k - i1, m + 1);
-                }
+        for(int i1 = 0; i1 <= k; i1++) {
+            if(Gn.block(0, n * i1, n, n).maxCoeff() > thr || gn.col(i1).maxCoeff() > thr) {
+                dks(i1, k - i1) /= 1e10;
+                Gn.block(0, n * i1, n, n) /= 1e10;
+                gn.col(i1) /= 1e10;
+                lscf(i1, k - i1) -= log(1e10);
+                update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
     }
@@ -308,15 +302,13 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(k) = tG;
         dks(k, 0) = (Gn.col(k).sum() + (mu * gn.col(k)).sum()) / (2 * k);
 
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                if(Gn.col(i1).maxCoeff() > thr || gn.col(i1).maxCoeff() > thr) {
-                    dks(i1, k - i1) /= 1e10;
-                    Gn.col(i1) /= 1e10;
-                    gn.col(i1) /= 1e10;
-                    lscf(i1, k - i1) -= log(1e10);
-                    update_scale_2D(lscf, i1, k - i1, m + 1);
-                }
+        for(int i1 = 0; i1 <= k; i1++) {
+            if(Gn.col(i1).maxCoeff() > thr || gn.col(i1).maxCoeff() > thr) {
+                dks(i1, k - i1) /= 1e10;
+                Gn.col(i1) /= 1e10;
+                gn.col(i1) /= 1e10;
+                lscf(i1, k - i1) -= log(1e10);
+                update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
     }
@@ -411,16 +403,14 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
 
-        if(Gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                for(int i2 = 0; i2 <= k - i1; i2++) {
-                    int i3 = k - i1 - i2;
-                    if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr) {
-                        dks(i1, i2 + i3 * (m + 1)) /= 1e10;
-                        Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                        update_scale_3D(lscf, i1, i2, i3, m + 1);
-                    }
+        for(int i1 = 0; i1 <= k; i1++) {
+            for(int i2 = 0; i2 <= k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr) {
+                    dks(i1, i2 + i3 * (m + 1)) /= 1e10;
+                    Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
+                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
         }
@@ -512,16 +502,14 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         dks(k, 0) = Gn.col(k).sum() / (2 * k);
 
-        if(Gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                for(int i2 = 0; i2 <= k - i1; i2++) {
-                    int i3 = k - i1 - i2;
-                    if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
-                        dks(i1, i2 + i3 * (m + 1)) /= 1e10;
-                        Gn.col(id3(i1, i2, k)) /= 1e10;
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                        update_scale_3D(lscf, i1, i2, i3, m + 1);
-                    }
+        for(int i1 = 0; i1 <= k; i1++) {
+            for(int i2 = 0; i2 <= k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
+                    dks(i1, i2 + i3 * (m + 1)) /= 1e10;
+                    Gn.col(id3(i1, i2, k)) /= 1e10;
+                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
         }
@@ -597,14 +585,12 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
                                        A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
             dks(i, k * (m + 1)) = Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
@@ -679,14 +665,12 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
                 A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1) + i));
             dks(i, k * (m + 1)) = Gn.col(k * (p + 1) + i).sum() / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
@@ -814,17 +798,15 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, n * k, n, n) = tG;
         dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
 
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                for(int i2 = 0; i2 <= k - i1; i2++) {
-                    int i3 = k - i1 - i2;
-                    if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
-                        dks(i1, i2 + i3 * (m + 1)) /= 1e10;
-                        Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
-                        gn.col(id3(i1, i2, k)) /= 1e10;
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                        update_scale_3D(lscf, i1, i2, i3, m + 1);
-                    }
+        for(int i1 = 0; i1 <= k; i1++) {
+            for(int i2 = 0; i2 <= k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
+                    dks(i1, i2 + i3 * (m + 1)) /= 1e10;
+                    Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
+                    gn.col(id3(i1, i2, k)) /= 1e10;
+                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
         }
@@ -950,17 +932,15 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(k) = tG;
         dks(k, 0) = (Gn.col(k).sum() + (mu * gn.col(k)).sum()) / (2 * k);
 
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int i1 = 0; i1 <= k; i1++) {
-                for(int i2 = 0; i2 <= k - i1; i2++) {
-                    int i3 = k - i1 - i2;
-                    if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
-                        dks(i1, i2 + i3 * (m + 1)) /= 1e10;
-                        Gn.col(id3(i1, i2, k)) /= 1e10;
-                        gn.col(id3(i1, i2, k)) /= 1e10;
-                        lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
-                        update_scale_3D(lscf, i1, i2, i3, m + 1);
-                    }
+        for(int i1 = 0; i1 <= k; i1++) {
+            for(int i2 = 0; i2 <= k - i1; i2++) {
+                int i3 = k - i1 - i2;
+                if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
+                    dks(i1, i2 + i3 * (m + 1)) /= 1e10;
+                    Gn.col(id3(i1, i2, k)) /= 1e10;
+                    gn.col(id3(i1, i2, k)) /= 1e10;
+                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+                    update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
         }
@@ -1068,15 +1048,13 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
-                    gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
+                gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
@@ -1182,15 +1160,13 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(k * (p + 1) + i) = tG;
             dks(i, k * (m + 1)) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
@@ -1297,15 +1273,13 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
-                    gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
+                gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
@@ -1413,15 +1387,13 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(k * (p + 1) + i) = tG;
             dks(i, k * (m + 1)) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
         }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(int j = 0; j <= k; j++) {
-                if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
-                    dks.col((k - j) + j * (m + 1)) /= 1e10;
-                    Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                    lscf(k - j, j) -= log(1e10);
-                    update_scale_2D(lscf, k - j, j, m + 1);
-                }
+        for(int j = 0; j <= k; j++) {
+            if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr || gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
+                dks.col((k - j) + j * (m + 1)) /= 1e10;
+                Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
+                lscf(k - j, j) -= log(1e10);
+                update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
     }
