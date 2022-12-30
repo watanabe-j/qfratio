@@ -79,13 +79,16 @@
 #' the scaling occasionally yields diminishing/underflow of some terms to
 #' numerical \code{0}, which result in numerical inaccuracy. A warning is
 #' thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
-#' To avoid this problem, the \code{C++} versions of these functions can use
-#' the \code{long double} variable type, as controlled by \code{cpp_method}.
-#' That option is usually less prone to numerical overflow/diminising
-#' (depending on local environments), but takes substantially long time and
-#' memory. Use it only when absolutely necessary.
-#' This argument will not take effect (ignored silently) in the other functions
-#' which involve only single series.
+#' To avoid this problem, the \code{C++} versions of these functions have two
+#' workarounds, as controlled by \code{cpp_method}.
+#' **1**) The \code{"long_double"} option uses the \code{long double} variable
+#' type instead of the regular \code{double}. This is generally slow and
+#' most memory-inefficient.
+#' **2**) The \code{"coef_wise"} option uses a coefficient-wise scaling
+#' algorithm with the \code{double} variable type. This is generally robust
+#' against underflow issues. Computational time varies a lot with conditions;
+#' generally only modestly slower than the \code{"double"} option, but can be
+#' the slowest in some extreme conditions.
 #'
 #' For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 #' \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
@@ -128,9 +131,17 @@
 #'   Logical to specify whether the calculation is done with \code{C++}
 #'   functions via \code{Rcpp}. \code{FALSE} by default.
 #' @param cpp_method
-#'   Variable type used in \code{C++} calculations; either \code{"double"} or
-#'   \code{"long_double"}. The latter does not take effect unless involved in
-#'   the default arguments in "Usage". See "Details".
+#'   Method used in \code{C++} calculations to avoid numerical
+#'   overflow/underflow (see "Details"). Options:
+#'   \itemize{
+#'     \item{\code{"double"}: }{default; fastest but prone to underflow in
+#'           some conditions}
+#'     \item{\code{"long_double"}: }{same algorithm but using the
+#'           \code{long double} variable type; robust but slow and
+#'           memory-inefficient}
+#'     \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
+#'           robust but variably slow}
+#'    }
 #' @param error_bound
 #'   Logical to specify whether the error bound is returned (if available).
 #' @param check_convergence
@@ -380,11 +391,10 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'
 #' Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
 #' \code{mu}, involve evaluation of multiple series, which can suffer
-#' from numerical overflow and diminishing (see "Scaling" in
+#' from numerical overflow and underflow (see "Scaling" in
 #' \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
-#' the \code{long double} variable type can be used in the \code{C++} versions
-#' of these functions. That option will take more time and memory, so use it
-#' with care.
+#' \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be used
+#' (see "Details" in \code{\link{qfrm}}).
 #'
 #' @inheritParams qfrm
 #'
@@ -1138,7 +1148,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1,
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
@@ -1224,8 +1235,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
@@ -1513,7 +1525,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100) {
@@ -1678,8 +1691,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
@@ -1710,7 +1724,8 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1,
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -1874,8 +1889,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -1971,7 +1987,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaA = 1, alphaB = 1,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2162,8 +2179,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2184,7 +2202,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L, alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2383,8 +2402,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2406,7 +2426,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n), alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2629,8 +2650,9 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2653,7 +2675,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
                     alphaA = 1, alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = c("double", "long_double", "coef_wise"),
+                    use_cpp = FALSE, 
+                    cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -2897,8 +2920,9 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method != "long_double")
-                "\n  Consider using the option 'cpp_method = \"long_double\"'.")
+                if(cpp_method == "double")
+                    paste0("\n  Consider using the option cpp_method = ",
+                           "\"long_double\" or \"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",

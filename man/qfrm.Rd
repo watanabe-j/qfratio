@@ -117,9 +117,17 @@ the appropriate ``internal'' function.}
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
-\item{cpp_method}{Variable type used in \code{C++} calculations; either \code{"double"} or
-\code{"long_double"}. The latter does not take effect unless involved in
-the default arguments in "Usage". See "Details".}
+\item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
+overflow/underflow (see "Details"). Options:
+\itemize{
+\item{\code{"double"}: }{default; fastest but prone to underflow in
+some conditions}
+\item{\code{"long_double"}: }{same algorithm but using the
+\code{long double} variable type; robust but slow and
+memory-inefficient}
+\item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
+robust but variably slow}
+}}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
@@ -227,13 +235,16 @@ However, when evaluation of multiple series is required
 the scaling occasionally yields diminishing/underflow of some terms to
 numerical \code{0}, which result in numerical inaccuracy. A warning is
 thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
-To avoid this problem, the \code{C++} versions of these functions can use
-the \code{long double} variable type, as controlled by \code{cpp_method}.
-That option is usually less prone to numerical overflow/diminising
-(depending on local environments), but takes substantially long time and
-memory. Use it only when absolutely necessary.
-This argument will not take effect (ignored silently) in the other functions
-which involve only single series.
+To avoid this problem, the \code{C++} versions of these functions have two
+workarounds, as controlled by \code{cpp_method}.
+\strong{1}) The \code{"long_double"} option uses the \code{long double} variable
+type instead of the regular \code{double}. This is generally slow and
+most memory-inefficient.
+\strong{2}) The \code{"coef_wise"} option uses a coefficient-wise scaling
+algorithm with the \code{double} variable type. This is generally robust
+against underflow issues. Computational time varies a lot with conditions;
+generally only modestly slower than the \code{"double"} option, but can be
+the slowest in some extreme conditions.
 
 For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
 \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via

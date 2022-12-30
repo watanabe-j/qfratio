@@ -158,9 +158,17 @@ the appropriate ``internal'' function.}
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}
 
-\item{cpp_method}{Variable type used in \code{C++} calculations; either \code{"double"} or
-\code{"long_double"}. The latter does not take effect unless involved in
-the default arguments in "Usage". See "Details".}
+\item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
+overflow/underflow (see "Details"). Options:
+\itemize{
+\item{\code{"double"}: }{default; fastest but prone to underflow in
+some conditions}
+\item{\code{"long_double"}: }{same algorithm but using the
+\code{long double} variable type; robust but slow and
+memory-inefficient}
+\item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
+robust but variably slow}
+}}
 
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
 See "Details".}
@@ -251,11 +259,10 @@ does not seem to improve performance in that case
 
 Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
 \code{mu}, involve evaluation of multiple series, which can suffer
-from numerical overflow and diminishing (see "Scaling" in
+from numerical overflow and underflow (see "Scaling" in
 \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
-the \code{long double} variable type can be used in the \code{C++} versions
-of these functions. That option will take more time and memory, so use it
-with care.
+\code{cpp_method = "long_double"} or \code{"coef_wise"} options can be used
+(see "Details" in \code{\link{qfrm}}).
 }
 \examples{
 ## Some symmetric matrices and parameters

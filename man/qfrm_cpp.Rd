@@ -52,12 +52,20 @@
 \alias{ApBIqr_int_nmEc}
 \alias{ApBIqr_npi_cvEc}
 \alias{ApBIqr_npi_cmEc}
+\alias{ApBIqr_npi_nvEc}
+\alias{ApBIqr_npi_nmEc}
 \alias{IpBDqr_gen_cvEc}
 \alias{IpBDqr_gen_cmEc}
+\alias{IpBDqr_gen_nvEc}
+\alias{IpBDqr_gen_nmEc}
 \alias{ApBDqr_int_cvEc}
 \alias{ApBDqr_int_cmEc}
 \alias{ApBDqr_int_nvEc}
 \alias{ApBDqr_int_nmEc}
+\alias{ApBDqr_npi_cvEc}
+\alias{ApBDqr_npi_cmEc}
+\alias{ApBDqr_npi_nvEc}
+\alias{ApBDqr_npi_nmEc}
 \alias{ApIq_npi_nvEl}
 \alias{ApBq_npi_cvEl}
 \alias{ApBq_npi_cmEl}
@@ -281,9 +289,39 @@ ApBIqr_npi_cvEc(LA, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L)
 
 ApBIqr_npi_cmEc(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L)
 
+ApBIqr_npi_nvEc(LA, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L)
+
+ApBIqr_npi_nmEc(
+  A,
+  LB,
+  b1,
+  b2,
+  mu,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  nthreads = 0L
+)
+
 IpBDqr_gen_cvEc(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L)
 
 IpBDqr_gen_cmEc(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L)
+
+IpBDqr_gen_nvEc(LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L)
+
+IpBDqr_gen_nmEc(
+  LB,
+  D,
+  b2,
+  b3,
+  mu,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  nthreads = 0L
+)
 
 ApBDqr_int_cvEc(LA, LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L)
 
@@ -295,6 +333,39 @@ ApBDqr_int_nmEc(
   A,
   LB,
   D,
+  b2,
+  b3,
+  mu,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  nthreads = 0L
+)
+
+ApBDqr_npi_cvEc(LA, LB, LD, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L)
+
+ApBDqr_npi_cmEc(
+  A,
+  LB,
+  D,
+  b1,
+  b2,
+  b3,
+  p = 1,
+  q = 1,
+  r = 1,
+  m = 100L,
+  nthreads = 0L
+)
+
+ApBDqr_npi_nvEc(LA, LB, LD, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L)
+
+ApBDqr_npi_nmEc(
+  A,
+  LB,
+  D,
+  b1,
   b2,
   b3,
   mu,
@@ -618,9 +689,17 @@ which may not be particularly efficient.
 
 \item \code{ApBIqr_npi_cmEc()}: \code{qfmrm_ApBIqr_npi()}, central & matrix, coefficient-wise scaling
 
+\item \code{ApBIqr_npi_nvEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral & vector, coefficient-wise scaling
+
+\item \code{ApBIqr_npi_nmEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, coefficient-wise scaling
+
 \item \code{IpBDqr_gen_cvEc()}: \code{qfmrm_IpBDqr_gen()}, central & vector, coefficient-wise scaling
 
 \item \code{IpBDqr_gen_cmEc()}: \code{qfmrm_IpBDqr_gen()}, central & matrix, coefficient-wise scaling
+
+\item \code{IpBDqr_gen_nvEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral & vector, coefficient-wise scaling
+
+\item \code{IpBDqr_gen_nmEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, coefficient-wise scaling
 
 \item \code{ApBDqr_int_cvEc()}: \code{qfmrm_ApBDqr_int()}, central & vector, coefficient-wise scaling
 
@@ -629,6 +708,14 @@ which may not be particularly efficient.
 \item \code{ApBDqr_int_nvEc()}: \code{qfmrm_ApBDqr_int()}, noncentral & vector, coefficient-wise scaling
 
 \item \code{ApBDqr_int_nmEc()}: \code{qfmrm_ApBDqr_int()}, noncentral & matrix, coefficient-wise scaling
+
+\item \code{ApBDqr_npi_cvEc()}: \code{qfmrm_ApBDqr_npi()}, central & vector, coefficient-wise scaling
+
+\item \code{ApBDqr_npi_cmEc()}: \code{qfmrm_ApBDqr_npi()}, central & matrix, coefficient-wise scaling
+
+\item \code{ApBDqr_npi_nvEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector, coefficient-wise scaling
+
+\item \code{ApBDqr_npi_nmEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, coefficient-wise scaling
 
 \item \code{ApIq_npi_nvEl()}: \code{qfrm_ApIq_npi()}, noncentral
 

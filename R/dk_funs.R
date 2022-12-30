@@ -21,7 +21,9 @@
 #' The coefficients described herein (and in \code{\link{d2_ij}} and
 #' \code{\link{d3_ijk}}) can become very large for higher-order terms,
 #' so there is a practical risk of numerical overflow when applied to
-#' large (\eqn{n > 100}, say) matrices.
+#' large matrices or matrices with many large eigenvalues
+#' (note that the latter typically arises from those with many small
+#' eigenvalues for the front-end \code{qfrm()} functions).
 #' To avoid numerical overflow, these functions automatically scale
 #' coefficients (and temporary objects used to calculate them) by a large number
 #' (\code{1e10} at present) when any value in the temporary objects
@@ -49,10 +51,10 @@
 #' the numerical \code{0} after repeated scaling.
 #' (The \code{qfrm} and \code{qfmrm} functions try to detect and warn against
 #' this by examining whether any of the highest-order terms is \code{0}.)
-#' As this seems technically difficult to avoid without implementing
-#' cumbersome and inefficient coefficient-wise scaling, the only workaround
-#' implemented in this package is to use the \code{long double} variable type
-#' in \code{C++} versions (see \code{\link{qfrm}} and \code{\link{qfmrm}}).
+#' The present version of this package has implemented two methods to mitigate
+#' this problem, but only through \code{C++} functions. One is to use the
+#' \code{long double} variable type, and the other is to use coefficient-wise
+#' scaling (see \code{\link{qfrm}} and \code{\link{qfmrm}}).
 #'
 #' @return
 #' Vector of length \code{m + 1}, corresponding to
