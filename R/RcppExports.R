@@ -359,6 +359,20 @@ ApBIqr_npi_cmEc <- function(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L) {
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBIqr_npi()}, noncentral & vector, coefficient-wise scaling
+#'
+ApBIqr_npi_nvEc <- function(LA, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBIqr_npi_nvEc`, LA, LB, b1, b2, mu, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, coefficient-wise scaling
+#'
+ApBIqr_npi_nmEc <- function(A, LB, b1, b2, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBIqr_npi_nmEc`, A, LB, b1, b2, mu, p, q, r, m, nthreads)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{qfmrm_IpBDqr_gen()}, central & vector, coefficient-wise scaling
 #'
 IpBDqr_gen_cvEc <- function(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
@@ -370,6 +384,20 @@ IpBDqr_gen_cvEc <- function(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
 #'
 IpBDqr_gen_cmEc <- function(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
     .Call(`_qfratio_IpBDqr_gen_cmEc`, LB, D, b2, b3, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_IpBDqr_gen()}, noncentral & vector, coefficient-wise scaling
+#'
+IpBDqr_gen_nvEc <- function(LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_IpBDqr_gen_nvEc`, LB, LD, b2, b3, mu, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, coefficient-wise scaling
+#'
+IpBDqr_gen_nmEc <- function(LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_IpBDqr_gen_nmEc`, LB, D, b2, b3, mu, p, q, r, m, nthreads)
 }
 
 #' @describeIn qfrm_cpp
@@ -398,6 +426,34 @@ ApBDqr_int_nvEc <- function(LA, LB, LD, b2, b3, mu, p = 1, q = 1, r = 1, m = 100
 #'
 ApBDqr_int_nmEc <- function(A, LB, D, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
     .Call(`_qfratio_ApBDqr_int_nmEc`, A, LB, D, b2, b3, mu, p, q, r, m, nthreads)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_npi()}, central & vector, coefficient-wise scaling
+#'
+ApBDqr_npi_cvEc <- function(LA, LB, LD, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_npi_cvEc`, LA, LB, LD, b1, b2, b3, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_npi()}, central & matrix, coefficient-wise scaling
+#'
+ApBDqr_npi_cmEc <- function(A, LB, D, b1, b2, b3, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_npi_cmEc`, A, LB, D, b1, b2, b3, p, q, r, m, nthreads)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_npi()}, noncentral & vector, coefficient-wise scaling
+#'
+ApBDqr_npi_nvEc <- function(LA, LB, LD, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L) {
+    .Call(`_qfratio_ApBDqr_npi_nvEc`, LA, LB, LD, b1, b2, b3, mu, p, q, r, m)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, coefficient-wise scaling
+#'
+ApBDqr_npi_nmEc <- function(A, LB, D, b1, b2, b3, mu, p = 1, q = 1, r = 1, m = 100L, nthreads = 0L) {
+    .Call(`_qfratio_ApBDqr_npi_nmEc`, A, LB, D, b1, b2, b3, mu, p, q, r, m, nthreads)
 }
 
 #' @describeIn qfrm_cpp
