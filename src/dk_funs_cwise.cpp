@@ -24,17 +24,46 @@ template <typename Derived>
 inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int M) {
     typename Derived::Scalar lscf0 = lscf(i0, j0);
+
+    // // Using .block().cwiseMin(): slow
+    // lscf.block(i0, j0, M - i0 - j0, M - i0 - j0) = lscf.block(i0, j0, M - i0 - j0, M - i0 - j0).cwiseMin(lscf0);
+
+    // // Using .segment().cwiseMin() with for: slow
+    // lscf.row(i0).segment(j0, M - j0 - i0) = lscf.row(i0).segment(j0, M - j0 - i0).cwiseMin(lscf0);
+    // for(int ii = i0 + 1; ii < M - j0; ii++) {
+    //     if(lscf.coeffRef(ii, j0) <= lscf0) break;
+    //     else lscf.row(ii).segment(j0, M - j0 - ii) = lscf.row(ii).segment(j0, M - j0 - ii).cwiseMin(lscf0);
+    // }
+
+    // // Using nested for loops: moderate
+    // for(int jj = j0 + 1; jj < M - i0; jj++) {
+    //     if(lscf(i0, jj) <= lscf0) break;
+    //     else lscf(i0, jj) = lscf0;
+    // }
+    // for(int ii = i0 + 1; ii < M - j0; ii++) {
+    //     if(lscf(ii, j0) <= lscf0) break;
+    //     for(int jj = j0; jj < M - ii; jj++) {
+    //         if(lscf(ii, jj) <= lscf0) break;
+    //         else lscf(ii, jj) = lscf0;
+    //     }
+    // }
+
+    // Determine indices first, and then .block(): fast
+    int ie = M - j0;
+    int je = M - i0;
     for(int jj = j0 + 1; jj < M - i0; jj++) {
-        if(lscf(i0, jj) <= lscf0) break;
-        else lscf(i0, jj) = lscf0;
-    }
-    for(int ii = i0 + 1; ii < M - j0; ii++) {
-        if(lscf(ii, j0) <= lscf0) break;
-        for(int jj = j0; jj < M - ii; jj++) {
-            if(lscf(ii, jj) <= lscf0) break;
-            else lscf(ii, jj) = lscf0;
+        if(lscf(i0, jj) <= lscf0) {
+            je = jj;
+            break;
         }
     }
+    for(int ii = i0 + 1; ii < M - j0; ii++) {
+        if(lscf(ii, j0) <= lscf0) {
+            ie = ii;
+            break;
+        }
+    }
+    lscf.block(i0, j0, ie - i0, je - j0) = lscf0;
 }
 
 template <typename Derived>
@@ -42,26 +71,45 @@ inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int k0,
                             const int M) {
     typename Derived::Scalar lscf0 = lscf(i0, j0 + k0 * M);
-    for(int kk = k0 + 1; kk < M - i0 - j0; kk++) {
+    // for(int kk = k0 + 1; kk < M - i0 - j0; kk++) {
+    //     if(lscf(i0, j0 + kk * M) <= lscf0) break;
+    //     else lscf(i0, j0 + kk * M) = lscf0;
+    // }
+    // for(int jj = j0 + 1; jj < M - i0 - k0; jj++) {
+    //     if(lscf(i0, jj + k0 * M) <= lscf0) break;
+    //     for(int kk = k0; kk < M - i0 - jj; kk++) {
+    //         if(lscf(i0, jj + kk * M) <= lscf0) break;
+    //         else lscf(i0, jj + kk * M) = lscf0;
+    //     }
+    // }
+    // for(int ii = i0 + 1; ii < M - j0 - k0; ii++) {
+    //     if(lscf(ii, j0 + k0 * M) <= lscf0) break;
+    //     for(int jj = j0; jj < M - ii - k0; jj++) {
+    //         if(lscf(ii, jj + k0 * M) <= lscf0) break;
+    //         for(int kk = k0; kk < M - ii - jj; kk++) {
+    //             if(lscf(ii, jj + kk * M) <= lscf0) break;
+    //             else lscf(ii, jj + kk * M) = lscf0;
+    //         }
+    //     }
+    // }
+    int ie = M - j0 - k0;
+    int je = M - i0 - k0;
+    for(int jj = j0 + 1; jj < M - i0; jj++) {
+        if(lscf(i0, jj + k0 * M) <= lscf0) {
+            je = jj;
+            break;
+        }
+    }
+    for(int ii = i0 + 1; ii < M - j0; ii++) {
+        if(lscf(ii, j0 + k0 * M) <= lscf0) {
+            ie = ii;
+            break;
+        }
+    }
+    lscf.block(i0, j0 + k0 * M, ie - i0, je - j0) = lscf0;
+    for(int kk = k0 + 1; kk < M - j0; kk++) {
         if(lscf(i0, j0 + kk * M) <= lscf0) break;
-        else lscf(i0, j0 + kk * M) = lscf0;
-    }
-    for(int jj = j0 + 1; jj < M - i0 - k0; jj++) {
-        if(lscf(i0, jj + k0 * M) <= lscf0) break;
-        for(int kk = k0; kk < M - i0 - jj; kk++) {
-            if(lscf(i0, jj + kk * M) <= lscf0) break;
-            else lscf(i0, jj + kk * M) = lscf0;
-        }
-    }
-    for(int ii = i0 + 1; ii < M - j0 - k0; ii++) {
-        if(lscf(ii, j0 + k0 * M) <= lscf0) break;
-        for(int jj = j0; jj < M - ii - k0; jj++) {
-            if(lscf(ii, jj + k0 * M) <= lscf0) break;
-            for(int kk = k0; kk < M - ii - jj; kk++) {
-                if(lscf(ii, jj + kk * M) <= lscf0) break;
-                else lscf(ii, jj + kk * M) = lscf0;
-            }
-        }
+        else lscf.block(i0, j0 + kk * M, ie - i0, je - j0) = lscf0;
     }
 }
 
