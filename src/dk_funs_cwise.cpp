@@ -23,32 +23,8 @@ using Eigen::Dynamic;
 template <typename Derived>
 inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int M) {
+    lscf(i0, j0) -= log(1e10);
     typename Derived::Scalar lscf0 = lscf(i0, j0);
-
-    // // Using .block().cwiseMin(): slow
-    // lscf.block(i0, j0, M - i0 - j0, M - i0 - j0) = lscf.block(i0, j0, M - i0 - j0, M - i0 - j0).cwiseMin(lscf0);
-
-    // // Using .segment().cwiseMin() with for: slow
-    // lscf.row(i0).segment(j0, M - j0 - i0) = lscf.row(i0).segment(j0, M - j0 - i0).cwiseMin(lscf0);
-    // for(int ii = i0 + 1; ii < M - j0; ii++) {
-    //     if(lscf.coeffRef(ii, j0) <= lscf0) break;
-    //     else lscf.row(ii).segment(j0, M - j0 - ii) = lscf.row(ii).segment(j0, M - j0 - ii).cwiseMin(lscf0);
-    // }
-
-    // // Using nested for loops: moderate
-    // for(int jj = j0 + 1; jj < M - i0; jj++) {
-    //     if(lscf(i0, jj) <= lscf0) break;
-    //     else lscf(i0, jj) = lscf0;
-    // }
-    // for(int ii = i0 + 1; ii < M - j0; ii++) {
-    //     if(lscf(ii, j0) <= lscf0) break;
-    //     for(int jj = j0; jj < M - ii; jj++) {
-    //         if(lscf(ii, jj) <= lscf0) break;
-    //         else lscf(ii, jj) = lscf0;
-    //     }
-    // }
-
-    // Determine indices first, and then .block(): fast
     int ie = M - j0;
     int je = M - i0;
     for(int jj = j0 + 1; jj < M - i0; jj++) {
@@ -70,28 +46,8 @@ template <typename Derived>
 inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int k0,
                             const int M) {
+    lscf(i0, j0 + k0 * M) -= log(1e10);
     typename Derived::Scalar lscf0 = lscf(i0, j0 + k0 * M);
-    // for(int kk = k0 + 1; kk < M - i0 - j0; kk++) {
-    //     if(lscf(i0, j0 + kk * M) <= lscf0) break;
-    //     else lscf(i0, j0 + kk * M) = lscf0;
-    // }
-    // for(int jj = j0 + 1; jj < M - i0 - k0; jj++) {
-    //     if(lscf(i0, jj + k0 * M) <= lscf0) break;
-    //     for(int kk = k0; kk < M - i0 - jj; kk++) {
-    //         if(lscf(i0, jj + kk * M) <= lscf0) break;
-    //         else lscf(i0, jj + kk * M) = lscf0;
-    //     }
-    // }
-    // for(int ii = i0 + 1; ii < M - j0 - k0; ii++) {
-    //     if(lscf(ii, j0 + k0 * M) <= lscf0) break;
-    //     for(int jj = j0; jj < M - ii - k0; jj++) {
-    //         if(lscf(ii, jj + k0 * M) <= lscf0) break;
-    //         for(int kk = k0; kk < M - ii - jj; kk++) {
-    //             if(lscf(ii, jj + kk * M) <= lscf0) break;
-    //             else lscf(ii, jj + kk * M) = lscf0;
-    //         }
-    //     }
-    // }
     int ie = M - j0 - k0;
     int je = M - i0 - k0;
     for(int jj = j0 + 1; jj < M - i0; jj++) {
@@ -169,7 +125,6 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             if(Gn.block(0, n * i1, n, n).maxCoeff() > thr) {
                 dks(i1, k - i1) /= 1e10;
                 Gn.block(0, n * i1, n, n) /= 1e10;
-                lscf(i1, k - i1) -= log(1e10);
                 update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
@@ -216,7 +171,6 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
             if(Gn.col(i1).maxCoeff() > thr) {
                 dks(i1, k - i1) /= 1e10;
                 Gn.col(i1) /= 1e10;
-                lscf(i1, k - i1) -= log(1e10);
                 update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
@@ -286,7 +240,6 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
                 dks(i1, k - i1) /= 1e10;
                 Gn.block(0, n * i1, n, n) /= 1e10;
                 gn.col(i1) /= 1e10;
-                lscf(i1, k - i1) -= log(1e10);
                 update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
@@ -355,7 +308,6 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i1, k - i1) /= 1e10;
                 Gn.col(i1) /= 1e10;
                 gn.col(i1) /= 1e10;
-                lscf(i1, k - i1) -= log(1e10);
                 update_scale_2D(lscf, i1, k - i1, m + 1);
             }
         }
@@ -457,7 +409,6 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                 if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr) {
                     dks(i1, i2 + i3 * (m + 1)) /= 1e10;
                     Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
-                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
                     update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
@@ -556,7 +507,6 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                 if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
                     dks(i1, i2 + i3 * (m + 1)) /= 1e10;
                     Gn.col(id3(i1, i2, k)) /= 1e10;
-                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
                     update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
@@ -637,7 +587,6 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
             if(Gn.block(0, j * n * (p + 1), n, n * (p + 1)).maxCoeff() > thr) {
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
@@ -717,7 +666,6 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
             if(Gn.block(0, j * (p + 1), n, p + 1).maxCoeff() > thr) {
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
@@ -853,7 +801,6 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                     dks(i1, i2 + i3 * (m + 1)) /= 1e10;
                     Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
                     gn.col(id3(i1, i2, k)) /= 1e10;
-                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
                     update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
@@ -987,7 +934,6 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                     dks(i1, i2 + i3 * (m + 1)) /= 1e10;
                     Gn.col(id3(i1, i2, k)) /= 1e10;
                     gn.col(id3(i1, i2, k)) /= 1e10;
-                    lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
                     update_scale_3D(lscf, i1, i2, i3, m + 1);
                 }
             }
@@ -1101,7 +1047,6 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
                 gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
@@ -1213,7 +1158,6 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
                 gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
@@ -1326,7 +1270,6 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * n * (p + 1), n, n * (p + 1)) /= 1e10;
                 gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
@@ -1440,7 +1383,6 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks.col((k - j) + j * (m + 1)) /= 1e10;
                 Gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
                 gn.block(0, j * (p + 1), n, p + 1) /= 1e10;
-                lscf(k - j, j) -= log(1e10);
                 update_scale_2D(lscf, k - j, j, m + 1);
             }
         }
