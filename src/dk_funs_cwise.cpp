@@ -26,23 +26,21 @@ inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
     lscf(i0, j0) -= log(1e10);
     typename Derived::Scalar lscf0 = lscf(i0, j0);
     int ie = M - j0;
-    // int je = M - i0;
-    // for(int jj = j0 + 1; jj < M - i0; jj++) {
-    //     if(lscf(i0, jj) <= lscf0) {
-    //         je = jj;
-    //         break;
-    //     }
-    // }
+    int je = M - i0;
     for(int ii = i0 + 1; ii < M - j0; ii++) {
         if(lscf(ii, j0) <= lscf0) {
             ie = ii;
             break;
         }
     }
-    // lscf.block(i0, j0, ie - i0, je - j0) = lscf0;
-    lscf.col(j0).segment(i0, min(ie, M - j0) - i0) = lscf0;
     for(int jj = j0 + 1; jj < M - i0; jj++) {
-        if(lscf(i0, jj) <= lscf0) break;
+        if(lscf(i0, jj) <= lscf0) {
+            je = jj;
+            break;
+        }
+    }
+    lscf.col(j0).segment(i0, ie - i0) = lscf0;
+    for(int jj = j0 + 1; jj < je; jj++) {
         lscf.col(jj).segment(i0, min(ie, M - jj) - i0) = lscf0;
     }
 }
@@ -54,30 +52,30 @@ inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
     lscf(i0, j0 + k0 * M) -= log(1e10);
     typename Derived::Scalar lscf0 = lscf(i0, j0 + k0 * M);
     int ie = M - j0 - k0;
-    // int je = M - i0 - k0;
-    // for(int jj = j0 + 1; jj < M - i0; jj++) {
-    //     if(lscf(i0, jj + k0 * M) <= lscf0) {
-    //         je = jj;
-    //         break;
-    //     }
-    // }
+    int je = M - i0 - k0;
+    int ke = M - i0 - j0;
     for(int ii = i0 + 1; ii < M - j0; ii++) {
         if(lscf(ii, j0 + k0 * M) <= lscf0) {
             ie = ii;
             break;
         }
     }
-    // lscf.block(i0, j0 + k0 * M, ie - i0, je - j0) = lscf0;
-    // for(int kk = k0 + 1; kk < M - j0; kk++) {
-    //     if(lscf(i0, j0 + kk * M) <= lscf0) break;
-    //     else lscf.block(i0, j0 + kk * M, ie - i0, je - j0) = lscf0;
-    // }
-    lscf.col(j0 + k0 * M).segment(i0, min(ie, M - j0 - k0) - i0) = lscf0;
-    for(int kk = k0 + 1; kk < M - j0; kk++) {
-        if(lscf(i0, j0 + kk * M) <= lscf0) break;
+    for(int jj = j0 + 1; jj < M - i0; jj++) {
+        if(lscf(i0, jj + k0 * M) <= lscf0) {
+            je = jj;
+            break;
+        }
+    }
+    for(int kk = j0 + 1; kk < M - i0; kk++) {
+        if(lscf(i0, j0 + kk * M) <= lscf0) {
+            ke = kk;
+            break;
+        }
+    }
+    lscf.col(j0 + k0 * M).segment(i0, ie - i0) = lscf0;
+    for(int kk = k0 + 1; kk < ke; kk++) {
         lscf.col(j0 + kk * M).segment(i0, min(ie, M - j0 - kk) - i0) = lscf0;
-        for(int jj = j0 + 1; jj < M - i0; jj++) {
-            if(lscf(i0, jj + kk * M) <= lscf0) break;
+        for(int jj = j0 + 1; jj < je; jj++) {
             lscf.col(jj + kk * M).segment(i0, min(ie, M - jj - kk) - i0) = lscf0;
         }
     }
