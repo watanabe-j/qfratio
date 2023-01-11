@@ -1181,7 +1181,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     stopifnot("Moment does not exist in this combination of p, q, and rank(B)" =
                   cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    diminished <- FALSE
+    # diminished <- FALSE
     b1 <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
@@ -1194,7 +1194,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             } else {
                 cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m)
             }
-            diminished <- cppres$diminished
+            # diminished <- cppres$diminished
         }
         ansseq <- cppres$ansseq
     } else {
@@ -1218,7 +1218,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(b1)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            diminished <- any(diag(dks[(m + 1):1, ]) == 0)
+            # diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
         }
     }
     ## If there's any NaN, truncate series before summing up
@@ -1231,14 +1231,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
-        warning("Some terms in multiple series numerically diminished to 0 ",
-                "as they were\n  scaled to avoid numerical overflow. ",
-                "The result will be inaccurate.",
-                if(cpp_method == "double")
-                    paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
-    }
+    # if(diminished) {
+    #     warning("Some terms in multiple series numerically diminished to 0 ",
+    #             "as they were\n  scaled to avoid numerical overflow. ",
+    #             "The result will be inaccurate.",
+    #             if(cpp_method == "double")
+    #                 paste0("\n  Consider using the option cpp_method = ",
+    #                        "\"long_double\" or \"coef_wise\"."))
+    # }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
             warning("Last term of the series is larger than ",
@@ -1675,7 +1675,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                          ((p - q) * log(2) - p * log(b1) + q * log(b2)
                           + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
+        diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -1691,9 +1691,10 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method == "double")
+                if(cpp_method != "coef_wise")
                     paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
+                          if(cpp_method != "long_double") "\"long_double\" or ",
+                          "\"coef_wise\"."))
     }
     if(check_convergence) {
         if(abs(ansseq[length(ansseq)]) > tol_conv) {
@@ -1801,7 +1802,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    diminished <- FALSE
+    # diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
         LBh <- rep.int(1, n) - b2 * LB
@@ -1843,7 +1844,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                                              error_bound, nthreads)
                 }
             }
-            diminished <- cppres$diminished
+            # diminished <- cppres$diminished
         }
         ansseq <- cppres$ansseq
     } else {
@@ -1872,7 +1873,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
                               - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            diminished <- any(diag(dks[(m + 1):1, ]) == 0)
+            # diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
         }
     }
     ## If there's any NaN, truncate series before summing up
@@ -1885,14 +1886,14 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
-        warning("Some terms in multiple series numerically diminished to 0 ",
-                "as they were\n  scaled to avoid numerical overflow. ",
-                "The result will be inaccurate.",
-                if(cpp_method == "double")
-                    paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
-    }
+    # if(diminished) {
+    #     warning("Some terms in multiple series numerically diminished to 0 ",
+    #             "as they were\n  scaled to avoid numerical overflow. ",
+    #             "The result will be inaccurate.",
+    #             if(cpp_method == "double")
+    #                 paste0("\n  Consider using the option cpp_method = ",
+    #                        "\"long_double\" or \"coef_wise\"."))
+    # }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
@@ -2073,6 +2074,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
+    diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
         b1 <- alphaA / max(abs(LA))
@@ -2146,7 +2148,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                         - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
+            diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
             if(use_vec) {
                 dksm <- h3_ijk_v(LAh, LBh, rep.int(0, n), mu, m)
@@ -2158,10 +2160,12 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                         - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
-            for(k in 1:(m + 1)) {
-                diminished <-
-                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
-                if(diminished) break
+            if(any(lscf < 0 )) {
+                for(k in 1:(m + 1)) {
+                    diminished <-
+                        any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                    if(diminished) break
+                }
             }
         }
     }
@@ -2179,9 +2183,10 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method == "double")
+                if(cpp_method != "coef_wise")
                     paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
+                          if(cpp_method != "long_double") "\"long_double\" or ",
+                          "\"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2263,6 +2268,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
+    diminished <- FALSE
     if(use_vec) {
         LD <- diag(D)
         b3 <- alphaD / max(LD)
@@ -2368,7 +2374,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                               + lgamma(n/2 + p - q - r) - lgamma(n/2)
                               - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            diminished <- any(diag(dksm[(m + 1):1, ]) == 0)
+            diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
             if(use_vec) {
                 dksm <- h3_ijk_v(rep.int(0, n), LBh, LDh, mu, m)
@@ -2381,10 +2387,12 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                               + lgamma(n/2 + p - q - r) - lgamma(n/2)
                               - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
-            for(k in 1:(m + 1)) {
-                diminished <-
-                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
-                if(diminished) break
+            if(any(lscf < 0)) {
+                for(k in 1:(m + 1)) {
+                    diminished <-
+                        any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                    if(diminished) break
+                }
             }
         }
     }
@@ -2402,9 +2410,10 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method == "double")
+                if(cpp_method != "coef_wise")
                     paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
+                          if(cpp_method != "long_double") "\"long_double\" or ",
+                          "\"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2634,7 +2643,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                           + lgamma(p + 1) + lgamma(n/2 + p - q - r)
                           - lgamma(n/2 + p) - lscf))
         ansseq <- sum_counterdiag(ansmat)
-        diminished <- any(diag(dks[(m + 1):1, ]) == 0)
+        diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
@@ -2650,9 +2659,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method == "double")
+                if(cpp_method != "coef_wise")
                     paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
+                          if(cpp_method != "long_double") "\"long_double\" or ",
+                          "\"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
@@ -2759,6 +2769,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
+    diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
         LD <- diag(D)
@@ -2901,9 +2912,12 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                          - p * log(b1) + q * log(b2) + r * log(b3)
                          + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
-        for(k in 1:(m + 1)) {
-            diminished <- any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
-            if(diminished) break
+        if(any(lscf < 0)) {
+            for(k in 1:(m + 1)) {
+                diminished <-
+                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                if(diminished) break
+            }
         }
     }
     ## If there's any NaN, truncate series before summing up
@@ -2920,9 +2934,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as they were\n  scaled to avoid numerical overflow. ",
                 "The result will be inaccurate.",
-                if(cpp_method == "double")
+                if(cpp_method != "coef_wise")
                     paste0("\n  Consider using the option cpp_method = ",
-                           "\"long_double\" or \"coef_wise\"."))
+                          if(cpp_method != "long_double") "\"long_double\" or ",
+                          "\"coef_wise\"."))
     }
     if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
         warning("Last term of the series is larger than specified tolerance, ",
