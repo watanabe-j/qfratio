@@ -54,25 +54,28 @@ inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
     int ie = M - j0 - k0;
     int je = M - i0 - k0;
     int ke = M - i0 - j0;
-    for(int ii = i0 + 1; ii < M - j0; ii++) {
+    for(int ii = i0 + 1; ii < M - j0 - k0; ii++) {
         if(lscf(ii, j0 + k0 * M) <= lscf0) {
             ie = ii;
             break;
         }
     }
-    for(int jj = j0 + 1; jj < M - i0; jj++) {
+    for(int jj = j0 + 1; jj < M - i0 - k0; jj++) {
         if(lscf(i0, jj + k0 * M) <= lscf0) {
             je = jj;
             break;
         }
     }
-    for(int kk = j0 + 1; kk < M - i0; kk++) {
+    for(int kk = k0 + 1; kk < M - i0 - j0; kk++) {
         if(lscf(i0, j0 + kk * M) <= lscf0) {
             ke = kk;
             break;
         }
     }
     lscf.col(j0 + k0 * M).segment(i0, ie - i0) = lscf0;
+    for(int jj = j0 + 1; jj < je; jj++) {
+        lscf.col(jj + k0 * M).segment(i0, min(ie, M - jj - k0) - i0) = lscf0;
+    }
     for(int kk = k0 + 1; kk < ke; kk++) {
         lscf.col(j0 + kk * M).segment(i0, min(ie, M - j0 - kk) - i0) = lscf0;
         for(int jj = j0 + 1; jj < je; jj++) {
