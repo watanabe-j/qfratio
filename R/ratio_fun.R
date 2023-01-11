@@ -149,6 +149,10 @@
 #'   See "Details".
 #' @param tol_conv
 #'   Tolerance against which the convergence of series is (roughly) determined
+#' @param thr_margin
+#'   Optional argument to adjust the threshold for scaling (see "Scaling"
+#'   in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
+#'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
 #'
 #' @return
 #' A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
@@ -1058,7 +1062,8 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #'
 qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           use_cpp = FALSE, cpp_method = "double",
-                          tol_zero = .Machine$double.eps * 100) {
+                          tol_zero = .Machine$double.eps * 100,
+                          thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     n <- ncol(A)
     stopifnot(
@@ -1116,7 +1121,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                            "with which an exact result is available.\n  See ",
                            "\"Details\" in documentation of this function."),
                     .frequency = "once", .frequency_id = "use_gsl")
-                dks <- d2_ij_m(A, tcrossprod(mu), m, p = p)[p + 1, ]
+                dks <- d2_ij_m(A, tcrossprod(mu), m, p = p,
+                               thr_margin = thr_margin)[p + 1, ]
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
                       + lgamma(n/2 + p - q + 0:m) - 0:m * log(2)
@@ -1152,7 +1158,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
@@ -1185,14 +1192,17 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     b1 <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
-            cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound)
+            cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound, thr_margin)
         } else {
             if(cpp_method == "coef_wise") {
-                cppres <- ApIq_npi_nvEc(LA, UA, b1, mu, p, q, m)
+                cppres <- ApIq_npi_nvEc(LA, UA, b1, mu, p, q, m,
+                                        thr_margin = thr_margin)
             } else if(cpp_method == "long_double") {
-                cppres <- ApIq_npi_nvEl(LA, UA, b1, mu, p, q, m)
+                cppres <- ApIq_npi_nvEl(LA, UA, b1, mu, p, q, m,
+                                        thr_margin = thr_margin)
             } else {
-                cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m)
+                cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m,
+                                       thr_margin = thr_margin)
             }
             # diminished <- cppres$diminished
         }
@@ -1200,7 +1210,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         LAh <- rep.int(1, n) - b1 * LA
         if(central) {
-            dks <- d1_i(LAh, m = m)
+            dks <- d1_i(LAh, m = m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
             attributes(dks) <- NULL
             ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(b1)
@@ -1213,7 +1223,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             #                      ((p - q) * log(2) - c(crossprod(mu)) / 2
             #                      - p * log(b1) + lgamma(n/2 + p - q) - lgamma(n/2)))
             ## This is based on recursion for h as in Hillier et al. (2014)
-            dks <- h2_ij_v(LAh, rep.int(0, n), mu, m)
+            dks <- h2_ij_v(LAh, rep.int(0, n), mu, m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
             ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(b1)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
@@ -1307,7 +1317,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     use_cpp = FALSE, cpp_method = "double",
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -1387,16 +1398,19 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBq_int_cvE(LA, LB, b2, p, q, m, error_bound)
+                cppres <- ApBq_int_cvE(LA, LB, b2, p, q, m,
+                                       error_bound, thr_margin)
             } else {
-                cppres <- ApBq_int_cmE(A, LA, UA, LB, b2, p, q, m, error_bound)
+                cppres <- ApBq_int_cmE(A, LA, UA, LB, b2, p, q, m,
+                                       error_bound, thr_margin)
             }
         } else {
             if(use_vec) {
-                cppres <- ApBq_int_nvE(LA, LB, b2, mu, p, q, m, error_bound)
+                cppres <- ApBq_int_nvE(LA, LB, b2, mu, p, q, m,
+                                       error_bound, thr_margin)
             } else {
                 cppres <- ApBq_int_nmE(A, LA, UA, LB, b2, mu, p, q, m,
-                                       error_bound)
+                                       error_bound, thr_margin)
             }
         }
         ansseq <- cppres$ansseq
@@ -1404,16 +1418,17 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(use_vec) {
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
-                dksm <- d2_pj_v(LA, LBh, m, p = p)
+                dksm <- d2_pj_v(LA, LBh, m, p = p, thr_margin = thr_margin)
             } else {
-                dksm <- htil2_pj_v(LA, LBh, mu, m, p = p)
+                dksm <- htil2_pj_v(LA, LBh, mu, m, p = p,
+                                   thr_margin = thr_margin)
             }
         } else {
             Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
-                dksm <- d2_pj_m(A, Bh, m, p = p)
+                dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
             } else {
-                dksm <- htil2_pj_m(A, Bh, mu, m, p = p)
+                dksm <- htil2_pj_m(A, Bh, mu, m, p = p, thr_margin = thr_margin)
             }
         }
         dks <- dksm[p + 1, 1:(m + 1)]
@@ -1463,35 +1478,41 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 deldif2 <- 0
                 if(twosided) {
                     if(use_vec) {
-                        dkstm <- d2_ij_v(LAp, LBh, m, p = p)
+                        dkstm <- d2_ij_v(LAp, LBh, m, p = p,
+                                         thr_margin = thr_margin)
                     } else {
                         Ap <- S_fromUL(UA, LAp)
-                        dkstm <- d2_ij_m(Ap, Bh, m, p = p)
+                        dkstm <- d2_ij_m(Ap, Bh, m, p = p,
+                                         thr_margin = thr_margin)
                     }
                 } else {
                     Ap <- A
                     dkstm <- dksm
                 }
                 if(use_vec) {
-                    dp <- d1_i(LAp / LB / b2, p)[p + 1]
+                    dp <- d1_i(LAp / LB / b2, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / b2, p)[p + 1]
+                                     symmetric = TRUE)$values / b2, p,
+                                     thr_margin = thr_margin)[p + 1]
                 }
             } else {
                 twosided <- TRUE
                 mub <- sqrt(2 / b2) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 if(use_vec) {
-                    dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p)
-                    dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
+                    dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p,
+                                        thr_margin = thr_margin)
+                    dp <- dtil1_i_v(LAp / LB / b2, mub, p,
+                                    thr_margin = thr_margin)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p)
+                    dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p,
+                                        thr_margin = thr_margin)
                     Bisqr <- 1 / sqrt(LB)
                     dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
-                                    mub, p)[p + 1]
+                                    mub, p, thr_margin = thr_margin)[p + 1]
                 }
             }
             dkst <- dkstm[p + 1, 1:(m + 1)]
@@ -1529,7 +1550,8 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     cpp_method = c("double", "long_double", "coef_wise"),
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1616,37 +1638,49 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_cvEc(LA, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cvEc(LA, LB, b1, b2, p, q, m,
+                                            thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_cvEl(LA, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cvEl(LA, LB, b1, b2, p, q, m,
+                                            thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m,
+                                           thr_margin = thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_cmEc(A, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cmEc(A, LB, b1, b2, p, q, m,
+                                            thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_cmEl(A, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cmEl(A, LB, b1, b2, p, q, m,
+                                            thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m)
+                    cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m,
+                                           thr_margin = thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_nvEc(LA, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nvEc(LA, LB, b1, b2, mu, p, q, m,
+                                            thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_nvEl(LA, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nvEl(LA, LB, b1, b2, mu, p, q, m,
+                                            thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m,
+                                           thr_margin = thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_nmEc(A, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nmEc(A, LB, b1, b2, mu, p, q, m,
+                                            thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_nmEl(A, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nmEl(A, LB, b1, b2, mu, p, q, m,
+                                            thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m)
+                    cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m,
+                                           thr_margin = thr_margin)
                 }
             }
         }
@@ -1657,17 +1691,17 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             LAh <- rep.int(1, n) - b1 * LA
             LBh <- rep.int(1, n) - b2 * LB
             if(central) {
-                dksm <- d2_ij_v(LAh, LBh, m)
+                dksm <- d2_ij_v(LAh, LBh, m, thr_margin = thr_margin)
             } else {
-                dksm <- h2_ij_v(LAh, LBh, mu, m)
+                dksm <- h2_ij_v(LAh, LBh, mu, m, thr_margin = thr_margin)
             }
         } else {
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB, nrow = n)
             if(central) {
-                dksm <- d2_ij_m(Ah, Bh, m)
+                dksm <- d2_ij_m(Ah, Bh, m, thr_margin = thr_margin)
             } else {
-                dksm <- h2_ij_m(Ah, Bh, mu, m)
+                dksm <- h2_ij_m(Ah, Bh, mu, m, thr_margin = thr_margin)
             }
         }
         lscf <- attr(dksm, "logscale")
@@ -1730,7 +1764,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1815,33 +1850,34 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBIqr_int_cvE(LA, LB, b2, p, q, r, m, error_bound)
+                cppres <- ApBIqr_int_cvE(LA, LB, b2, p, q, r, m,
+                                         error_bound, thr_margin)
             } else {
                 cppres <- ApBIqr_int_cmE(A, LA, UA, LB, b2, p, q, r, m,
-                                         error_bound)
+                                         error_bound, thr_margin)
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBIqr_int_nvEc(LA, LB, b2, mu, p, q, r, m,
-                                              error_bound) # , nthreads)
+                                              error_bound, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m,
-                                              error_bound) # , nthreads)
+                                              error_bound, thr_margin) # , nthreads)
                 } else {
                     cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m,
-                                             error_bound) # , nthreads)
+                                             error_bound, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBIqr_int_nmEc(A, LA, UA, LB, b2, mu, p, q, r, m,
-                                              error_bound, nthreads)
+                                              error_bound, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m,
-                                              error_bound, nthreads)
+                                              error_bound, thr_margin, nthreads)
                 } else {
                     cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m,
-                                             error_bound, nthreads)
+                                             error_bound, thr_margin, nthreads)
                 }
             }
             # diminished <- cppres$diminished
@@ -1850,9 +1886,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         if(central) {
             if(use_vec) {
-                dksm <- d2_pj_v(LA, LBh, m, p = p)
+                dksm <- d2_pj_v(LA, LBh, m, p = p, thr_margin = thr_margin)
             } else {
-                dksm <- d2_pj_m(A, Bh, m, p = p)
+                dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
             }
             dks <- dksm[p + 1, 1:(m + 1)]
             lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
@@ -1862,9 +1898,11 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                               - lscf))
         } else {
             if(use_vec) {
-                dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p)
+                dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p, 
+                                    thr_margin = thr_margin)
             } else {
-                dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p)
+                dksm <- htil3_pjk_m(A, Bh, matrix(0, n, n), mu, m, p = p,
+                                    thr_margin = thr_margin)
             }
             dks <- dksm[p + 1, , ]
             lscf <- attr(dksm, "logscale")[p + 1, , ]
@@ -1923,10 +1961,12 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 s <- q
                 if(twosided) {
                     if(use_vec) {
-                        dkstm <- d2_pj_v(LAp, LBh, m, p = p)
+                        dkstm <- d2_pj_v(LAp, LBh, m, p = p,
+                                         thr_margin = thr_margin)
                     } else {
                         Ap <- S_fromUL(UA, LAp)
-                        dkstm <- d2_pj_m(Ap, Bh, m, p = p)
+                        dkstm <- d2_pj_m(Ap, Bh, m, p = p,
+                                         thr_margin = thr_margin)
                     }
                 } else {
                     Ap <- A
@@ -1934,11 +1974,12 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 }
                 dkst <- dkstm[p + 1, 1:(m + 1)]
                 if(use_vec) {
-                    dp <- d1_i(LAp / LB / b2, p)[p + 1]
+                    dp <- d1_i(LAp / LB / b2, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / b2, p)[p + 1]
+                                     symmetric = TRUE)$values / b2, p,
+                                     thr_margin = thr_margin)[p + 1]
                 }
                 lscft <- attr(dkstm, "logscale")[p + 1, ]
             } else {
@@ -1947,14 +1988,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 s <- max(q, r)
                 if(use_vec) {
-                    dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p)
-                    dp <- dtil1_i_v(LAp / LB / b2, mub, p)[p + 1]
+                    dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p,
+                                         thr_margin = thr_margin)
+                    dp <- dtil1_i_v(LAp / LB / b2, mub, p,
+                                    thr_margin = thr_margin)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
-                    dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p)
+                    dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p,
+                                         thr_margin = thr_margin)
                     Bisqr <- 1 / sqrt(LB)
                     dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
-                                    mub, p)[p + 1]
+                                    mub, p, thr_margin = thr_margin)[p + 1]
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
                 lscft <- attr(dkstm, "logscale")[p + 1, , 1]
@@ -1994,7 +2038,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     check_convergence = TRUE,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2097,40 +2142,49 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_cvEc(LA, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cvEc(LA, LB, b1, b2, p, q, r, m,
+                                              thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_cvEl(LA, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cvEl(LA, LB, b1, b2, p, q, r, m,
+                                              thr_margin)
                 } else {
-                    cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m,
+                                             thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_cmEc(A, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cmEc(A, LB, b1, b2, p, q, r, m,
+                                              thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_cmEl(A, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cmEl(A, LB, b1, b2, p, q, r, m,
+                                              thr_margin)
                 } else {
-                    cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m)
+                    cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m,
+                                             thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_nvEc(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBIqr_npi_nvEc(LA, LB, b1, b2, mu, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m) # , nthreads)
+                    cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m,
+                                             thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBIqr_npi_nmEc(A, LB, b1, b2, mu, p, q, r, m,
-                                              nthreads)
+                                              thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m,
-                                              nthreads)
+                                              thr_margin, nthreads)
                 } else {
                     cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m,
-                                             nthreads)
+                                             thr_margin, nthreads)
                 }
             }
         }
@@ -2139,9 +2193,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     } else {
         if(central) {
             if(use_vec) {
-                dksm <- d2_ij_v(LAh, LBh, m)
+                dksm <- d2_ij_v(LAh, LBh, m, thr_margin = thr_margin)
             } else {
-                dksm <- d2_ij_m(Ah, Bh, m)
+                dksm <- d2_ij_m(Ah, Bh, m, thr_margin = thr_margin)
             }
             lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q - r) * log(2)
@@ -2151,9 +2205,11 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
             if(use_vec) {
-                dksm <- h3_ijk_v(LAh, LBh, rep.int(0, n), mu, m)
+                dksm <- h3_ijk_v(LAh, LBh, rep.int(0, n), mu, m,
+                                 thr_margin = thr_margin)
             } else {
-                dksm <- h3_ijk_m(Ah, Bh, matrix(0, n, n), mu, m)
+                dksm <- h3_ijk_m(Ah, Bh, matrix(0, n, n), mu, m,
+                                 thr_margin = thr_margin)
             }
             lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
@@ -2212,7 +2268,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2322,40 +2379,49 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_cvEc(LB, LD, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cvEc(LB, LD, b2, b3, p, q, r, m,
+                                              thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_cvEl(LB, LD, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cvEl(LB, LD, b2, b3, p, q, r, m,
+                                              thr_margin)
                 } else {
-                    cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m,
+                                             thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_cmEc(LB, D, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cmEc(LB, D, b2, b3, p, q, r, m,
+                                              thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_cmEl(LB, D, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cmEl(LB, D, b2, b3, p, q, r, m,
+                                              thr_margin)
                 } else {
-                    cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m)
+                    cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m,
+                                             thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_nvEc(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- IpBDqr_gen_nvEc(LB, LD, b2, b3, mu, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else {
-                    cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m) # , nthreads)
+                    cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m,
+                                             thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- IpBDqr_gen_nmEc(LB, D, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else {
                     cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu,
-                                             p, q, r, m, nthreads)
+                                             p, q, r, m, thr_margin, nthreads)
                 }
             }
         }
@@ -2364,9 +2430,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     } else {
         if(central) {
             if(use_vec) {
-                dksm <- d2_ij_v(LBh, LDh, m)
+                dksm <- d2_ij_v(LBh, LDh, m, thr_margin = thr_margin)
             } else {
-                dksm <- d2_ij_m(Bh, Dh, m)
+                dksm <- d2_ij_m(Bh, Dh, m, thr_margin = thr_margin)
             }
             lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, q, r, n / 2,
@@ -2377,9 +2443,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
             if(use_vec) {
-                dksm <- h3_ijk_v(rep.int(0, n), LBh, LDh, mu, m)
+                dksm <- h3_ijk_v(rep.int(0, n), LBh, LDh, mu, m,
+                                 thr_margin = thr_margin)
             } else {
-                dksm <- h3_ijk_m(matrix(0, n, n), Bh, Dh, mu, m)
+                dksm <- h3_ijk_m(matrix(0, n, n), Bh, Dh, mu, m,
+                                 thr_margin = thr_margin)
             }
             lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2,
@@ -2440,7 +2508,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2573,46 +2642,49 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_int_cvEc(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_int_cvEc(LA, LB, LD, b2, b3, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p, q, r, m,
+                                              thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m) # , nthreads)
+                    cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m,
+                                             thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_int_cmEc(A, LB, D, b2, b3,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_cmEl(A, LB, D, b2, b3,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else {
                     cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3,
-                                             p, q, r, m, nthreads)
+                                             p, q, r, m, thr_margin, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_int_nvEc(LA, LB, LD, b2, b3, mu,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else {
                     cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu,
-                                             p, q, r, m) # , nthreads)
+                                             p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_int_nmEc(A, LB, D, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else {
                     cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu,
-                                             p, q, r, m, nthreads)
+                                             p, q, r, m, thr_margin, nthreads)
                 }
             }
         }
@@ -2623,17 +2695,21 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
             if(central) {
-                dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p)
+                dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p,
+                                 thr_margin = thr_margin)
             } else {
-                dksm <- htil3_pjk_v(LA, LBh, LDh, mu, m, p = p)
+                dksm <- htil3_pjk_v(LA, LBh, LDh, mu, m, p = p,
+                                    thr_margin = thr_margin)
             }
         } else {
             Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
             if(central) {
-                dksm <- d3_pjk_m(A, Bh, Dh, m, p = p)
+                dksm <- d3_pjk_m(A, Bh, Dh, m, p = p,
+                                 thr_margin = thr_margin)
             } else {
-                dksm <- htil3_pjk_m(A, Bh, Dh, mu, m, p = p)
+                dksm <- htil3_pjk_m(A, Bh, Dh, mu, m, p = p,
+                                    thr_margin = thr_margin)
             }
         }
         dks <- dksm[p + 1, , ]
@@ -2690,7 +2766,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     nthreads = 0,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100) {
+                    tol_sing = .Machine$double.eps * 100,
+                    thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2840,48 +2917,48 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_npi_cvEc(LA, LB, LD, b1, b2, b3,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else {
                     cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3,
-                                             p, q, r, m) # , nthreads)
+                                             p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_npi_cmEc(A, LB, D, b1, b2, b3,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else {
                     cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3,
-                                             p, q, r, m, nthreads)
+                                             p, q, r, m, thr_margin, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_npi_nvEc(LA, LB, LD, b1, b2, b3, mu,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu,
-                                              p, q, r, m) # , nthreads)
+                                              p, q, r, m, thr_margin) # , nthreads)
                 } else {
                     cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu,
-                                             p, q, r, m) # , nthreads)
+                                             p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
                     cppres <- ApBDqr_npi_nmEc(A, LB, D, b1, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
                     cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu,
-                                              p, q, r, m, nthreads)
+                                              p, q, r, m, thr_margin, nthreads)
                 } else {
                     cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu,
-                                             p, q, r, m, nthreads)
+                                             p, q, r, m, thr_margin, nthreads)
                 }
             }
         }
@@ -2893,18 +2970,18 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             LBh <- rep.int(1, n) - b2 * LB
             LDh <- rep.int(1, n) - b3 * LD
             if(central) {
-                dksm <- d3_ijk_v(LAh, LBh, LDh, m)
+                dksm <- d3_ijk_v(LAh, LBh, LDh, m, thr_margin = thr_margin)
             } else {
-                dksm <- h3_ijk_v(LAh, LBh, LDh, mu, m)
+                dksm <- h3_ijk_v(LAh, LBh, LDh, mu, m, thr_margin = thr_margin)
             }
         } else {
             Ah <- In - b1 * A
             Bh <- In - b2 * diag(LB, nrow = n)
             Dh <- In - b3 * D
             if(central) {
-                dksm <- d3_ijk_m(Ah, Bh, Dh, m)
+                dksm <- d3_ijk_m(Ah, Bh, Dh, m, thr_margin = thr_margin)
             } else {
-                dksm <- h3_ijk_m(Ah, Bh, Dh, mu, m)
+                dksm <- h3_ijk_m(Ah, Bh, Dh, mu, m, thr_margin = thr_margin)
             }
         }
         lscf <- attr(dksm, "logscale")

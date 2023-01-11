@@ -7,16 +7,18 @@
 \alias{dtil1_i_m}
 \title{Coefficients in polynomial expansion of generating function---single matrix}
 \usage{
-d1_i(L, m = 100L)
+d1_i(L, m = 100L, thr_margin = 100)
 
-dtil1_i_v(L, mu = rep.int(0, n), m = 100L)
+dtil1_i_v(L, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 
-dtil1_i_m(A, mu = rep.int(0, n), m = 100L)
+dtil1_i_m(A, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 }
 \arguments{
 \item{L}{Vector of eigenvalues of the argument matrix}
 
 \item{m}{Integer-alike to specify the order of polynomials}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Details")}
 
 \item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
 
@@ -66,11 +68,19 @@ large matrices or matrices with many large eigenvalues
 eigenvalues for the front-end \code{qfrm()} functions).
 To avoid numerical overflow, these functions automatically scale
 coefficients (and temporary objects used to calculate them) by a large number
-(\code{1e10} at present) when any value in the temporary objects
-exceeds a predefined threshold (\code{.Machine$double.xmax / 100 / n}).
-This scaling happens order-wise; i.e., it influences all the coefficients
-of the same order in multidimensional coefficients (in \code{\link{d2_ij}}
-and \code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
+(\code{1e10} at present) when any value in the temporary objects exceeds
+a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
+is the number of variables. This default value empirically seems to work well
+in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
+if you encounter numerical overflow.
+(The \code{C++} functions use an equivalent expression,
+\code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with
+\code{Scalar} being \code{double} or \code{long double}.)
+
+In these \code{R} functions, the scaling happens order-wise;
+i.e., it influences all the coefficients of the same order in
+multidimensional coefficients (in \code{\link{d2_ij}} and
+\code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
 
 These scaling factors are recorded in the attribute \code{"logscale"} of the
 return value, which is a vector/matrix/array whose size is identical to the

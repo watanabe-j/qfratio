@@ -42,7 +42,8 @@ qfmrm_ApBIqr_int(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfmrm_ApBIqr_npi(
@@ -61,7 +62,8 @@ qfmrm_ApBIqr_npi(
   check_convergence = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfmrm_IpBDqr_gen(
@@ -80,7 +82,8 @@ qfmrm_IpBDqr_gen(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfmrm_ApBDqr_int(
@@ -100,7 +103,8 @@ qfmrm_ApBDqr_int(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfmrm_ApBDqr_npi(
@@ -121,7 +125,8 @@ qfmrm_ApBDqr_npi(
   nthreads = 0,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 }
 \arguments{
@@ -174,6 +179,10 @@ robust but variably slow}
 See "Details".}
 
 \item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
 
 \item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}},
 \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in

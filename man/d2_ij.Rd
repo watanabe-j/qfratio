@@ -28,17 +28,33 @@
 \title{Coefficients in polynomial expansion of generating function---for
 ratios with two matrices}
 \usage{
-d2_ij_m(A1, A2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q))
+d2_ij_m(
+  A1,
+  A2,
+  m = 100L,
+  p = m,
+  q = m,
+  thr_margin = 100,
+  fill_all = !missing(p) || !missing(q)
+)
 
-d2_ij_v(L1, L2, m = 100L, p = m, q = m, fill_all = !missing(p) || !missing(q))
+d2_ij_v(
+  L1,
+  L2,
+  m = 100L,
+  p = m,
+  q = m,
+  thr_margin = 100,
+  fill_all = !missing(p) || !missing(q)
+)
 
-d2_pj_m(A1, A2, m = 100L, p = 1L)
+d2_pj_m(A1, A2, m = 100L, p = 1L, thr_margin = 100)
 
-d2_1j_m(A1, A2, m = 100L)
+d2_1j_m(A1, A2, m = 100L, thr_margin = 100)
 
-d2_pj_v(L1, L2, m = 100L, p = 1L)
+d2_pj_v(L1, L2, m = 100L, p = 1L, thr_margin = 100)
 
-d2_1j_v(L1, L2, m = 100L)
+d2_1j_v(L1, L2, m = 100L, thr_margin = 100)
 
 h2_ij_m(
   A1,
@@ -47,6 +63,7 @@ h2_ij_m(
   m = 100L,
   p = m,
   q = m,
+  thr_margin = 100,
   fill_all = !missing(p) || !missing(q)
 )
 
@@ -57,24 +74,25 @@ h2_ij_v(
   m = 100L,
   p = m,
   q = m,
+  thr_margin = 100,
   fill_all = !missing(p) || !missing(q)
 )
 
-htil2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L)
+htil2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-htil2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L)
+htil2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 
-htil2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L)
+htil2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-htil2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
+htil2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 
-hhat2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L)
+hhat2_pj_m(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-hhat2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L)
+hhat2_1j_m(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 
-hhat2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L)
+hhat2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
+hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 }
 \arguments{
 \item{A1, A2}{Argument matrices. Assumed to be symmetric and of the same order.}
@@ -83,6 +101,9 @@ hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L)
 
 \item{p, q}{Integer-alikes to specify the desired orders along
 \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+in \code{\link{d1_i}})}
 
 \item{fill_all}{Logical to specify whether all the output matrix should be filled.
 See "Details".}

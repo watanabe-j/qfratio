@@ -117,7 +117,8 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+         const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -125,7 +126,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx Go = MatrixXx::Zero(n, n * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 1));
     Scalar s1, s2;
@@ -155,7 +156,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 }
 template ArrayXXd d2_ij_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                            const Eigen::MatrixBase<MatrixXd>& A2,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d2_ij_vE(int i1, int k,const int &m, const int &n, 
@@ -174,13 +175,14 @@ inline void scale_in_d2_ij_vE(int i1, int k,const int &m, const int &n,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2,
-         const int m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         const int m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+         const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, m);
     ArrayXXx Gn = ArrayXXx::Zero(n, m + 1);
     Scalar s1, s2;
@@ -209,7 +211,7 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
 }
 template ArrayXXd d2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXXd& lscf, const double thr_margin);
 
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
@@ -234,7 +236,8 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+         const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -242,7 +245,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx tG(n, n);
     MatrixXx Go = MatrixXx::Zero(n, n * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 1));
@@ -288,7 +291,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd h2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const MatrixBase<MatrixXd>& A2,
                            const VectorXd& mu, const int m,
-                           ArrayXXd& lscf);
+                           ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_h2_ij_vE(int i1, int k,const int &m, const int &n, 
@@ -312,14 +315,15 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& A2,
          const Eigen::ArrayBase<Derived>& mu,
          const int m,
-         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) {
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+         const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXx tG(n);
     ArrayXXx Go = ArrayXXx::Zero(n, m);
     ArrayXXx Gn = ArrayXXx::Zero(n, m + 1);
@@ -365,7 +369,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd h2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
                            const Eigen::ArrayBase<ArrayXd>& mu,
-                           const int m, ArrayXXd& lscf);
+                           const int m, ArrayXXd& lscf, const double thr_margin);
 
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
@@ -390,7 +394,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::MatrixBase<Derived>& A3,
           const int m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
-          int nthreads) {
+          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -402,7 +406,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx Go = MatrixXx::Zero(n, n * (m + 1) * m / 2);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
@@ -477,7 +481,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd d3_ijk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                             const Eigen::MatrixBase<MatrixXd>& A2,
                             const Eigen::MatrixBase<MatrixXd>& A3,
-                            const int m, ArrayXXd& lscf, int nthreads);
+                            const int m, ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d3_ijk_vE(int i1, int i2, int k, const int m, const int n, 
@@ -500,7 +504,8 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
           const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -511,7 +516,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx Gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
@@ -585,7 +590,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd d3_ijk_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                             const Eigen::ArrayBase<ArrayXd>& A2,
                             const Eigen::ArrayBase<ArrayXd>& A3,
-                            const int m, ArrayXXd& lscf);
+                            const int m, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d3_pjk_mE(int j, int k, const int m, const int n, const int p,
@@ -604,7 +609,8 @@ inline void scale_in_d3_pjk_mE(int j, int k, const int m, const int n, const int
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>& A2, const Eigen::MatrixBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf, int nthreads) {
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -616,7 +622,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
     Scalar s2, s3;
@@ -673,7 +679,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
 }
 template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                 const MatrixBase<MatrixXd>& A2, const MatrixBase<MatrixXd>& A3,
-                const int m, const int p, ArrayXXd& lscf, int nthreads);
+                const int m, const int p, ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d3_pjk_vE(int j, int k, const int m, const int n, const int p,
@@ -692,7 +698,8 @@ inline void scale_in_d3_pjk_vE(int j, int k, const int m, const int n, const int
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2, const Eigen::ArrayBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -702,7 +709,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
@@ -762,7 +769,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
 }
 template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                     const ArrayBase<ArrayXd>& A2, const ArrayBase<ArrayXd>& A3,
-                    const int m, const int p, ArrayXXd& lscf);
+                    const int m, const int p, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 inline void scale_in_h3_ijk_mE(int i1, int i2, int k, const int m, const int n, 
@@ -789,7 +796,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
           const int m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
-          int nthreads) {
+          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -801,7 +808,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx tG(n, n);
     MatrixXx Go = MatrixXx::Zero(n, n * (m + 1) * m / 2);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 2) * (m + 1) / 2);
@@ -911,7 +918,7 @@ template ArrayXXd  h3_ijk_mE(const MatrixBase<MatrixXd>& A1,
                              const MatrixBase<MatrixXd>& A2,
                              const MatrixBase<MatrixXd>& A3,
                              const VectorXd mu, const int m,
-                             ArrayXXd& lscf, int nthreads);
+                             ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_h3_ijk_vE(int i1, int i2, int k, const int m, const int n, 
@@ -936,7 +943,8 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
           const Eigen::ArrayBase<Derived>& mu, const int m,
-          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+          const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -947,7 +955,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXx tG(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx Gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
@@ -1055,7 +1063,7 @@ template ArrayXXd h3_ijk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
                             const ArrayBase<ArrayXd>& mu, const int m,
-                            ArrayXXd& lscf);
+                            ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 inline void scale_in_htil3_pjk_mE(int j, int k, const int m, const int n, const int p,
@@ -1081,7 +1089,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const int m, const int p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
-             int nthreads) {
+             const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -1093,7 +1101,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx tG(n, n);
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
@@ -1178,7 +1186,7 @@ template ArrayXXd htil3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const MatrixBase<MatrixXd>& A2,
                                const MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const int m, const int p,
-                               ArrayXXd& lscf, int nthreads);
+                               ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_htil3_pjk_vE(int j, int k, const int m, const int n, const int p,
@@ -1203,7 +1211,8 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+             const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1214,7 +1223,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXx tG(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
@@ -1300,7 +1309,8 @@ template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf);
+                               const int m, const int p, ArrayXXd& lscf,
+                               const double thr_margin);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1311,7 +1321,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const int m, const int p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
-             int nthreads) {
+             const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
     omp_set_num_threads(nthreads);
@@ -1323,7 +1333,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx tG(n, n);
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
@@ -1408,7 +1418,7 @@ template ArrayXXd hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                                const Eigen::MatrixBase<MatrixXd>& A2,
                                const Eigen::MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const int m, const int p,
-                               ArrayXXd& lscf, int nthreads);
+                               ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1418,7 +1428,8 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
              const int m, const int p,
-             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf) { // , int nthreads) {
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+             const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
 //     omp_set_num_threads(nthreads);
@@ -1429,7 +1440,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     const int n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / 100 / Scalar(n);
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXx tG(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
@@ -1517,4 +1528,5 @@ template ArrayXXd hhat3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf);
+                               const int m, const int p, ArrayXXd& lscf,
+                               const double thr_margin);

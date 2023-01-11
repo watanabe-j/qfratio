@@ -26,11 +26,19 @@
 #' eigenvalues for the front-end \code{qfrm()} functions).
 #' To avoid numerical overflow, these functions automatically scale
 #' coefficients (and temporary objects used to calculate them) by a large number
-#' (\code{1e10} at present) when any value in the temporary objects
-#' exceeds a predefined threshold (\code{.Machine$double.xmax / 100 / n}).
-#' This scaling happens order-wise; i.e., it influences all the coefficients
-#' of the same order in multidimensional coefficients (in \code{\link{d2_ij}}
-#' and \code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
+#' (\code{1e10} at present) when any value in the temporary objects exceeds
+#' a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
+#' is the number of variables. This default value empirically seems to work well
+#' in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
+#' if you encounter numerical overflow.
+#' (The \code{C++} functions use an equivalent expression,
+#' \code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with
+#' \code{Scalar} being \code{double} or \code{long double}.)
+#'
+#' In these \code{R} functions, the scaling happens order-wise;
+#' i.e., it influences all the coefficients of the same order in
+#' multidimensional coefficients (in \code{\link{d2_ij}} and
+#' \code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
 #'
 #' These scaling factors are recorded in the attribute \code{"logscale"} of the
 #' return value, which is a vector/matrix/array whose size is identical to the
@@ -72,6 +80,8 @@
 #'   Argument matrix.  Assumed to be symmetric in these functions.
 #' @param mu
 #'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#' @param thr_margin
+#'   Optional argument to adjust the threshold for scaling (see "Details")
 #'
 #' @references
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
@@ -269,6 +279,9 @@ NULL
 #' @param p,q
 #'   Integer-alikes to specify the desired orders along
 #'   \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.
+#' @param thr_margin
+#'   Optional argument to adjust the threshold for scaling (see "Scaling"
+#'   in \code{\link{d1_i}})
 #' @param fill_all
 #'   Logical to specify whether all the output matrix should be filled.
 #'   See "Details".
@@ -431,11 +444,11 @@ NULL
 #'
 #' @rdname d1_i
 #'
-d1_i <- function(L, m = 100L) {
+d1_i <- function(L, m = 100L, thr_margin = 100) {
     n <- length(L)
     dks <- rep.int(c(1, 0), c(1L, m))
     lscf <- rep.int(0, length(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
     for(k in seq_len(m)) {
         uk <- L * (dks[k] + uk)
@@ -458,12 +471,12 @@ d1_i <- function(L, m = 100L) {
 #'
 #' @rdname d1_i
 #'
-dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L) {
+dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     n <- length(L)
     D <- mu ^ 2
     dks <- rep.int(c(1, 0), c(1L, m))
     lscf <- rep.int(0, length(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
     vk <- rep.int(0, n)
     for(k in seq_len(m)) {
@@ -489,14 +502,14 @@ dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L) {
 #'
 #' @rdname d1_i
 #'
-dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L) {
+dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     eigA <- eigen(A, symmetric = TRUE)
     L <- eigA$values
     D <- c(crossprod(eigA$vectors, mu)) ^ 2
     n <- length(L)
     dks <- rep.int(c(1, 0), c(1L, m))
     lscf <- rep.int(0, length(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
     vk <- rep.int(0, n)
     for(k in seq_len(m)) {
@@ -901,7 +914,7 @@ arl.default <-  function(L, D, m = 10L) {
 #'
 #' @rdname d2_ij
 #'
-d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m,
+d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, thr_margin = 100,
                     fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- ncol(A1)
@@ -909,7 +922,7 @@ d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m,
     zeromat <- matrix(0, n, n)
     dks <- matrix(rep.int(c(1, 0), c(1L, (p + 1) * (q + 1) - 1L)), p + 1, q + 1)
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     order_mat <- outer(0:p, 0:q, "+")
     kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
@@ -941,14 +954,14 @@ d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m,
 #'
 #' @rdname d2_ij
 #'
-d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m,
+d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, thr_margin = 100,
                     fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)
     dks <- matrix(rep.int(c(1, 0), c(1L, (p + 1) * (q + 1) - 1L)), p + 1, q + 1)
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeros)
     order_mat <- outer(0:p, 0:q, "+")
     kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
@@ -980,7 +993,7 @@ d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m,
 #'
 #' @rdname d2_ij
 #'
-d2_pj_m <- function(A1, A2, m = 100L, p = 1L) {
+d2_pj_m <- function(A1, A2, m = 100L, p = 1L, thr_margin = 100) {
     if(p == 1L) return(d2_1j_m(A1, A2, m))
     n <- ncol(A1)
     p1 <- p + 1L
@@ -989,7 +1002,7 @@ d2_pj_m <- function(A1, A2, m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeromat <- matrix(0, n, n)
     G_k_i <- list()
     G_k_i[1L:p1] <- list(zeromat)
@@ -1021,14 +1034,14 @@ d2_pj_m <- function(A1, A2, m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-d2_1j_m <- function(A1, A2, m = 100L) {
+d2_1j_m <- function(A1, A2, m = 100L, thr_margin = 100) {
     n <- ncol(A1)
     m1 <- m + 1L
     In <- diag(n)
     dks <- matrix(0, 2L, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- matrix(0, n, n)
     G_k_1 <- A1
     dks[2L, 1L] <- tr(G_k_1) / 2
@@ -1055,7 +1068,7 @@ d2_1j_m <- function(A1, A2, m = 100L) {
 #'
 #' @rdname d2_ij
 #'
-d2_pj_v <- function(L1, L2, m = 100L, p = 1L) {
+d2_pj_v <- function(L1, L2, m = 100L, p = 1L, thr_margin = 100) {
     if(p == 1L) return(d2_1j_v(L1, L2, m))
     n <- length(L1)
     p1 <- p + 1L
@@ -1063,7 +1076,7 @@ d2_pj_v <- function(L1, L2, m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeros <- rep.int(0, n)
     G_k_i <- list()
     G_k_i[1L:p1] <- list(zeros)
@@ -1095,13 +1108,13 @@ d2_pj_v <- function(L1, L2, m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-d2_1j_v <- function(L1, L2, m = 100L) {
+d2_1j_v <- function(L1, L2, m = 100L, thr_margin = 100) {
     n <- length(L1)
     m1 <- m + 1L
     dks <- matrix(0, 2L, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- rep.int(0, n)
     G_k_1 <- L1
     dks[2L, 1L] <- sum(G_k_1) / 2
@@ -1129,7 +1142,8 @@ d2_1j_v <- function(L1, L2, m = 100L) {
 #'
 #' @rdname d3_ijk
 #'
-d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
+d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m, 
+                 thr_margin = 100,
                  fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- ncol(A1)
@@ -1141,7 +1155,7 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
     dks <- array(0, dim = c(p1, q1, r1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
     kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
@@ -1179,6 +1193,7 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
 #' @rdname d3_ijk
 #'
 d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
+                 thr_margin = 100,
                  fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- length(L1)
@@ -1189,7 +1204,7 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
     dks <- array(0, dim = c(p1, q1, r1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeros)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
     kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
@@ -1226,7 +1241,7 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
 #'
 #' @rdname d3_ijk
 #'
-d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L) {
+d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L, thr_margin = 100) {
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1234,7 +1249,7 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L) {
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeromat <- matrix(0, n, n)
     Gc <- list()
@@ -1293,14 +1308,14 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L) {
 #'
 #' @rdname d3_ijk
 #'
-d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L) {
+d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100) {
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
@@ -1362,6 +1377,7 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L) {
 #' @rdname d2_ij
 #'
 h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
+                    thr_margin = 100,
                       fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- ncol(A1)
@@ -1370,7 +1386,7 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
     zerovec <- matrix(0, n, 1)
     dks <- matrix(rep.int(c(1, 0), c(1L, (p + 1) * (q + 1) - 1L)), p + 1, q + 1)
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     gs <- list(zerovec)
     order_mat <- outer(0:p, 0:q, "+")
@@ -1410,13 +1426,14 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #' @rdname d2_ij
 #'
 h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
+                    thr_margin = 100,
                       fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)
     dks <- matrix(rep.int(c(1, 0), c(1L, (p + 1) * (q + 1) - 1L)), p + 1, q + 1)
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeros)
     gs <- list(zeros)
     order_mat <- outer(0:p, 0:q, "+")
@@ -1456,7 +1473,8 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #'
 #' @rdname d2_ij
 #'
-htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
+htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
+                       thr_margin = 100) {
     if(p == 1L) return(htil2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
     p1 <- p + 1L
@@ -1465,7 +1483,7 @@ htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     G_k_i <- list()
@@ -1508,14 +1526,14 @@ htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
+htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     n <- ncol(A1)
     m1 <- m + 1L
     In <- diag(n)
     dks <- matrix(0, 2L, m + 1L)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- matrix(0, n, n)
     G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
@@ -1551,7 +1569,8 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
 #'
 #' @rdname d2_ij
 #'
-htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
+htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
+                       thr_margin = 100) {
     if(p == 1L) return(htil2_1j_v(L1, L2, mu, m))
     n <- length(L1)
     p1 <- p + 1L
@@ -1559,7 +1578,7 @@ htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeros <- rep.int(0, n)
     G_k_i <- list()
     g_k_i <- list()
@@ -1600,13 +1619,14 @@ htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
+htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L,
+                       thr_margin = 100) {
     n <- length(L1)
     m1 <- m + 1L
     dks <- matrix(0, 2L, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- rep.int(0, n)
     G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
@@ -1642,7 +1662,7 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #' @rdname d3_ijk
 #'
 h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
-                     p = m, q = m, r = m,
+                     p = m, q = m, r = m, thr_margin = 100,
                      fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- ncol(A1)
@@ -1652,7 +1672,7 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     gs <- list(zerovec)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
@@ -1698,7 +1718,7 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
 #' @rdname d3_ijk
 #'
 h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L,
-                     p = m, q = m, r = m,
+                     p = m, q = m, r = m, thr_margin = 100,
                      fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * (p + 1L) + i3 * (p + 1L) * (q + 1L) + 1L
     n <- length(L1)
@@ -1706,7 +1726,7 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L,
     dks <- array(0, dim = c(p + 1L, q + 1L, r + 1L))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeros)
     gs <- list(zeros)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
@@ -1752,7 +1772,8 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L,
 #'
 #' @rdname d3_ijk
 #'
-htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
+htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
+                        thr_margin = 100) {
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1760,7 +1781,7 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
@@ -1847,14 +1868,15 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d3_ijk
 #'
-htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
+htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
+                        thr_margin = 100) {
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
@@ -1943,7 +1965,8 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
+hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
+                       thr_margin = 100) {
     if(p == 1L) return(hhat2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
     p1 <- p + 1L
@@ -1952,7 +1975,7 @@ hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     G_k_i <- list()
@@ -1995,14 +2018,14 @@ hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
+hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     n <- ncol(A1)
     m1 <- m + 1L
     In <- diag(n)
     dks <- matrix(0, 2L, m + 1L)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- matrix(0, n, n)
     G_k_1 <- A1
     g_k_0 <- matrix(0, n, 1)
@@ -2038,7 +2061,8 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L) {
 #'
 #' @rdname d2_ij
 #'
-hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
+hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
+                       thr_margin = 100) {
     if(p == 1L) return(hhat2_1j_v(L1, L2, mu, m))
     n <- length(L1)
     p1 <- p + 1L
@@ -2046,7 +2070,7 @@ hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- matrix(0, p1, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     zeros <- rep.int(0, n)
     G_k_i <- list()
     g_k_i <- list()
@@ -2087,13 +2111,13 @@ hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d2_ij
 #'
-hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
+hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     n <- length(L1)
     m1 <- m + 1L
     dks <- matrix(0, 2L, m1)
     dks[1L, 1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     G_k_0 <- rep.int(0, n)
     G_k_1 <- L1
     g_k_0 <- rep.int(0, n)
@@ -2129,7 +2153,8 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L) {
 #'
 #' @rdname d3_ijk
 #'
-hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
+hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
+                        thr_margin = 100) {
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -2137,7 +2162,7 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
@@ -2224,14 +2249,15 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L) {
 #'
 #' @rdname d3_ijk
 #'
-hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L) {
+hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
+                        thr_margin = 100) {
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
     dks <- array(0, dim = c(p1, m1, m1))
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
-    thr <- .Machine$double.xmax / 100 / n
+    thr <- .Machine$double.xmax / thr_margin / n
     order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()

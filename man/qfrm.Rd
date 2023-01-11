@@ -31,7 +31,8 @@ qfrm_ApIq_int(
   mu = rep.int(0, n),
   use_cpp = FALSE,
   cpp_method = "double",
-  tol_zero = .Machine$double.eps * 100
+  tol_zero = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfrm_ApIq_npi(
@@ -47,7 +48,8 @@ qfrm_ApIq_npi(
   cpp_method = c("double", "long_double", "coef_wise"),
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfrm_ApBq_int(
@@ -64,7 +66,8 @@ qfrm_ApBq_int(
   cpp_method = "double",
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 
 qfrm_ApBq_npi(
@@ -81,7 +84,8 @@ qfrm_ApBq_npi(
   cpp_method = c("double", "long_double", "coef_wise"),
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = .Machine$double.eps * 100,
+  thr_margin = 100
 )
 }
 \arguments{
@@ -128,6 +132,10 @@ memory-inefficient}
 \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
 robust but variably slow}
 }}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}

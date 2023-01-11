@@ -171,6 +171,9 @@ NULL
 #' @param nthreads
 #'   \code{int} to specify the number of threads in \code{OpenMP}-enabled
 #'   functions.  See "Details" in \code{\link{qfmrm}}.
+#' @param thr_margin
+#'   Optional argument to adjust the threshold for scaling. See "Scaling"
+#'   in \code{\link{d1_i}}.
 #' @param nit
 #'   \code{int} to specify the number of iteration or sample size
 #'

@@ -27,6 +27,7 @@ d3_ijk_m(
   p = m,
   q = m,
   r = m,
+  thr_margin = 100,
   fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
@@ -38,12 +39,13 @@ d3_ijk_v(
   p = m,
   q = m,
   r = m,
+  thr_margin = 100,
   fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
-d3_pjk_m(A1, A2, A3, m = 100L, p = 1L)
+d3_pjk_m(A1, A2, A3, m = 100L, p = 1L, thr_margin = 100)
 
-d3_pjk_v(L1, L2, L3, m = 100L, p = 1L)
+d3_pjk_v(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100)
 
 h3_ijk_m(
   A1,
@@ -54,6 +56,7 @@ h3_ijk_m(
   p = m,
   q = m,
   r = m,
+  thr_margin = 100,
   fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
@@ -66,16 +69,17 @@ h3_ijk_v(
   p = m,
   q = m,
   r = m,
+  thr_margin = 100,
   fill_across = c(!missing(p), !missing(q), !missing(r))
 )
 
-htil3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L)
+htil3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-htil3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L)
+htil3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-hhat3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L)
+hhat3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 
-hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L)
+hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 }
 \arguments{
 \item{A1, A2, A3}{Argument matrices. Assumed to be symmetric and of the same order.}
@@ -86,6 +90,9 @@ and \code{A3}/\code{L3}}
 \item{p, q, r}{Integer-alikes to specify the desired orders along
 \code{A1}/\code{L1}, \code{A2}/\code{L2}, and \code{A3}/\code{L3},
 respectively.}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+in \code{\link{d1_i}})}
 
 \item{fill_across}{Logical vector of length 3, to specify whether each dimension of
 the output matrix should be filled.}
