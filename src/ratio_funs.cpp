@@ -299,8 +299,7 @@ SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
 // [[Rcpp::export]]
 SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double b1,
                   const Eigen::VectorXd mu,
-                  const double p = 1, const double q = 1,
-                  const int m = 100, bool error_bound = false,
+                  const double p = 1, const double q = 1, const int m = 100,
                   const double thr_margin = 100) {
     const int n = LA.size();
     const double n_ = n;
@@ -575,8 +574,7 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 // [[Rcpp::export]]
 SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b1, const double b2,
-                  const double p = 1, const double q = 1,
-                  const int m = 100, bool error_bound = false,
+                  const double p = 1, const double q = 1, const int m = 100, 
                   const double thr_margin = 100) {
     const int n = LB.size();
     const double n_ = n;
@@ -603,8 +601,7 @@ SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 // [[Rcpp::export]]
 SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                   const double b1, const double b2,
-                  const double p = 1, const double q = 1,
-                  const int m = 100, bool error_bound = false,
+                  const double p = 1, const double q = 1, const int m = 100,
                   const double thr_margin = 100) {
     const int n = LB.size();
     const double n_ = n;
@@ -631,8 +628,7 @@ SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 // [[Rcpp::export]]
 SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                   const double b1, const double b2, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1,
-                  const int m = 100, bool error_bound = false,
+                  const double p = 1, const double q = 1, const int m = 100,
                   const double thr_margin = 100) {
     const int n = LB.size();
     const double n_ = n;
@@ -659,8 +655,7 @@ SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 // [[Rcpp::export]]
 SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                   const double b1, const double b2, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1,
-                  const int m = 100, bool error_bound = false,
+                  const double p = 1, const double q = 1, const int m = 100,
                   const double thr_margin = 100) {
     const int n = LB.size();
     const double n_ = n;

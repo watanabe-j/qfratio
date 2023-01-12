@@ -127,17 +127,7 @@ ApIq_npi_cvE(
   thr_margin = 100
 )
 
-ApIq_npi_nvE(
-  LA,
-  UA,
-  b1,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApIq_npi_nvE(LA, UA, b1, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBq_int_cvE(
   LA,
@@ -189,55 +179,13 @@ ApBq_int_nmE(
   thr_margin = 100
 )
 
-ApBq_npi_cvE(
-  LA,
-  LB,
-  b1,
-  b2,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_cvE(LA, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cmE(
-  A,
-  LB,
-  b1,
-  b2,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_cmE(A, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nvE(
-  LA,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_nvE(LA, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nmE(
-  A,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_nmE(A, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_int_cvE(
   LA,
@@ -472,67 +420,15 @@ ApBDqr_npi_nmE(
   nthreads = 0L
 )
 
-ApIq_npi_nvEc(
-  LA,
-  UA,
-  b1,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApIq_npi_nvEc(LA, UA, b1, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cvEc(
-  LA,
-  LB,
-  b1,
-  b2,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_cvEc(LA, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cmEc(
-  A,
-  LB,
-  b1,
-  b2,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_cmEc(A, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nvEc(
-  LA,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_nvEc(LA, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nmEc(
-  A,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1,
-  q = 1,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100
-)
+ApBq_npi_nmEc(A, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_int_nvEc(
   LA,
@@ -761,67 +657,15 @@ ApBDqr_npi_nmEc(
   nthreads = 0L
 )
 
-ApIq_npi_nvEl(
-  LA,
-  UA,
-  b1,
-  mu,
-  p = 1L,
-  q = 1L,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100L
-)
+ApIq_npi_nvEl(LA, UA, b1, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_cvEl(
-  LA,
-  LB,
-  b1,
-  b2,
-  p = 1L,
-  q = 1L,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100L
-)
+ApBq_npi_cvEl(LA, LB, b1, b2, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_cmEl(
-  A,
-  LB,
-  b1,
-  b2,
-  p = 1L,
-  q = 1L,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100L
-)
+ApBq_npi_cmEl(A, LB, b1, b2, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_nvEl(
-  LA,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1L,
-  q = 1L,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100L
-)
+ApBq_npi_nvEl(LA, LB, b1, b2, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_nmEl(
-  A,
-  LB,
-  b1,
-  b2,
-  mu,
-  p = 1L,
-  q = 1L,
-  m = 100L,
-  error_bound = FALSE,
-  thr_margin = 100L
-)
+ApBq_npi_nmEl(A, LB, b1, b2, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
 ApBIqr_int_nvEl(
   LA,

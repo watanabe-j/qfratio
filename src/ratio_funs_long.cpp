@@ -65,8 +65,7 @@ SEXP ApIq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
                    const long double b1,
                    const Eigen::Matrix<long double, Eigen::Dynamic, 1> mu,
                    const long double p = 1, const long double q = 1,
-                   const int m = 100, bool error_bound = false,
-                   const long double thr_margin = 100) {
+                   const int m = 100, const long double thr_margin = 100) {
     const int n = LA.size();
     const long double n_ = n;
     ArrayXl LAh = ArrayXl::Ones(n) - b1 * LA;
@@ -97,8 +96,7 @@ SEXP ApBq_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
                    const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
                    const long double b1, const long double b2,
                    const long double p = 1, const long double q = 1,
-                   const int m = 100, bool error_bound = false,
-                   const long double thr_margin = 100) {
+                   const int m = 100, const long double thr_margin = 100) {
     const int n = LB.size();
     const long double n_ = n;
     ArrayXl LAh = ArrayXl::Ones(n) - b1 * LA;
@@ -126,8 +124,7 @@ SEXP ApBq_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
                    const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
                    const long double b1, const long double b2,
                    const long double p = 1, const long double q = 1,
-                   const int m = 100, bool error_bound = false,
-                   const long double thr_margin = 100) {
+                   const int m = 100, const long double thr_margin = 100) {
     const int n = LB.size();
     const long double n_ = n;
     MatrixXl Ah = MatrixXl::Identity(n, n) - b1 * A;
@@ -156,8 +153,7 @@ SEXP ApBq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
                    const long double b1, const long double b2,
                    const Eigen::Array<long double, Eigen::Dynamic, 1> mu,
                    const long double p = 1, const long double q = 1,
-                   const int m = 100, bool error_bound = false,
-                   const long double thr_margin = 100) {
+                   const int m = 100, const long double thr_margin = 100) {
     const int n = LB.size();
     const long double n_ = n;
     ArrayXl LAh = ArrayXl::Ones(n) - b1 * LA;
@@ -186,8 +182,7 @@ SEXP ApBq_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
                    const long double b1, const long double b2,
                    const Eigen::Array<long double, Eigen::Dynamic, 1> mu,
                    const long double p = 1, const long double q = 1,
-                   const int m = 100, bool error_bound = false,
-                   const long double thr_margin = 100) {
+                   const int m = 100, const long double thr_margin = 100) {
     const int n = LB.size();
     const long double n_ = n;
     MatrixXl Ah = MatrixXl::Identity(n, n) - b1 * A;
