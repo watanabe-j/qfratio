@@ -21,10 +21,10 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
         for(p in ks) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(qfrm(A1, I,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                             qfrm(A1, I,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
-                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE)),
-                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE)), tolerance = tol)
+                expect_equal(qfrm(A1, I,  p, q, m = m, use_cpp = FALSE),
+                             qfrm(A1, I,  p, q, m = m, use_cpp = TRUE), tolerance = tol)
+                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = FALSE)),
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE)), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
@@ -112,8 +112,8 @@ test_that("Expect equal from double and long double in C++: qfrm", {
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double")),
-                             suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double")), tolerance = tol)
+                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "double")),
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "long_double")), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
@@ -200,8 +200,8 @@ test_that("Expect equal from double and coef_wise in C++: qfrm", {
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double")),
-                             suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise")), tolerance = tol)
+                expect_equal(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "double")),
+                             suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "coef_wise")), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),

@@ -16,8 +16,6 @@ qfrm(
   m = 100L,
   mu = rep.int(0, n),
   Sigma = diag(n),
-  error_bound = TRUE,
-  check_convergence = TRUE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -41,11 +39,11 @@ qfrm_ApIq_npi(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alphaA = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
+  alphaA = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -59,11 +57,11 @@ qfrm_ApBq_int(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alphaB = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = "double",
+  alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -77,11 +75,11 @@ qfrm_ApBq_npi(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  alphaA = 1,
-  alphaB = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
+  alphaA = 1,
+  alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -102,11 +100,6 @@ value. Should be length-one numeric (see "Details" for further conditions).}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
 Accommodated only by the front-end \code{qfrm()}. See "Details".}
-
-\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
-
-\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
-See "Details".}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
@@ -136,6 +129,11 @@ robust but variably slow}
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
 in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
+
+\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+
+\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
+See "Details".}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}

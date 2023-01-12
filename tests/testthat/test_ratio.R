@@ -64,7 +64,7 @@ test_that("Expect identical results for simultaneously rotated matrices", {
 
 # This yields a message once per session, which is to be ignored
 suppressMessages(
-    qfrm(diag(4), p = 1/2, mu = rep.int(1, 4), check_convergence = FALSE)
+    qfrm(diag(4), p = 1/2, mu = rep.int(1, 4))
 )
 
 test_that("Expect silence or warning around error bound", {
@@ -143,7 +143,22 @@ test_that("Existence conditions: qfrm, nonsingular", {
         A2 <- Q %*% A2 %*% t(Q)
         # A3 <- Q %*% A3 %*% t(Q)
 
-        for(p in ks) {
+        for(p in ks[(ks %% 1) == 0]) {
+            for(q in ks) {
+                if(nv / 2 + p <= q) {
+                    # expect_error(qfrm(A1, I,  p, q, m = m, use_cpp = TRUE))
+                    # expect_error(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE)))
+                    expect_error(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE))
+                    expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
+                } else {
+                    expect_silent(qfrm(A1, I,  p, q, m = m, use_cpp = TRUE))
+                    expect_silent(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE))
+                    expect_silent(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE))
+                    expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE))
+                }
+            }
+        }
+        for(p in ks[(ks %% 1) != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) {
                     # expect_error(qfrm(A1, I,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE))

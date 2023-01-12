@@ -19,8 +19,6 @@ qfmrm(
   m = 100L,
   mu = rep.int(0, n),
   Sigma = diag(n),
-  error_bound = TRUE,
-  check_convergence = TRUE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -34,12 +32,12 @@ qfmrm_ApBIqr_int(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alphaB = 1,
   error_bound = TRUE,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
+  alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -54,12 +52,12 @@ qfmrm_ApBIqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alphaA = 1,
-  alphaB = 1,
+  check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
-  check_convergence = TRUE,
+  alphaA = 1,
+  alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -74,12 +72,12 @@ qfmrm_IpBDqr_gen(
   r = 1,
   mu = rep.int(0, n),
   m = 100L,
-  alphaB = 1,
-  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
+  alphaB = 1,
+  alphaD = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -95,12 +93,12 @@ qfmrm_ApBDqr_int(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alphaB = 1,
-  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
+  alphaB = 1,
+  alphaD = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -116,13 +114,13 @@ qfmrm_ApBDqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  alphaA = 1,
-  alphaB = 1,
-  alphaD = 1,
   check_convergence = TRUE,
   use_cpp = FALSE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
+  alphaA = 1,
+  alphaB = 1,
+  alphaD = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -145,11 +143,6 @@ respectively. By default, \code{q} equals \code{p/2} and
 Accommodated only by the front-end \code{qfmrm()}. See "Details"
 in \code{\link{qfrm}}.}
 
-\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
-
-\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
-See "Details".}
-
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
@@ -159,6 +152,11 @@ The eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments in the front-end \code{qfmrm()} will be passed to
 the appropriate ``internal'' function.}
+
+\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+
+\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
+See "Details".}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{FALSE} by default.}

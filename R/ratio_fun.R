@@ -248,7 +248,6 @@
 #'
 qfrm <- function(A, B, p = 1, q = p, m = 100L,
                  mu = rep.int(0, n), Sigma = diag(n),
-                 error_bound = TRUE, check_convergence = TRUE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
     ## If A or B is missing, let it be an identity matrix
@@ -273,7 +272,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
     if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
-        KiKS <- KiK(Sigma, tol_sing) # }, check_convergence = FALSE) {
+        KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
         KtAK <- t(K) %*% A %*% K
@@ -294,8 +293,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
             }
         }
         return(qfrm(KtAK, KtBK, p, q, m = m, mu = iKmu,
-                    error_bound = error_bound,
-                    check_convergence = check_convergence,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(B, In, tol_zero)) {
@@ -304,26 +301,19 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
                                  tol_zero = tol_zero, ...))
         } else {
             return(qfrm_ApIq_npi(A = A, p = p, q = q, m = m, mu = mu,
-                                 error_bound = error_bound,
-                                 check_convergence = check_convergence,
                                  tol_zero = tol_zero, tol_sing = tol_sing, ...))
         }
     } else {
         if(iseq(A, In, tol_zero)) {
             return(qfrm_ApIq_npi(A = B, p = -q, q = -p, m = m, mu = mu,
-                                 error_bound = error_bound,
-                                 check_convergence = check_convergence,
                                  tol_zero = tol_zero, tol_sing = tol_sing, ...))
         }
     }
     if((p %% 1) == 0) {
         return(qfrm_ApBq_int(A = A, B = B, p = p, q = q, m = m, mu = mu,
-                             error_bound = error_bound,
-                             check_convergence = check_convergence,
                              tol_zero = tol_zero, tol_sing = tol_sing, ...))
     } else {
         return(qfrm_ApBq_npi(A = A, B = B, p = p, q = q, m = m, mu = mu,
-                             check_convergence = check_convergence,
                              tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
 }
@@ -488,7 +478,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'
 qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                   mu = rep.int(0, n), Sigma = diag(n),
-                  error_bound = TRUE, check_convergence = TRUE,
                   tol_zero = .Machine$double.eps * 100,
                   tol_sing = .Machine$double.eps * 100, ...) {
     ## If A, B, or D is missing, let it be an identity matrix
@@ -526,20 +515,14 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     ## reduce the problem to a simple ratio
     if(iseq(B, D, tol_zero)) {
         return(qfrm(A, B, p, q + r, m = m, mu = mu, Sigma = Sigma,
-                    error_bound = error_bound,
-                    check_convergence = check_convergence,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(A, D, tol_zero) && p >= r) {
         return(qfrm(A, B, p - r, q, m = m, mu = mu, Sigma = Sigma,
-                    error_bound = error_bound,
-                    check_convergence = check_convergence,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(A, B, tol_zero) && p >= q) {
         return(qfrm(A, D, p - q, r, m = m, mu = mu, Sigma = Sigma,
-                    error_bound = error_bound,
-                    check_convergence = check_convergence,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     ## If Sigma is given, transform A, B, D, and mu, and
@@ -569,13 +552,11 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
             }
         }
         return(qfmrm(KtAK, KtBK, KtDK, p, q, r, m = m, mu = iKmu,
-                     error_bound = error_bound,
-                     check_convergence = check_convergence,
                      tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(A, In, tol_zero)) {
         return(qfmrm_IpBDqr_gen(B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu, check_convergence = check_convergence,
+                                mu = mu,
                                 tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     ## If B == In, swap B and D
@@ -589,26 +570,24 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     if(iseq(D, In, tol_zero)) {
         if((p %% 1) == 0 && p > 0) {
             return(qfmrm_ApBIqr_int(A = A, B = B, p = p, q = q, r = r, m = m,
-                                    mu = mu, error_bound = error_bound,
-                                    check_convergence = check_convergence,
+                                    mu = mu,
                                     tol_zero = tol_zero, tol_sing = tol_sing,
                                     ...))
         } else {
             return(qfmrm_ApBIqr_npi(A = A, B = B, p = p, q = q, r = r, m = m,
                                     mu = mu,
-                                    check_convergence = check_convergence,
                                     tol_zero = tol_zero, tol_sing = tol_sing,
                                     ...))
         }
     }
     if((p %% 1) == 0) {
         return(qfmrm_ApBDqr_int(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu, check_convergence = check_convergence,
+                                mu = mu,
                                 tol_zero = tol_zero, tol_sing = tol_sing,
                                 ...))
     } else {
         return(qfmrm_ApBDqr_npi(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu, check_convergence = check_convergence,
+                                mu = mu,
                                 tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
 }
@@ -1152,10 +1131,10 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alphaA = 1,
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, 
                     cpp_method = c("double", "long_double", "coef_wise"),
+                    alphaA = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -1312,9 +1291,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alphaB = 1,
                     error_bound = TRUE, check_convergence = TRUE,
                     use_cpp = FALSE, cpp_method = "double",
+                    alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -1544,10 +1523,10 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    alphaA = 1, alphaB = 1,
                     check_convergence = TRUE,
                     use_cpp = FALSE, 
                     cpp_method = c("double", "long_double", "coef_wise"),
+                    alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -1757,11 +1736,11 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alphaB = 1,
+                    mu = rep.int(0, n),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = FALSE,
                     cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0,
+                    nthreads = 0, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -2031,11 +2010,11 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alphaA = 1, alphaB = 1,
-                    use_cpp = FALSE, 
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0,
+                    mu = rep.int(0, n),
                     check_convergence = TRUE,
+                    use_cpp = FALSE,
+                    cpp_method = c("double", "long_double", "coef_wise"),
+                    nthreads = 0, alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -2261,11 +2240,11 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    m = 100L, alphaB = 1, alphaD = 1,
+                    m = 100L,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = FALSE,
                     cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0,
+                    nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -2501,11 +2480,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n), alphaB = 1, alphaD = 1,
+                    mu = rep.int(0, n),
                     check_convergence = TRUE,
                     use_cpp = FALSE, 
                     cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0,
+                    nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
@@ -2759,11 +2738,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
-                    alphaA = 1, alphaB = 1, alphaD = 1,
                     check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = FALSE,
                     cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0,
+                    nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
