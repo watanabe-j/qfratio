@@ -1,7 +1,7 @@
 Package: qfratio
 Type: Package
 Title: Moments of Ratios of Quadratic Forms Using Recursion
-Version: 0.0.0.9130
+Version: 0.0.0.9131
 Authors@R: c(person("Junya", "Watanabe", email = "jw2098@cam.ac.uk",
             role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9810-5286")))
 Description: This package provides functions to evaluate moments of ratios

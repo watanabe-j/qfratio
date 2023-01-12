@@ -411,7 +411,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
     for(int k = 1; k <= m; k++) {
-        if(k % 100 == 0) {
+        if(k % 50 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
@@ -521,7 +521,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx Gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
     for(int k = 1; k <= m; k++) {
-        if(k % 200 == 0) {
+        if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
@@ -632,7 +632,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
     }
     scale_in_d3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 200 == 0) {
+        if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
@@ -719,7 +719,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
     }
     scale_in_d3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 2000 == 0) {
+        if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
@@ -816,7 +816,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx gn = MatrixXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
     for(int k = 1; k <= m; k++) {
-        if(k % 100 == 0) {
+        if(k % 50 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
@@ -963,7 +963,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
     for(int k = 1; k <= m; k++) {
-        if(k % 200 == 0) {
+        if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (k + 1) / 2) = Gn.block(0, 0, n, k * (k + 1) / 2);
@@ -1115,7 +1115,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     scale_in_htil3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 200 == 0) {
+        if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
@@ -1237,7 +1237,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     }
     scale_in_htil3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 2000 == 0) {
+        if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
@@ -1347,7 +1347,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     scale_in_htil3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 200 == 0) {
+        if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
@@ -1454,7 +1454,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     }
     scale_in_htil3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
     for(int k = 1; k <= m; k++) {
-        if(k % 2000 == 0) {
+        if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
