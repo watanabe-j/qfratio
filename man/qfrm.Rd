@@ -27,7 +27,7 @@ qfrm_ApIq_int(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   thr_margin = 100
@@ -41,7 +41,7 @@ qfrm_ApIq_npi(
   mu = rep.int(0, n),
   error_bound = TRUE,
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   alphaA = 1,
   tol_conv = .Machine$double.eps^(1/4),
@@ -59,7 +59,7 @@ qfrm_ApBq_int(
   mu = rep.int(0, n),
   error_bound = TRUE,
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = "double",
   alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
@@ -76,7 +76,7 @@ qfrm_ApBq_npi(
   m = 100L,
   mu = rep.int(0, n),
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   alphaA = 1,
   alphaB = 1,
@@ -112,7 +112,7 @@ The eigenvalues smaller than this are considered zero.}
 the appropriate ``internal'' function.}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
-functions via \code{Rcpp}. \code{FALSE} by default.}
+functions via \code{Rcpp}. \code{TRUE} by default.}
 
 \item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
 overflow/underflow (see "Details"). Options:

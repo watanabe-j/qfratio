@@ -34,7 +34,7 @@ qfmrm_ApBIqr_int(
   mu = rep.int(0, n),
   error_bound = TRUE,
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
   alphaB = 1,
@@ -53,7 +53,7 @@ qfmrm_ApBIqr_npi(
   m = 100L,
   mu = rep.int(0, n),
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
   alphaA = 1,
@@ -73,7 +73,7 @@ qfmrm_IpBDqr_gen(
   mu = rep.int(0, n),
   m = 100L,
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
   alphaB = 1,
@@ -94,7 +94,7 @@ qfmrm_ApBDqr_int(
   m = 100L,
   mu = rep.int(0, n),
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
   alphaB = 1,
@@ -115,7 +115,7 @@ qfmrm_ApBDqr_npi(
   m = 100L,
   mu = rep.int(0, n),
   check_convergence = TRUE,
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
   alphaA = 1,
@@ -159,7 +159,7 @@ the appropriate ``internal'' function.}
 See "Details".}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
-functions via \code{Rcpp}. \code{FALSE} by default.}
+functions via \code{Rcpp}. \code{TRUE} by default.}
 
 \item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
 overflow/underflow (see "Details"). Options:

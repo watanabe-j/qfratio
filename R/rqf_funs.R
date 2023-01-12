@@ -52,7 +52,7 @@
 #'   the argument matrices.
 #' @param use_cpp
 #'   Logical to specify whether an \code{C++} version is called or not.
-#'   Default \code{FALSE}.
+#'   \code{TRUE} by default.
 #'
 #' @return Numeric vector of length \code{nit}.
 #'
@@ -97,7 +97,7 @@
 #'
 #' @export
 #'
-rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
+rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE) {
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
@@ -125,7 +125,7 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE) {
 #' @export
 #'
 rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
-                  mu, Sigma, use_cpp = FALSE) {
+                  mu, Sigma, use_cpp = TRUE) {
     if(missing(A)) {
         if(missing(B)) {
             if(missing(D)) {
@@ -166,7 +166,7 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
 #' @export
 #'
 rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1,
-                 mu, Sigma, use_cpp = FALSE) {
+                 mu, Sigma, use_cpp = TRUE) {
     if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
         stop("Package \"mvtnorm\" is required to use this function.")
     }

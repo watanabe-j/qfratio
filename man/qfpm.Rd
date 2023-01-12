@@ -12,7 +12,7 @@ qfm_Ap_int(
   p = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
@@ -25,7 +25,7 @@ qfpm_ABpq_int(
   q = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
@@ -40,7 +40,7 @@ qfpm_ABDpqr_int(
   r = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
-  use_cpp = FALSE,
+  use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100
@@ -58,7 +58,7 @@ If unsure, specify all explicitly.}
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
-functions via \code{Rcpp}. \code{FALSE} by default.}
+functions via \code{Rcpp}. \code{TRUE} by default.}
 
 \item{cpp_method}{Variable type used in \code{C++} calculations.
 In these functions this is ignored.}

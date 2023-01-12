@@ -129,7 +129,7 @@
 #'   \eqn{\mathbf{B}}, respectively. See "Details".
 #' @param use_cpp
 #'   Logical to specify whether the calculation is done with \code{C++}
-#'   functions via \code{Rcpp}. \code{FALSE} by default.
+#'   functions via \code{Rcpp}. \code{TRUE} by default.
 #' @param cpp_method
 #'   Method used in \code{C++} calculations to avoid numerical
 #'   overflow/underflow (see "Details"). Options:
@@ -680,7 +680,7 @@ NULL
 #' @export
 #'
 qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
-                       use_cpp = FALSE, cpp_method = "double",
+                       use_cpp = TRUE, cpp_method = "double",
                        tol_zero = .Machine$double.eps * 100,
                        tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -755,7 +755,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 #'
 qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
                           mu = rep.int(0, n), Sigma = diag(n),
-                          use_cpp = FALSE, cpp_method = "double",
+                          use_cpp = TRUE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -869,7 +869,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
 #'
 qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
                             mu = rep.int(0, n), Sigma = diag(n),
-                            use_cpp = FALSE, cpp_method = "double",
+                            use_cpp = TRUE, cpp_method = "double",
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = .Machine$double.eps * 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -1040,7 +1040,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' @export
 #'
 qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                          use_cpp = FALSE, cpp_method = "double",
+                          use_cpp = TRUE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
                           thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -1132,7 +1132,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     alphaA = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -1292,7 +1292,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE, cpp_method = "double",
+                    use_cpp = TRUE, cpp_method = "double",
                     alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
@@ -1524,7 +1524,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -1738,7 +1738,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
                     error_bound = TRUE, check_convergence = TRUE,
-                    use_cpp = FALSE,
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2012,7 +2012,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
                     check_convergence = TRUE,
-                    use_cpp = FALSE,
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2242,7 +2242,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L,
                     check_convergence = TRUE,
-                    use_cpp = FALSE,
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2482,7 +2482,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
                     check_convergence = TRUE,
-                    use_cpp = FALSE, 
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
@@ -2739,7 +2739,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
                     check_convergence = TRUE,
-                    use_cpp = FALSE,
+                    use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),

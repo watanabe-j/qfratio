@@ -6,11 +6,11 @@
 \alias{rqfp}
 \title{Monte Carlo sampling of ratio/product of quadratic forms}
 \usage{
-rqfr(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = FALSE)
+rqfr(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE)
 
-rqfmr(nit = 1000L, A, B, D, p = 1, q = p/2, r = q, mu, Sigma, use_cpp = FALSE)
+rqfmr(nit = 1000L, A, B, D, p = 1, q = p/2, r = q, mu, Sigma, use_cpp = TRUE)
 
-rqfp(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = FALSE)
+rqfp(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = TRUE)
 }
 \arguments{
 \item{nit}{Number of iteration or sample size.  Should be an integer-alike of
@@ -31,7 +31,7 @@ Default identity matrix.
 the argument matrices.}
 
 \item{use_cpp}{Logical to specify whether an \code{C++} version is called or not.
-Default \code{FALSE}.}
+\code{TRUE} by default.}
 }
 \value{
 Numeric vector of length \code{nit}.
