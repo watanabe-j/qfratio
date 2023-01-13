@@ -8,6 +8,8 @@
     // [[Rcpp::plugins(openmp)]]
 #endif
 
+#define LN1E10 M_LN10 * 10
+
 using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
@@ -38,7 +40,7 @@ Eigen::ArrayXd d1_i_vE(const Eigen::ArrayXd& L, const int m, Eigen::ArrayXd& lsc
         if(uk.maxCoeff() > thr) {
             dks(k) /= 1e10;
             uk /= 1e10;
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -76,7 +78,7 @@ dtil1_i_vE(const Eigen::ArrayBase<Derived>& L,
             dks(k) /= 1e10;
             uk /= 1e10;
             vk /= 1e10;
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -166,8 +168,8 @@ Eigen::ArrayXXd d2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2,
         if(G_k_i.maxCoeff() > thr) {
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -199,8 +201,8 @@ Eigen::ArrayXXd d2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         if(G_k_i.maxCoeff() > thr) {
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -247,10 +249,10 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn /= 1e10;
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= log(1e10);
+            //         lscf(i1, i2) -= LN1E10;
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -297,10 +299,10 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
             Gn /= 1e10;
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= log(1e10);
+            //         lscf(i1, i2) -= LN1E10;
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -369,10 +371,10 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             gn /= 1e10;
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= log(1e10);
+            //         lscf(i1, i2) -= LN1E10;
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -442,10 +444,10 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
             gn /= 1e10;
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= log(1e10);
+            //         lscf(i1, i2) -= LN1E10;
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -497,8 +499,8 @@ Eigen::ArrayXXd htil2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -540,8 +542,8 @@ Eigen::ArrayXXd htil2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -585,8 +587,8 @@ Eigen::ArrayXXd hhat2_pj_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -628,8 +630,8 @@ Eigen::ArrayXXd hhat2_pj_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            //lscf.rightCols(m + 1 - k) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -668,7 +670,7 @@ Eigen::ArrayXXd dtil2_pq_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A2
         //     dks /= 1e10;
         //     G_k_i /= 1e10;
         //     g_k_i /= 1e10;
-        //     lscf -= log(1e10);
+        //     lscf -= LN1E10;
         // }
     }
     return dks;
@@ -706,7 +708,7 @@ Eigen::ArrayXXd dtil2_pq_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         //     dks /= 1e10;
         //     G_k_i /= 1e10;
         //     g_k_i /= 1e10;
-        //     lscf -= log(1e10);
+        //     lscf -= LN1E10;
         // }
     }
     return dks;
@@ -806,11 +808,11 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = 0; i2 <= m - i1; i2++) {
             //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
             //         }
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -904,11 +906,11 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = 0; i2 <= m - i1; i2++) {
             //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
             //         }
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -986,9 +988,9 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1066,9 +1068,9 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
         if(Gn.maxCoeff() > thr) {
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1196,11 +1198,11 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = 0; i2 <= m - i1; i2++) {
             //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
             //         }
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1328,11 +1330,11 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             // for(int i1 = 0; i1 <= m; i1++) {
             //     for(int i2 = 0; i2 <= m - i1; i2++) {
             //         for(int i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= log(1e10);
+            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
             //         }
             //     }
             // }
-            lscf.tail(m + 1 - k) -= log(1e10);
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1444,9 +1446,9 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1558,9 +1560,9 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1672,9 +1674,9 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1788,9 +1790,9 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(int j = 0; j <= k; j++) dks.col((k - j) + j * (m + 1)) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= log(1e10);
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= log(1e10);
-            lscf.tail(m + 1 - k) -= log(1e10);
+            // for(int j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
+            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
+            lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
     return dks;
@@ -1893,7 +1895,7 @@ Eigen::ArrayXXd dtil3_pqr_mE(const Eigen::MatrixXd& A1, const Eigen::MatrixXd& A
         //     dks /= 1e10;
         //     Gn /= 1e10;
         //     gn /= 1e10;
-        //     lscf -= log(1e10);
+        //     lscf -= LN1E10;
         // }
     }
     return dks;
@@ -1986,7 +1988,7 @@ Eigen::ArrayXXd dtil3_pqr_vE(const Eigen::ArrayXd& A1, const Eigen::ArrayXd& A2,
         //     dks /= 1e10;
         //     Gn /= 1e10;
         //     gn /= 1e10;
-        //     lscf -= log(1e10);
+        //     lscf -= LN1E10;
         // }
     }
     return dks;

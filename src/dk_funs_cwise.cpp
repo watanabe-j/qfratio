@@ -8,6 +8,8 @@
     // [[Rcpp::plugins(openmp)]]
 #endif
 
+#define LN1E10 M_LN10 * 10
+
 using std::min;
 using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
@@ -23,7 +25,7 @@ using Eigen::Dynamic;
 template <typename Derived>
 inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int M) {
-    lscf(i0, j0) -= log(1e10);
+    lscf(i0, j0) -= LN1E10;
     typename Derived::Scalar lscf0 = lscf(i0, j0);
     int ie = M - j0;
     int je = M - i0;
@@ -49,7 +51,7 @@ template <typename Derived>
 inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
                             const int i0, const int j0, const int k0,
                             const int M) {
-    lscf(i0, j0 + k0 * M) -= log(1e10);
+    lscf(i0, j0 + k0 * M) -= LN1E10;
     typename Derived::Scalar lscf0 = lscf(i0, j0 + k0 * M);
     int ie = M - j0 - k0;
     int je = M - i0 - k0;
