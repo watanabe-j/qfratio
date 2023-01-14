@@ -7,14 +7,14 @@
 #'
 #' @param statistic
 #'   Terminal value (truncated sum) of the moment.
-#'   When missing, obtained as \code{sum(res_seq)}.
+#'   When missing, obtained as \code{sum(series)}.
 #' @param error_bound
 #'   Terminal error bound.
-#'   When missing, obtained as \code{err_seq[length(err_seq)]}.
-#' @param res_seq
+#'   When missing, obtained as \code{seq_error[length(seq_error)]}.
+#' @param series
 #'   Series expression for the moment along varying polynomial degrees
-#' @param err_seq
-#'   Error bound corresponding to \code{res_seq}
+#' @param seq_error
+#'   Vector of error bounds corresponding to \code{cumsum(series)}
 #' @param exact,twosided,alphaout,singular_arg
 #'   Logicals used to append attributes to the resultant error bound
 #'   (see "Value")
@@ -30,19 +30,19 @@
 #'
 #' The return object is a list of 4 elements which are intended to be:
 #' \itemize{
-#'   \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
-#'   \item{\code{$res_seq}: }{vector of \eqn{0}th to \eqn{m}th order terms}
-#'   \item{\code{$errorb}: }{error bound of \code{statistic}}
-#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to
-#'                            partial sums (\code{cumsum(res_seq)})}
+#'   \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
+#'   \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+#'   \item{\code{$error_bound}: }{error bound of \code{statistic}}
+#'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
+#'                              partial sums (\code{cumsum(series)})}
 #' }
-#' When the result is exact, \code{$res_seq} is of length 1 and equal to
+#' When the result is exact, \code{$series} is of length 1 and equal to
 #' \code{$statistic}, so only the latter is of practical importance.
 #' This is always the case for the \code{qfpm} class.
 #'
-#' When the relevant flags are provided in the constructor, \code{$errorb}
-#' and \code{$err_seq} have the following attributes which control behaviors of
-#' the \code{print} and \code{plot} methods:
+#' When the relevant flags are provided in the constructor, \code{$error_bound}
+#' and \code{$seq_error} have the following attributes which control behaviors
+#' of the \code{print} and \code{plot} methods:
 #' \itemize{
 #'   \item{\code{"exact"}: }{Indicates the moment is exact}
 #'   \item{\code{"twosided"}: }{Indicates the error bounds are two-sided}
@@ -63,40 +63,40 @@
 #' @name new_qfrm
 #'
 new_qfrm <- function(statistic, error_bound = NULL,
-                     res_seq = statistic, err_seq = NULL,
+                     series = statistic, seq_error = NULL,
                      exact = FALSE, twosided = FALSE, alphaout = FALSE,
                      singular_arg = FALSE, ...,
                      class = character()) {
-    if(missing(statistic) && !missing(res_seq)) {
-        statistic <- sum(res_seq)
+    if(missing(statistic) && !missing(series)) {
+        statistic <- sum(series)
     }
-    if(missing(error_bound) && !missing(err_seq)) {
-        error_bound <- err_seq[length(err_seq)]
+    if(missing(error_bound) && !missing(seq_error)) {
+        error_bound <- seq_error[length(seq_error)]
     }
-    if(!is.null(err_seq)) {
+    if(!is.null(seq_error)) {
         if(is.na(error_bound) && all(is.na(error_bound))
            && !all(is.nan(error_bound))) {
-            err_seq <- NULL
+            seq_error <- NULL
         }
     }
     if(isTRUE(exact)) {
         if(!is.null(error_bound)) attr(error_bound, "exact") <- TRUE
-        if(!is.null(err_seq)) attr(err_seq, "exact") <- TRUE
+        if(!is.null(seq_error)) attr(seq_error, "exact") <- TRUE
     }
     if(isTRUE(twosided)) {
         if(!is.null(error_bound)) attr(error_bound, "twosided") <- TRUE
-        if(!is.null(err_seq)) attr(err_seq, "twosided") <- TRUE
+        if(!is.null(seq_error)) attr(seq_error, "twosided") <- TRUE
     }
     if(isTRUE(alphaout)) {
         if(!is.null(error_bound)) attr(error_bound, "alphaout") <- TRUE
-        if(!is.null(err_seq)) attr(err_seq, "alphaout") <- TRUE
+        if(!is.null(seq_error)) attr(seq_error, "alphaout") <- TRUE
     }
     if(isTRUE(singular_arg)) {
         if(!is.null(error_bound)) attr(error_bound, "singular") <- TRUE
-        if(!is.null(err_seq)) attr(err_seq, "singular") <- TRUE
+        if(!is.null(seq_error)) attr(seq_error, "singular") <- TRUE
     }
     structure(list(statistic = statistic, error_bound = error_bound,
-                   res_seq = res_seq, err_seq = err_seq),
+                   series = series, seq_error = seq_error),
               class = c(class, "qfrm"))
 }
 
@@ -123,8 +123,8 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' When the object has a sequence for error bounds, this is also shown
 #' with a broken line (by default).
 #' When the object has an exact moment (i.e., resulting from
-#' \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a warning
-#' is thrown because inspection of the plot will not be required in this case.
+#' \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
+#' is thrown to tell inspection of the plot will not be required in this case.
 #'
 #' @param x
 #'   \code{qfrm} or \code{qfpm} object
@@ -145,7 +145,7 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' @param ylim,ylim_f
 #'   \code{ylim} is passed to \code{\link[graphics]{plot.default}};
 #'   By default, this is automatically set to \code{ylim_f} times
-#'   the terminal value of the sequence expression (\code{sum(x$res_seq)}).
+#'   the terminal value of the sequence expression (\code{sum(x$series)}).
 #'   \code{ylim_f} is by default \code{c(0.9, 1.1)}.
 #' @param xlab,ylab
 #'   Passed to \code{\link[graphics]{plot.default}}
@@ -258,8 +258,8 @@ plot.qfrm <- function(x, add_error = length(errseq) > 0,
     if(!requireNamespace("graphics", quietly = TRUE)) {
         stop("Package \"graphics\" is required for plot.qfrm")
     }
-    ansseq <- x$res_seq
-    errseq <- x$err_seq
+    ansseq <- x$series
+    errseq <- x$seq_error
     cumseq <- cumsum(ansseq)
     if(isTRUE(attr(errseq, "exact"))) {
         message("plot method for this class is provided for inspecting ",

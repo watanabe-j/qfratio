@@ -58,7 +58,7 @@ when \code{add_error = TRUE}.}
 
 \item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}};
 By default, this is automatically set to \code{ylim_f} times
-the terminal value of the sequence expression (\code{sum(x$res_seq)}).
+the terminal value of the sequence expression (\code{sum(x$series)}).
 \code{ylim_f} is by default \code{c(0.9, 1.1)}.}
 
 \item{xlab, ylab}{Passed to \code{\link[graphics]{plot.default}}}
@@ -83,8 +83,8 @@ a series expression along varying polynomial orders.
 When the object has a sequence for error bounds, this is also shown
 with a broken line (by default).
 When the object has an exact moment (i.e., resulting from
-\code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a warning
-is thrown because inspection of the plot will not be required in this case.
+\code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
+is thrown to tell inspection of the plot will not be required in this case.
 }
 \examples{
 nv <- 4

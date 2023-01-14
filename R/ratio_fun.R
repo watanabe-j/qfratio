@@ -157,11 +157,11 @@
 #' @return
 #' A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
 #' \itemize{
-#'   \item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
-#'   \item{\code{$res_seq}: }{vector of \eqn{0}th to \eqn{m}th order terms}
-#'   \item{\code{$errorb}: }{error bound of \code{statistic}}
-#'   \item{\code{$err_seq}: }{vector of error bounds corresponding to
-#'                            partial sums (\code{cumsum(res_seq)})}
+#'   \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
+#'   \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+#'   \item{\code{$error_bound}: }{error bound of \code{statistic}}
+#'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
+#'                            partial sums (\code{cumsum(series)})}
 #'  }
 #'
 #' @references
@@ -1117,7 +1117,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         errseq <- NA_real_
     }
-    new_qfrm(statistic = ans, res_seq = ansseq, err_seq = errseq, exact = exact)
+    new_qfrm(statistic = ans, series = ansseq, seq_error = errseq, exact = exact)
 }
 
 ##### qfrm_ApIq_npi #####
@@ -1274,7 +1274,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
         twosided <- NULL
     }
-    new_qfrm(res_seq = ansseq, err_seq = errseq, twosided = twosided,
+    new_qfrm(series = ansseq, seq_error = errseq, twosided = twosided,
              alphaout = alphaout, singular_arg = singularA)
 }
 
@@ -1508,7 +1508,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         errseq <- NULL
         twosided <- NULL
     }
-    new_qfrm(res_seq = ansseq, err_seq = errseq, twosided = twosided,
+    new_qfrm(series = ansseq, seq_error = errseq, twosided = twosided,
              alphaout = alphaout, singular_arg = singularB)
 }
 
@@ -1716,7 +1716,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     "\n  Check sensitivity with different m?")
         }
     }
-    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    new_qfrm(series = ansseq, seq_error = NA_real_)
 }
 
 
@@ -1994,7 +1994,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         errseq <- NULL
         twosided <- NULL
     }
-    new_qfrm(res_seq = ansseq, err_seq = errseq,
+    new_qfrm(series = ansseq, seq_error = errseq,
              twosided = twosided, alphaout = alphaout, singular_arg = singularB)
 }
 
@@ -2227,7 +2227,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    new_qfrm(series = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_IpBDqr_gen #####
@@ -2466,7 +2466,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    new_qfrm(series = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_ApBDqr_int #####
@@ -2723,7 +2723,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    new_qfrm(series = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_ApBDqr_npi #####
@@ -2998,5 +2998,5 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         warning("Last term of the series is larger than specified tolerance, ",
             tol_conv, "\n  Check sensitivity with different m?")
     }
-    new_qfrm(res_seq = ansseq, err_seq = NA_real_)
+    new_qfrm(series = ansseq, seq_error = NA_real_)
 }

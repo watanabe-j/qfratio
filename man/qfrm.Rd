@@ -143,11 +143,11 @@ See "Details".}
 \value{
 A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
 \itemize{
-\item{\code{$statistic}: }{evaluation result (\code{sum(res_seq)})}
-\item{\code{$res_seq}: }{vector of \eqn{0}th to \eqn{m}th order terms}
-\item{\code{$errorb}: }{error bound of \code{statistic}}
-\item{\code{$err_seq}: }{vector of error bounds corresponding to
-partial sums (\code{cumsum(res_seq)})}
+\item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
+\item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+\item{\code{$error_bound}: }{error bound of \code{statistic}}
+\item{\code{$seq_error}: }{vector of error bounds corresponding to
+partial sums (\code{cumsum(series)})}
 }
 }
 \description{
