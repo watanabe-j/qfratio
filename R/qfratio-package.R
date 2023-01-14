@@ -151,7 +151,7 @@ NULL
 #' @param UA
 #'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}} corresponding to
 #'   \code{LA}.  Passed as \code{Eigen::MatrixXd}.
-#' @param b1,b2,b3
+#' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 #'   and \eqn{\mathbf{D}}.  Passed as \code{double}.
 #' @param mu

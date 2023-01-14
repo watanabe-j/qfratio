@@ -119,7 +119,7 @@ ApIq_int_nmE(A, mu, p = 1, q = 1, thr_margin = 100)
 
 ApIq_npi_cvE(
   LA,
-  b1,
+  bA,
   p = 1,
   q = 1,
   m = 100L,
@@ -127,12 +127,12 @@ ApIq_npi_cvE(
   thr_margin = 100
 )
 
-ApIq_npi_nvE(LA, UA, b1, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApIq_npi_nvE(LA, UA, bA, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBq_int_cvE(
   LA,
   LB,
-  b2,
+  bB,
   p = 1,
   q = 1,
   m = 100L,
@@ -145,7 +145,7 @@ ApBq_int_cmE(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   p = 1,
   q = 1,
   m = 100L,
@@ -156,7 +156,7 @@ ApBq_int_cmE(
 ApBq_int_nvE(
   LA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -170,7 +170,7 @@ ApBq_int_nmE(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -179,18 +179,18 @@ ApBq_int_nmE(
   thr_margin = 100
 )
 
-ApBq_npi_cvE(LA, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_cvE(LA, LB, bA, bB, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cmE(A, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_cmE(A, LB, bA, bB, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nvE(LA, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_nvE(LA, LB, bA, bB, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nmE(A, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_nmE(A, LB, bA, bB, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_int_cvE(
   LA,
   LB,
-  b2,
+  bB,
   p = 1,
   q = 1,
   r = 1,
@@ -204,7 +204,7 @@ ApBIqr_int_cmE(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   p = 1,
   q = 1,
   r = 1,
@@ -216,7 +216,7 @@ ApBIqr_int_cmE(
 ApBIqr_int_nvE(
   LA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -231,7 +231,7 @@ ApBIqr_int_nmE(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -242,15 +242,15 @@ ApBIqr_int_nmE(
   nthreads = 0L
 )
 
-ApBIqr_npi_cvE(LA, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+ApBIqr_npi_cvE(LA, LB, bA, bB, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
-ApBIqr_npi_cmE(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+ApBIqr_npi_cmE(A, LB, bA, bB, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_npi_nvE(
   LA,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -262,8 +262,8 @@ ApBIqr_npi_nvE(
 ApBIqr_npi_nmE(
   A,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -273,15 +273,15 @@ ApBIqr_npi_nmE(
   nthreads = 0L
 )
 
-IpBDqr_gen_cvE(LB, LD, b2, b3, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+IpBDqr_gen_cvE(LB, LD, bB, bD, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
-IpBDqr_gen_cmE(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+IpBDqr_gen_cmE(LB, D, bB, bD, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
 IpBDqr_gen_nvE(
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -293,8 +293,8 @@ IpBDqr_gen_nvE(
 IpBDqr_gen_nmE(
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -308,8 +308,8 @@ ApBDqr_int_cvE(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -321,8 +321,8 @@ ApBDqr_int_cmE(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -335,8 +335,8 @@ ApBDqr_int_nvE(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -349,8 +349,8 @@ ApBDqr_int_nmE(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -364,9 +364,9 @@ ApBDqr_npi_cvE(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -378,9 +378,9 @@ ApBDqr_npi_cmE(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -393,9 +393,9 @@ ApBDqr_npi_nvE(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -408,9 +408,9 @@ ApBDqr_npi_nmE(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -420,20 +420,20 @@ ApBDqr_npi_nmE(
   nthreads = 0L
 )
 
-ApIq_npi_nvEc(LA, UA, b1, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApIq_npi_nvEc(LA, UA, bA, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cvEc(LA, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_cvEc(LA, LB, bA, bB, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_cmEc(A, LB, b1, b2, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_cmEc(A, LB, bA, bB, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nvEc(LA, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_nvEc(LA, LB, bA, bB, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
-ApBq_npi_nmEc(A, LB, b1, b2, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
+ApBq_npi_nmEc(A, LB, bA, bB, mu, p = 1, q = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_int_nvEc(
   LA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -448,7 +448,7 @@ ApBIqr_int_nmEc(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -462,8 +462,8 @@ ApBIqr_int_nmEc(
 ApBIqr_npi_cvEc(
   LA,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   p = 1,
   q = 1,
   r = 1,
@@ -471,13 +471,13 @@ ApBIqr_npi_cvEc(
   thr_margin = 100
 )
 
-ApBIqr_npi_cmEc(A, LB, b1, b2, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+ApBIqr_npi_cmEc(A, LB, bA, bB, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
 ApBIqr_npi_nvEc(
   LA,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -489,8 +489,8 @@ ApBIqr_npi_nvEc(
 ApBIqr_npi_nmEc(
   A,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1,
   q = 1,
@@ -503,8 +503,8 @@ ApBIqr_npi_nmEc(
 IpBDqr_gen_cvEc(
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -512,13 +512,13 @@ IpBDqr_gen_cvEc(
   thr_margin = 100
 )
 
-IpBDqr_gen_cmEc(LB, D, b2, b3, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
+IpBDqr_gen_cmEc(LB, D, bB, bD, p = 1, q = 1, r = 1, m = 100L, thr_margin = 100)
 
 IpBDqr_gen_nvEc(
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -530,8 +530,8 @@ IpBDqr_gen_nvEc(
 IpBDqr_gen_nmEc(
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -545,8 +545,8 @@ ApBDqr_int_cvEc(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -558,8 +558,8 @@ ApBDqr_int_cmEc(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -572,8 +572,8 @@ ApBDqr_int_nvEc(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -586,8 +586,8 @@ ApBDqr_int_nmEc(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -601,9 +601,9 @@ ApBDqr_npi_cvEc(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -615,9 +615,9 @@ ApBDqr_npi_cmEc(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1,
   q = 1,
   r = 1,
@@ -630,9 +630,9 @@ ApBDqr_npi_nvEc(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -645,9 +645,9 @@ ApBDqr_npi_nmEc(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1,
   q = 1,
@@ -657,20 +657,20 @@ ApBDqr_npi_nmEc(
   nthreads = 0L
 )
 
-ApIq_npi_nvEl(LA, UA, b1, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
+ApIq_npi_nvEl(LA, UA, bA, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_cvEl(LA, LB, b1, b2, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
+ApBq_npi_cvEl(LA, LB, bA, bB, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_cmEl(A, LB, b1, b2, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
+ApBq_npi_cmEl(A, LB, bA, bB, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_nvEl(LA, LB, b1, b2, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
+ApBq_npi_nvEl(LA, LB, bA, bB, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
-ApBq_npi_nmEl(A, LB, b1, b2, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
+ApBq_npi_nmEl(A, LB, bA, bB, mu, p = 1L, q = 1L, m = 100L, thr_margin = 100L)
 
 ApBIqr_int_nvEl(
   LA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1L,
   q = 1L,
@@ -685,7 +685,7 @@ ApBIqr_int_nmEl(
   LA,
   UA,
   LB,
-  b2,
+  bB,
   mu,
   p = 1L,
   q = 1L,
@@ -699,8 +699,8 @@ ApBIqr_int_nmEl(
 ApBIqr_npi_cvEl(
   LA,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -711,8 +711,8 @@ ApBIqr_npi_cvEl(
 ApBIqr_npi_cmEl(
   A,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -723,8 +723,8 @@ ApBIqr_npi_cmEl(
 ApBIqr_npi_nvEl(
   LA,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1L,
   q = 1L,
@@ -736,8 +736,8 @@ ApBIqr_npi_nvEl(
 ApBIqr_npi_nmEl(
   A,
   LB,
-  b1,
-  b2,
+  bA,
+  bB,
   mu,
   p = 1L,
   q = 1L,
@@ -750,8 +750,8 @@ ApBIqr_npi_nmEl(
 IpBDqr_gen_cvEl(
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -762,8 +762,8 @@ IpBDqr_gen_cvEl(
 IpBDqr_gen_cmEl(
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -774,8 +774,8 @@ IpBDqr_gen_cmEl(
 IpBDqr_gen_nvEl(
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -787,8 +787,8 @@ IpBDqr_gen_nvEl(
 IpBDqr_gen_nmEl(
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -802,8 +802,8 @@ ApBDqr_int_cvEl(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -815,8 +815,8 @@ ApBDqr_int_cmEl(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -829,8 +829,8 @@ ApBDqr_int_nvEl(
   LA,
   LB,
   LD,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -843,8 +843,8 @@ ApBDqr_int_nmEl(
   A,
   LB,
   D,
-  b2,
-  b3,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -858,9 +858,9 @@ ApBDqr_npi_cvEl(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -872,9 +872,9 @@ ApBDqr_npi_cmEl(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   p = 1L,
   q = 1L,
   r = 1L,
@@ -887,9 +887,9 @@ ApBDqr_npi_nvEl(
   LA,
   LB,
   LD,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -902,9 +902,9 @@ ApBDqr_npi_nmEl(
   A,
   LB,
   D,
-  b1,
-  b2,
-  b3,
+  bA,
+  bB,
+  bD,
   mu,
   p = 1L,
   q = 1L,
@@ -934,7 +934,7 @@ passed as \code{Eigen::ArrayXd}}
 \item{nthreads}{\code{int} to specify the number of threads in \code{OpenMP}-enabled
 functions.  See "Details" in \code{\link{qfmrm}}.}
 
-\item{b1, b2, b3}{Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
+\item{bA, bB, bD}{Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{\mathbf{D}}.  Passed as \code{double}.}
 
 \item{m}{\code{int} to specify the order of polynomials at which the series

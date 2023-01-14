@@ -1168,31 +1168,31 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                   cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     # diminished <- FALSE
-    b1 <- alphaA / max(abs(LA))
+    bA <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
-            cppres <- ApIq_npi_cvE(LA, b1, p, q, m, error_bound, thr_margin)
+            cppres <- ApIq_npi_cvE(LA, bA, p, q, m, error_bound, thr_margin)
         } else {
             if(cpp_method == "coef_wise") {
-                cppres <- ApIq_npi_nvEc(LA, UA, b1, mu, p, q, m,
+                cppres <- ApIq_npi_nvEc(LA, UA, bA, mu, p, q, m,
                                         thr_margin = thr_margin)
             } else if(cpp_method == "long_double") {
-                cppres <- ApIq_npi_nvEl(LA, UA, b1, mu, p, q, m,
+                cppres <- ApIq_npi_nvEl(LA, UA, bA, mu, p, q, m,
                                         thr_margin = thr_margin)
             } else {
-                cppres <- ApIq_npi_nvE(LA, UA, b1, mu, p, q, m,
+                cppres <- ApIq_npi_nvE(LA, UA, bA, mu, p, q, m,
                                        thr_margin = thr_margin)
             }
             # diminished <- cppres$diminished
         }
         ansseq <- cppres$ansseq
     } else {
-        LAh <- rep.int(1, n) - b1 * LA
+        LAh <- rep.int(1, n) - bA * LA
         if(central) {
             dks <- d1_i(LAh, m = m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
             attributes(dks) <- NULL
-            ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(b1)
+            ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(bA)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         } else {
             mu <- c(crossprod(UA, c(mu)))
@@ -1200,11 +1200,11 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # dks <- d2_ij_m(diag(LAh), tcrossprod(mu), m)
             # ansmat <- hgs_dmu_2d(dks, -p, n / 2 + p - q, n / 2,
             #                      ((p - q) * log(2) - c(crossprod(mu)) / 2
-            #                      - p * log(b1) + lgamma(n/2 + p - q) - lgamma(n/2)))
+            #                      - p * log(bA) + lgamma(n/2 + p - q) - lgamma(n/2)))
             ## This is based on recursion for h as in Hillier et al. (2014)
             dks <- h2_ij_v(LAh, rep.int(0, n), mu, m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
-            ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(b1)
+            ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(bA)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
             # diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
@@ -1247,7 +1247,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             twosided <- FALSE
             lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
                        - lgamma(n/2 + 0:m + 1) + lgamma(n/2 + p - q)
-                       + (p - q) * log(2) - p * log(b1))
+                       + (p - q) * log(2) - p * log(bA))
             errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
                       exp((lcoefe + log(cumsum(dkst[1:(m + 1)] /
                                         exp(lscf[1:(m + 1)] - lscf[m + 1])))) -
@@ -1340,7 +1340,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1377,25 +1377,25 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBq_int_cvE(LA, LB, b2, p, q, m,
+                cppres <- ApBq_int_cvE(LA, LB, bB, p, q, m,
                                        error_bound, thr_margin)
             } else {
-                cppres <- ApBq_int_cmE(A, LA, UA, LB, b2, p, q, m,
+                cppres <- ApBq_int_cmE(A, LA, UA, LB, bB, p, q, m,
                                        error_bound, thr_margin)
             }
         } else {
             if(use_vec) {
-                cppres <- ApBq_int_nvE(LA, LB, b2, mu, p, q, m,
+                cppres <- ApBq_int_nvE(LA, LB, bB, mu, p, q, m,
                                        error_bound, thr_margin)
             } else {
-                cppres <- ApBq_int_nmE(A, LA, UA, LB, b2, mu, p, q, m,
+                cppres <- ApBq_int_nmE(A, LA, UA, LB, bB, mu, p, q, m,
                                        error_bound, thr_margin)
             }
         }
         ansseq <- cppres$ansseq
     } else {
         if(use_vec) {
-            LBh <- rep.int(1, n) - b2 * LB
+            LBh <- rep.int(1, n) - bB * LB
             if(central) {
                 dksm <- d2_pj_v(LA, LBh, m, p = p, thr_margin = thr_margin)
             } else {
@@ -1403,7 +1403,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                                    thr_margin = thr_margin)
             }
         } else {
-            Bh <- In - b2 * diag(LB, nrow = n)
+            Bh <- In - bB * diag(LB, nrow = n)
             if(central) {
                 dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
             } else {
@@ -1413,7 +1413,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         dks <- dksm[p + 1, 1:(m + 1)]
         lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
         ansseq <- hgs_1d(dks, q, n/2 + p,
-                         ((p - q) * log(2) + q * log(b2) + lgamma(p + 1)
+                         ((p - q) * log(2) + q * log(bB) + lgamma(p + 1)
                           + lgamma(n/2 + p - q) - lgamma(n/2 + p) - lscf))
     }
     ## If there's any NaN, truncate series before summing up
@@ -1469,37 +1469,37 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     dkstm <- dksm
                 }
                 if(use_vec) {
-                    dp <- d1_i(LAp / LB / b2, p, thr_margin = thr_margin)[p + 1]
+                    dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / b2, p,
+                                     symmetric = TRUE)$values / bB, p,
                                      thr_margin = thr_margin)[p + 1]
                 }
             } else {
                 twosided <- TRUE
-                mub <- sqrt(2 / b2) * mu / sqrt(LB)
+                mub <- sqrt(2 / bB) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 if(use_vec) {
                     dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p,
                                         thr_margin = thr_margin)
-                    dp <- dtil1_i_v(LAp / LB / b2, mub, p,
+                    dp <- dtil1_i_v(LAp / LB / bB, mub, p,
                                     thr_margin = thr_margin)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
                     dkstm <- hhat2_pj_m(Ap, Bh, mu, m, p = p,
                                         thr_margin = thr_margin)
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
+                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / bB,
                                     mub, p, thr_margin = thr_margin)[p + 1]
                 }
             }
             dkst <- dkstm[p + 1, 1:(m + 1)]
             lscft <- attr(dkstm, "logscale")[p + 1, 1:(m + 1)]
-            lBdet <- sum(log(LB * b2))
+            lBdet <- sum(log(LB * bB))
             lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
                         - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q)
-                        + (p - q) * log(2) + q * log(b2) + lgamma(p + 1))
+                        + (p - q) * log(2) + q * log(bB) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
@@ -1577,7 +1577,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1606,7 +1606,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
     LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
-    b1 <- alphaA / max(abs(LA))
+    bA <- alphaA / max(abs(LA))
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
@@ -1617,48 +1617,48 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_cvEc(LA, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cvEc(LA, LB, bA, bB, p, q, m,
                                             thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_cvEl(LA, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cvEl(LA, LB, bA, bB, p, q, m,
                                             thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_cvE(LA, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cvE(LA, LB, bA, bB, p, q, m,
                                            thr_margin = thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_cmEc(A, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cmEc(A, LB, bA, bB, p, q, m,
                                             thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_cmEl(A, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cmEl(A, LB, bA, bB, p, q, m,
                                             thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_cmE(A, LB, b1, b2, p, q, m,
+                    cppres <- ApBq_npi_cmE(A, LB, bA, bB, p, q, m,
                                            thr_margin = thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_nvEc(LA, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nvEc(LA, LB, bA, bB, mu, p, q, m,
                                             thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_nvEl(LA, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nvEl(LA, LB, bA, bB, mu, p, q, m,
                                             thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_nvE(LA, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nvE(LA, LB, bA, bB, mu, p, q, m,
                                            thr_margin = thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBq_npi_nmEc(A, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nmEc(A, LB, bA, bB, mu, p, q, m,
                                             thr_margin = thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBq_npi_nmEl(A, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nmEl(A, LB, bA, bB, mu, p, q, m,
                                             thr_margin = thr_margin)
                 } else {
-                    cppres <- ApBq_npi_nmE(A, LB, b1, b2, mu, p, q, m,
+                    cppres <- ApBq_npi_nmE(A, LB, bA, bB, mu, p, q, m,
                                            thr_margin = thr_margin)
                 }
             }
@@ -1667,16 +1667,16 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            LAh <- rep.int(1, n) - b1 * LA
-            LBh <- rep.int(1, n) - b2 * LB
+            LAh <- rep.int(1, n) - bA * LA
+            LBh <- rep.int(1, n) - bB * LB
             if(central) {
                 dksm <- d2_ij_v(LAh, LBh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h2_ij_v(LAh, LBh, mu, m, thr_margin = thr_margin)
             }
         } else {
-            Ah <- In - b1 * A
-            Bh <- In - b2 * diag(LB, nrow = n)
+            Ah <- In - bA * A
+            Bh <- In - bB * diag(LB, nrow = n)
             if(central) {
                 dksm <- d2_ij_m(Ah, Bh, m, thr_margin = thr_margin)
             } else {
@@ -1685,7 +1685,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
         lscf <- attr(dksm, "logscale")
         ansmat <- hgs_2d(dksm, -p, q, n / 2,
-                         ((p - q) * log(2) - p * log(b1) + q * log(b2)
+                         ((p - q) * log(2) - p * log(bA) + q * log(bB)
                           + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag(ansmat)
         diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
@@ -1789,7 +1789,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -1819,43 +1819,43 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     # diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
-        LBh <- rep.int(1, n) - b2 * LB
+        LBh <- rep.int(1, n) - bB * LB
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         UA <- eigA$vectors
         LA <- eigA$values
-        Bh <- In - b2 * diag(LB, nrow = n)
+        Bh <- In - bB * diag(LB, nrow = n)
     }
     if(use_cpp) {
         if(central) {
             if(use_vec) {
-                cppres <- ApBIqr_int_cvE(LA, LB, b2, p, q, r, m,
+                cppres <- ApBIqr_int_cvE(LA, LB, bB, p, q, r, m,
                                          error_bound, thr_margin)
             } else {
-                cppres <- ApBIqr_int_cmE(A, LA, UA, LB, b2, p, q, r, m,
+                cppres <- ApBIqr_int_cmE(A, LA, UA, LB, bB, p, q, r, m,
                                          error_bound, thr_margin)
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_int_nvEc(LA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nvEc(LA, LB, bB, mu, p, q, r, m,
                                               error_bound, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_int_nvEl(LA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nvEl(LA, LB, bB, mu, p, q, r, m,
                                               error_bound, thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBIqr_int_nvE(LA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nvE(LA, LB, bB, mu, p, q, r, m,
                                              error_bound, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_int_nmEc(A, LA, UA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nmEc(A, LA, UA, LB, bB, mu, p, q, r, m,
                                               error_bound, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nmEl(A, LA, UA, LB, bB, mu, p, q, r, m,
                                               error_bound, thr_margin, nthreads)
                 } else {
-                    cppres <- ApBIqr_int_nmE(A, LA, UA, LB, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_int_nmE(A, LA, UA, LB, bB, mu, p, q, r, m,
                                              error_bound, thr_margin, nthreads)
                 }
             }
@@ -1872,7 +1872,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             dks <- dksm[p + 1, 1:(m + 1)]
             lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
             ansseq <- hgs_1d(dks, q, n / 2 + p,
-                             ((p - q - r) * log(2) + q * log(b2) + lgamma(p + 1)
+                             ((p - q - r) * log(2) + q * log(bB) + lgamma(p + 1)
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
                               - lscf))
         } else {
@@ -1886,7 +1886,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             dks <- dksm[p + 1, , ]
             lscf <- attr(dksm, "logscale")[p + 1, , ]
             ansmat <- hgs_2d(dks, q, r, n / 2 + p,
-                             ((p - q - r) * log(2) + q * log(b2) + lgamma(p + 1)
+                             ((p - q - r) * log(2) + q * log(bB) + lgamma(p + 1)
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
                               - lscf))
             ansseq <- sum_counterdiag(ansmat)
@@ -1953,39 +1953,39 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 }
                 dkst <- dkstm[p + 1, 1:(m + 1)]
                 if(use_vec) {
-                    dp <- d1_i(LAp / LB / b2, p, thr_margin = thr_margin)[p + 1]
+                    dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / b2, p,
+                                     symmetric = TRUE)$values / bB, p,
                                      thr_margin = thr_margin)[p + 1]
                 }
                 lscft <- attr(dkstm, "logscale")[p + 1, ]
             } else {
                 twosided <- TRUE
-                mub <- sqrt(3 / b2) * mu / sqrt(LB)
+                mub <- sqrt(3 / bB) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 s <- max(q, r)
                 if(use_vec) {
                     dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p,
                                          thr_margin = thr_margin)
-                    dp <- dtil1_i_v(LAp / LB / b2, mub, p,
+                    dp <- dtil1_i_v(LAp / LB / bB, mub, p,
                                     thr_margin = thr_margin)[p + 1]
                 } else {
                     Ap <- S_fromUL(UA, LAp)
                     dkstm <- hhat3_pjk_m(Ap, Bh, matrix(0, n, n), mu, m, p = p,
                                          thr_margin = thr_margin)
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / b2,
+                    dp <- dtil1_i_m(t(t(Ap * Bisqr) * Bisqr) / bB,
                                     mub, p, thr_margin = thr_margin)[p + 1]
                 }
                 dkst <- sum_counterdiag(dkstm[p + 1, , ])
                 lscft <- attr(dkstm, "logscale")[p + 1, , 1]
             }
-            lBdet <- sum(log(LB * b2))
+            lBdet <- sum(log(LB * bB))
             lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
                        - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q - r)
-                       + (p - q - r) * log(2) + q * log(b2) + lgamma(p + 1))
+                       + (p - q - r) * log(2) + q * log(bB) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
@@ -2071,7 +2071,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -2101,15 +2101,15 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
-        b1 <- alphaA / max(abs(LA))
-        LAh <- rep.int(1, n) - b1 * LA
-        LBh <- rep.int(1, n) - b2 * LB
+        bA <- alphaA / max(abs(LA))
+        LAh <- rep.int(1, n) - bA * LA
+        LBh <- rep.int(1, n) - bB * LB
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         LA <- eigA$values
-        b1 <- alphaA / max(abs(LA))
-        Ah <- In - b1 * A
-        Bh <- In - b2 * diag(LB, nrow = n)
+        bA <- alphaA / max(abs(LA))
+        Ah <- In - bA * A
+        Bh <- In - bB * diag(LB, nrow = n)
     }
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
@@ -2121,48 +2121,48 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_cvEc(LA, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cvEc(LA, LB, bA, bB, p, q, r, m,
                                               thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_cvEl(LA, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cvEl(LA, LB, bA, bB, p, q, r, m,
                                               thr_margin)
                 } else {
-                    cppres <- ApBIqr_npi_cvE(LA, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cvE(LA, LB, bA, bB, p, q, r, m,
                                              thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_cmEc(A, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cmEc(A, LB, bA, bB, p, q, r, m,
                                               thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_cmEl(A, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cmEl(A, LB, bA, bB, p, q, r, m,
                                               thr_margin)
                 } else {
-                    cppres <- ApBIqr_npi_cmE(A, LB, b1, b2, p, q, r, m,
+                    cppres <- ApBIqr_npi_cmE(A, LB, bA, bB, p, q, r, m,
                                              thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_nvEc(LA, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nvEc(LA, LB, bA, bB, mu, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_nvEl(LA, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nvEl(LA, LB, bA, bB, mu, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBIqr_npi_nvE(LA, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nvE(LA, LB, bA, bB, mu, p, q, r, m,
                                              thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBIqr_npi_nmEc(A, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nmEc(A, LB, bA, bB, mu, p, q, r, m,
                                               thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBIqr_npi_nmEl(A, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nmEl(A, LB, bA, bB, mu, p, q, r, m,
                                               thr_margin, nthreads)
                 } else {
-                    cppres <- ApBIqr_npi_nmE(A, LB, b1, b2, mu, p, q, r, m,
+                    cppres <- ApBIqr_npi_nmE(A, LB, bA, bB, mu, p, q, r, m,
                                              thr_margin, nthreads)
                 }
             }
@@ -2178,7 +2178,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, -p, q, n / 2, ((p - q - r) * log(2)
-                        - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
+                        - p * log(bA) + q * log(bB) + lgamma(n/2 + p - q - r)
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
@@ -2192,7 +2192,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
-                        - p * log(b1) + q * log(b2) + lgamma(n/2 + p - q - r)
+                        - p * log(bA) + q * log(bB) + lgamma(n/2 + p - q - r)
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
             if(any(lscf < 0 )) {
@@ -2298,7 +2298,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate D and mu with eigenvectors of B
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
@@ -2307,15 +2307,15 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     diminished <- FALSE
     if(use_vec) {
         LD <- diag(D)
-        b3 <- alphaD / max(LD)
-        LBh <- rep.int(1, n) - b2 * LB
-        LDh <- rep.int(1, n) - b3 * LD
+        bD <- alphaD / max(LD)
+        LBh <- rep.int(1, n) - bB * LB
+        LDh <- rep.int(1, n) - bD * LD
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LD <- eigD$values
-        b3 <- alphaD / max(LD)
-        Bh <- In - b2 * diag(LB, nrow = n)
-        Dh <- In - b3 * D
+        bD <- alphaD / max(LD)
+        Bh <- In - bB * diag(LB, nrow = n)
+        Dh <- In - bD * D
     }
     stopifnot("B should be nonnegative definite" = all(LB >= -tol_sing),
               "D should be nonnegative definite" = all(LD >= -tol_sing))
@@ -2358,48 +2358,48 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_cvEc(LB, LD, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cvEc(LB, LD, bB, bD, p, q, r, m,
                                               thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_cvEl(LB, LD, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cvEl(LB, LD, bB, bD, p, q, r, m,
                                               thr_margin)
                 } else {
-                    cppres <- IpBDqr_gen_cvE(LB, LD, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cvE(LB, LD, bB, bD, p, q, r, m,
                                              thr_margin)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_cmEc(LB, D, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cmEc(LB, D, bB, bD, p, q, r, m,
                                               thr_margin)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_cmEl(LB, D, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cmEl(LB, D, bB, bD, p, q, r, m,
                                               thr_margin)
                 } else {
-                    cppres <- IpBDqr_gen_cmE(LB, D, b2, b3, p, q, r, m,
+                    cppres <- IpBDqr_gen_cmE(LB, D, bB, bD, p, q, r, m,
                                              thr_margin)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_nvEc(LB, LD, b2, b3, mu, p, q, r, m,
+                    cppres <- IpBDqr_gen_nvEc(LB, LD, bB, bD, mu, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_nvEl(LB, LD, b2, b3, mu, p, q, r, m,
+                    cppres <- IpBDqr_gen_nvEl(LB, LD, bB, bD, mu, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else {
-                    cppres <- IpBDqr_gen_nvE(LB, LD, b2, b3, mu, p, q, r, m,
+                    cppres <- IpBDqr_gen_nvE(LB, LD, bB, bD, mu, p, q, r, m,
                                              thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- IpBDqr_gen_nmEc(LB, D, b2, b3, mu,
+                    cppres <- IpBDqr_gen_nmEc(LB, D, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- IpBDqr_gen_nmEl(LB, D, b2, b3, mu,
+                    cppres <- IpBDqr_gen_nmEl(LB, D, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else {
-                    cppres <- IpBDqr_gen_nmE(LB, D, b2, b3, mu,
+                    cppres <- IpBDqr_gen_nmE(LB, D, bB, bD, mu,
                                              p, q, r, m, thr_margin, nthreads)
                 }
             }
@@ -2415,7 +2415,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             }
             lscf <- attr(dksm, "logscale")
             ansmat <- hgs_2d(dksm, q, r, n / 2,
-                             ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                             ((p - q - r) * log(2) + q * log(bB) + r * log(bD)
                               + lgamma(n/2 + p - q - r) - lgamma(n/2)
                               - lscf))
             ansseq <- sum_counterdiag(ansmat)
@@ -2430,7 +2430,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             }
             lscf <- attr(dksm, "logscale")
             ansarr <- hgs_3d(dksm, -p, q, r, n / 2,
-                             ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                             ((p - q - r) * log(2) + q * log(bB) + r * log(bD)
                               + lgamma(n/2 + p - q - r) - lgamma(n/2)
                               - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
@@ -2552,7 +2552,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     )
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A, D, and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
@@ -2616,53 +2616,53 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     "\n  eigenstructures of A, B, and D")
         }
     }
-    b3 <- alphaD / max(LD)
+    bD <- alphaD / max(LD)
     if(use_cpp) {
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_int_cvEc(LA, LB, LD, b2, b3, p, q, r, m,
+                    cppres <- ApBDqr_int_cvEc(LA, LB, LD, bB, bD, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_cvEl(LA, LB, LD, b2, b3, p, q, r, m,
+                    cppres <- ApBDqr_int_cvEl(LA, LB, LD, bB, bD, p, q, r, m,
                                               thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_int_cvE(LA, LB, LD, b2, b3, p, q, r, m,
+                    cppres <- ApBDqr_int_cvE(LA, LB, LD, bB, bD, p, q, r, m,
                                              thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_int_cmEc(A, LB, D, b2, b3,
+                    cppres <- ApBDqr_int_cmEc(A, LB, D, bB, bD,
                                               p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_cmEl(A, LB, D, b2, b3,
+                    cppres <- ApBDqr_int_cmEl(A, LB, D, bB, bD,
                                               p, q, r, m, thr_margin, nthreads)
                 } else {
-                    cppres <- ApBDqr_int_cmE(A, LB, D, b2, b3,
+                    cppres <- ApBDqr_int_cmE(A, LB, D, bB, bD,
                                              p, q, r, m, thr_margin, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_int_nvEc(LA, LB, LD, b2, b3, mu,
+                    cppres <- ApBDqr_int_nvEc(LA, LB, LD, bB, bD, mu,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_nvEl(LA, LB, LD, b2, b3, mu,
+                    cppres <- ApBDqr_int_nvEl(LA, LB, LD, bB, bD, mu,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_int_nvE(LA, LB, LD, b2, b3, mu,
+                    cppres <- ApBDqr_int_nvE(LA, LB, LD, bB, bD, mu,
                                              p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_int_nmEc(A, LB, D, b2, b3, mu,
+                    cppres <- ApBDqr_int_nmEc(A, LB, D, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_int_nmEl(A, LB, D, b2, b3, mu,
+                    cppres <- ApBDqr_int_nmEl(A, LB, D, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else {
-                    cppres <- ApBDqr_int_nmE(A, LB, D, b2, b3, mu,
+                    cppres <- ApBDqr_int_nmE(A, LB, D, bB, bD, mu,
                                              p, q, r, m, thr_margin, nthreads)
                 }
             }
@@ -2671,8 +2671,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            LBh <- rep.int(1, n) - b2 * LB
-            LDh <- rep.int(1, n) - b3 * LD
+            LBh <- rep.int(1, n) - bB * LB
+            LDh <- rep.int(1, n) - bD * LD
             if(central) {
                 dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p,
                                  thr_margin = thr_margin)
@@ -2681,8 +2681,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                                     thr_margin = thr_margin)
             }
         } else {
-            Bh <- In - b2 * diag(LB, nrow = n)
-            Dh <- In - b3 * D
+            Bh <- In - bB * diag(LB, nrow = n)
+            Dh <- In - bD * D
             if(central) {
                 dksm <- d3_pjk_m(A, Bh, Dh, m, p = p,
                                  thr_margin = thr_margin)
@@ -2694,7 +2694,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         dks <- dksm[p + 1, , ]
         lscf <- attr(dksm, "logscale")[p + 1, , ]
         ansmat <- hgs_2d(dks, q, r, n / 2 + p,
-                         ((p - q - r) * log(2) + q * log(b2) + r * log(b3)
+                         ((p - q - r) * log(2) + q * log(bB) + r * log(bD)
                           + lgamma(p + 1) + lgamma(n/2 + p - q - r)
                           - lgamma(n/2 + p) - lscf))
         ansseq <- sum_counterdiag(ansmat)
@@ -2817,7 +2817,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
-    b2 <- alphaB / max(LB)
+    bB <- alphaB / max(LB)
     ## Rotate A, D, and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
@@ -2888,54 +2888,54 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
              "to suppress this error.")
     }
-    b1 <- alphaA / max(abs(LA))
-    b3 <- alphaD / max(LD)
+    bA <- alphaA / max(abs(LA))
+    bD <- alphaD / max(LD)
     if(use_cpp) {
         if(central) {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_npi_cvEc(LA, LB, LD, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cvEc(LA, LB, LD, bA, bB, bD,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_cvEl(LA, LB, LD, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cvEl(LA, LB, LD, bA, bB, bD,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_cvE(LA, LB, LD, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cvE(LA, LB, LD, bA, bB, bD,
                                              p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_npi_cmEc(A, LB, D, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cmEc(A, LB, D, bA, bB, bD,
                                               p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_cmEl(A, LB, D, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cmEl(A, LB, D, bA, bB, bD,
                                               p, q, r, m, thr_margin, nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_cmE(A, LB, D, b1, b2, b3,
+                    cppres <- ApBDqr_npi_cmE(A, LB, D, bA, bB, bD,
                                              p, q, r, m, thr_margin, nthreads)
                 }
             }
         } else {
             if(use_vec) {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_npi_nvEc(LA, LB, LD, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nvEc(LA, LB, LD, bA, bB, bD, mu,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_nvEl(LA, LB, LD, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nvEl(LA, LB, LD, bA, bB, bD, mu,
                                               p, q, r, m, thr_margin) # , nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_nvE(LA, LB, LD, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nvE(LA, LB, LD, bA, bB, bD, mu,
                                              p, q, r, m, thr_margin) # , nthreads)
                 }
             } else {
                 if(cpp_method == "coef_wise") {
-                    cppres <- ApBDqr_npi_nmEc(A, LB, D, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nmEc(A, LB, D, bA, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else if(cpp_method == "long_double") {
-                    cppres <- ApBDqr_npi_nmEl(A, LB, D, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nmEl(A, LB, D, bA, bB, bD, mu,
                                               p, q, r, m, thr_margin, nthreads)
                 } else {
-                    cppres <- ApBDqr_npi_nmE(A, LB, D, b1, b2, b3, mu,
+                    cppres <- ApBDqr_npi_nmE(A, LB, D, bA, bB, bD, mu,
                                              p, q, r, m, thr_margin, nthreads)
                 }
             }
@@ -2944,18 +2944,18 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         diminished <- cppres$diminished
     } else {
         if(use_vec) {
-            LAh <- rep.int(1, n) - b1 * LA
-            LBh <- rep.int(1, n) - b2 * LB
-            LDh <- rep.int(1, n) - b3 * LD
+            LAh <- rep.int(1, n) - bA * LA
+            LBh <- rep.int(1, n) - bB * LB
+            LDh <- rep.int(1, n) - bD * LD
             if(central) {
                 dksm <- d3_ijk_v(LAh, LBh, LDh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h3_ijk_v(LAh, LBh, LDh, mu, m, thr_margin = thr_margin)
             }
         } else {
-            Ah <- In - b1 * A
-            Bh <- In - b2 * diag(LB, nrow = n)
-            Dh <- In - b3 * D
+            Ah <- In - bA * A
+            Bh <- In - bB * diag(LB, nrow = n)
+            Dh <- In - bD * D
             if(central) {
                 dksm <- d3_ijk_m(Ah, Bh, Dh, m, thr_margin = thr_margin)
             } else {
@@ -2964,7 +2964,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         }
         lscf <- attr(dksm, "logscale")
         ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
-                         - p * log(b1) + q * log(b2) + r * log(b3)
+                         - p * log(bA) + q * log(bB) + r * log(bD)
                          + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
         if(any(lscf < 0)) {
