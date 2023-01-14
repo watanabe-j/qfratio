@@ -319,3 +319,47 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks,
 template ArrayXXd hgs_3dE(const ArrayBase<ArrayXXd>& dks, const double a1, 
                           const double a2, const double a3, const double b,
                           const double lconst, const ArrayBase<ArrayXXd>& lscf);
+
+
+// Eigen template version of \code{sum_counterdiag()}
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiagE(const Eigen::ArrayBase<Derived>& X) {
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, 1> ArrayXx;
+    const int n = X.rows();
+    ArrayXx ans = ArrayXx::Zero(n);
+    Scalar x;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j <= i; j++) {
+            x = X(i - j, j);
+            if(!std::isnan(x)) ans(i) += x;
+        }
+    }
+    return ans;
+}
+template ArrayXd sum_counterdiagE(const ArrayBase<ArrayXXd>& X);
+template ArrayXl sum_counterdiagE(const ArrayBase<ArrayXXl>& X);
+
+// Eigen template version of \code{sum_counterdiag3D()}
+// X is a wide ArrayXXl, n * (n * n)
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiag3DE(const Eigen::ArrayBase<Derived>& X) {
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, 1> ArrayXx;
+    const int n = X.rows();
+    ArrayXx ans = ArrayXx::Zero(n);
+    Scalar x;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j <= i; j++) {
+            for(int k = 0; k <= (i - j); k++){
+                x = X(i - j - k, j + k * n);
+                if(!std::isnan(x)) ans(i) += x;
+            }
+        }
+    }
+    return ans;
+}
+template ArrayXd sum_counterdiag3DE(const ArrayBase<ArrayXXd>& X);
+template ArrayXl sum_counterdiag3DE(const ArrayBase<ArrayXXl>& X);

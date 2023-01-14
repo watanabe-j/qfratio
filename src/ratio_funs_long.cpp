@@ -15,37 +15,6 @@ typedef Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic> ArrayXXl;
 typedef Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> MatrixXl;
 
 
-// Eigen version of \code{sum_counterdiag()}
-Eigen::Array<long double, Eigen::Dynamic, 1> sum_counterdiagE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& X) {
-    const int n = X.rows();
-    ArrayXl ans = ArrayXl::Zero(n);
-    long double x;
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= i; j++) {
-            x = X(i - j, j);
-            if(!std::isnan(x)) ans(i) += x;
-        }
-    }
-    return ans;
-}
-
-// Eigen version of \code{sum_counterdiag3D()}
-// X is a wide ArrayXXl, n * (n * n)
-Eigen::Array<long double, Eigen::Dynamic, 1> sum_counterdiag3DE(const Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic>& X) {
-    const int n = X.rows();
-    ArrayXl ans = ArrayXl::Zero(n);
-    long double x;
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= i; j++) {
-            for(int k = 0; k <= (i - j); k++){
-                x = X(i - j - k, j + k * n);
-                if(!std::isnan(x)) ans(i) += x;
-            }
-        }
-    }
-    return ans;
-}
-
 Eigen::Array<long double, Eigen::Dynamic, 1> LinSpaced_lgammal(const int n, const long double par) {
     long double n_ = n;
     ArrayXl ans(n);

@@ -11,7 +11,6 @@
 // #include "qfratio_types.h"
 #include "dk_funs.h"
 #include "hgs_funs.h"
-#include "ratio_funs.h"
 
 using Eigen::log;
 using Eigen::ArrayXd;
@@ -19,38 +18,6 @@ using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::SelfAdjointEigenSolver;
-
-
-// Eigen version of \code{sum_counterdiag()}
-Eigen::ArrayXd sum_counterdiagE(const Eigen::ArrayXXd& X) {
-    const int n = X.rows();
-    ArrayXd ans = ArrayXd::Zero(n);
-    double x;
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= i; j++) {
-            x = X(i - j, j);
-            if(!std::isnan(x)) ans(i) += x;
-        }
-    }
-    return ans;
-}
-
-// Eigen version of \code{sum_counterdiag3D()}
-// X is a wide ArrayXXd, n * (n * n)
-Eigen::ArrayXd sum_counterdiag3DE(const Eigen::ArrayXXd& X) {
-    const int n = X.rows();
-    ArrayXd ans = ArrayXd::Zero(n);
-    double x;
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= i; j++) {
-            for(int k = 0; k <= (i - j); k++){
-                x = X(i - j - k, j + k * n);
-                if(!std::isnan(x)) ans(i) += x;
-            }
-        }
-    }
-    return ans;
-}
 
 
 //' @describeIn qfrm_cpp

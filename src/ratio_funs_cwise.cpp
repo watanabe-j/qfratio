@@ -6,7 +6,6 @@
 #include "dk_funs.h"
 #include "dk_funs_cwise.h"
 #include "hgs_funs.h"
-#include "ratio_funs.h"
 
 using Eigen::log;
 using Eigen::ArrayXd;

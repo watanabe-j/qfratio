@@ -55,4 +55,13 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks,
         const typename Derived::Scalar lconst,
         const Eigen::ArrayBase<Derived>& lscf);
 
+
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiagE(const Eigen::ArrayBase<Derived>& X);
+
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiag3DE(const Eigen::ArrayBase<Derived>& X);
+
 #endif
