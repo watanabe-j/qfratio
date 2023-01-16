@@ -164,8 +164,9 @@ NULL
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
 #'   Passed as \code{double}.
 #' @param m
-#'   \code{int} to specify the order of polynomials at which the series
-#'   expression is truncated
+#'   Integer to specify the order of polynomials at which the series
+#'   expression is truncated. Passed as \code{Eigen::Index}
+#'   (aka \code{std::ptrdiff_t} or \code{long long int})
 #' @param error_bound
 #'   \code{bool} to specify whether the error bound is returned
 #' @param nthreads

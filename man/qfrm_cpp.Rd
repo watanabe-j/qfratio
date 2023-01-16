@@ -937,8 +937,9 @@ functions.  See "Details" in \code{\link{qfmrm}}.}
 \item{bA, bB, bD}{Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{\mathbf{D}}.  Passed as \code{double}.}
 
-\item{m}{\code{int} to specify the order of polynomials at which the series
-expression is truncated}
+\item{m}{Integer to specify the order of polynomials at which the series
+expression is truncated. Passed as \code{Eigen::Index}
+(aka \code{std::ptrdiff_t} or \code{long long int})}
 
 \item{error_bound}{\code{bool} to specify whether the error bound is returned}
 

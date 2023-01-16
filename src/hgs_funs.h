@@ -6,18 +6,18 @@
 // #include "qfratio_types.h"
 
 // template <typename T>
-// Eigen::Array<T, Eigen::Dynamic, 1> get_lrf(const T a, const int n);
-Eigen::ArrayXd get_lrf(const double a, const int n);
-Eigen::Array<long double, Eigen::Dynamic, 1> get_lrf(const long double a, const int n);
+// Eigen::Array<T, Eigen::Dynamic, 1> get_lrf(const T a, const Eigen::Index n);
+Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n);
+Eigen::Array<long double, Eigen::Dynamic, 1> get_lrf(const long double a, const Eigen::Index n);
 
 template <typename Derived>
 void set_cumsum(const Eigen::DenseBase<Derived>& Data, Eigen::DenseBase<Derived>& Out);
 
 template <typename T>
-Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const int n);
+Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const Eigen::Index n);
 
 template <typename T>
-Eigen::Array<T, Eigen::Dynamic, 1> get_sign_rfp1(const T a, const int n);
+Eigen::Array<T, Eigen::Dynamic, 1> get_sign_rfp1(const T a, const Eigen::Index n);
 
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>

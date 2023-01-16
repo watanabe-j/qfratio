@@ -20,67 +20,69 @@ using Eigen::Array;
 using Eigen::MatrixBase;
 using Eigen::ArrayBase;
 using Eigen::Dynamic;
+using Eigen::Index;
 
 
 template <typename Derived>
 inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
-                            const int i0, const int j0, const int M) {
+                            const Eigen::Index i0, const Eigen::Index j0,
+                            const Eigen::Index M) {
     lscf(i0, j0) -= LN1E10;
     typename Derived::Scalar lscf0 = lscf(i0, j0);
-    int ie = M - j0;
-    int je = M - i0;
-    for(int ii = i0 + 1; ii < M - j0; ii++) {
+    Index ie = M - j0;
+    Index je = M - i0;
+    for(Index ii = i0 + 1; ii < M - j0; ii++) {
         if(lscf(ii, j0) <= lscf0) {
             ie = ii;
             break;
         }
     }
-    for(int jj = j0 + 1; jj < M - i0; jj++) {
+    for(Index jj = j0 + 1; jj < M - i0; jj++) {
         if(lscf(i0, jj) <= lscf0) {
             je = jj;
             break;
         }
     }
     lscf.col(j0).segment(i0, ie - i0) = lscf0;
-    for(int jj = j0 + 1; jj < je; jj++) {
+    for(Index jj = j0 + 1; jj < je; jj++) {
         lscf.col(jj).segment(i0, min(ie, M - jj) - i0) = lscf0;
     }
 }
 
 template <typename Derived>
 inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
-                            const int i0, const int j0, const int k0,
-                            const int M) {
+                            const Eigen::Index i0, const Eigen::Index j0,
+                            const Eigen::Index k0, const Eigen::Index M) {
     lscf(i0, j0 + k0 * M) -= LN1E10;
     typename Derived::Scalar lscf0 = lscf(i0, j0 + k0 * M);
-    int ie = M - j0 - k0;
-    int je = M - i0 - k0;
-    int ke = M - i0 - j0;
-    for(int ii = i0 + 1; ii < M - j0 - k0; ii++) {
+    Index ie = M - j0 - k0;
+    Index je = M - i0 - k0;
+    Index ke = M - i0 - j0;
+    for(Index ii = i0 + 1; ii < M - j0 - k0; ii++) {
         if(lscf(ii, j0 + k0 * M) <= lscf0) {
             ie = ii;
             break;
         }
     }
-    for(int jj = j0 + 1; jj < M - i0 - k0; jj++) {
+    for(Index jj = j0 + 1; jj < M - i0 - k0; jj++) {
         if(lscf(i0, jj + k0 * M) <= lscf0) {
             je = jj;
             break;
         }
     }
-    for(int kk = k0 + 1; kk < M - i0 - j0; kk++) {
+    for(Index kk = k0 + 1; kk < M - i0 - j0; kk++) {
         if(lscf(i0, j0 + kk * M) <= lscf0) {
             ke = kk;
             break;
         }
     }
     lscf.col(j0 + k0 * M).segment(i0, ie - i0) = lscf0;
-    for(int jj = j0 + 1; jj < je; jj++) {
+    for(Index jj = j0 + 1; jj < je; jj++) {
         lscf.col(jj + k0 * M).segment(i0, min(ie, M - jj - k0) - i0) = lscf0;
     }
-    for(int kk = k0 + 1; kk < ke; kk++) {
+    for(Index kk = k0 + 1; kk < ke; kk++) {
         lscf.col(j0 + kk * M).segment(i0, min(ie, M - j0 - kk) - i0) = lscf0;
-        for(int jj = j0 + 1; jj < je; jj++) {
+        for(Index jj = j0 + 1; jj < je; jj++) {
             lscf.col(jj + kk * M).segment(i0, min(ie, M - jj - kk) - i0) = lscf0;
         }
     }
@@ -95,13 +97,14 @@ inline void update_scale_3D(Eigen::ArrayBase<Derived>& lscf,
 //  k x o o o
 // (i1)
 // This function returns the index of (i1, i2)-th x.
-inline int id3(int i1, int i2, int k) {
+inline Eigen::Index id3(Eigen::Index i1, Eigen::Index i2, Eigen::Index k) {
     return i1 + (k + 1) * i2 - (i2 - 1) * i2 / 2;
 }
 
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d2_ij_mE(int i1, int k, const int m, const int n, 
+inline void scale_in_d2_ij_mE(Eigen::Index i1, Eigen::Index k,
+                              const Eigen::Index m, const Eigen::Index n, 
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -118,13 +121,13 @@ template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
-         const int m,
+         const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
          const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
@@ -132,7 +135,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Go = MatrixXx::Zero(n, n * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 1));
     Scalar s1, s2;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 200 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -141,7 +144,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
         scale_in_d2_ij_mE(0, k, m, n, thr, dks, lscf, Gn);
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, k - i1 - 1) - lscf(i1 - 1, k - i1)));
             s2 = exp(min<Scalar>(0, lscf(i1 - 1, k - i1) - lscf(i1, k - i1 - 1)));
             Gn.block(0, n * i1, n, n) =
@@ -158,10 +161,11 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 }
 template ArrayXXd d2_ij_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                            const Eigen::MatrixBase<MatrixXd>& A2,
-                           const int m, ArrayXXd& lscf, const double thr_margin);
+                           const Index m, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d2_ij_vE(int i1, int k,const int &m, const int &n, 
+inline void scale_in_d2_ij_vE(Eigen::Index i1, Eigen::Index k,
+                              const Eigen::Index &m, const Eigen::Index &n, 
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -177,18 +181,19 @@ inline void scale_in_d2_ij_vE(int i1, int k,const int &m, const int &n,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2,
-         const int m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+         const Eigen::Index m,
+         Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
          const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, m);
     ArrayXXx Gn = ArrayXXx::Zero(n, m + 1);
     Scalar s1, s2;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 2000 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -197,7 +202,7 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
         Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
         dks(0, k) = Gn.col(0).sum() / (2 * k);
         scale_in_d2_ij_vE(0, k, m, n, thr, dks, lscf, Gn);
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, k - i1 - 1) - lscf(i1 - 1, k - i1)));
             s2 = exp(min<Scalar>(0, lscf(i1 - 1, k - i1) - lscf(i1, k - i1 - 1)));
             Gn.col(i1) = s1 * A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
@@ -213,11 +218,12 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
 }
 template ArrayXXd d2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
-                           const int m, ArrayXXd& lscf, const double thr_margin);
+                           const Index m, ArrayXXd& lscf, const double thr_margin);
 
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-inline void scale_in_h2_ij_mE(int i1, int k,const int &m, const int &n, 
+inline void scale_in_h2_ij_mE(Eigen::Index i1, Eigen::Index k,
+                              const Eigen::Index &m, const Eigen::Index &n, 
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -237,13 +243,13 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
-         const int m,
+         const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
          const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
@@ -254,7 +260,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, m);
     MatrixXx gn = MatrixXx::Zero(n, m + 1);
     Scalar s1, s2;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 200 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -267,7 +273,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         scale_in_h2_ij_mE(0, k, m, n, thr, dks, lscf, Gn, gn);
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, k - i1 - 1) - lscf(i1 - 1, k - i1)));
             s2 = exp(min<Scalar>(0, lscf(i1 - 1, k - i1) - lscf(i1, k - i1 - 1)));
             tG = s1 * A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
@@ -292,11 +298,12 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 }
 template ArrayXXd h2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const MatrixBase<MatrixXd>& A2,
-                           const VectorXd& mu, const int m,
+                           const VectorXd& mu, const Index m,
                            ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_h2_ij_vE(int i1, int k,const int &m, const int &n, 
+inline void scale_in_h2_ij_vE(Eigen::Index i1, Eigen::Index k,
+                              const Eigen::Index &m, const Eigen::Index &n, 
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -316,13 +323,13 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& A2,
          const Eigen::ArrayBase<Derived>& mu,
-         const int m,
+         const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
          const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
@@ -332,7 +339,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, m);
     ArrayXXx gn = ArrayXXx::Zero(n, m + 1);
     Scalar s1, s2;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 2000 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -345,7 +352,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(0) = tG;
         dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
         scale_in_h2_ij_vE(0, k, m, n, thr, dks, lscf, Gn, gn);
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, k - i1 - 1) - lscf(i1 - 1, k - i1)));
             s2 = exp(min<Scalar>(0, lscf(i1 - 1, k - i1) - lscf(i1, k - i1 - 1)));
             tG = s1 * A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
@@ -371,16 +378,17 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd h2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                            const Eigen::ArrayBase<ArrayXd>& A2,
                            const Eigen::ArrayBase<ArrayXd>& mu,
-                           const int m, ArrayXXd& lscf, const double thr_margin);
+                           const Index m, ArrayXXd& lscf, const double thr_margin);
 
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d3_ijk_mE(int i1, int i2, int k, const int m, const int n, 
+inline void scale_in_d3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n, 
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
                                Eigen::MatrixBase<DerivedC> &Gn) {
-    int i3 = k - i1 - i2;
+    Index i3 = k - i1 - i2;
     if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr) {
         dks(i1, i2 + i3 * (m + 1)) /= 1e10;
         Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
@@ -394,7 +402,7 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::MatrixBase<Derived>& A2,
           const Eigen::MatrixBase<Derived>& A3,
-          const int m,
+          const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
@@ -404,7 +412,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -412,7 +420,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Go = MatrixXx::Zero(n, n * (m + 1) * m / 2);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 50 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -421,8 +429,8 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, 0, n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
         dks(0, k * (m + 1)) = Gn.block(0, 0, n, n).trace() / (2 * k);
         scale_in_d3_ijk_mE(0, 0, k, m, n, thr, dks, lscf, Gn);
-        for(int i2 = 1; i2 < k; i2++) {
-            int i3 = k - i2;
+        for(Index i2 = 1; i2 < k; i2++) {
+            Index i3 = k - i2;
             s2 = exp(min<Scalar>(0, lscf(0, i2 + (i3 - 1) * (m + 1)) - lscf(0, i2 - 1 + i3 * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(0, i2 - 1 + i3 * (m + 1)) - lscf(0, i2 + (i3 - 1) * (m + 1))));
             Gn.block(0, n * id3(0, i2, k), n, n) =
@@ -439,7 +447,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 {
 #pragma omp for
 #endif
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, (k - i1 - 1) * (m + 1)) - lscf(i1 - 1, (k - i1) * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(i1 - 1, (k - i1) * (m + 1)) - lscf(i1, (k - i1 - 1) * (m + 1))));
             Gn.block(0, n * i1, n, n) =
@@ -447,8 +455,8 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                 s3 * A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
             dks(i1, (k - i1) * (m + 1)) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
             scale_in_d3_ijk_mE(i1, 0, k, m, n, thr, dks, lscf, Gn);
-            for(int i2 = 1; i2 < k - i1; i2++) {
-                int i3 = k - i1 - i2;
+            for(Index i2 = 1; i2 < k - i1; i2++) {
+                Index i3 = k - i1 - i2;
                 min_lscf = min<Scalar>({lscf(i1 - 1, i2 + i3 * (m + 1)),
                                         lscf(i1, i2 - 1 + i3 * (m + 1)),
                                         lscf(i1, i2 + (i3 - 1) * (m + 1))});
@@ -483,15 +491,16 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd d3_ijk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                             const Eigen::MatrixBase<MatrixXd>& A2,
                             const Eigen::MatrixBase<MatrixXd>& A3,
-                            const int m, ArrayXXd& lscf, const double thr_margin, int nthreads);
+                            const Index m, ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d3_ijk_vE(int i1, int i2, int k, const int m, const int n, 
+inline void scale_in_d3_ijk_vE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n, 
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
                                Eigen::ArrayBase<DerivedC> &Gn) {
-    int i3 = k - i1 - i2;
+    Index i3 = k - i1 - i2;
     if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
         dks(i1, i2 + i3 * (m + 1)) /= 1e10;
         Gn.col(id3(i1, i2, k)) /= 1e10;
@@ -505,7 +514,7 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
-          const int m,
+          const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
@@ -515,14 +524,14 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx Gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -531,8 +540,8 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(0) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col(0));
         dks(0, k * (m + 1)) = Gn.col(0).sum() / (2 * k);
         scale_in_d3_ijk_vE(0, 0, k, m, n, thr, dks, lscf, Gn);
-        for(int i2 = 1; i2 < k; i2++) {
-            int i3 = k - i2;
+        for(Index i2 = 1; i2 < k; i2++) {
+            Index i3 = k - i2;
             s2 = exp(min<Scalar>(0, lscf(0, i2 + (i3 - 1) * (m + 1)) - lscf(0, i2 - 1 + i3 * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(0, i2 - 1 + i3 * (m + 1)) - lscf(0, i2 + (i3 - 1) * (m + 1))));
             Gn.col(id3(0, i2, k)) =
@@ -549,7 +558,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 // {
 // #pragma omp for
 // #endif
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, (k - i1 - 1) * (m + 1)) - lscf(i1 - 1, (k - i1) * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(i1 - 1, (k - i1) * (m + 1)) - lscf(i1, (k - i1 - 1) * (m + 1))));
             Gn.col(i1) =
@@ -557,8 +566,8 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                 s3 * A3 * (dks(i1, (k - i1 - 1) * (m + 1)) + Go.col(i1));
             dks(i1, (k - i1) * (m + 1)) = Gn.col(i1).sum() / (2 * k);
             scale_in_d3_ijk_vE(i1, 0, k, m, n, thr, dks, lscf, Gn);
-            for(int i2 = 1; i2 < k - i1; i2++) {
-                int i3 = k - i1 - i2;
+            for(Index i2 = 1; i2 < k - i1; i2++) {
+                Index i3 = k - i1 - i2;
                 min_lscf = min<Scalar>({lscf(i1 - 1, i2 + i3 * (m + 1)),
                                         lscf(i1, i2 - 1 + i3 * (m + 1)),
                                         lscf(i1, i2 + (i3 - 1) * (m + 1))});
@@ -592,10 +601,12 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd d3_ijk_vE(const Eigen::ArrayBase<ArrayXd>& A1,
                             const Eigen::ArrayBase<ArrayXd>& A2,
                             const Eigen::ArrayBase<ArrayXd>& A3,
-                            const int m, ArrayXXd& lscf, const double thr_margin);
+                            const Index m, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d3_pjk_mE(int j, int k, const int m, const int n, const int p,
+inline void scale_in_d3_pjk_mE(Eigen::Index j, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n,
+                               const Eigen::Index p,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
@@ -610,8 +621,11 @@ inline void scale_in_d3_pjk_mE(int j, int k, const int m, const int n, const int
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>& A2, const Eigen::MatrixBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
+          const Eigen::MatrixBase<Derived>& A2,
+          const Eigen::MatrixBase<Derived>& A3,
+          const Eigen::Index m,
+          const Eigen::Index p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -620,7 +634,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -628,19 +642,19 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
         dks(i, 0) = Gn.block(0, i * n, n, n).trace() / (2 * i);
     }
     scale_in_d3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
                                        A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             dks(i, k) = Gn.block(0, i * n, n, n).trace() / (2 * (k + i));
@@ -651,12 +665,12 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
 {
 #pragma omp for
 #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             Gn.block(0, j * n * (p + 1), n, n) = s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) + s3 * A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
             dks(0, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (p + 1), n, n).trace() / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 Gn.block(0, j * n * (p + 1) + i * n, n, n) = 
                          A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
                     s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
@@ -670,7 +684,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
 #endif
         Gn.block(0, k * n * (p + 1), n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
         dks(0, k * (m + 1)) = Gn.block(0, k * n * (p + 1), n, n).trace() / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
                                        A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
             dks(i, k * (m + 1)) = Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
@@ -681,10 +695,12 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1, const Eigen::MatrixBase<Derived>
 }
 template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                 const MatrixBase<MatrixXd>& A2, const MatrixBase<MatrixXd>& A3,
-                const int m, const int p, ArrayXXd& lscf, const double thr_margin, int nthreads);
+                const Index m, const Index p, ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_d3_pjk_vE(int j, int k, const int m, const int n, const int p,
+inline void scale_in_d3_pjk_vE(Eigen::Index j, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n,
+                               const Eigen::Index p,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
@@ -699,8 +715,11 @@ inline void scale_in_d3_pjk_vE(int j, int k, const int m, const int n, const int
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2, const Eigen::ArrayBase<Derived>& A3,
-          const int m, const int p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
+d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
+          const Eigen::ArrayBase<Derived>& A2,
+          const Eigen::ArrayBase<Derived>& A3,
+          const Eigen::Index m, const Eigen::Index p,
+          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
 //     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
@@ -708,26 +727,26 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
 // #endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.col(i) = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
         dks(i, 0) = Gn.col(i).sum() / (2 * i);
     }
     scale_in_d3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
         Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
         dks(0, k) = Gn.col(0).sum() / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             Gn.col(i) = A1 * (dks(i - 1, k) + Gn.col(i - 1)) +
                         A2 * (dks(i, k - 1) + Go.col(i));
             dks(i, k) = Gn.col(i).sum() / (2 * (k + i));
@@ -738,14 +757,14 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
 // {
 // #pragma omp for
 // #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             Gn.col(j * (p + 1)) =
                 s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
                 s3 * A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
             dks(0, (k - j) + j * (m + 1)) = Gn.col(j * (p + 1)).sum() / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 Gn.col(j * (p + 1) + i) =
                          A1 * (dks(i - 1, (k - j) + j * (m + 1)) + Gn.col(j * (p + 1) + (i - 1))) +
                     s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1) + i)) +
@@ -759,7 +778,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
 // #endif
         Gn.col(k * (p + 1)) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         dks(0, k * (m + 1)) = Gn.col(k * (p + 1)).sum() / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             Gn.col(k * (p + 1) + i) =
                 A1 * (dks(i - 1, k * (m + 1)) + Gn.col(k * (p + 1) + i - 1)) +
                 A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1) + i));
@@ -771,16 +790,17 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& 
 }
 template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                     const ArrayBase<ArrayXd>& A2, const ArrayBase<ArrayXd>& A3,
-                    const int m, const int p, ArrayXXd& lscf, const double thr_margin);
+                    const Index m, const Index p, ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-inline void scale_in_h3_ijk_mE(int i1, int i2, int k, const int m, const int n, 
+inline void scale_in_h3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
                                Eigen::MatrixBase<DerivedC> &Gn,
                                Eigen::MatrixBase<DerivedD> &gn) {
-    int i3 = k - i1 - i2;
+    Index i3 = k - i1 - i2;
     if(Gn.block(0, n * id3(i1, i2, k), n, n).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
         dks(i1, i2 + i3 * (m + 1)) /= 1e10;
         Gn.block(0, n * id3(i1, i2, k), n, n) /= 1e10;
@@ -796,7 +816,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::MatrixBase<Derived>& A2,
           const Eigen::MatrixBase<Derived>& A3,
           const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
-          const int m,
+          const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
@@ -806,7 +826,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -817,7 +837,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (m + 1) * m / 2);
     MatrixXx gn = MatrixXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 50 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -830,8 +850,8 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         Gn.block(0, 0, n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         scale_in_h3_ijk_mE(0, 0, k, m, n, thr, dks, lscf, Gn, gn);
-        for(int i2 = 1; i2 < k; i2++) {
-            int i3 = k - i2;
+        for(Index i2 = 1; i2 < k; i2++) {
+            Index i3 = k - i2;
             s2 = exp(min<Scalar>(0, lscf(0, i2 + (i3 - 1) * (m + 1)) - lscf(0, i2 - 1 + i3 * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(0, i2 - 1 + i3 * (m + 1)) - lscf(0, i2 + (i3 - 1) * (m + 1))));
             tG = s2 * A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
@@ -857,7 +877,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 {
 #pragma omp for
 #endif
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, (k - i1 - 1) * (m + 1)) - lscf(i1 - 1, (k - i1) * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(i1 - 1, (k - i1) * (m + 1)) - lscf(i1, (k - i1 - 1) * (m + 1))));
             tG = s1 * A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
@@ -869,8 +889,8 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, n * i1, n, n) = tG;
             dks(i1, (k - i1) * (m + 1)) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
             scale_in_h3_ijk_mE(i1, 0, k, m, n, thr, dks, lscf, Gn, gn);
-            for(int i2 = 1; i2 < k - i1; i2++) {
-                int i3 = k - i1 - i2;
+            for(Index i2 = 1; i2 < k - i1; i2++) {
+                Index i3 = k - i1 - i2;
                 min_lscf = min<Scalar>({lscf(i1 - 1, i2 + i3 * (m + 1)), 
                                         lscf(i1, i2 - 1 + i3 * (m + 1)), 
                                         lscf(i1, i2 + (i3 - 1) * (m + 1))});
@@ -919,17 +939,18 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd  h3_ijk_mE(const MatrixBase<MatrixXd>& A1,
                              const MatrixBase<MatrixXd>& A2,
                              const MatrixBase<MatrixXd>& A3,
-                             const VectorXd mu, const int m,
+                             const VectorXd mu, const Index m,
                              ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_h3_ijk_vE(int i1, int i2, int k, const int m, const int n, 
+inline void scale_in_h3_ijk_vE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
+                               const Eigen::Index m, const Eigen::Index n,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
                                Eigen::ArrayBase<DerivedC> &Gn,
                                Eigen::ArrayBase<DerivedC> &gn) {
-    int i3 = k - i1 - i2;
+    Index i3 = k - i1 - i2;
     if(Gn.col(id3(i1, i2, k)).maxCoeff() > thr || gn.col(id3(i1, i2, k)).maxCoeff() > thr) {
         dks(i1, i2 + i3 * (m + 1)) /= 1e10;
         Gn.col(id3(i1, i2, k)) /= 1e10;
@@ -944,7 +965,7 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
-          const Eigen::ArrayBase<Derived>& mu, const int m,
+          const Eigen::ArrayBase<Derived>& mu, const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
           const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
@@ -954,7 +975,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(m + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
@@ -964,7 +985,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, (m + 1) * m / 2);
     ArrayXXx gn = ArrayXXx::Zero(n, (m + 2) * (m + 1) / 2);
     Scalar s1, s2, s3, min_lscf;
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -977,8 +998,8 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
         Gn.col(0) = tG;
         dks(0, k * (m + 1)) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
         scale_in_h3_ijk_vE(0, 0, k, m, n, thr, dks, lscf, Gn, gn);
-        for(int i2 = 1; i2 < k; i2++) {
-            int i3 = k - i2;
+        for(Index i2 = 1; i2 < k; i2++) {
+            Index i3 = k - i2;
             s2 = exp(min<Scalar>(0, lscf(0, i2 + (i3 - 1) * (m + 1)) - lscf(0, i2 - 1 + i3 * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(0, i2 - 1 + i3 * (m + 1)) - lscf(0, i2 + (i3 - 1) * (m + 1))));
             tG = s2 * A2 * (dks(0, i2 - 1 + i3 * (m + 1)) + Go.col(id3(0, i2 - 1, k - 1))) +
@@ -1003,7 +1024,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 // {
 // #pragma omp for
 // #endif
-        for(int i1 = 1; i1 < k; i1++) {
+        for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, (k - i1 - 1) * (m + 1)) - lscf(i1 - 1, (k - i1) * (m + 1))));
             s3 = exp(min<Scalar>(0, lscf(i1 - 1, (k - i1) * (m + 1)) - lscf(i1, (k - i1 - 1) * (m + 1))));
             tG = s1 * A1 * (dks(i1 - 1, (k - i1) * (m + 1)) + Go.col(i1 - 1)) +
@@ -1015,8 +1036,8 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(i1) = tG;
             dks(i1, (k - i1) * (m + 1)) = (Gn.col(i1).sum() + (mu * gn.col(i1)).sum()) / (2 * k);
             scale_in_h3_ijk_vE(i1, 0, k, m, n, thr, dks, lscf, Gn, gn);
-            for(int i2 = 1; i2 < k - i1; i2++) {
-                int i3 = k - i1 - i2;
+            for(Index i2 = 1; i2 < k - i1; i2++) {
+                Index i3 = k - i1 - i2;
                 min_lscf = min<Scalar>({lscf(i1 - 1, i2 + i3 * (m + 1)),
                                         lscf(i1, i2 - 1 + i3 * (m + 1)),
                                         lscf(i1, i2 + (i3 - 1) * (m + 1))});
@@ -1064,11 +1085,13 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
 template ArrayXXd h3_ijk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
-                            const ArrayBase<ArrayXd>& mu, const int m,
+                            const ArrayBase<ArrayXd>& mu, const Index m,
                             ArrayXXd& lscf, const double thr_margin);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-inline void scale_in_htil3_pjk_mE(int j, int k, const int m, const int n, const int p,
+inline void scale_in_htil3_pjk_mE(Eigen::Index j, Eigen::Index k,
+                                  const Eigen::Index m, const Eigen::Index n,
+                                  const Eigen::Index p,
                                   typename DerivedA::Scalar &thr,
                                   Eigen::ArrayBase<DerivedA> &dks,
                                   Eigen::ArrayBase<DerivedB> &lscf,
@@ -1089,7 +1112,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::MatrixBase<Derived>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
-             const int m, const int p,
+             const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
@@ -1099,7 +1122,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -1110,13 +1133,13 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
         gn.col(i) = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     scale_in_htil3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -1126,7 +1149,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         gn.col(0) = (tG - Go.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
                  A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             gn.col(i) = (tG - Go.block(0, i * n, n, n)
@@ -1141,7 +1164,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 {
 #pragma omp for
 #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             tG = s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
@@ -1151,7 +1174,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
                 s2 * A2 * go.col(j * (p + 1)) + s3 * A3 * go.col((j - 1) * (p + 1));
             Gn.block(0, j * n * (p + 1), n, n) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 tG =      A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
                      s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
                      s3 * A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
@@ -1171,7 +1194,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         gn.col(k * (p + 1)) = (tG - Go.block(0, (k - 1) * n * (p + 1), n, n) - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
                  A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
             gn.col(k * (p + 1) + i) = (tG - Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
@@ -1187,11 +1210,13 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd htil3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const MatrixBase<MatrixXd>& A2,
                                const MatrixBase<MatrixXd>& A3,
-                               const VectorXd mu, const int m, const int p,
+                               const VectorXd mu, const Index m, const Index p,
                                ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
-inline void scale_in_htil3_pjk_vE(int j, int k, const int m, const int n, const int p,
+inline void scale_in_htil3_pjk_vE(Eigen::Index j, Eigen::Index k,
+                                  const Eigen::Index m, const Eigen::Index n,
+                                  const Eigen::Index p,
                                   typename DerivedA::Scalar &thr,
                                   Eigen::ArrayBase<DerivedA> &dks,
                                   Eigen::ArrayBase<DerivedB> &lscf,
@@ -1212,7 +1237,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A2,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
-             const int m, const int p,
+             const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
              const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
@@ -1222,7 +1247,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
@@ -1232,13 +1257,13 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.col(i) = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
         gn.col(i) = Gn.col(i) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
     }
     scale_in_htil3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -1248,7 +1273,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         gn.col(0) = (tG - Go.col(0) - (dks(0, k - 1))) * mu + A2 * go.col(0);
         Gn.col(0) = tG;
         dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k) + Gn.col(i - 1)) +
                  A2 * (dks(i, k - 1) + Go.col(i));
             gn.col(i) = (tG - Go.col(i)
@@ -1263,7 +1288,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
 // {
 // #pragma omp for
 // #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             tG = s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
@@ -1273,7 +1298,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 s2 * A2 * go.col(j * (p + 1)) + s3 * A3 * go.col((j - 1) * (p + 1));
             Gn.col(j * (p + 1)) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1)).sum() + (mu * gn.col(j * (p + 1))).sum()) / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 tG =      A1 * (dks(i - 1, (k - j) + j * (m + 1)) + Gn.col(j * (p + 1) + i - 1)) +
                      s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1) + i)) +
                      s3 * A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1) + i));
@@ -1294,7 +1319,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             A3 * go.col((k - 1) * (p + 1));
         Gn.col(k * (p + 1)) = tG;
         dks(0, k * (m + 1)) = (Gn.col(k * (p + 1)).sum() + (mu * gn.col(k * (p + 1))).sum()) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k * (m + 1)) + Gn.col(k * (p + 1) + i - 1)) +
                  A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1) + i));
             gn.col(k * (p + 1) + i) = (tG - Go.col((k - 1) * (p + 1) + i)
@@ -1311,7 +1336,7 @@ template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf,
+                               const Index m, const Index p, ArrayXXd& lscf,
                                const double thr_margin);
 
 // // [[Rcpp::export]]
@@ -1321,7 +1346,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::MatrixBase<Derived>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
-             const int m, const int p,
+             const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
@@ -1331,7 +1356,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
@@ -1342,13 +1367,13 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
         gn.col(i) = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     scale_in_htil3_pjk_mE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 100 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -1358,7 +1383,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         gn.col(0) = (tG + Go.block(0, 0, n, n) + (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
                  A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             gn.col(i) = (tG + Go.block(0, i * n, n, n)
@@ -1373,7 +1398,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 {
 #pragma omp for
 #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             tG = s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
@@ -1383,7 +1408,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
                 s2 * A2 * go.col(j * (p + 1)) + s3 * A3 * go.col((j - 1) * (p + 1));
             Gn.block(0, j * n * (p + 1), n, n) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 tG =      A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
                      s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
                      s3 * A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
@@ -1403,7 +1428,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         gn.col(k * (p + 1)) = (tG + Go.block(0, (k - 1) * n * (p + 1), n, n) + (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
                  A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
             gn.col(k * (p + 1) + i) = (tG + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
@@ -1419,7 +1444,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
                                const Eigen::MatrixBase<MatrixXd>& A2,
                                const Eigen::MatrixBase<MatrixXd>& A3,
-                               const VectorXd mu, const int m, const int p,
+                               const VectorXd mu, const Index m, const Index p,
                                ArrayXXd& lscf, const double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
@@ -1429,7 +1454,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A2,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
-             const int m, const int p,
+             const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
              const typename Derived::Scalar thr_margin) { // , int nthreads) {
 // #ifdef _OPENMP
@@ -1439,7 +1464,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const int n = A1.rows();
+    const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 1));
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
@@ -1449,13 +1474,13 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     Scalar s2, s3;
-    for(int i = 1; i <= p; i++) {
+    for(Index i = 1; i <= p; i++) {
         Gn.col(i) = A1 * (dks(i - 1, 0) + Gn.col(i - 1));
         gn.col(i) = Gn.col(i) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
     }
     scale_in_htil3_pjk_vE(0, 0, m, n, p, thr, dks, lscf, Gn, gn);
-    for(int k = 1; k <= m; k++) {
+    for(Index k = 1; k <= m; k++) {
         if(k % 500 == 0) {
             Rcpp::checkUserInterrupt();
         }
@@ -1465,7 +1490,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         gn.col(0) = (tG + Go.col(0) + (dks(0, k - 1))) * mu + A2 * go.col(0);
         Gn.col(0) = tG;
         dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k) + Gn.col(i - 1)) +
                  A2 * (dks(i, k - 1) + Go.col(i));
             gn.col(i) = (tG + Go.col(i)
@@ -1480,7 +1505,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
 // {
 // #pragma omp for
 // #endif
-        for(int j = 1; j < k; j++) {
+        for(Index j = 1; j < k; j++) {
             s2 = exp(min<Scalar>(0, lscf(k - j, j - 1) - lscf(k - j - 1, j)));
             s3 = exp(min<Scalar>(0, lscf(k - j - 1, j) - lscf(k - j, j - 1)));
             tG = s2 * A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) + s3 * A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
@@ -1490,7 +1515,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 s2 * A2 * go.col(j * (p + 1)) + s3 * A3 * go.col((j - 1) * (p + 1));
             Gn.col(j * (p + 1)) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1)).sum() + (mu * gn.col(j * (p + 1))).sum()) / (2 * k);
-            for(int i = 1; i <= p; i++) {
+            for(Index i = 1; i <= p; i++) {
                 tG =      A1 * (dks(i - 1, (k - j) + j * (m + 1)) + Gn.col(j * (p + 1) + i - 1)) +
                      s2 * A2 * (dks(i, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1) + i)) +
                      s3 * A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1) + i));
@@ -1512,7 +1537,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             A3 * go.col((k - 1) * (p + 1));
         Gn.col(k * (p + 1)) = tG;
         dks(0, k * (m + 1)) = (Gn.col(k * (p + 1)).sum() + (mu * gn.col(k * (p + 1))).sum()) / (2 * k);
-        for(int i = 1; i <= p; i++) {
+        for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k * (m + 1)) + Gn.col(k * (p + 1) + i - 1)) +
                  A3 * (dks(i, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1) + i));
             gn.col(k * (p + 1) + i) =
@@ -1530,5 +1555,5 @@ template ArrayXXd hhat3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
-                               const int m, const int p, ArrayXXd& lscf,
+                               const Index m, const Index p, ArrayXXd& lscf,
                                const double thr_margin);
