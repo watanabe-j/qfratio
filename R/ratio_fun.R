@@ -45,6 +45,14 @@
 #' author's knowledge.
 # #' See \code{vignette("qfratio")} for further technical details.
 #'
+#' For situations when the error bound is unavailable, a *very rough* check of
+#' numerical convergence is also conducted; a warning is thrown if
+#' the magnitude of the last term does not look small enough.
+#' By default, its relative magnitude to the sum is compared with
+#' the tolerance controlled by \code{tol_conv}, whose default is
+#' \code{.Machine$double.eps^(1/4)} (= ~\code{1.2e-04})
+#' (see \code{check_convergence}).
+#'
 #' When \code{Sigma} is provided, the quadratic forms are transformed into
 #' a canonical form; that is, using the decomposition
 #' \eqn{\mathbf{\Sigma} = \mathbf{K} \mathbf{K}^T}, where the number of
@@ -145,10 +153,19 @@
 #' @param error_bound
 #'   Logical to specify whether the error bound is returned (if available).
 #' @param check_convergence
-#'   Logical to specify whether a (very rough) check for convergence is done.
-#'   See "Details".
+#'   Specifies how convergence check is done (see "Details"). Options:
+#'   \itemize{
+#'     \item{\code{"relative"}: }{default; magnitude of the last term of
+#'           the series relative to the sum is compared with \code{tol_conv}}
+#'     \item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
+#'           default by setting \code{tol_conv = .Machine$double.eps}}
+#'     \item{\code{"absolute"}: }{absolute magnitude of the last term is
+#'           compared with \code{tol_conv}}
+#'     \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
+#'   }
 #' @param tol_conv
-#'   Tolerance against which the convergence of series is (roughly) determined
+#'   Tolerance against which numerical convergence of series is checked.
+#'   Used with \code{check_convergence}.
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling (see "Scaling"
 #'   in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
@@ -1131,7 +1148,9 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    error_bound = TRUE, check_convergence = TRUE,
+                    error_bound = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     alphaA = 1,
@@ -1139,6 +1158,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
@@ -1228,11 +1250,21 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     #                 paste0("\n  Consider using the option cpp_method = ",
     #                        "\"long_double\" or \"coef_wise\"."))
     # }
-    if(check_convergence) {
-        if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than ",
-                    "specified tolerance, ", tol_conv,
-                    "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
     singularA <- any(LA < tol_sing)
@@ -1291,13 +1323,18 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    error_bound = TRUE, check_convergence = TRUE,
+                    error_bound = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE, cpp_method = "double",
                     alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -1426,11 +1463,21 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence) {
-        if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than ",
-                    "specified tolerance, ", tol_conv,
-                    "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
     singularB <- any(LB < tol_sing)
@@ -1523,7 +1570,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    check_convergence = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     alphaA = 1, alphaB = 1,
@@ -1531,6 +1579,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1709,11 +1760,21 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence) {
-        if(abs(ansseq[length(ansseq)]) > tol_conv) {
-            warning("Last term of the series is larger than",
-                    "specified tolerance, ", tol_conv,
-                    "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
     new_qfrm(series = ansseq, seq_error = NA_real_)
@@ -1737,7 +1798,9 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #'
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
-                    error_bound = TRUE, check_convergence = TRUE,
+                    error_bound = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1,
@@ -1745,6 +1808,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -1911,9 +1977,22 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     #                 paste0("\n  Consider using the option cpp_method = ",
     #                        "\"long_double\" or \"coef_wise\"."))
     # }
-    if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
-        warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
+        }
     }
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
@@ -2011,7 +2090,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
-                    check_convergence = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaA = 1, alphaB = 1,
@@ -2019,6 +2099,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2223,9 +2306,22 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
-        warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
+        }
     }
     new_qfrm(series = ansseq, seq_error = NA_real_)
 }
@@ -2241,7 +2337,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     m = 100L,
-                    check_convergence = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1, alphaD = 1,
@@ -2249,6 +2346,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2462,9 +2562,22 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
-        warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
+        }
     }
     new_qfrm(series = ansseq, seq_error = NA_real_)
 }
@@ -2481,7 +2594,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #'
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     mu = rep.int(0, n),
-                    check_convergence = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaB = 1, alphaD = 1,
@@ -2489,6 +2603,9 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2719,9 +2836,22 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
-        warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
+        }
     }
     new_qfrm(series = ansseq, seq_error = NA_real_)
 }
@@ -2738,7 +2868,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 #'
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     m = 100L, mu = rep.int(0, n),
-                    check_convergence = TRUE,
+                    check_convergence = c("relative", "strict_relative",
+                                          "absolute", "none"),
                     use_cpp = TRUE,
                     cpp_method = c("double", "long_double", "coef_wise"),
                     nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
@@ -2746,6 +2877,9 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = .Machine$double.eps * 100,
                     thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
@@ -2994,9 +3128,22 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence && abs(ansseq[length(ansseq)]) > tol_conv) {
-        warning("Last term of the series is larger than specified tolerance, ",
-            tol_conv, "\n  Check sensitivity with different m?")
+    if(check_convergence != "none") {
+        if(missing(tol_conv) && check_convergence == "strict_relative") {
+            tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term of series is more than ",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the sum",
+                    ",\n  suggesting non-convergence. Consider using larger m.")
+        }
     }
     new_qfrm(series = ansseq, seq_error = NA_real_)
 }

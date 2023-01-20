@@ -33,7 +33,7 @@ qfmrm_ApBIqr_int(
   m = 100L,
   mu = rep.int(0, n),
   error_bound = TRUE,
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
@@ -52,7 +52,7 @@ qfmrm_ApBIqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
@@ -72,7 +72,7 @@ qfmrm_IpBDqr_gen(
   r = 1,
   mu = rep.int(0, n),
   m = 100L,
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
@@ -93,7 +93,7 @@ qfmrm_ApBDqr_int(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
@@ -114,7 +114,7 @@ qfmrm_ApBDqr_npi(
   r = 1,
   m = 100L,
   mu = rep.int(0, n),
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 0,
@@ -155,8 +155,16 @@ the appropriate ``internal'' function.}
 
 \item{error_bound}{Logical to specify whether the error bound is returned (if available).}
 
-\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
-See "Details".}
+\item{check_convergence}{Specifies how convergence check is done (see "Details"). Options:
+\itemize{
+\item{\code{"relative"}: }{default; magnitude of the last term of
+the series relative to the sum is compared with \code{tol_conv}}
+\item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
+default by setting \code{tol_conv = .Machine$double.eps}}
+\item{\code{"absolute"}: }{absolute magnitude of the last term is
+compared with \code{tol_conv}}
+\item{\code{"none"} or \code{FALSE}: }{skips convergence check}
+}}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
 functions via \code{Rcpp}. \code{TRUE} by default.}
@@ -176,7 +184,8 @@ robust but variably slow}
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
 See "Details".}
 
-\item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
+\item{tol_conv}{Tolerance against which numerical convergence of series is checked.
+Used with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
 in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},

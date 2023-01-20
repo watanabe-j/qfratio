@@ -40,7 +40,7 @@ qfrm_ApIq_npi(
   m = 100L,
   mu = rep.int(0, n),
   error_bound = TRUE,
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   alphaA = 1,
@@ -58,7 +58,7 @@ qfrm_ApBq_int(
   m = 100L,
   mu = rep.int(0, n),
   error_bound = TRUE,
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = "double",
   alphaB = 1,
@@ -75,7 +75,7 @@ qfrm_ApBq_npi(
   q = p,
   m = 100L,
   mu = rep.int(0, n),
-  check_convergence = TRUE,
+  check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   alphaA = 1,
@@ -132,13 +132,22 @@ in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 
 \item{error_bound}{Logical to specify whether the error bound is returned (if available).}
 
-\item{check_convergence}{Logical to specify whether a (very rough) check for convergence is done.
-See "Details".}
+\item{check_convergence}{Specifies how convergence check is done (see "Details"). Options:
+\itemize{
+\item{\code{"relative"}: }{default; magnitude of the last term of
+the series relative to the sum is compared with \code{tol_conv}}
+\item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
+default by setting \code{tol_conv = .Machine$double.eps}}
+\item{\code{"absolute"}: }{absolute magnitude of the last term is
+compared with \code{tol_conv}}
+\item{\code{"none"} or \code{FALSE}: }{skips convergence check}
+}}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
 
-\item{tol_conv}{Tolerance against which the convergence of series is (roughly) determined}
+\item{tol_conv}{Tolerance against which numerical convergence of series is checked.
+Used with \code{check_convergence}.}
 }
 \value{
 A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
@@ -206,6 +215,14 @@ Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
 \code{qfrm_ApIq_npi()} implements similar error bounds.
 No error bound is known for \code{qfrm_ApBq_npi()}, at least to the
 author's knowledge.
+
+For situations when the error bound is unavailable, a \emph{very rough} check of
+numerical convergence is also conducted; a warning is thrown if
+the magnitude of the last term does not look small enough.
+By default, its relative magnitude to the sum is compared with
+the tolerance controlled by \code{tol_conv}, whose default is
+\code{.Machine$double.eps^(1/4)} (= ~\code{1.2e-04})
+(see \code{check_convergence}).
 
 When \code{Sigma} is provided, the quadratic forms are transformed into
 a canonical form; that is, using the decomposition
