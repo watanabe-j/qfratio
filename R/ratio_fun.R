@@ -174,11 +174,11 @@
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
 #' \itemize{
-#'   \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
-#'   \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+#'   \item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
+#'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'   \item{\code{$error_bound}: }{error bound of \code{statistic}}
 #'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
-#'                            partial sums (\code{cumsum(series)})}
+#'                            partial sums (\code{cumsum(terms)})}
 #'  }
 #'
 #' @references
@@ -1135,7 +1135,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         errseq <- NA_real_
     }
-    new_qfrm(statistic = ans, series = ansseq, seq_error = errseq, exact = exact)
+    new_qfrm(statistic = ans, terms = ansseq, seq_error = errseq, exact = exact)
 }
 
 ##### qfrm_ApIq_npi #####
@@ -1307,7 +1307,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
         twosided <- NULL
     }
-    new_qfrm(series = ansseq, seq_error = errseq, twosided = twosided,
+    new_qfrm(terms = ansseq, seq_error = errseq, twosided = twosided,
              alphaout = alphaout, singular_arg = singularA)
 }
 
@@ -1556,7 +1556,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         errseq <- NULL
         twosided <- NULL
     }
-    new_qfrm(series = ansseq, seq_error = errseq, twosided = twosided,
+    new_qfrm(terms = ansseq, seq_error = errseq, twosided = twosided,
              alphaout = alphaout, singular_arg = singularB)
 }
 
@@ -1778,7 +1778,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(series = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_)
 }
 
 
@@ -2074,7 +2074,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         errseq <- NULL
         twosided <- NULL
     }
-    new_qfrm(series = ansseq, seq_error = errseq,
+    new_qfrm(terms = ansseq, seq_error = errseq,
              twosided = twosided, alphaout = alphaout, singular_arg = singularB)
 }
 
@@ -2324,7 +2324,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(series = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_IpBDqr_gen #####
@@ -2580,7 +2580,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(series = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_ApBDqr_int #####
@@ -2854,7 +2854,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(series = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_)
 }
 
 ##### qfmrm_ApBDqr_npi #####
@@ -3146,5 +3146,5 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(series = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_)
 }

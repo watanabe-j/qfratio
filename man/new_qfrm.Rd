@@ -8,7 +8,7 @@
 new_qfrm(
   statistic,
   error_bound = NULL,
-  series = statistic,
+  terms = statistic,
   seq_error = NULL,
   exact = FALSE,
   twosided = FALSE,
@@ -21,15 +21,15 @@ new_qfrm(
 new_qfpm(statistic, exact = TRUE, ..., class = character())
 }
 \arguments{
-\item{statistic}{Terminal value (truncated sum) of the moment.
-When missing, obtained as \code{sum(series)}.}
+\item{statistic}{Terminal value (partial sum) for the moment.
+When missing, obtained as \code{sum(terms)}.}
 
 \item{error_bound}{Terminal error bound.
 When missing, obtained as \code{seq_error[length(seq_error)]}.}
 
-\item{series}{Series expression for the moment along varying polynomial degrees}
+\item{terms}{Terms in series expression for the moment along varying polynomial degrees}
 
-\item{seq_error}{Vector of error bounds corresponding to \code{cumsum(series)}}
+\item{seq_error}{Vector of error bounds corresponding to \code{cumsum(terms)}}
 
 \item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound
 (see "Value")}
@@ -45,13 +45,13 @@ These classes are defined for the \code{print} and \code{plot} methods.
 
 The return object is a list of 4 elements which are intended to be:
 \itemize{
-\item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
-\item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+\item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
+\item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 \item{\code{$error_bound}: }{error bound of \code{statistic}}
 \item{\code{$seq_error}: }{vector of error bounds corresponding to
-partial sums (\code{cumsum(series)})}
+partial sums (\code{cumsum(terms)})}
 }
-When the result is exact, \code{$series} is of length 1 and equal to
+When the result is exact, \code{$terms} is of length 1 and equal to
 \code{$statistic}, so the former is essentially redundant.
 This is always the case for the \code{qfpm} class.
 

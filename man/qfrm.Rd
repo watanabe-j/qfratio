@@ -152,11 +152,11 @@ Used with \code{check_convergence}.}
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
 \itemize{
-\item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
-\item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+\item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
+\item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 \item{\code{$error_bound}: }{error bound of \code{statistic}}
 \item{\code{$seq_error}: }{vector of error bounds corresponding to
-partial sums (\code{cumsum(series)})}
+partial sums (\code{cumsum(terms)})}
 }
 }
 \description{

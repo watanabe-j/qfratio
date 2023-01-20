@@ -6,15 +6,15 @@
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 #'
 #' @param statistic
-#'   Terminal value (truncated sum) of the moment.
-#'   When missing, obtained as \code{sum(series)}.
+#'   Terminal value (partial sum) for the moment.
+#'   When missing, obtained as \code{sum(terms)}.
 #' @param error_bound
 #'   Terminal error bound.
 #'   When missing, obtained as \code{seq_error[length(seq_error)]}.
-#' @param series
-#'   Series expression for the moment along varying polynomial degrees
+#' @param terms
+#'   Terms in series expression for the moment along varying polynomial degrees
 #' @param seq_error
-#'   Vector of error bounds corresponding to \code{cumsum(series)}
+#'   Vector of error bounds corresponding to \code{cumsum(terms)}
 #' @param exact,twosided,alphaout,singular_arg
 #'   Logicals used to append attributes to the resultant error bound
 #'   (see "Value")
@@ -30,13 +30,13 @@
 #'
 #' The return object is a list of 4 elements which are intended to be:
 #' \itemize{
-#'   \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
-#'   \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+#'   \item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
+#'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'   \item{\code{$error_bound}: }{error bound of \code{statistic}}
 #'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
-#'                              partial sums (\code{cumsum(series)})}
+#'                              partial sums (\code{cumsum(terms)})}
 #' }
-#' When the result is exact, \code{$series} is of length 1 and equal to
+#' When the result is exact, \code{$terms} is of length 1 and equal to
 #' \code{$statistic}, so the former is essentially redundant.
 #' This is always the case for the \code{qfpm} class.
 #'
@@ -64,12 +64,12 @@
 #' @name new_qfrm
 #'
 new_qfrm <- function(statistic, error_bound = NULL,
-                     series = statistic, seq_error = NULL,
+                     terms = statistic, seq_error = NULL,
                      exact = FALSE, twosided = FALSE, alphaout = FALSE,
                      singular_arg = FALSE, ...,
                      class = character()) {
-    if(missing(statistic) && !missing(series)) {
-        statistic <- sum(series)
+    if(missing(statistic) && !missing(terms)) {
+        statistic <- sum(terms)
     }
     if(missing(error_bound) && !missing(seq_error)) {
         error_bound <- seq_error[length(seq_error)]
@@ -97,7 +97,7 @@ new_qfrm <- function(statistic, error_bound = NULL,
         if(!is.null(seq_error)) attr(seq_error, "singular") <- TRUE
     }
     structure(list(statistic = statistic, error_bound = error_bound,
-                   series = series, seq_error = seq_error),
+                   terms = terms, seq_error = seq_error),
               class = c(class, "qfrm"))
 }
 
@@ -121,7 +121,7 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' (when available).
 #'
 #' The \code{plot} method is designed for quick inspection of the profile of
-#' the partial sum of the series along varying orders \code{cumsum(x$series)}.
+#' the partial sum of the series along varying orders \code{cumsum(x$terms)}.
 #' When the object has a sequence for error bounds \code{x$seq_error}, this is
 #' also shown with a broken line (by default).
 #' When the object has an exact moment (i.e., resulting from
@@ -250,37 +250,37 @@ print.qfrm <- function(x, digits = getOption("digits"),
 #'
 #' @exportS3Method
 #'
-plot.qfrm <- function(x, add_error = length(errseq) > 0,
+plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                       add_legend = add_error,
-                      ylim = sum(ansseq) * ylim_f, ylim_f = c(0.9, 1.1),
-                      xlab = "Order of polynomials", ylab = "Moment of ratio",
+                      ylim = x$statistic * ylim_f, ylim_f = c(0.9, 1.1),
+                      xlab = "Order of evaluation", ylab = "Moment of ratio",
                       col_m = "royalblue4", col_e = "tomato",
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
     if(!requireNamespace("graphics", quietly = TRUE)) {
         stop("Package \"graphics\" is required for plot.qfrm")
     }
-    ansseq <- x$series
-    errseq <- x$seq_error
-    cumseq <- cumsum(ansseq)
-    if(isTRUE(attr(errseq, "exact"))) {
+    terms <- x$terms
+    seq_error <- x$seq_error
+    seq_partial <- cumsum(terms)
+    if(isTRUE(attr(seq_error, "exact"))) {
         message("plot method for this class is provided for inspecting ",
-                "partial sums.\n  This object has an exact moment, ",
+                "partial sums.\n  This particular object has an exact moment, ",
                 "so the plot method is inapplicable.")
     }
-    try(plot(seq_along(ansseq) - 1L, cumseq, type = "l", col = col_m,
+    try(plot(seq_along(terms) - 1L, seq_partial, type = "l", col = col_m,
          ylim = ylim, xlab = xlab,
          ylab = ylab, lwd = lwd_m, lty = lty_m, ...))
     if(add_error) {
-        graphics::lines(seq_along(ansseq) - 1L, errseq + cumseq,
+        graphics::lines(seq_along(terms) - 1L, seq_error + seq_partial,
                         col = col_e, lwd = lwd_e, lty = lty_e)
-        if(isTRUE(attr(errseq, "twosided"))) {
-            graphics::lines(-errseq + cumseq,
+        if(isTRUE(attr(seq_error, "twosided"))) {
+            graphics::lines(-seq_error + seq_partial,
                             col = col_e, lwd = lwd_e, lty = lty_e)
         }
     }
     if(add_legend) {
-        graphics::legend(pos_leg, legend = c("Moment", "Error bound"),
+        graphics::legend(pos_leg, legend = c("Partial sum", "Error bound"),
                col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
                lty = c(lty_m, lty_e))
     }

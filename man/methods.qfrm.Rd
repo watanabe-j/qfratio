@@ -19,11 +19,11 @@
 
 \method{plot}{qfrm}(
   x,
-  add_error = length(errseq) > 0,
+  add_error = length(x$seq_error) > 0,
   add_legend = add_error,
-  ylim = sum(ansseq) * ylim_f,
+  ylim = x$statistic * ylim_f,
   ylim_f = c(0.9, 1.1),
-  xlab = "Order of polynomials",
+  xlab = "Order of evaluation",
   ylab = "Moment of ratio",
   col_m = "royalblue4",
   col_e = "tomato",
@@ -80,7 +80,7 @@ The \code{print} methods simply display the moment \code{x$statistic}
 (when available).
 
 The \code{plot} method is designed for quick inspection of the profile of
-the partial sum of the series along varying orders \code{cumsum(x$series)}.
+the partial sum of the series along varying orders \code{cumsum(x$terms)}.
 When the object has a sequence for error bounds \code{x$seq_error}, this is
 also shown with a broken line (by default).
 When the object has an exact moment (i.e., resulting from
