@@ -94,10 +94,6 @@ These functions implement the super-short recursion algorithms described in
 Hillier et al. (2014: sec. 3.1--3.2 and 4).
 At present, only positive integers are accepted as exponents
 (negative exponents yield ratios, of course). All these yield exact results.
-
-An error is thrown in the trivial case of \code{p = 0}
-(and \code{q = r = 0} for \code{qfpm_ABDpqr_int()})
-when \code{use_cpp = FALSE}.
 }
 \examples{
 ## Some symmetric matrices and parameters
@@ -114,10 +110,6 @@ qfm_Ap_int(A, 2)
 
 ## This is the same but obviously less efficient
 qfpm_ABpq_int(A, p = 2, q = 0)
-
-## Either of these trivial cases yields an error
-\dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1, use_cpp = FALSE)}
-\dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0, use_cpp = FALSE)}
 
 ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 qfpm_ABDpqr_int(A, B, D, 1, 1, 1)

@@ -628,10 +628,6 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' At present, only positive integers are accepted as exponents
 #' (negative exponents yield ratios, of course). All these yield exact results.
 #'
-#' An error is thrown in the trivial case of \code{p = 0}
-#' (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()})
-#' when \code{use_cpp = FALSE}.
-#'
 #' @inheritParams qfmrm
 #'
 #' @param p,q,r
@@ -670,10 +666,6 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' ## This is the same but obviously less efficient
 #' qfpm_ABpq_int(A, p = 2, q = 0)
 #'
-#' ## Either of these trivial cases yields an error
-#' \dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1, use_cpp = FALSE)}
-#' \dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0, use_cpp = FALSE)}
-#'
 #' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 #' qfpm_ABDpqr_int(A, B, D, 1, 1, 1)
 #'
@@ -705,10 +697,10 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
     n <- ncol(A)
     stopifnot(
         "A should be a square matrix" = all(c(dim(A)) == n),
-        "p should be a positive integer" = {
+        "p should be a nonnegative integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
-            p >= 1
+            p >= 0
         },
         "mu should be an n-vector" = length(mu) == n
     )
@@ -806,6 +798,12 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
         },
         "mu should be an n-vector" = length(mu) == n
     )
+    ## When p = 0 and use_cpp = FALSE, out of bound error happens in d2_pj_*
+    if(p == 0) {
+        return(qfm_Ap_int(A = B, p = q, mu = mu, Sigma = Sigma,
+                          use_cpp = use_cpp, cpp_method = cpp_method,
+                          tol_zero = tol_zero, tol_sing = tol_sing))
+    }
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
@@ -921,7 +919,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     ## Check basic requirements for arguments
     stopifnot(
-        "A and B should be square matrices" =
+        "A, B, and D should be square matrices" =
             all(c(dim(A), dim(B), dim(D)) == n),
         "p, q, and r should be nonnegative integers" = {
             length(p) == 1 &&
@@ -936,6 +934,17 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
         },
         "mu should be an n-vector" = length(mu) == n
     )
+    ## When (p = 0 or q = r = 0) and use_cpp = FALSE, out of bound error happens
+    if(p == 0) {
+        return(qfpm_ABpq_int(A = B, B = D, p = q, q = r, mu = mu, Sigma = Sigma,
+                             use_cpp = use_cpp, cpp_method = cpp_method,
+                             tol_zero = tol_zero, tol_sing = tol_sing))
+    }
+    if(q == 0 && r == 0) {
+        return(qfm_Ap_int(A = A, p = p, mu = mu, Sigma = Sigma,
+                          use_cpp = use_cpp, cpp_method = cpp_method,
+                          tol_zero = tol_zero, tol_sing = tol_sing))
+    }
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
