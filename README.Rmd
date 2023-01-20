@@ -17,7 +17,7 @@ require(qfratio)
 set.seed(64501)
 ```
 
-# qfratio: R Package for Moment of Ratios of Quadratic Forms
+# qfratio: R Package for Moments of Ratios of Quadratic Forms
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -31,23 +31,24 @@ top-order zonal and invariant polynomials of matrix arguments.
 
 There exist a couple of `Matlab` programs developed by Raymond Kan
 (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this
-`R` package has been developed independently with different
-functionalities.
+`R` package is an independent project (not a fork or translation)
+and has different functionalities, including evaluation of moments of
+multiple ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
 evolutionary quantitative genetics (Watanabe, 2022).
 
-This project is **under active development**.
-Most planned functionalities have been implemented, but some may lack
-comprehensive documentation.
-Substantial restructuring may happen in the future.
+This project is in a late stage of development.
+Most planned functionalities have been implemented and work properly.
+A comprehensive documentation of the package is coming in the near future.
+Feedbacks are much appreciated.
 
 
 
 ## Installation
 
 ***WARNING*** Installation size of this package can be very large
-(~100 MB on Linux; ~3 MB on Windows with `Rtools42`),
+(~130 MB on Linux; ~3 MB on Windows with `Rtools42`),
 as it involves lots of `RcppEigen` functions.
 
 ```{r eval = FALSE}
@@ -105,7 +106,7 @@ mean(rqfmr(1000, A = diag(nv), B = A, D = solve(A), p = 2, q = 1, r = 1))
 plot(avr_autoA)
 
 ## Expectation of (x^T A B x) / ((x^T A^2 x) (x^T B^2 x))^1/2
-##   = "average vector correlation"
+##   = "average response correlation"
 ## whose Monte Carlo evaluation is called the "random skewers" analysis,
 ## while this is essentially an analytic solution (with slight truncation error)
 (avr_rcorA <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),

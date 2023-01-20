@@ -52,19 +52,20 @@ The return object is a list of 4 elements which are intended to be:
 partial sums (\code{cumsum(series)})}
 }
 When the result is exact, \code{$series} is of length 1 and equal to
-\code{$statistic}, so only the latter is of practical importance.
+\code{$statistic}, so the former is essentially redundant.
 This is always the case for the \code{qfpm} class.
 
 When the relevant flags are provided in the constructor, \code{$error_bound}
 and \code{$seq_error} have the following attributes which control behaviors
 of the \code{print} and \code{plot} methods:
 \itemize{
-\item{\code{"exact"}: }{Indicates the moment is exact}
-\item{\code{"twosided"}: }{Indicates the error bounds are two-sided}
-\item{\code{"alphaout"}: }{Indicates whether any of the scaling parameters
+\item{\code{"exact"}: }{indicates whether the moment is exact}
+\item{\code{"twosided"}: }{indicates whether the error bounds are
+two-sided}
+\item{\code{"alphaout"}: }{indicates whether any of the scaling factors
 (\code{alphaA}, \code{alphaB}, \code{alphaD}) is outside
-0 and 1, in which case error bound does not strictly hold}
-\item{\code{"singular"}: }{Indicates whether the relevant argument matrix
+\eqn{(0, 1]}, when error bound does not strictly hold}
+\item{\code{"singular"}: }{indicates whether the relevant argument matrix
 is (numerically) singular, in which case the error bound is
 invalid}
 }

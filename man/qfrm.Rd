@@ -123,16 +123,16 @@ some conditions}
 \code{long double} variable type; robust but slow and
 memory-inefficient}
 \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-robust but variably slow}
+most robust but variably slow}
 }}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
 in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
 
-\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+\item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 
-\item{check_convergence}{Specifies how convergence check is done (see "Details"). Options:
+\item{check_convergence}{Specifies how numerical convergence is checked (see "Details"). Options:
 \itemize{
 \item{\code{"relative"}: }{default; magnitude of the last term of
 the series relative to the sum is compared with \code{tol_conv}}
@@ -150,7 +150,7 @@ compared with \code{tol_conv}}
 Used with \code{check_convergence}.}
 }
 \value{
-A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
+A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
 \itemize{
 \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
 \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
@@ -174,7 +174,7 @@ and \eqn{p}. Usually the best one is automatically selected.
 positive-integral \eqn{p}.
 
 \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
-non-positive-integral \eqn{p} (typically fraction or negative).
+non-positive-integral \eqn{p} (fraction or negative).
 
 \code{qfrm_ApBq_int()}: For general \eqn{\mathbf{B}} and
 positive-integral \eqn{p}.
@@ -186,15 +186,15 @@ non-integral \eqn{p}.
 These functions use infinite series expressions based on the joint
 moment-generating function (with the top-order zonal/invariant polynomials)
 (see Smith 1989, Hillier et al. 2009, 2014; Bao & Kan 2013), and the results
-are typically truncated sums from these infinite series,
+are typically partial (truncated) sums from these infinite series,
 which necessarily involve truncation errors.
 (An exception is when \eqn{\mathbf{B} = \mathbf{I}_n} and \eqn{p} is a
 positive integer, the case handled by \code{qfrm_ApIq_int()}.)
 
-The returned value is a list consisting of the truncated series
-up to the order of polynomials specified by \code{m}, its sum,
+The returned value is a list consisting of the truncated sequence
+up to the order specified by \code{m}, its sum,
 and error bounds corresponding to these (see "Values").
-The \code{print} method only displays the terminal truncated sum and its
+The \code{print} method only displays the terminal partial sum and its
 error bound (when available).
 Use \code{plot()} for visual inspection, or the ordinary list
 element access as required.
@@ -207,13 +207,13 @@ and an error is thrown otherwise. The only exception is
 \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}}.
 Even in the latter case, the exponents should have the same sign.
 (Technically, not all of these conditions are necessary for the mathematical
-results to hold, but they are enforced for the sake of simplicity).
+results to hold, but they are enforced for simplicity).
 
 When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 a truncation error bound following Hillier et al. (2009: theorem 6) or
 Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
 \code{qfrm_ApIq_npi()} implements similar error bounds.
-No error bound is known for \code{qfrm_ApBq_npi()}, at least to the
+No error bound is known for \code{qfrm_ApBq_npi()} to the
 author's knowledge.
 
 For situations when the error bound is unavailable, a \emph{very rough} check of
@@ -255,8 +255,8 @@ Internal functions (\code{\link{d1_i}}, \code{\link{d2_ij}},
 \code{\link{d3_ijk}}) are desinged to avoid overflow by order-wise scaling.
 However, when evaluation of multiple series is required
 (\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
-the scaling occasionally yields diminishing/underflow of some terms to
-numerical \code{0}, which result in numerical inaccuracy. A warning is
+the scaling occasionally yields underflow/diminishing of some terms to
+numerical \code{0}, causing inaccuracy. A warning is
 thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
 To avoid this problem, the \code{C++} versions of these functions have two
 workarounds, as controlled by \code{cpp_method}.
@@ -282,12 +282,12 @@ recommended as the error bound will not strictly hold
 \emph{Dependency note}: An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
 (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
-a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
+a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
 (Hillier et al. 2014: theorem 4).
 This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 installed (which this package \code{Suggests}). Otherwise, the function uses
 the ordinary infinite series expression (Hillier et al. 2009), which is
-less accurate and slow, and throws a warning (once per session).
+less accurate and slow, and throws a message (once per session).
 It is recommended to install that package if an accurate estimate
 is desired for that case.
 }

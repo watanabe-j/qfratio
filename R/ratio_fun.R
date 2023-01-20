@@ -14,15 +14,15 @@
 #' These functions use infinite series expressions based on the joint
 #' moment-generating function (with the top-order zonal/invariant polynomials)
 #' (see Smith 1989, Hillier et al. 2009, 2014; Bao & Kan 2013), and the results
-#' are typically truncated sums from these infinite series,
+#' are typically partial (truncated) sums from these infinite series,
 #' which necessarily involve truncation errors.
 #' (An exception is when \eqn{\mathbf{B} = \mathbf{I}_n} and \eqn{p} is a
 #' positive integer, the case handled by \code{qfrm_ApIq_int()}.)
 #'
-#' The returned value is a list consisting of the truncated series
-#' up to the order of polynomials specified by \code{m}, its sum,
+#' The returned value is a list consisting of the truncated sequence
+#' up to the order specified by \code{m}, its sum,
 #' and error bounds corresponding to these (see "Values").
-#' The \code{print} method only displays the terminal truncated sum and its
+#' The \code{print} method only displays the terminal partial sum and its
 #' error bound (when available).
 #' Use \code{plot()} for visual inspection, or the ordinary list
 #' element access as required.
@@ -35,13 +35,13 @@
 #' \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}}.
 #' Even in the latter case, the exponents should have the same sign.
 #' (Technically, not all of these conditions are necessary for the mathematical
-#' results to hold, but they are enforced for the sake of simplicity).
+#' results to hold, but they are enforced for simplicity).
 #'
 #' When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 #' a truncation error bound following Hillier et al. (2009: theorem 6) or
 #' Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
 #' \code{qfrm_ApIq_npi()} implements similar error bounds.
-#' No error bound is known for \code{qfrm_ApBq_npi()}, at least to the
+#' No error bound is known for \code{qfrm_ApBq_npi()} to the
 #' author's knowledge.
 # #' See \code{vignette("qfratio")} for further technical details.
 #'
@@ -84,8 +84,8 @@
 #' \code{\link{d3_ijk}}) are desinged to avoid overflow by order-wise scaling.
 #' However, when evaluation of multiple series is required
 #' (\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
-#' the scaling occasionally yields diminishing/underflow of some terms to
-#' numerical \code{0}, which result in numerical inaccuracy. A warning is
+#' the scaling occasionally yields underflow/diminishing of some terms to
+#' numerical \code{0}, causing inaccuracy. A warning is
 #' thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
 #' To avoid this problem, the \code{C++} versions of these functions have two
 #' workarounds, as controlled by \code{cpp_method}.
@@ -148,12 +148,12 @@
 #'           \code{long double} variable type; robust but slow and
 #'           memory-inefficient}
 #'     \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-#'           robust but variably slow}
+#'           most robust but variably slow}
 #'    }
 #' @param error_bound
-#'   Logical to specify whether the error bound is returned (if available).
+#'   Logical to specify whether an error bound is returned (if available).
 #' @param check_convergence
-#'   Specifies how convergence check is done (see "Details"). Options:
+#'   Specifies how numerical convergence is checked (see "Details"). Options:
 #'   \itemize{
 #'     \item{\code{"relative"}: }{default; magnitude of the last term of
 #'           the series relative to the sum is compared with \code{tol_conv}}
@@ -172,7 +172,7 @@
 #'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
 #'
 #' @return
-#' A list of the class \code{\link[=new_qfrm]{qfrm}} consisting of the following:
+#' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
 #' \itemize{
 #'   \item{\code{$statistic}: }{evaluation result (\code{sum(series)})}
 #'   \item{\code{$series}: }{vector of \eqn{0}th to \eqn{m}th order terms}
@@ -341,7 +341,8 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' of a multiple ratio of quadratic forms in normal variables in the following
 #' special form:
 #' \eqn{ \mathrm{E} \left(
-#'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
+#'   \frac{(\mathbf{x^\mathit{T} A x})^p }
+#'        {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
 #'   \right) },
 #' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 #' Like \code{qfrm()}, this function calls one of the following ``internal''
@@ -349,7 +350,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'
 #' The usage of these functions is similar to \code{\link{qfrm}}, to which
 #' the user is referred for documentation.
-#' It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+#' It is assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
 #' (otherwise, the problem reduces to a simple ratio).
 #'
 #' When \code{B} is identity or missing, this and its exponent \code{q} will
@@ -357,8 +358,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' \code{qfmrm_ApBIqr_***()} is called.
 #'
 #' The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-#' This is similar to, though slightly different from, that
-#' in \code{qfrm_ApBq_int()}.
+#' This is similar to that in \code{qfrm_ApBq_int()} (Watanabe, 2022).
 # #' See \code{vignette("qfratio")} for technical details.
 #'
 #' The existence conditions for the moments of this multiple ratio can be
@@ -380,15 +380,15 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' condition is not met in this case.
 #'
 #' Note that these functions may take a substantially longer computational time
-#' than those pertaining to a simple ratio, because multiple matrices means
+#' than those for a simple ratio, because thee former involves
 #' multiple infinite series along which summation is to be taken.
 #' Expect the computational time to scale with \code{m^2} for
 #' \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
 #' \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 #' the rest.
 #'
-#' All these functions can use \code{C++} versions to speed up computation;
-#' set \code{use_cpp = TRUE}.
+#' All these functions use \code{C++} versions to speed up computation
+#' by default.
 #' Furthermore, some of the \code{C++} functions, in particular those
 #' using three matrix arguments, are parallelized with \code{OpenMP}
 #' (when available). Use the argument \code{nthreads} to control the number
@@ -410,7 +410,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' @inheritParams qfrm
 #'
 #' @param A,B,D
-#'   Argument matrices. Should be square. Automatically symmetrized.
+#'   Argument matrices. Should be square. Will be automatically symmetrized.
 #' @param p,q,r
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 #'   respectively. By default, \code{q} equals \code{p/2} and
@@ -629,7 +629,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' (negative exponents yield ratios, of course). All these yield exact results.
 #'
 #' An error is thrown in the trivial case of \code{p = 0}
-#' (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()}).
+#' (and \code{q = r = 0} for \code{qfpm_ABDpqr_int()})
+#' when \code{use_cpp = FALSE}.
 #'
 #' @inheritParams qfmrm
 #'
@@ -644,7 +645,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #'   In these functions this is ignored.
 #'
 #' @return
-#' A list of the class \code{qfpm} which has the same elements as those
+#' A \code{\link[=new_qfrm]{qfpm}} object which has the same elements as those
 #' returned by the \code{\link{qfrm}} functions.
 #' Use \code{$statistic} to access the value of the moment.
 #'
@@ -670,8 +671,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' qfpm_ABpq_int(A, p = 2, q = 0)
 #'
 #' ## Either of these trivial cases yields an error
-#' \dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1)}
-#' \dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0)}
+#' \dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1, use_cpp = FALSE)}
+#' \dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0, use_cpp = FALSE)}
 #'
 #' ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 #' qfpm_ABDpqr_int(A, B, D, 1, 1, 1)
@@ -1041,12 +1042,12 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' *Dependency note*: An exact expression of the moment is available when
 #' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
-#' a confluent hypergeometric function when \eqn{\bm{\mu} \neq \mathbf{0}}
+#' a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
 #' (Hillier et al. 2014: theorem 4).
 #' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 #' installed (which this package \code{Suggests}). Otherwise, the function uses
 #' the ordinary infinite series expression (Hillier et al. 2009), which is
-#' less accurate and slow, and throws a warning (once per session).
+#' less accurate and slow, and throws a message (once per session).
 #' It is recommended to install that package if an accurate estimate
 #' is desired for that case.
 #'
@@ -1141,7 +1142,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' Non-positive-integer moment of ratio of quadratic forms in normal variables
 #'
 #' \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
-#' non-positive-integral \eqn{p} (typically fraction or negative).
+#' non-positive-integral \eqn{p} (fraction or negative).
 #'
 #' @rdname qfrm
 #'

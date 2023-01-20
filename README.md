@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# qfratio: R Package for Moment of Ratios of Quadratic Forms
+# qfratio: R Package for Moments of Ratios of Quadratic Forms
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -14,18 +14,21 @@ top-order zonal and invariant polynomials of matrix arguments.
 
 There exist a couple of `Matlab` programs developed by Raymond Kan
 (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R`
-package has been developed independently with different functionalities.
+package is an independent project (not a fork or translation) and has
+different functionalities, including evaluation of moments of multiple
+ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
 evolutionary quantitative genetics (Watanabe, 2022).
 
-This project is **under active development**. Most planned
-functionalities have been implemented, but some may lack comprehensive
-documentation. Substantial restructuring may happen in the future.
+This project is in a late stage of development. Most planned
+functionalities have been implemented and work properly. A comprehensive
+documentation of the package is coming in the near future. Feedbacks are
+much appreciated.
 
 ## Installation
 
-***WARNING*** Installation size of this package can be very large (\~100
+***WARNING*** Installation size of this package can be very large (\~130
 MB on Linux; \~3 MB on Windows with `Rtools42`), as it involves lots of
 `RcppEigen` functions.
 
@@ -65,7 +68,7 @@ qfrm(A, p = 2)
 
 ## Compare with Monte Carlo mean
 mean(rqfr(1000, A = A, p = 2))
-#> [1] 6.663473
+#> [1] 6.641507
 
 ## Expectation of (x^T A x)^1/2 / (x^T x)^1/2
 (mom_A0.5 <- qfrm(A, p = 1/2))
@@ -78,7 +81,7 @@ mean(rqfr(1000, A = A, p = 2))
 
 ## Monte Carlo mean
 mean(rqfr(1000, A = A, p = 1/2))
-#> [1] 1.55763
+#> [1] 1.569643
 
 plot(mom_A0.5)
 ```
@@ -93,12 +96,12 @@ plot(mom_A0.5)
 #> 
 #>  Moment of ratio of quadratic forms
 #> 
-#> Moment = 2.11678, Error = 2.775558e-15 (one-sided)
+#> Moment = 2.11678, Error = 2.768619e-15 (one-sided)
 #> Possible range:
 #>  2.11677962 2.11677962
 
 mean(rqfr(1000, A = diag(nv), B = solve(A), p = 1))
-#> [1] 2.124956
+#> [1] 2.071851
 plot(avr_cevoA)
 ```
 
@@ -116,7 +119,7 @@ plot(avr_cevoA)
 #> Error bound unavailable; recommended to inspect plot() of this object
 
 mean(rqfmr(1000, A = diag(nv), B = A, D = solve(A), p = 2, q = 1, r = 1))
-#> [1] 0.8387947
+#> [1] 0.8377911
 plot(avr_autoA)
 ```
 
@@ -125,7 +128,7 @@ plot(avr_autoA)
 ``` r
 
 ## Expectation of (x^T A B x) / ((x^T A^2 x) (x^T B^2 x))^1/2
-##   = "average vector correlation"
+##   = "average response correlation"
 ## whose Monte Carlo evaluation is called the "random skewers" analysis,
 ## while this is essentially an analytic solution (with slight truncation error)
 (avr_rcorA <- qfmrm(crossprod(A, B), crossprod(A), crossprod(B),
@@ -138,7 +141,7 @@ plot(avr_autoA)
 
 mean(rqfmr(1000, A = crossprod(A, B), B = crossprod(A), D = crossprod(B),
            p = 1, q = 1/2, r = 1/2))
-#> [1] 0.8459347
+#> [1] 0.8467811
 plot(avr_rcorA)
 ```
 

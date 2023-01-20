@@ -128,7 +128,7 @@ qfmrm_ApBDqr_npi(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Should be square. Automatically symmetrized.}
+\item{A, B, D}{Argument matrices. Should be square. Will be automatically symmetrized.}
 
 \item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 respectively. By default, \code{q} equals \code{p/2} and
@@ -153,9 +153,9 @@ The eigenvalues smaller than this are considered zero.}
 \item{...}{Additional arguments in the front-end \code{qfmrm()} will be passed to
 the appropriate ``internal'' function.}
 
-\item{error_bound}{Logical to specify whether the error bound is returned (if available).}
+\item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 
-\item{check_convergence}{Specifies how convergence check is done (see "Details"). Options:
+\item{check_convergence}{Specifies how numerical convergence is checked (see "Details"). Options:
 \itemize{
 \item{\code{"relative"}: }{default; magnitude of the last term of
 the series relative to the sum is compared with \code{tol_conv}}
@@ -178,7 +178,7 @@ some conditions}
 \code{long double} variable type; robust but slow and
 memory-inefficient}
 \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-robust but variably slow}
+most robust but variably slow}
 }}
 
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
@@ -200,7 +200,8 @@ in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 of a multiple ratio of quadratic forms in normal variables in the following
 special form:
 \eqn{ \mathrm{E} \left(
-  \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
+  \frac{(\mathbf{x^\mathit{T} A x})^p }
+       {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
   \right) },
 where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
 Like \code{qfrm()}, this function calls one of the following ``internal''
@@ -223,7 +224,7 @@ and \eqn{\mathbf{D}}, and non-integral \eqn{p}
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which
 the user is referred for documentation.
-It is of course assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+It is assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
 (otherwise, the problem reduces to a simple ratio).
 
 When \code{B} is identity or missing, this and its exponent \code{q} will
@@ -231,8 +232,7 @@ be swapped with \code{D} and \code{r}, respectively, before
 \code{qfmrm_ApBIqr_***()} is called.
 
 The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-This is similar to, though slightly different from, that
-in \code{qfrm_ApBq_int()}.
+This is similar to that in \code{qfrm_ApBq_int()} (Watanabe, 2022).
 
 The existence conditions for the moments of this multiple ratio can be
 reduced to those for a simple ratio, provided that one of the null spaces
@@ -253,15 +253,15 @@ and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
 condition is not met in this case.
 
 Note that these functions may take a substantially longer computational time
-than those pertaining to a simple ratio, because multiple matrices means
+than those for a simple ratio, because thee former involves
 multiple infinite series along which summation is to be taken.
 Expect the computational time to scale with \code{m^2} for
 \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
 \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 the rest.
 
-All these functions can use \code{C++} versions to speed up computation;
-set \code{use_cpp = TRUE}.
+All these functions use \code{C++} versions to speed up computation
+by default.
 Furthermore, some of the \code{C++} functions, in particular those
 using three matrix arguments, are parallelized with \code{OpenMP}
 (when available). Use the argument \code{nthreads} to control the number

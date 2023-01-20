@@ -4,7 +4,7 @@
 \alias{S_fromUL}
 \title{Make covariance matrix from eigenstructure}
 \usage{
-S_fromUL(evec = evec, evalues = evalues)
+S_fromUL(evec, evalues)
 }
 \arguments{
 \item{evec}{Matrix whose columns are eigenvectors}

@@ -144,25 +144,25 @@ NULL
 #' which may not be particularly efficient.
 #'
 #' @param A,B,D
-#'   Argument matrices passed as \code{Eigen::MatrixXd}.
+#'   Argument matrices passed as \code{Eigen::Matrix}.
 #'   Symmetry is assumed.
 #' @param LA,LB,LD
-#'   Eigenvalues of the argument matrices passed as \code{Eigen::ArrayXd}
+#'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
 #' @param UA
 #'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}} corresponding to
-#'   \code{LA}.  Passed as \code{Eigen::MatrixXd}.
+#'   \code{LA}.  Passed as \code{Eigen::Matrix}.
 #' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#'   and \eqn{\mathbf{D}}.  Passed as \code{double}.
+#'   and \eqn{\mathbf{D}}.  Passed as \code{double} or \code{long double}.
 #' @param mu
 #'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
-#'   passed as \code{Eigen::ArrayXd}
+#'   passed as \code{Eigen::Array}
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-#'   Passed as \code{Eigen::MatrixXd}.
+#'   Passed as \code{Eigen::Matrix}.
 #' @param p,q,r
 #'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
-#'   Passed as \code{double}.
+#'   Passed as \code{double} or \code{long double}.
 #' @param m
 #'   Integer to specify the order of polynomials at which the series
 #'   expression is truncated. Passed as \code{Eigen::Index}
@@ -181,11 +181,13 @@ NULL
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):
 #'   \itemize{
-#'      \item{\code{$ans}: }{Exact moment, from \code{double}}
+#'      \item{\code{$ans}: }{Exact moment, from \code{double} or
+#'                           \code{long double}}
 #'      \item{\code{$ansseq}: }{Series for the moment, from
-#'                              \code{Eigen::ArrayXd}}
-#'      \item{\code{$errseq}: }{Series of errors, from \code{Eigen::ArrayXd}}
+#'                              \code{Eigen::Array}}
+#'      \item{\code{$errseq}: }{Series of errors, from \code{Eigen::Array}}
 #'      \item{\code{$twosided}: }{Logical, from \code{bool}}
+#'      \item{\code{$dimnished}: }{Logical, from \code{bool}}
 #'   }
 #'
 #' @name qfrm_cpp

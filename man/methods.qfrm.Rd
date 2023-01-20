@@ -56,9 +56,9 @@ with the generic method).}
 \item{add_legend}{Logical to specify whether a legend is added.  Turned on by default
 when \code{add_error = TRUE}.}
 
-\item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}};
+\item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}}.
 By default, this is automatically set to \code{ylim_f} times
-the terminal value of the sequence expression (\code{sum(x$series)}).
+the terminal value of the seies expression (\code{x$statistic}).
 \code{ylim_f} is by default \code{c(0.9, 1.1)}.}
 
 \item{xlab, ylab}{Passed to \code{\link[graphics]{plot.default}}}
@@ -70,18 +70,19 @@ the moment (\code{***_m}) and its error bound (\code{***_e})}
 passed as the first argument for \code{\link[graphics]{legend}}}
 }
 \description{
-This package defines straightforward \code{print} and \code{plot} methods
+Straightforward \code{print} and \code{plot} methods are defined
 for \code{qfrm} and \code{qfpm} objects which result from the
 \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 }
 \details{
-The \code{print} methods simply display the moment (typically
-a truncated sum), along with its error bound (when available).
+The \code{print} methods simply display the moment \code{x$statistic}
+(typically a partial sum), along with its error bound \code{x$error_bound}
+(when available).
 
 The \code{plot} method is designed for quick inspection of the profile of
-a series expression along varying polynomial orders.
-When the object has a sequence for error bounds, this is also shown
-with a broken line (by default).
+the partial sum of the series along varying orders \code{cumsum(x$series)}.
+When the object has a sequence for error bounds \code{x$seq_error}, this is
+also shown with a broken line (by default).
 When the object has an exact moment (i.e., resulting from
 \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
 is thrown to tell inspection of the plot will not be required in this case.

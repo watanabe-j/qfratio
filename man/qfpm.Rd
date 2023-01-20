@@ -47,7 +47,7 @@ qfpm_ABDpqr_int(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Should be square. Automatically symmetrized.}
+\item{A, B, D}{Argument matrices. Should be square. Will be automatically symmetrized.}
 
 \item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
 respectively. By default, these are set to the same value.
@@ -71,7 +71,7 @@ the identity matrix, etc.}
 The eigenvalues smaller than this are considered zero.}
 }
 \value{
-A list of the class \code{qfpm} which has the same elements as those
+A \code{\link[=new_qfrm]{qfpm}} object which has the same elements as those
 returned by the \code{\link{qfrm}} functions.
 Use \code{$statistic} to access the value of the moment.
 }
@@ -96,7 +96,8 @@ At present, only positive integers are accepted as exponents
 (negative exponents yield ratios, of course). All these yield exact results.
 
 An error is thrown in the trivial case of \code{p = 0}
-(and \code{q = r = 0} for \code{qfpm_ABDpqr_int()}).
+(and \code{q = r = 0} for \code{qfpm_ABDpqr_int()})
+when \code{use_cpp = FALSE}.
 }
 \examples{
 ## Some symmetric matrices and parameters
@@ -115,8 +116,8 @@ qfm_Ap_int(A, 2)
 qfpm_ABpq_int(A, p = 2, q = 0)
 
 ## Either of these trivial cases yields an error
-\dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1)}
-\dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0)}
+\dontrun{qfpm_ABpq_int(A, B, p = 0, q = 1, use_cpp = FALSE)}
+\dontrun{qfpm_ABDpqr_int(A, B, D, p = 2, q = 0, r = 0, use_cpp = FALSE)}
 
 ## Expectation of (x^T A x) (x^T B x) (x^T D x) where x ~ N(0, I)
 qfpm_ABDpqr_int(A, B, D, 1, 1, 1)

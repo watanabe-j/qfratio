@@ -9,7 +9,7 @@
 #' @param evalues
 #'   Vector of eigenvalues
 #'
-S_fromUL <- function(evec = evec, evalues = evalues) {
+S_fromUL <- function(evec, evalues) {
     te <- t(evec)
     crossprod(te * evalues, te)
 }

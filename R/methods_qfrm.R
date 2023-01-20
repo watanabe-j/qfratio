@@ -37,19 +37,20 @@
 #'                              partial sums (\code{cumsum(series)})}
 #' }
 #' When the result is exact, \code{$series} is of length 1 and equal to
-#' \code{$statistic}, so only the latter is of practical importance.
+#' \code{$statistic}, so the former is essentially redundant.
 #' This is always the case for the \code{qfpm} class.
 #'
 #' When the relevant flags are provided in the constructor, \code{$error_bound}
 #' and \code{$seq_error} have the following attributes which control behaviors
 #' of the \code{print} and \code{plot} methods:
 #' \itemize{
-#'   \item{\code{"exact"}: }{Indicates the moment is exact}
-#'   \item{\code{"twosided"}: }{Indicates the error bounds are two-sided}
-#'   \item{\code{"alphaout"}: }{Indicates whether any of the scaling parameters
+#'   \item{\code{"exact"}: }{indicates whether the moment is exact}
+#'   \item{\code{"twosided"}: }{indicates whether the error bounds are
+#'                two-sided}
+#'   \item{\code{"alphaout"}: }{indicates whether any of the scaling factors
 #'                (\code{alphaA}, \code{alphaB}, \code{alphaD}) is outside
-#'                0 and 1, in which case error bound does not strictly hold}
-#'   \item{\code{"singular"}: }{Indicates whether the relevant argument matrix
+#'                \eqn{(0, 1]}, when error bound does not strictly hold}
+#'   \item{\code{"singular"}: }{indicates whether the relevant argument matrix
 #'                is (numerically) singular, in which case the error bound is
 #'                invalid}
 #' }
@@ -111,17 +112,18 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 ##### methods.qfrm (documentation) #####
 #' Methods for qfrm and qfpm objects
 #'
-#' This package defines straightforward \code{print} and \code{plot} methods
+#' Straightforward \code{print} and \code{plot} methods are defined
 #' for \code{qfrm} and \code{qfpm} objects which result from the
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 #'
-#' The \code{print} methods simply display the moment (typically
-#' a truncated sum), along with its error bound (when available).
+#' The \code{print} methods simply display the moment \code{x$statistic}
+#' (typically a partial sum), along with its error bound \code{x$error_bound}
+#' (when available).
 #'
 #' The \code{plot} method is designed for quick inspection of the profile of
-#' a series expression along varying polynomial orders.
-#' When the object has a sequence for error bounds, this is also shown
-#' with a broken line (by default).
+#' the partial sum of the series along varying orders \code{cumsum(x$series)}.
+#' When the object has a sequence for error bounds \code{x$seq_error}, this is
+#' also shown with a broken line (by default).
 #' When the object has an exact moment (i.e., resulting from
 #' \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
 #' is thrown to tell inspection of the plot will not be required in this case.
@@ -143,9 +145,9 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'   Logical to specify whether a legend is added.  Turned on by default
 #'   when \code{add_error = TRUE}.
 #' @param ylim,ylim_f
-#'   \code{ylim} is passed to \code{\link[graphics]{plot.default}};
+#'   \code{ylim} is passed to \code{\link[graphics]{plot.default}}.
 #'   By default, this is automatically set to \code{ylim_f} times
-#'   the terminal value of the sequence expression (\code{sum(x$series)}).
+#'   the terminal value of the seies expression (\code{x$statistic}).
 #'   \code{ylim_f} is by default \code{c(0.9, 1.1)}.
 #' @param xlab,ylab
 #'   Passed to \code{\link[graphics]{plot.default}}
