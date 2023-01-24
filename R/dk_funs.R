@@ -865,7 +865,7 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
 #'   Additional arguments passed to internal methods
 #'
 #' @seealso
-#' \code{\link{qfrm}}; this function is used in \code{qfrm_ApIq_int()}
+#' \code{\link{qfrm_ApIq_int}()}, in which this function is used
 #' (for noncentral cases only)
 #'
 #' @name arl
@@ -878,10 +878,8 @@ arl <- function(L, ...) {
 #' @rdname arl
 #' @order 3
 #'
-#' @exportS3Method
-#'
 arl.matrix <- function(A, mu, m = 10L) {
-    if(any(dim(A) == 1L)) return(arl.default(A, D, m))
+    if(any(dim(A) == 1L)) return(arl.default(A, mu ^ 2, m))
     eigA <- eigen(A, symmetric = TRUE)
     L <- eigA$values
     D <- c(crossprod(eigA$vectors, mu)) ^ 2
@@ -891,9 +889,7 @@ arl.matrix <- function(A, mu, m = 10L) {
 #' @rdname arl
 #' @order 2
 #'
-#' @exportS3Method
-#'
-arl.default <-  function(L, D, m = 10L) {
+arl.default <- function(L, D, m = 10L) {
     n <- length(L)
     arls <- matrix(0, m + 1L, m + 1L)
     arls[, 1L] <- d1_i(L, m)

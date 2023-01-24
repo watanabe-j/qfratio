@@ -42,6 +42,6 @@ The \code{matrix} method just calculates \code{L} and \code{D} from
 \code{A} and \code{mu} and passes them to the \code{default} method.
 }
 \seealso{
-\code{\link{qfrm}}; this function is used in \code{qfrm_ApIq_int()}
+\code{\link{qfrm_ApIq_int}()}, in which this function is used
 (for noncentral cases only)
 }
