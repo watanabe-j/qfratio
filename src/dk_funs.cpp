@@ -187,7 +187,8 @@ d2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx G_k_i = MatrixXx::Zero(n, n * (p + 1));
     for(Index i = 1; i <= p; i++) {
-        G_k_i.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(G_k_i.block(0, i * n, n, n).data(), n, n).noalias() =
+            A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
         dks(i, 0) = G_k_i.block(0, i * n, n, n).trace() / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
@@ -284,15 +285,17 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
 
-        Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =
+            A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
         for(Index i1 = 1; i1 < k; i1++) {
-            Gn.block(0, n * i1, n, n) =
+            MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n).noalias() =
                 A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
             dks(i1, k - i1) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
         }
-        Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
+            A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
 
         if(Gn.maxCoeff() > thr) {
@@ -398,15 +401,16 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
         go.block(0, 0, n, k) = gn.block(0, 0, n, k);
 
-        tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-        gn.col(0) = (tG - Go.block(0, 0, n, n)
+        tG.noalias() = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
+            (tG - Go.block(0, 0, n, n)
              - ((dks(0, k - 1)) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         for(Index i1 = 1; i1 < k; i1++) {
-            tG = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
-                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
-            gn.col(i1) =
+            tG.noalias() = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                           A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
+            MatrixXx::Map(gn.col(i1).data(), n, 1).noalias() =
                 (tG - Go.block(0, n * (i1 - 1), n, n) -
                  Go.block(0, n * i1, n, n)
                  - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)) * In)) * mu +
@@ -414,8 +418,9 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, n * i1, n, n) = tG;
             dks(i1, k - i1) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
         }
-        tG = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
-        gn.col(k) = (tG - Go.block(0, n * (k - 1), n, n)
+        tG.noalias() = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        MatrixXx::Map(gn.col(k).data(), n, 1).noalias() =
+            (tG - Go.block(0, n * (k - 1), n, n)
              - ((dks(k - 1, 0)) * In)) * mu + A1 * go.col(k - 1);
         Gn.block(0, n * k, n, n) = tG;
         dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
@@ -547,14 +552,14 @@ htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
         if(k % 10000 == 0) {
             Rcpp::checkUserInterrupt();
         }
-        tG = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
+        tG.noalias() = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         g_k_i.col(0) = (tG - G_k_i.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * g_k_i.col(0);
         G_k_i.block(0, 0, n, n) = tG;
         dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
-            g_k_i.col(i) = (tG - G_k_i.block(0, i * n, n, n)
+            tG.noalias() = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
+                           A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
+            g_k_i.col(i) = (tG - G_k_i.block(0, i * n, n, n) // require aliasing
                             - (dks(i, k - 1) * In)) * mu +
                            A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
             G_k_i.block(0, i * n, n, n) = tG;
@@ -651,22 +656,24 @@ hhat2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx G_k_i = MatrixXx::Zero(n, n * (p + 1));
     MatrixXx g_k_i = MatrixXx::Zero(n, p + 1);
     for(Index i = 1; i <= p; i++) {
-        G_k_i.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
-        g_k_i.col(i) = G_k_i.block(0, i * n, n, n) * mu + A1 * g_k_i.col(i - 1);
+        MatrixXx::Map(G_k_i.block(0, i * n, n, n).data(), n, n).noalias() =
+            A1 * (dks(i - 1, 0) * In + G_k_i.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(g_k_i.col(i).data(), n, 1).noalias() =
+            G_k_i.block(0, i * n, n, n) * mu + A1 * g_k_i.col(i - 1);
         dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
         if(k % 10000 == 0) {
             Rcpp::checkUserInterrupt();
         }
-        tG = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
+        tG.noalias() = A2 * (dks(0, k - 1) * In + G_k_i.block(0, 0, n, n));
         g_k_i.col(0) = (tG + G_k_i.block(0, 0, n, n) + (dks(0, k - 1) * In)) * mu + A2 * g_k_i.col(0);
         G_k_i.block(0, 0, n, n) = tG;
         dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
-            g_k_i.col(i) = (tG + G_k_i.block(0, i * n, n, n)
+            tG.noalias() = A1 * (dks(i - 1, k) * In + G_k_i.block(0, (i - 1) * n, n, n)) +
+                           A2 * (dks(i, k - 1) * In + G_k_i.block(0, i * n, n, n));
+            g_k_i.col(i) = (tG + G_k_i.block(0, i * n, n, n) // require aliasing
                             + (dks(i, k - 1) * In)) * mu +
                            A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
             G_k_i.block(0, i * n, n, n) = tG;
@@ -885,16 +892,18 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
 
-        Gn.block(0, 0, n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =
+            A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
         dks(0, k * (m + 1)) = Gn.block(0, 0, n, n).trace() / (2 * k);
         for(Index i2 = 1; i2 < k; i2++) {
             Index i3 = k - i2;
-            Gn.block(0, n * id3(0, i2, k), n, n) =
+            MatrixXx::Map(Gn.block(0, n * id3(0, i2, k), n, n).data(), n, n).noalias() =
                 A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
                 A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(0, i2, k - 1), n, n));
             dks(0, i2 + i3 * (m + 1)) = Gn.block(0, n * id3(0, i2, k), n, n).trace() / (2 * k);
         }
-        Gn.block(0, n * id3(0, k, k), n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
+        MatrixXx::Map(Gn.block(0, n * id3(0, k, k), n, n).data(), n, n).noalias() =
+            A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
         dks(0, k) = Gn.block(0, n * id3(0, k, k), n, n).trace() / (2 * k);
 #ifdef _OPENMP
 #pragma omp parallel
@@ -902,19 +911,19 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 #pragma omp for
 #endif
         for(Index i1 = 1; i1 < k; i1++) {
-            Gn.block(0, n * i1, n, n) =
+            MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n).noalias() =
                 A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
                 A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
             dks(i1, (k - i1) * (m + 1)) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
             for(Index i2 = 1; i2 < k - i1; i2++) {
                 Index i3 = k - i1 - i2;
-                Gn.block(0, n * id3(i1, i2, k), n, n) =
+                MatrixXx::Map(Gn.block(0, n * id3(i1, i2, k), n, n).data(), n, n).noalias() =
                     A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n)) +
                     A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n)) +
                     A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(i1, i2, k - 1), n, n));
                 dks(i1, i2 + i3 * (m + 1)) = Gn.block(0, n * id3(i1, i2, k), n, n).trace() / (2 * k);
             }
-            Gn.block(0, n * id3(i1, k - i1, k), n, n) =
+            MatrixXx::Map(Gn.block(0, n * id3(i1, k - i1, k), n, n).data(), n, n).noalias() =
                 A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n)) +
                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n));
             dks(i1, k - i1) = Gn.block(0, n * id3(i1, k - i1, k), n, n).trace() / (2 * k);
@@ -923,7 +932,8 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 }
 #endif
         //
-        Gn.block(0, n * k, n, n) = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
+            A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
 
         if(Gn.maxCoeff() > thr) {
@@ -1078,7 +1088,8 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
     for(Index i = 1; i <= p; i++) {
-        Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
+            A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
         dks(i, 0) = Gn.block(0, i * n, n, n).trace() / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
@@ -1086,11 +1097,13 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
-        Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =
+            A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
-                                       A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
+            MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
+                A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
+                A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
             dks(i, k) = Gn.block(0, i * n, n, n).trace() / (2 * (k + i));
         }
 #ifdef _OPENMP
@@ -1099,23 +1112,27 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #pragma omp for
 #endif
         for(Index j = 1; j < k; j++) {
-            Gn.block(0, j * n * (p + 1), n, n) = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) + A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
+            MatrixXx::Map(Gn.block(0, j * n * (p + 1), n, n).data(), n, n).noalias() =
+                A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) + A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
             dks(0, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (p + 1), n, n).trace() / (2 * k);
             for(Index i = 1; i <= p; i++) {
-                Gn.block(0, j * n * (p + 1) + i * n, n, n) = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
-                                           A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
-                                           A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
+                MatrixXx::Map(Gn.block(0, j * n * (p + 1) + i * n, n, n).data(), n, n).noalias() =
+                    A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
+                    A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
+                    A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
                 dks(i, (k - j) + j * (m + 1)) = Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
             }
         }
 #ifdef _OPENMP
 }
 #endif
-        Gn.block(0, k * n * (p + 1), n, n) = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
+        MatrixXx::Map(Gn.block(0, k * n * (p + 1), n, n).data(), n, n).noalias() =
+            A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
         dks(0, k * (m + 1)) = Gn.block(0, k * n * (p + 1), n, n).trace() / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            Gn.block(0, k * n * (p + 1) + i * n, n, n) = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
-                                       A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
+            MatrixXx::Map(Gn.block(0, k * n * (p + 1) + i * n, n, n).data(), n, n).noalias() =
+                A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
+                A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
             dks(i, k * (m + 1)) = Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() / (2 * (k + i));
         }
         if(Gn.maxCoeff() > thr) {
@@ -1262,16 +1279,17 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
         Go.block(0, 0, n, n * k * (k + 1) / 2) = Gn.block(0, 0, n, n * k * (k + 1) / 2);
         go.block(0, 0, n, k * (k + 1) / 2) = gn.block(0, 0, n, k * (k + 1) / 2);
 
-        tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
-        gn.col(0) = (tG - Go.block(0, 0, n, n)
+        tG.noalias() = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
+            (tG - Go.block(0, 0, n, n)
              - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         for(Index i2 = 1; i2 < k; i2++) {
             Index i3 = k - i2;
-            tG = A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
-                 A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(0, i2, k - 1), n, n));
-            gn.col(id3(0, i2, k)) =
+            tG.noalias() = A2 * (dks(0, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(0, i2 - 1, k - 1), n, n)) +
+                           A3 * (dks(0, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(0, i2, k - 1), n, n));
+            MatrixXx::Map(gn.col(id3(0, i2, k)).data(), n, 1).noalias() =
                 (tG -
                  Go.block(0, n * id3(0, i2 - 1, k - 1), n, n) - Go.block(0, n * id3(0, i2, k - 1), n, n)
                  - ((dks(0, i2 - 1 + i3 * (m + 1)) +
@@ -1280,8 +1298,9 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, n * id3(0, i2, k), n, n) = tG;
             dks(0, i2 + i3 * (m + 1)) = (Gn.block(0, n * id3(0, i2, k), n, n).trace() + gn.col(id3(0, i2, k)).dot(mu)) / (2 * k);
         }
-        tG = A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
-        gn.col(id3(0, k, k)) = (tG - Go.block(0, n * id3(0, k - 1, k - 1), n, n)
+        tG.noalias() = A2 * (dks(0, k - 1) * In + Go.block(0, n * id3(0, k - 1, k - 1), n, n));
+        MatrixXx::Map(gn.col(id3(0, k, k)).data(), n, 1).noalias() =
+            (tG - Go.block(0, n * id3(0, k - 1, k - 1), n, n)
              - ((dks(0, k - 1)) * In)) * mu + A2 * go.col(id3(0, k - 1, k - 1));
         Gn.block(0, n * id3(0, k, k), n, n) = tG;
         dks(0, k) = (Gn.block(0, n * id3(0, k, k), n, n).trace() + gn.col(id3(0, k, k)).dot(mu)) / (2 * k);
@@ -1291,9 +1310,9 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 #pragma omp for
 #endif
         for(Index i1 = 1; i1 < k; i1++) {
-            tG = A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
-                 A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
-            gn.col(i1) =
+            tG.noalias() = A1 * (dks(i1 - 1, (k - i1) * (m + 1)) * In + Go.block(0, n * (i1 - 1), n, n)) +
+                           A3 * (dks(i1, (k - i1 - 1) * (m + 1)) * In + Go.block(0, n * i1, n, n));
+            MatrixXx::Map(gn.col(i1).data(), n, 1).noalias() =
                 (tG - Go.block(0, n * (i1 - 1), n, n) - Go.block(0, n * i1, n, n)
                  - ((dks(i1 - 1, (k - i1) * (m + 1)) + dks(i1, (k - i1 - 1) * (m + 1))) * In)) * mu +
                 A1 * go.col(i1 - 1) + A3 * go.col(i1);
@@ -1301,10 +1320,10 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             dks(i1, (k - i1) * (m + 1)) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
             for(Index i2 = 1; i2 < k - i1; i2++) {
                 Index i3 = k - i1 - i2;
-                tG = A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n)) +
-                     A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n)) +
-                     A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(i1, i2, k - 1), n, n));
-                gn.col(id3(i1, i2, k)) =
+                tG.noalias() = A1 * (dks(i1 - 1, i2 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n)) +
+                               A2 * (dks(i1, i2 - 1 + i3 * (m + 1)) * In + Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n)) +
+                               A3 * (dks(i1, i2 + (i3 - 1) * (m + 1)) * In + Go.block(0, n * id3(i1, i2, k - 1), n, n));
+                MatrixXx::Map(gn.col(id3(i1, i2, k)).data(), n, 1).noalias() =
                     (tG - Go.block(0, n * id3(i1 - 1, i2, k - 1), n, n) -
                      Go.block(0, n * id3(i1, i2 - 1, k - 1), n, n) - Go.block(0, n * id3(i1, i2, k - 1), n, n)
                      - ((dks(i1 - 1, i2 + i3 * (m + 1)) + dks(i1, i2 - 1 + i3 * (m + 1)) +
@@ -1313,9 +1332,9 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                 Gn.block(0, n * id3(i1, i2, k), n, n) = tG;
                 dks(i1, i2 + i3 * (m + 1)) = (Gn.block(0, n * id3(i1, i2, k), n, n).trace() + gn.col(id3(i1, i2, k)).dot(mu)) / (2 * k);
             }
-            tG = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n)) +
-                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n));
-            gn.col(id3(i1, k - i1, k)) =
+            tG.noalias() = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n)) +
+                           A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n));
+            MatrixXx::Map(gn.col(id3(i1, k - i1, k)).data(), n, 1).noalias() =
                 (tG - Go.block(0, n * id3(i1 - 1, k - i1, k - 1), n, n) -
                  Go.block(0, n * id3(i1, k - i1 - 1, k - 1), n, n)
                  - ((dks(i1 - 1, k - i1) + dks(i1, k - i1 - 1)) * In)) * mu +
@@ -1327,8 +1346,9 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 }
 #endif
         //
-        tG = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
-        gn.col(k) = (tG - Go.block(0, n * (k - 1), n, n)
+        tG.noalias() = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+        MatrixXx::Map(gn.col(k).data(), n, 1).noalias() =
+            (tG - Go.block(0, n * (k - 1), n, n)
              - ((dks(k - 1, 0)) * In)) * mu + A1 * go.col(k - 1);
         Gn.block(0, n * k, n, n) = tG;
         dks(k, 0) = (Gn.block(0, n * k, n, n).trace() + gn.col(k).dot(mu)) / (2 * k);
@@ -1526,8 +1546,8 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     for(Index i = 1; i <= p; i++) {
-        Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
-        gn.col(i) = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
+        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
@@ -1536,16 +1556,17 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
-        tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-        gn.col(0) = (tG - Go.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
+        tG.noalias() = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
+            (tG - Go.block(0, 0, n, n) - (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
-            gn.col(i) = (tG - Go.block(0, i * n, n, n)
-                         - (dks(i, (k - 1)) * In)) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
+            tG.noalias() = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
+                           A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
+            MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
+                (tG - Go.block(0, i * n, n, n) - (dks(i, (k - 1)) * In)) * mu +
+                A1 * gn.col(i - 1) + A2 * go.col(i);
             Gn.block(0, i * n, n, n) = tG;
             dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
         }
@@ -1555,18 +1576,18 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #pragma omp for
 #endif
         for(Index j = 1; j < k; j++) {
-            tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
-                 A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
-            gn.col(j * (p + 1)) =
+            tG.noalias() = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
+                           A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
+            MatrixXx::Map(gn.col(j * (p + 1)).data(), n, 1).noalias() =
                 (tG - Go.block(0, j * n * (p + 1), n, n) - Go.block(0, (j - 1) * n * (p + 1), n, n) - ((dks(0, (k - j - 1) + j * (m + 1)) + dks(0, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
                 A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
             Gn.block(0, j * n * (p + 1), n, n) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
             for(Index i = 1; i <= p; i++) {
-                tG = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
-                     A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
-                     A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
-                gn.col(j * (p + 1) + i) =
+                tG.noalias() = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
+                               A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
+                               A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
+                MatrixXx::Map(gn.col(j * (p + 1) + i).data(), n, 1).noalias() =
                     (tG - Go.block(0, j * n * (p + 1) + i * n, n, n) - Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n)
                      - ((dks(i, (k - j - 1) + j * (m + 1)) + dks(i, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
                     A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
@@ -1577,16 +1598,19 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #ifdef _OPENMP
 }
 #endif
-        tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
-        gn.col(k * (p + 1)) = (tG - Go.block(0, (k - 1) * n * (p + 1), n, n) - (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
+        tG.noalias() = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
+        MatrixXx::Map(gn.col(k * (p + 1)).data(), n, 1).noalias() =
+            (tG - Go.block(0, (k - 1) * n * (p + 1), n, n) -
+             (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
-                 A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
-            gn.col(k * (p + 1) + i) = (tG - Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
-                             - (dks(i, (k - 1) * (m + 1)) * In)) * mu +
-                            A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
+            tG.noalias() = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
+                           A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
+            MatrixXx::Map(gn.col(k * (p + 1) + i).data(), n, 1).noalias() =
+                (tG - Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
+                 - (dks(i, (k - 1) * (m + 1)) * In)) * mu +
+                A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
@@ -1758,8 +1782,10 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     for(Index i = 1; i <= p; i++) {
-        Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
-        gn.col(i) = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
+        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
+            A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
+            Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
@@ -1768,16 +1794,17 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
-        tG = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-        gn.col(0) = (tG + Go.block(0, 0, n, n) + (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
+        tG.noalias() = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+        MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
+            (tG + Go.block(0, 0, n, n) + (dks(0, k - 1) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
-                 A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
-            gn.col(i) = (tG + Go.block(0, i * n, n, n)
-                         + (dks(i, (k - 1)) * In)) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
+            tG.noalias() = A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
+                           A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
+            MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
+                (tG + Go.block(0, i * n, n, n) + (dks(i, (k - 1)) * In)) * mu +
+                A1 * gn.col(i - 1) + A2 * go.col(i);
             Gn.block(0, i * n, n, n) = tG;
             dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
         }
@@ -1787,18 +1814,19 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #pragma omp for
 #endif
         for(Index j = 1; j < k; j++) {
-            tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
-                 A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
-            gn.col(j * (p + 1)) =
-                (tG + Go.block(0, j * n * (p + 1), n, n) + Go.block(0, (j - 1) * n * (p + 1), n, n) + ((dks(0, (k - j - 1) + j * (m + 1)) + dks(0, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
+            tG.noalias() = A2 * (dks(0, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
+                           A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
+            MatrixXx::Map(gn.col(j * (p + 1)).data(), n, 1).noalias() =
+                (tG + Go.block(0, j * n * (p + 1), n, n) + Go.block(0, (j - 1) * n * (p + 1), n, n) +
+                 ((dks(0, (k - j - 1) + j * (m + 1)) + dks(0, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
                 A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
             Gn.block(0, j * n * (p + 1), n, n) = tG;
             dks(0, (k - j) + j * (m + 1)) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
             for(Index i = 1; i <= p; i++) {
-                tG = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
-                     A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
-                     A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
-                gn.col(j * (p + 1) + i) =
+                tG.noalias() = A1 * (dks(i - 1, (k - j) + j * (m + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
+                               A2 * (dks(i, (k - j - 1) + j * (m + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
+                               A3 * (dks(i, (k - j) + (j - 1) * (m + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
+                MatrixXx::Map(gn.col(j * (p + 1) + i).data(), n, 1).noalias() =
                     (tG + Go.block(0, j * n * (p + 1) + i * n, n, n) + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n)
                      + ((dks(i, (k - j - 1) + j * (m + 1)) + dks(i, (k - j) + (j - 1) * (m + 1))) * In)) * mu +
                     A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
@@ -1809,16 +1837,19 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #ifdef _OPENMP
 }
 #endif
-        tG = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
-        gn.col(k * (p + 1)) = (tG + Go.block(0, (k - 1) * n * (p + 1), n, n) + (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
+        tG.noalias() = A3 * (dks(0, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
+        MatrixXx::Map(gn.col(k * (p + 1)).data(), n, 1).noalias() =
+            (tG + Go.block(0, (k - 1) * n * (p + 1), n, n) +
+             (dks(0, (k - 1) * (m + 1)) * In)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
         dks(0, k * (m + 1)) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
         for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
-                 A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
-            gn.col(k * (p + 1) + i) = (tG + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
-                             + (dks(i, (k - 1) * (m + 1)) * In)) * mu +
-                            A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
+            tG.noalias() = A1 * (dks(i - 1, k * (m + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
+                           A3 * (dks(i, (k - 1) * (m + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
+            MatrixXx::Map(gn.col(k * (p + 1) + i).data(), n, 1).noalias() =
+                (tG + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)
+                 + (dks(i, (k - 1) * (m + 1)) * In)) * mu +
+                A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
             dks(i, k * (m + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
         }
@@ -1988,8 +2019,8 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     for(Index i = 1; i <= p; i++) {
-        Gn.block(0, i * n, n, n) = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
-        gn.col(i) = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
+        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() = A1 * (dks(i - 1, 0) * In + Gn.block(0, (i - 1) * n, n, n));
+        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
     }
     for(Index k = 1; k <= m; k++) {
@@ -1999,14 +2030,14 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         if(k <= q) {
-            Gn.block(0, 0, n, n) = A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
-            gn.col(0) = Gn.block(0, 0, n, n) * mu + A2 * go.col(0);
+            MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+            MatrixXx::Map(gn.col(0).data(), n, 1).noalias() = Gn.block(0, 0, n, n) * mu + A2 * go.col(0);
             dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
             for(Index i = 1; i <= p; i++) {
-                Gn.block(0, i * n, n, n) =
+                MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
                     A1 * (dks(i - 1, k) * In + Gn.block(0, (i - 1) * n, n, n)) +
                     A2 * (dks(i, k - 1) * In + Go.block(0, i * n, n, n));
-                gn.col(i) = Gn.block(0, i * n, n, n) * mu +
+                MatrixXx::Map(gn.col(i).data(), n, 1).noalias() = Gn.block(0, i * n, n, n) * mu +
                             A1 * gn.col(i - 1) + A2 * go.col(i);
                 dks(i, k) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
             }
@@ -2016,19 +2047,19 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         for(Index j = 1; j < k; j++) {
             if(((k - j) <= q) && (j <= r)) {
-                Gn.block(0, j * n * (p + 1), n, n) =
+                MatrixXx::Map(Gn.block(0, j * n * (p + 1), n, n).data(), n, n).noalias() =
                     A2 * (dks(0, (k - j - 1) + j * (q + 1)) * In + Go.block(0, j * n * (p + 1), n, n)) +
                     A3 * (dks(0, (k - j) + (j - 1) * (q + 1)) * In + Go.block(0, (j - 1) * n * (p + 1), n, n));
-                gn.col(j * (p + 1)) =
+                MatrixXx::Map(gn.col(j * (p + 1)).data(), n, 1).noalias() =
                     Gn.block(0, j * n * (p + 1), n, n) * mu +
                     A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
                 dks(0, (k - j) + j * (q + 1)) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
                 for(Index i = 1; i <= p; i++) {
-                    Gn.block(0, j * n * (p + 1) + i * n, n, n) =
+                    MatrixXx::Map(Gn.block(0, j * n * (p + 1) + i * n, n, n).data(), n, n).noalias() =
                         A1 * (dks(i - 1, (k - j) + j * (q + 1)) * In + Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n)) +
                         A2 * (dks(i, (k - j - 1) + j * (q + 1)) * In + Go.block(0, j * n * (p + 1) + i * n, n, n)) +
                         A3 * (dks(i, (k - j) + (j - 1) * (q + 1)) * In + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n));
-                    gn.col(j * (p + 1) + i) =
+                    MatrixXx::Map(gn.col(j * (p + 1) + i).data(), n, 1).noalias() =
                         Gn.block(0, j * n * (p + 1) + i * n, n, n) * mu +
                         A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
                     dks(i, (k - j) + j * (q + 1)) = (Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() + gn.col(j * (p + 1) + i).dot(mu)) / (2 * (k + i));
@@ -2039,14 +2070,16 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
             }
         }
         if(k <= r) {
-            Gn.block(0, k * n * (p + 1), n, n) = A3 * (dks(0, (k - 1) * (q + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
-            gn.col(k * (p + 1)) = Gn.block(0, k * n * (p + 1), n, n) * mu + A3 * go.col((k - 1) * (p + 1));
+            MatrixXx::Map(Gn.block(0, k * n * (p + 1), n, n).data(), n, n).noalias() =
+                A3 * (dks(0, (k - 1) * (q + 1)) * In + Go.block(0, (k - 1) * n * (p + 1), n, n));
+            MatrixXx::Map(gn.col(k * (p + 1)).data(), n, 1).noalias() =
+                Gn.block(0, k * n * (p + 1), n, n) * mu + A3 * go.col((k - 1) * (p + 1));
             dks(0, k * (q + 1)) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
             for(Index i = 1; i <= p; i++) {
-                Gn.block(0, k * n * (p + 1) + i * n, n, n) =
+                MatrixXx::Map(Gn.block(0, k * n * (p + 1) + i * n, n, n).data(), n, n).noalias() =
                     A1 * (dks(i - 1, k * (q + 1)) * In + Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n)) +
                     A3 * (dks(i, (k - 1) * (q + 1)) * In + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n));
-                gn.col(k * (p + 1) + i) =
+                MatrixXx::Map(gn.col(k * (p + 1) + i).data(), n, 1).noalias() =
                     Gn.block(0, k * n * (p + 1) + i * n, n, n) * mu +
                     A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
                 dks(i, k * (q + 1)) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
