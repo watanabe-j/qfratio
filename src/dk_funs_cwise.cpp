@@ -148,13 +148,13 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         for(Index i1 = 1; i1 < k; i1++) {
             s1 = exp(min<Scalar>(0, lscf(i1, k - i1 - 1) - lscf(i1 - 1, k - i1)));
             s2 = exp(min<Scalar>(0, lscf(i1 - 1, k - i1) - lscf(i1, k - i1 - 1)));
-            MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n) =
+            MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n).noalias() =
                 s1 * A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
                 s2 * A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
             dks(i1, k - i1) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
             scale_in_d2_ij_mE(i1, k, m, n, thr, dks, lscf, Gn);
         }
-        MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n) =
+        MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
             A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
         scale_in_d2_ij_mE(k, k, m, n, thr, dks, lscf, Gn);
