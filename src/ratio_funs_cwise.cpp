@@ -22,14 +22,14 @@ using Eigen::Index;
 SEXP ApIq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA,
                    const Eigen::VectorXd mu,
                    const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                   const double thr_margin = 100) {
+                   const double thr_margin = 100, int nthreads = 1) {
     const Index n = LA.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXd mud = UA.transpose() * mu;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin);
+    ArrayXXd dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -48,14 +48,14 @@ SEXP ApIq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const doub
 SEXP ApBq_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                    const double bA, const double bB,
                    const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                   const double thr_margin = 100)
+                   const double thr_margin = 100, int nthreads = 1)
 {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -73,13 +73,13 @@ SEXP ApBq_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 SEXP ApBq_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                    const double bA, const double bB,
                    const double p = 1, const double q = 1, const Eigen::Index m = 100, 
-                   const double thr_margin = 100) {
+                   const double thr_margin = 100, int nthreads = 0) {
     const Index n = LB.size();
     const double n_ = n;
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     MatrixXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -97,13 +97,13 @@ SEXP ApBq_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 SEXP ApBq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                    const double bA, const double bB, const Eigen::ArrayXd mu,
                    const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                   const double thr_margin = 100) {
+                   const double thr_margin = 100, int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin);
+    ArrayXXd dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -121,13 +121,13 @@ SEXP ApBq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 SEXP ApBq_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                    const double bA, const double bB, const Eigen::ArrayXd mu,
                    const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                   const double thr_margin = 100) {
+                   const double thr_margin = 100, int nthreads = 0) {
     const Index n = LB.size();
     const double n_ = n;
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     MatrixXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin);
+    ArrayXXd dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -147,13 +147,13 @@ SEXP ApBIqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const double bB, const Eigen::ArrayXd mu,
                      const double p = 1, const double q = 1, const double r = 1,
                      const Eigen::Index m = 100, bool error_bound = true,
-                     const double thr_margin = 100) { // , int nthreads = 1) {
+                     const double thr_margin = 100, int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin).row(p); // , nthreads).row(p);
+    ArrayXXd dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
     dks.resize(m + 1, m + 1);
     ArrayXXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
                               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
@@ -168,7 +168,7 @@ SEXP ApBIqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
         double s = std::max(q, r);
         lscf.setZero();
-        ArrayXXd dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin).row(p); // , nthreads).row(p);
+        ArrayXXd dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
         dkstm.resize(m + 1, m + 1);
         dkstm /= exp(lscf - lscf.minCoeff());
         ArrayXd dkst = sum_counterdiagE(dkstm);
@@ -268,14 +268,15 @@ SEXP ApBIqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 SEXP ApBIqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const double bA, const double bB,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -293,14 +294,15 @@ SEXP ApBIqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 SEXP ApBIqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                      const double bA, const double bB,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 0) {
     const Index n = LB.size();
     const double n_ = n;
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     MatrixXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd zeromat = MatrixXd::Zero(n, n);
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -318,14 +320,15 @@ SEXP ApBIqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 SEXP ApBIqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const double bA, const double bB, const Eigen::ArrayXd mu,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 1) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
-    ArrayXXd dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin); // , nthreads);
+    ArrayXXd dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
@@ -376,13 +379,14 @@ SEXP ApBIqr_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 SEXP IpBDqr_gen_cvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
                      const double bB, const double bD,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -400,13 +404,14 @@ SEXP IpBDqr_gen_cvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
 SEXP IpBDqr_gen_cmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
                      const double bB, const double bD,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 0) {
     const Index n = LB.size();
     const double n_ = n;
     MatrixXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d2_ij_mE(Bh, Dh, m, lscf, thr_margin);
+    ArrayXXd dks = d2_ij_mE(Bh, Dh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -424,14 +429,14 @@ SEXP IpBDqr_gen_cmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
 SEXP IpBDqr_gen_nvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
                      const double bB, const double bD, const Eigen::ArrayXd mu,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 1) {
+                     const Eigen::Index m = 100, const double thr_margin = 100, int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
-    ArrayXXd dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin); // , nthreads);
+    ArrayXXd dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r)  - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
@@ -483,13 +488,14 @@ SEXP ApBDqr_int_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const Eigen::ArrayXd LD,
                      const double bB, const double bD,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 1) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin).row(p); // , nthreads).row(p);
+    ArrayXXd dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
     dks.resize(m + 1, m + 1);
     ArrayXXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
@@ -539,13 +545,14 @@ SEXP ApBDqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const double bB, const double bD,
                      const Eigen::ArrayXd mu,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 1) {
+                     const Eigen::Index m = 100, const double thr_margin = 100,
+                     int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
-    ArrayXXd dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin).row(p); // , nthreads).row(p);
+    ArrayXXd dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
     dks.resize(m + 1, m + 1);
     ArrayXXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
@@ -596,14 +603,14 @@ SEXP ApBDqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const Eigen::ArrayXd LD,
                      const double bA, const double bB, const double bD,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 0) {
+                     const Eigen::Index m = 100, const double thr_margin = 100, int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
-    ArrayXXd dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin); // , nthreads);
+    ArrayXXd dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
@@ -658,14 +665,14 @@ SEXP ApBDqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                      const double bA, const double bB, const double bD,
                      const Eigen::ArrayXd mu,
                      const double p = 1, const double q = 1, const double r = 1,
-                     const Eigen::Index m = 100, const double thr_margin = 100) { // , int nthreads = 1) {
+                     const Eigen::Index m = 100, const double thr_margin = 100, int nthreads = 1) {
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
-    ArrayXXd dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin); // , nthreads);
+    ArrayXXd dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
     ArrayXXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);

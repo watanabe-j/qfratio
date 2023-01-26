@@ -268,7 +268,11 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::MatrixBase<Derived>& A2,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-         const typename Derived::Scalar thr_margin) {
+         const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -288,12 +292,20 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =
             A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n).noalias() =
                 A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
                 A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
             dks(i1, k - i1) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
         }
+#ifdef _OPENMP
+}
+#endif
         MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
             A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
@@ -314,18 +326,22 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd d2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const MatrixBase<MatrixXd>& A2,
                            const Index m, ArrayXd& lscf,
-                           const double thr_margin);
+                           const double thr_margin, int nthreads);
 template ArrayXXl d2_ij_mE(const MatrixBase<MatrixXl>& A1,
                            const MatrixBase<MatrixXl>& A2,
                            const Index m, ArrayXl& lscf,
-                           const long double thr_margin);
+                           const long double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A2,
          const Eigen::Index m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-         const typename Derived::Scalar thr_margin) {
+         const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
@@ -342,11 +358,19 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
 
         Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
         dks(0, k) = Gn.col(0).sum() / (2 * k);
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             Gn.col(i1) = A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
                          A2 * (dks(i1, k - i1 - 1) + Go.col(i1));
             dks(i1, k - i1) = Gn.col(i1).sum() / (2 * k);
         }
+#ifdef _OPENMP
+}
+#endif
         Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         dks(k, 0) = Gn.col(k).sum() / (2 * k);
 
@@ -366,11 +390,11 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
 template ArrayXXd d2_ij_vE(const ArrayBase<ArrayXd>& A1,
                            const ArrayBase<ArrayXd>& A2,
                            const Index m, ArrayXd& lscf,
-                           const double thr_margin);
+                           const double thr_margin, int nthreads);
 template ArrayXXl d2_ij_vE(const ArrayBase<ArrayXl>& A1,
                            const ArrayBase<ArrayXl>& A2,
                            const Index m, ArrayXl& lscf,
-                           const long double thr_margin);
+                           const long double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -380,7 +404,11 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-         const typename Derived::Scalar thr_margin) {
+         const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -407,6 +435,11 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
              - ((dks(0, k - 1)) * In)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             tG.noalias() = A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
                            A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
@@ -418,6 +451,9 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, n * i1, n, n) = tG;
             dks(i1, k - i1) = (Gn.block(0, n * i1, n, n).trace() + gn.col(i1).dot(mu)) / (2 * k);
         }
+#ifdef _OPENMP
+}
+#endif
         tG.noalias() = A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
         MatrixXx::Map(gn.col(k).data(), n, 1).noalias() =
             (tG - Go.block(0, n * (k - 1), n, n)
@@ -442,11 +478,13 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd h2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const MatrixBase<MatrixXd>& A2,
                            const VectorXd& mu, const Index m,
-                           ArrayXd& lscf, const double thr_margin);
+                           ArrayXd& lscf, const double thr_margin,
+                           int nthreads);
 template ArrayXXl h2_ij_mE(const MatrixBase<MatrixXl>& A1,
                            const MatrixBase<MatrixXl>& A2,
                            const VectorXl& mu, const Index m,
-                           ArrayXl& lscf, const long double thr_margin);
+                           ArrayXl& lscf, const long double thr_margin,
+                           int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -456,7 +494,11 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& mu,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-         const typename Derived::Scalar thr_margin) {
+         const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -481,6 +523,11 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
              - ((dks(0, k - 1)))) * mu + A2 * go.col(0);
         Gn.col(0) = tG;
         dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             tG = A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
                  A2 * (dks(i1, k - i1 - 1) + Go.col(i1));
@@ -492,6 +539,9 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(i1) = tG;
             dks(i1, k - i1) = (Gn.col(i1).sum() + (mu * gn.col(i1)).sum()) / (2 * k);
         }
+#ifdef _OPENMP
+}
+#endif
         tG = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         gn.col(k) = (tG - Go.col(k - 1)
              - ((dks(k - 1, 0)))) * mu + A1 * go.col(k - 1);
@@ -516,12 +566,12 @@ template ArrayXXd h2_ij_vE(const ArrayBase<ArrayXd>& A1,
                            const ArrayBase<ArrayXd>& A2,
                            const ArrayBase<ArrayXd>& mu,
                            const Index m, ArrayXd& lscf,
-                           const double thr_margin);
+                           const double thr_margin, int nthreads);
 template ArrayXXl h2_ij_vE(const ArrayBase<ArrayXl>& A1,
                            const ArrayBase<ArrayXl>& A2,
                            const ArrayBase<ArrayXl>& mu,
                            const Index m, ArrayXl& lscf,
-                           const long double thr_margin);
+                           const long double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -974,11 +1024,11 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A3,
           const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-          const typename Derived::Scalar thr_margin) { // , int nthreads) {
-// #ifdef _OPENMP
-//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
-//     omp_set_num_threads(nthreads);
-// #endif
+          const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -1005,11 +1055,11 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
         }
         Gn.col(id3(0, k, k)) = A2 * (dks(0, k - 1) + Go.col(id3(0, k - 1, k - 1)));
         dks(0, k) = Gn.col(id3(0, k, k)).sum() / (2 * k);
-// #ifdef _OPENMP
-// #pragma omp parallel
-// {
-// #pragma omp for
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             Gn.col(i1) =
                 A1 * (dks(i1 - 1, (k - i1) * (m + 1)) + Go.col(i1 - 1)) +
@@ -1028,9 +1078,9 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                 A2 * (dks(i1, k - i1 - 1) + Go.col(id3(i1, k - i1 - 1, k - 1)));
             dks(i1, k - i1) = Gn.col(id3(i1, k - i1, k)).sum() / (2 * k);
         }
-// #ifdef _OPENMP
-// }
-// #endif
+#ifdef _OPENMP
+}
+#endif
         Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         dks(k, 0) = Gn.col(k).sum() / (2 * k);
 
@@ -1057,12 +1107,12 @@ template ArrayXXd d3_ijk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
                             const Index m, ArrayXd& lscf,
-                            const double thr_margin);
+                            const double thr_margin, int nthreads);
 template ArrayXXl d3_ijk_vE(const ArrayBase<ArrayXl>& A1,
                             const ArrayBase<ArrayXl>& A2,
                             const ArrayBase<ArrayXl>& A3,
                             const Index m, ArrayXl& lscf,
-                            const long double thr_margin);
+                            const long double thr_margin, int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1166,11 +1216,11 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A3,
           const Eigen::Index m, const Eigen::Index p,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-          const typename Derived::Scalar thr_margin) { // , int nthreads) {
-// #ifdef _OPENMP
-//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
-//     omp_set_num_threads(nthreads);
-// #endif
+          const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
@@ -1195,11 +1245,11 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                         A2 * (dks(i, k - 1) + Go.col(i));
             dks(i, k) = Gn.col(i).sum() / (2 * (k + i));
         }
-// #ifdef _OPENMP
-// #pragma omp parallel
-// {
-// #pragma omp for
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel
+{
+#pragma omp for
+#endif
         for(Index j = 1; j < k; j++) {
             Gn.col(j * (p + 1)) =
                 A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
@@ -1213,9 +1263,9 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i, (k - j) + j * (m + 1)) = Gn.col(j * (p + 1) + i).sum() / (2 * (k + i));
             }
         }
-// #ifdef _OPENMP
-// }
-// #endif
+#ifdef _OPENMP
+}
+#endif
         Gn.col(k * (p + 1)) = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         dks(0, k * (m + 1)) = Gn.col(k * (p + 1)).sum() / (2 * k);
         for(Index i = 1; i <= p; i++) {
@@ -1238,12 +1288,14 @@ template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
                             const Index m, const Index p,
-                            ArrayXd& lscf, const double thr_margin);
+                            ArrayXd& lscf, const double thr_margin,
+                            int nthreads);
 template ArrayXXl d3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                             const ArrayBase<ArrayXl>& A2,
                             const ArrayBase<ArrayXl>& A3,
                             const Index m, const Index p,
-                            ArrayXl& lscf, const long double thr_margin);
+                            ArrayXl& lscf, const long double thr_margin,
+                            int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1394,11 +1446,11 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A3,
           const Eigen::ArrayBase<Derived>& mu, const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-          const typename Derived::Scalar thr_margin) { // , int nthreads) {
-// #ifdef _OPENMP
-//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
-//     omp_set_num_threads(nthreads);
-// #endif
+          const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -1440,11 +1492,11 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
              - ((dks(0, k - 1)))) * mu + A2 * go.col(id3(0, k - 1, k - 1));
         Gn.col(id3(0, k, k)) = tG;
         dks(0, k) = (Gn.col(id3(0, k, k)).sum() + (mu * gn.col(id3(0, k, k))).sum()) / (2 * k);
-// #ifdef _OPENMP
-// #pragma omp parallel private(tG)
-// {
-// #pragma omp for
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(Index i1 = 1; i1 < k; i1++) {
             tG = A1 * (dks(i1 - 1, (k - i1) * (m + 1)) + Go.col(i1 - 1)) +
                  A3 * (dks(i1, (k - i1 - 1) * (m + 1)) + Go.col(i1));
@@ -1478,9 +1530,9 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(id3(i1, k - i1, k)) = tG;
             dks(i1, k - i1) = (Gn.col(id3(i1, k - i1, k)).sum() + (mu * gn.col(id3(i1, k - i1, k))).sum()) / (2 * k);
         }
-// #ifdef _OPENMP
-// }
-// #endif
+#ifdef _OPENMP
+}
+#endif
         tG = A1 * (dks(k - 1, 0) + Go.col(k - 1));
         gn.col(k) = (tG - Go.col(k - 1)
              - ((dks(k - 1, 0)))) * mu + A1 * go.col(k - 1);
@@ -1511,12 +1563,14 @@ template ArrayXXd h3_ijk_vE(const ArrayBase<ArrayXd>& A1,
                             const ArrayBase<ArrayXd>& A2,
                             const ArrayBase<ArrayXd>& A3,
                             const ArrayBase<ArrayXd>& mu, const Index m,
-                            ArrayXd& lscf, const double thr_margin);
+                            ArrayXd& lscf, const double thr_margin,
+                            int nthreads);
 template ArrayXXl h3_ijk_vE(const ArrayBase<ArrayXl>& A1,
                             const ArrayBase<ArrayXl>& A2,
                             const ArrayBase<ArrayXl>& A3,
                             const ArrayBase<ArrayXl>& mu, const Index m,
-                            ArrayXl& lscf, const long double thr_margin);
+                            ArrayXl& lscf, const long double thr_margin,
+                            int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1647,11 +1701,11 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& mu,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-             const typename Derived::Scalar thr_margin) { // , int nthreads) {
-// #ifdef _OPENMP
-//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
-//     omp_set_num_threads(nthreads);
-// #endif
+             const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -1688,11 +1742,11 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(i) = tG;
             dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
         }
-// #ifdef _OPENMP
-// #pragma omp parallel private(tG)
-// {
-// #pragma omp for
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(Index j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) +
                  A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
@@ -1712,9 +1766,9 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
             }
         }
-// #ifdef _OPENMP
-// }
-// #endif
+#ifdef _OPENMP
+}
+#endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         gn.col(k * (p + 1)) =
             (tG - Go.col((k - 1) * (p + 1)) - (dks(0, (k - 1) * (m + 1)))) * mu +
@@ -1746,13 +1800,15 @@ template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
                                const Index m, const Index p,
-                               ArrayXd& lscf, const double thr_margin);
+                               ArrayXd& lscf, const double thr_margin,
+                               int nthreads);
 template ArrayXXl htil3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                                const ArrayBase<ArrayXl>& A2,
                                const ArrayBase<ArrayXl>& A3,
                                const ArrayBase<ArrayXl>& mu,
                                const Index m, const Index p,
-                               ArrayXl& lscf, const long double thr_margin);
+                               ArrayXl& lscf, const long double thr_margin,
+                               int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>
@@ -1886,11 +1942,11 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& mu,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-             const typename Derived::Scalar thr_margin) { // , int nthreads) {
-// #ifdef _OPENMP
-//     if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
-//     omp_set_num_threads(nthreads);
-// #endif
+             const typename Derived::Scalar thr_margin, int nthreads) {
+#ifdef _OPENMP
+    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    omp_set_num_threads(nthreads);
+#endif
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -1927,11 +1983,11 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.col(i) = tG;
             dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
         }
-// #ifdef _OPENMP
-// #pragma omp parallel private(tG)
-// {
-// #pragma omp for
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
         for(Index j = 1; j < k; j++) {
             tG = A2 * (dks(0, (k - j - 1) + j * (m + 1)) + Go.col(j * (p + 1))) + A3 * (dks(0, (k - j) + (j - 1) * (m + 1)) + Go.col((j - 1) * (p + 1)));
             gn.col(j * (p + 1)) =
@@ -1952,9 +2008,9 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i, (k - j) + j * (m + 1)) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
             }
         }
-// #ifdef _OPENMP
-// }
-// #endif
+#ifdef _OPENMP
+}
+#endif
         tG = A3 * (dks(0, (k - 1) * (m + 1)) + Go.col((k - 1) * (p + 1)));
         gn.col(k * (p + 1)) =
             (tG + Go.col((k - 1) * (p + 1)) + (dks(0, (k - 1) * (m + 1)))) * mu +
@@ -1987,13 +2043,15 @@ template ArrayXXd hhat3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A3,
                                const ArrayBase<ArrayXd>& mu,
                                const Index m, const Index p,
-                               ArrayXd& lscf, const double thr_margin);
+                               ArrayXd& lscf, const double thr_margin,
+                               int nthreads);
 template ArrayXXl hhat3_pjk_vE(const ArrayBase<ArrayXl>& A1,
                                const ArrayBase<ArrayXl>& A2,
                                const ArrayBase<ArrayXl>& A3,
                                const ArrayBase<ArrayXl>& mu,
                                const Index m, const Index p,
-                               ArrayXl& lscf, const long double thr_margin);
+                               ArrayXl& lscf, const long double thr_margin,
+                               int nthreads);
 
 // // [[Rcpp::export]]
 template <typename Derived>

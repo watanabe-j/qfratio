@@ -182,7 +182,7 @@ most robust but variably slow}
 }}
 
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
-See "Details".}
+See "Multithreading" in \code{\link{qfrm}}.}
 
 \item{tol_conv}{Tolerance against which numerical convergence of series is checked.
 Used with \code{check_convergence}.}
@@ -259,19 +259,6 @@ Expect the computational time to scale with \code{m^2} for
 \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
 \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 the rest.
-
-All these functions use \code{C++} versions to speed up computation
-by default.
-Furthermore, some of the \code{C++} functions, in particular those
-using three matrix arguments, are parallelized with \code{OpenMP}
-(when available). Use the argument \code{nthreads} to control the number
-of \code{OpenMP} threads. By default (\code{nthreads = 0}), they use
-one-half of the processors detected via \code{omp_get_num_procs()}.
-These will not take effect when all the argument matrices share
-the same eigenvectors (so that the calculation only involves element-wise
-operations of eigenvalues), because the \code{OpenMP} parallelization
-does not seem to improve performance in that case
-(and this is typically fast anyway).
 
 Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
 \code{mu}, involve evaluation of multiple series, which can suffer

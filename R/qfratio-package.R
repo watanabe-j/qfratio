@@ -171,7 +171,7 @@ NULL
 #'   \code{bool} to specify whether the error bound is returned
 #' @param nthreads
 #'   \code{int} to specify the number of threads in \code{OpenMP}-enabled
-#'   functions.  See "Details" in \code{\link{qfmrm}}.
+#'   functions.  See "Multithreading" in \code{\link{qfrm}}.
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling. See "Scaling"
 #'   in \code{\link{d1_i}}.

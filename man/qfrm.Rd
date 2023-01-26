@@ -43,6 +43,7 @@ qfrm_ApIq_npi(
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
+  nthreads = 1,
   alphaA = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
@@ -78,6 +79,7 @@ qfrm_ApBq_npi(
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
+  nthreads = 0,
   alphaA = 1,
   alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
@@ -142,6 +144,9 @@ default by setting \code{tol_conv = .Machine$double.eps}}
 compared with \code{tol_conv}}
 \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
 }}
+
+\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
+See "Multithreading" in "Details".}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
@@ -278,8 +283,27 @@ The default is 1, which should suffice for most purposes.
 Values larger than 1 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold
 (see Hillier et al. 2009, 2014).
+\subsection{Multithreading:}{
 
-\emph{Dependency note}: An exact expression of the moment is available when
+All these functions use \code{C++} versions to speed up computation
+by default.
+Furthermore, some of the \code{C++} functions, in particular those
+using more than one matrix arguments, are parallelized with \code{OpenMP}
+(when available). Use the argument \code{nthreads} to control the number
+of \code{OpenMP} threads. By default (\code{nthreads = 0}), one-half of
+the processors detected with \code{omp_get_num_procs()} are used.
+This is except when all the argument matrices share the same eigenvectors
+and hence the calculation only involves element-wise operations of
+eigenvalues. In that case, the calculation is typically fast without
+parallelization, so \code{nthreads} is automatically set to \code{1}
+unless explicitly specified otherwise; the user can still specify
+a larger value (or \code{0}) to gain marginal speed-up in large
+problems.
+}
+
+\subsection{Dependency note:}{
+
+An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
 (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
@@ -290,6 +314,7 @@ the ordinary infinite series expression (Hillier et al. 2009), which is
 less accurate and slow, and throws a message (once per session).
 It is recommended to install that package if an accurate estimate
 is desired for that case.
+}
 }
 \examples{
 ## Some symmetric matrices and parameters
