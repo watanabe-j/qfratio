@@ -307,7 +307,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         scale_in_h2_ij_mE(0, k, m, n, thr, dks, lscf, Gn, gn);
 #ifdef _OPENMP
-#pragma omp parallel private(tG)
+#pragma omp parallel private(tG, s1, s2)
 {
 #pragma omp for
 #endif
@@ -400,7 +400,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
         dks(0, k) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
         scale_in_h2_ij_vE(0, k, m, n, thr, dks, lscf, Gn, gn);
 #ifdef _OPENMP
-#pragma omp parallel private(tG)
+#pragma omp parallel private(tG, s1, s2)
 {
 #pragma omp for
 #endif
@@ -1478,7 +1478,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         }
         scale_in_htil3_pjk_mE(0, k, m, n, p, thr, dks, lscf, Gn, gn);
 #ifdef _OPENMP
-#pragma omp parallel private(tG)
+#pragma omp parallel private(tG, s2, s3)
 {
 #pragma omp for
 #endif
@@ -1588,7 +1588,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         }
         scale_in_htil3_pjk_vE(0, k, m, n, p, thr, dks, lscf, Gn, gn);
 #ifdef _OPENMP
-#pragma omp parallel private(tG)
+#pragma omp parallel private(tG, s2, s3)
 {
 #pragma omp for
 #endif
