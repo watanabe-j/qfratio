@@ -121,7 +121,7 @@
 #' eigenvalues. In that case, the calculation is typically fast without
 #' parallelization, so \code{nthreads} is automatically set to \code{1}
 #' unless explicitly specified otherwise; the user can still specify
-#' a larger value (or \code{0}) to gain marginal speed-up in large
+#' a larger value or \code{0} for (typically marginal) speed gains in large
 #' problems.
 #'
 #' @param A,B
@@ -188,7 +188,8 @@
 #'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
 #' @param nthreads
 #'   Number of threads used in OpenMP-enabled \code{C++} functions.
-#'   See "Multithreading" in "Details".
+#'   \code{0} or any negative value is special and means one-half of
+#'   the number of processors detected. See "Multithreading" in "Details".
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:

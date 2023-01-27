@@ -270,7 +270,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -339,7 +339,7 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
          const Eigen::Index m, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -406,7 +406,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -496,7 +496,7 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -923,7 +923,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1026,7 +1026,7 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1124,7 +1124,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, 
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1218,7 +1218,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1308,7 +1308,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1448,7 +1448,7 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1583,7 +1583,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1703,7 +1703,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1821,7 +1821,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;
@@ -1944,7 +1944,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
 #ifdef _OPENMP
-    if(nthreads == 0) nthreads = omp_get_num_procs() / 2;
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
 #endif
     typedef typename Derived::Scalar Scalar;

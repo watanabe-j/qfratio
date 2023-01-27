@@ -146,7 +146,8 @@ compared with \code{tol_conv}}
 }}
 
 \item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
-See "Multithreading" in "Details".}
+\code{0} or any negative value is special and means one-half of
+the number of processors detected. See "Multithreading" in "Details".}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}
@@ -297,7 +298,7 @@ and hence the calculation only involves element-wise operations of
 eigenvalues. In that case, the calculation is typically fast without
 parallelization, so \code{nthreads} is automatically set to \code{1}
 unless explicitly specified otherwise; the user can still specify
-a larger value (or \code{0}) to gain marginal speed-up in large
+a larger value or \code{0} for (typically marginal) speed gains in large
 problems.
 }
 
