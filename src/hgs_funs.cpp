@@ -160,7 +160,7 @@ hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
     ansmat.colwise() += Alnumi;
     ansmat.rowwise() += Alnumj.transpose();
     for(Index k = 0; k <= m; k++) {
-        double lden = std::lgamma(b + k) - std::lgamma(b);
+        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index i = 0; i <= k; i++) ansmat(i, k - i) -= lden;
     }
     ansmat += log(abs(dks)) + lconst;
@@ -204,7 +204,7 @@ hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
     ansmat.colwise() += Alnumi;
     ansmat.rowwise() += Alnumj.transpose();
     for(Index k = 0; k <= m; k++) {
-        double lden = std::lgamma(b + k) - std::lgamma(b);
+        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index i = 0; i <= k; i++) ansmat(i, k - i) -= lden;
     }
     ansmat += log(abs(dks)) + lconst;
@@ -245,7 +245,7 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks, const typename Derived::Scalar a1,
     for(Index k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1).rowwise() += Alnumj.transpose();
     for(Index k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1) += Alnumk(k);
     for(Index k = 0; k <= m; k++) {
-        double lden = std::lgamma(b + k) - std::lgamma(b);
+        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index i = 0; i <= k; i++) {
             for(Index j = 0; j <= k - i; j++) {
                 ansmat(i, j + (k - i - j) * (m + 1)) -= lden;
@@ -301,7 +301,7 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks,
     for(Index k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1).rowwise() += Alnumj.transpose();
     for(Index k = 0; k <= m; k++) ansmat.block(0, k * (m + 1), m + 1, m + 1) += Alnumk(k);
     for(Index k = 0; k <= m; k++) {
-        double lden = std::lgamma(b + k) - std::lgamma(b);
+        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index i = 0; i <= k; i++) {
             for(Index j = 0; j <= k - i; j++) {
                 ansmat(i, j + (k - i - j) * (m + 1)) -= lden;
