@@ -175,8 +175,7 @@ SEXP ApBIqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         ArrayXd cumsum_dkst(m + 1);
         set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        ArrayXd LAp_BbB = LAp / LB / bB;
-        double dp = dtil1_i_vE(LAp_BbB, mub, p, lscfdp, thr_margin)(p);
+        double dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         double lBdet = log(LB * bB).sum();
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -
@@ -237,8 +236,7 @@ SEXP ApBIqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         set_cumsum(dkst, cumsum_dkst);
         MatrixXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        MatrixXd Ap_BbB = Bisqr * Ap * Bisqr / bB;
-        double dp = dtil1_i_mE(Ap_BbB, mub, p, lscfdp, thr_margin)(p);
+        double dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         double lBdet = log(LB * bB).sum();
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -

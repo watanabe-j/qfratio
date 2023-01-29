@@ -225,8 +225,7 @@ SEXP ApBIqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         ArrayXl lscfdp = ArrayXl::Zero(p + 1);
-        ArrayXl LAp_BbB = LAp / LB / bB;
-        long double dp = dtil1_i_vE(LAp_BbB, mub, p, lscfdp, thr_margin)(p);
+        long double dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         long double lBdet = log(LB * bB).sum();
         ArrayXl lcoefe =
             LinSpaced_lgammal(m + 1, s + 1) - lgammal(s) -
@@ -300,8 +299,7 @@ SEXP ApBIqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
         set_cumsum(dkst, cumsum_dkst);
         MatrixXl Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
         ArrayXl lscfdp = ArrayXl::Zero(p + 1);
-        MatrixXl Ap_BbB = Bisqr * Ap * Bisqr / bB;
-        long double dp = dtil1_i_mE(Ap_BbB, mub, p, lscfdp, thr_margin)(p);
+        long double dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         long double lBdet = log(LB * bB).sum();
         ArrayXl lcoefe =
             LinSpaced_lgammal(m + 1, s + 1) - lgammal(s) -
