@@ -277,12 +277,12 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
-    const MatrixXx In = MatrixXx::Identity(n, n);
     ArrayXXx dks = ArrayXXx::Zero(m + 1, m + 1);
     dks(0, 0) = 1;
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx Go = MatrixXx::Zero(n, n * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (m + 1));
+    Gn.block(0, 0, n, n).diagonal().array() += dks(0, 0);
     for(Index k = 1; k <= m; k++) {
         if(k % 200 == 0) {
             Rcpp::checkUserInterrupt();
@@ -290,8 +290,9 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         Go.block(0, 0, n, n * k) = Gn.block(0, 0, n, n * k);
 
         MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =
-            A2 * (dks(0, k - 1) * In + Go.block(0, 0, n, n));
+            A2 * Go.block(0, 0, n, n);
         dks(0, k) = Gn.block(0, 0, n, n).trace() / (2 * k);
+        Gn.block(0, 0, n, n).diagonal().array() += dks(0, k);
 #ifdef _OPENMP
 #pragma omp parallel
 {
@@ -299,16 +300,18 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
 #endif
         for(Index i1 = 1; i1 < k; i1++) {
             MatrixXx::Map(Gn.block(0, n * i1, n, n).data(), n, n).noalias() =
-                A1 * (dks(i1 - 1, k - i1) * In + Go.block(0, n * (i1 - 1), n, n)) +
-                A2 * (dks(i1, k - i1 - 1) * In + Go.block(0, n * i1, n, n));
+                A1 * Go.block(0, n * (i1 - 1), n, n) +
+                A2 * Go.block(0, n * i1, n, n);
             dks(i1, k - i1) = Gn.block(0, n * i1, n, n).trace() / (2 * k);
+            Gn.block(0, n * i1, n, n).diagonal().array() += dks(i1, k - i1);
         }
 #ifdef _OPENMP
 }
 #endif
         MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
-            A1 * (dks(k - 1, 0) * In + Go.block(0, n * (k - 1), n, n));
+            A1 * Go.block(0, n * (k - 1), n, n);
         dks(k, 0) = Gn.block(0, n * k, n, n).trace() / (2 * k);
+        Gn.block(0, n * k, n, n).diagonal().array() += dks(k, 0);
 
         if(Gn.maxCoeff() > thr) {
             for(Index i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
@@ -350,29 +353,33 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
     Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx Go = ArrayXXx::Zero(n, m);
     ArrayXXx Gn = ArrayXXx::Zero(n, m + 1);
+    Gn.col(0) += dks(0, 0);
     for(Index k = 1; k <= m; k++) {
         if(k % 2000 == 0) {
             Rcpp::checkUserInterrupt();
         }
         Go.block(0, 0, n, k) = Gn.block(0, 0, n, k);
 
-        Gn.col(0) = A2 * (dks(0, k - 1) + Go.col(0));
+        Gn.col(0) = A2 * Go.col(0);
         dks(0, k) = Gn.col(0).sum() / (2 * k);
+        Gn.col(0) += dks(0, k);
 #ifdef _OPENMP
 #pragma omp parallel
 {
 #pragma omp for
 #endif
         for(Index i1 = 1; i1 < k; i1++) {
-            Gn.col(i1) = A1 * (dks(i1 - 1, k - i1) + Go.col(i1 - 1)) +
-                         A2 * (dks(i1, k - i1 - 1) + Go.col(i1));
+            Gn.col(i1) = A1 * Go.col(i1 - 1) +
+                         A2 * Go.col(i1);
             dks(i1, k - i1) = Gn.col(i1).sum() / (2 * k);
+            Gn.col(i1) += dks(i1, k - i1);
         }
 #ifdef _OPENMP
 }
 #endif
-        Gn.col(k) = A1 * (dks(k - 1, 0) + Go.col(k - 1));
+        Gn.col(k) = A1 * Go.col(k - 1);
         dks(k, 0) = Gn.col(k).sum() / (2 * k);
+        Gn.col(k) += dks(k, 0);
 
         if(Gn.maxCoeff() > thr) {
             for(Index i1 = 0; i1 <= k; i1++) dks(i1, k - i1) /= 1e10;
