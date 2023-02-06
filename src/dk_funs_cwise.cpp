@@ -22,6 +22,8 @@ using Eigen::ArrayBase;
 using Eigen::Dynamic;
 using Eigen::Index;
 
+typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatXd;
+
 
 template <typename Derived>
 inline void update_scale_2D(Eigen::ArrayBase<Derived>& lscf,
@@ -120,7 +122,7 @@ inline void scale_in_d2_ij_mE(Eigen::Index i1, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
-         const Eigen::MatrixBase<Derived>& A2,
+         const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads) {
@@ -177,7 +179,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd d2_ij_mE(const Eigen::MatrixBase<MatrixXd>& A1,
-                           const Eigen::MatrixBase<MatrixXd>& A2,
+                           const DiagMatXd& A2,
                            const Index m, ArrayXXd& lscf,
                            const double thr_margin, int nthreads);
 
@@ -272,7 +274,7 @@ inline void scale_in_h2_ij_mE(Eigen::Index i1, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
-         const Eigen::MatrixBase<Derived>& A2,
+         const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
@@ -342,7 +344,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd h2_ij_mE(const MatrixBase<MatrixXd>& A1,
-                           const MatrixBase<MatrixXd>& A2,
+                           const DiagMatXd& A2,
                            const VectorXd& mu, const Index m,
                            ArrayXXd& lscf, const double thr_margin,
                            int nthreads);
@@ -459,7 +461,7 @@ inline void scale_in_d3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
-          const Eigen::MatrixBase<Derived>& A2,
+          const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
           const Eigen::MatrixBase<Derived>& A3,
           const Eigen::Index m,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
@@ -558,7 +560,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd d3_ijk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
-                            const Eigen::MatrixBase<MatrixXd>& A2,
+                            const DiagMatXd& A2,
                             const Eigen::MatrixBase<MatrixXd>& A3,
                             const Index m, ArrayXXd& lscf,
                             const double thr_margin, int nthreads);
@@ -693,7 +695,7 @@ inline void scale_in_d3_pjk_mE(Eigen::Index j, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
-          const Eigen::MatrixBase<Derived>& A2,
+          const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
           const Eigen::MatrixBase<Derived>& A3,
           const Eigen::Index m,
           const Eigen::Index p, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>& lscf,
@@ -779,7 +781,7 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
-                const MatrixBase<MatrixXd>& A2, const MatrixBase<MatrixXd>& A3,
+                const DiagMatXd& A2, const MatrixBase<MatrixXd>& A3,
                 const Index m, const Index p, ArrayXXd& lscf,
                 const double thr_margin, int nthreads);
 
@@ -900,7 +902,7 @@ inline void scale_in_h3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
-          const Eigen::MatrixBase<Derived>& A2,
+          const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
           const Eigen::MatrixBase<Derived>& A3,
           const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
           const Eigen::Index m,
@@ -1024,7 +1026,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd  h3_ijk_mE(const MatrixBase<MatrixXd>& A1,
-                             const MatrixBase<MatrixXd>& A2,
+                             const DiagMatXd& A2,
                              const MatrixBase<MatrixXd>& A3,
                              const VectorXd mu, const Index m,
                              ArrayXXd& lscf, const double thr_margin,
@@ -1198,7 +1200,7 @@ inline void scale_in_htil3_pjk_mE(Eigen::Index j, Eigen::Index k,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
-             const Eigen::MatrixBase<Derived>& A2,
+             const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const Eigen::Index m, const Eigen::Index p,
@@ -1307,7 +1309,7 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd htil3_pjk_mE(const MatrixBase<MatrixXd>& A1,
-                               const MatrixBase<MatrixXd>& A2,
+                               const DiagMatXd& A2,
                                const MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const Index m, const Index p,
                                ArrayXXd& lscf, const double thr_margin,
@@ -1443,7 +1445,7 @@ template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
-             const Eigen::MatrixBase<Derived>& A2,
+             const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const Eigen::Index m, const Eigen::Index p,
@@ -1552,7 +1554,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
-                               const Eigen::MatrixBase<MatrixXd>& A2,
+                               const DiagMatXd& A2,
                                const Eigen::MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const Index m, const Index p,
                                ArrayXXd& lscf, const double thr_margin,
