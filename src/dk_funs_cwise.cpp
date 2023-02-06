@@ -178,7 +178,7 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd d2_ij_mE(const Eigen::MatrixBase<MatrixXd>& A1,
+template ArrayXXd d2_ij_mE(const MatrixBase<MatrixXd>& A1,
                            const DiagMatXd& A2,
                            const Index m, ArrayXXd& lscf,
                            const double thr_margin, int nthreads);
@@ -248,8 +248,8 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
     }
     return dks;
 }
-template ArrayXXd d2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
-                           const Eigen::ArrayBase<ArrayXd>& A2,
+template ArrayXXd d2_ij_vE(const ArrayBase<ArrayXd>& A1,
+                           const ArrayBase<ArrayXd>& A2,
                            const Index m, ArrayXXd& lscf,
                            const double thr_margin, int nthreads);
 
@@ -435,9 +435,9 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd h2_ij_vE(const Eigen::ArrayBase<ArrayXd>& A1,
-                           const Eigen::ArrayBase<ArrayXd>& A2,
-                           const Eigen::ArrayBase<ArrayXd>& mu,
+template ArrayXXd h2_ij_vE(const ArrayBase<ArrayXd>& A1,
+                           const ArrayBase<ArrayXd>& A2,
+                           const ArrayBase<ArrayXd>& mu,
                            const Index m, ArrayXXd& lscf,
                            const double thr_margin, int nthreads);
 
@@ -559,9 +559,9 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd d3_ijk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
+template ArrayXXd d3_ijk_mE(const MatrixBase<MatrixXd>& A1,
                             const DiagMatXd& A2,
-                            const Eigen::MatrixBase<MatrixXd>& A3,
+                            const MatrixBase<MatrixXd>& A3,
                             const Index m, ArrayXXd& lscf,
                             const double thr_margin, int nthreads);
 
@@ -670,9 +670,9 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd d3_ijk_vE(const Eigen::ArrayBase<ArrayXd>& A1,
-                            const Eigen::ArrayBase<ArrayXd>& A2,
-                            const Eigen::ArrayBase<ArrayXd>& A3,
+template ArrayXXd d3_ijk_vE(const ArrayBase<ArrayXd>& A1,
+                            const ArrayBase<ArrayXd>& A2,
+                            const ArrayBase<ArrayXd>& A3,
                             const Index m, ArrayXXd& lscf,
                             const double thr_margin, int nthreads);
 
@@ -877,9 +877,10 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
     return dks;
 }
 template ArrayXXd d3_pjk_vE(const ArrayBase<ArrayXd>& A1,
-                    const ArrayBase<ArrayXd>& A2, const ArrayBase<ArrayXd>& A3,
-                    const Index m, const Index p, ArrayXXd& lscf,
-                    const double thr_margin, int nthreads);
+                            const ArrayBase<ArrayXd>& A2,
+                            const ArrayBase<ArrayXd>& A3,
+                            const Index m, const Index p, ArrayXXd& lscf,
+                            const double thr_margin, int nthreads);
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 inline void scale_in_h3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
@@ -1553,9 +1554,9 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd hhat3_pjk_mE(const Eigen::MatrixBase<MatrixXd>& A1,
+template ArrayXXd hhat3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const DiagMatXd& A2,
-                               const Eigen::MatrixBase<MatrixXd>& A3,
+                               const MatrixBase<MatrixXd>& A3,
                                const VectorXd mu, const Index m, const Index p,
                                ArrayXXd& lscf, const double thr_margin,
                                int nthreads);

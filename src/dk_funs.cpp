@@ -1227,13 +1227,13 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 template ArrayXXd d3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                             const DiagMatXd& A2,
                             const MatrixBase<MatrixXd>& A3,
-                            const Eigen::Index m, const Eigen::Index p,
+                            const Index m, const Index p,
                             ArrayXd& lscf, const double thr_margin,
                             int nthreads);
 template ArrayXXl d3_pjk_mE(const MatrixBase<MatrixXl>& A1,
                             const DiagMatXl& A2,
                             const MatrixBase<MatrixXl>& A3,
-                            const Eigen::Index m, const Eigen::Index p,
+                            const Index m, const Index p,
                             ArrayXl& lscf, const long double thr_margin,
                             int nthreads);
 
