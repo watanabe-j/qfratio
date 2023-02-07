@@ -39,6 +39,13 @@ hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
         const typename Derived::Scalar b, const typename Derived::Scalar lconst,
         const Eigen::ArrayBase<Derived>& lscf);
 
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+hgs_2dEc(const Eigen::ArrayBase<Derived>& dks,
+        const typename Derived::Scalar a1, const typename Derived::Scalar a2,
+        const typename Derived::Scalar b, const typename Derived::Scalar lconst,
+        const Eigen::ArrayBase<Derived>& lscf);
+
 
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
@@ -59,6 +66,10 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks,
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 sum_counterdiagE(const Eigen::ArrayBase<Derived>& X);
+
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiagEc(const Eigen::ArrayBase<Derived>& X);
 
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>

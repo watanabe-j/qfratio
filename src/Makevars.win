@@ -22,6 +22,10 @@ CXX_STD = CXX11
 PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
 PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
+## PKG_CPPFLAGS is set so that header(s) can be found in config.h using #define:
+## #define EIGEN_ARRAYBASE_PLUGIN "ArrayBaseAddons.h"
+PKG_CPPFLAGS = -I.
+
 ### For linking GSL
 #PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`
 #PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `gsl-config --libs`

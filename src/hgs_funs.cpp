@@ -1,3 +1,4 @@
+#include "config.h"
 #include <RcppEigen.h>
 // [[Rcpp::depends(RcppEigen)]]
 #include <unsupported/Eigen/SpecialFunctions>
@@ -220,6 +221,42 @@ template ArrayXXd hgs_2dE(const ArrayBase<ArrayXXd> &dks,
                           const double b, const double lconst,
                           const ArrayBase<ArrayXXd> &lscf);
 
+// Eigen template version of hgs_2d(); coefficient-wise lscf
+//
+// // [[Rcpp::export]]
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+hgs_2dEc(const Eigen::ArrayBase<Derived>& dks,
+        const typename Derived::Scalar a1, const typename Derived::Scalar a2,
+        const typename Derived::Scalar b, const typename Derived::Scalar lconst,
+        const Eigen::ArrayBase<Derived>& lscf) {
+    const Index m = dks.ULT_getM() - 1;
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, 1> ArrayXx;
+    ArrayXx Alnumi = get_lrf(a1, m + 1);
+    ArrayXx Alnumj = get_lrf(a2, m + 1);
+    ArrayXx ansmat = ArrayXx::Zero((m + 1) * (m + 2) / 2);
+    ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
+    ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
+    for(Index k = 0; k <= m; k++) {
+        ansmat.ULTcol(k, m + 1) += Alnumi.head(m + 1 - k) + Alnumj(k);
+        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
+        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) -= lden;
+    }
+    ansmat += log(abs(dks)) + lconst;
+    ansmat -= lscf;
+    ansmat = exp(ansmat);
+    for(Index k = 0; k <= m; k++) {
+        ansmat.ULTcol(k, m + 1) *= Asgnsi.head(m + 1 - k) * Asgnsj(k);
+    }
+    ansmat *= sign(dks);
+    return ansmat;
+}
+template ArrayXd hgs_2dEc(const ArrayBase<ArrayXd> &dks,
+                          const double a1, const double a2,
+                          const double b, const double lconst,
+                          const ArrayBase<ArrayXd> &lscf);
+
 
 // Eigen temlate version of hgs_3d()
 //
@@ -341,6 +378,25 @@ sum_counterdiagE(const Eigen::ArrayBase<Derived>& X) {
 }
 template ArrayXd sum_counterdiagE(const ArrayBase<ArrayXXd>& X);
 template ArrayXl sum_counterdiagE(const ArrayBase<ArrayXXl>& X);
+
+// Eigen template version of \code{sum_counterdiag()}
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
+sum_counterdiagEc(const Eigen::ArrayBase<Derived>& X) {
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, 1> ArrayXx;
+    const Index n = (sqrt(8 * X.size() + 2) - 1) / 2;
+    ArrayXx ans = ArrayXx::Zero(n);
+    Scalar x;
+    for(Index i = 0; i < n; i++) {
+        for(Index j = 0; j <= i; j++) {
+            x = X.ULTat(i - j, j, n);
+            if(!std::isnan(x)) ans(i) += x;
+        }
+    }
+    return ans;
+}
+template ArrayXd sum_counterdiagEc(const ArrayBase<ArrayXd>& X);
 
 // Eigen template version of \code{sum_counterdiag3D()}
 // X is a wide ArrayXXl, n * (n * n)
