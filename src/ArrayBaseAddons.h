@@ -8,9 +8,11 @@
 //  i x x o o
 //  . x o o o
 //  M rows    M * (M + 1) / 2 coefs
-// Second, Upper-Left Stacked (ULS) objects assumes ULT stacked row-wise
+// Second, Upper-Left Stacked (ULS) object assumes ULT stacked row-wise
 // in an ArrayXXx (used in, e.g., d3_pjk_mEc)
-
+// Third, Upper-Left Cube (ULC) object stores the (i,j,k)-th coefficients of
+// a M x M x M cube, where i+j+k < M, in an ArrayXx;
+// M * (M + 1) * (M + 2) / 6 coefs in total
 
 // #include <RcppEigen.h>
 // // [[Rcpp::depends(RcppEigen)]]
@@ -96,6 +98,67 @@ inline Block<Derived, Dynamic, 1, true> ULScol(Index j, Index k, Index M) const 
 }
 inline Block<Derived, Dynamic, 1, true> ULScol(Index j, Index k, Index M) {
     return this->col(j + k * (2 * M - k + 1) / 2);
+}
+
+
+// Get M for ULC from size() of ArrayXx
+inline Index ULC_getM() const {
+    double N = this->size();
+    double A = std::pow(81 * N + 3 * std::sqrt(729 * N * N - 3), 1.0/3.0);
+    return std::round(A / 3 + 1 / A - 1);
+}
+inline Index ULC_getM() {
+    double N = this->size();
+    double A = std::pow(81 * N + 3 * std::sqrt(729 * N * N - 3), 1.0/3.0);
+    return std::round(A / 3 + 1 / A - 1);
+}
+
+// (i,j,k)-th coef in ULC
+inline Scalar ULCat(Index i, Index j, Index k) const {
+    Index M = ULC_getM();
+    return this->operator()(i + (2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6);
+}
+inline Scalar& ULCat(Index i, Index j, Index k) {
+    Index M = ULC_getM();
+    return this->operator()(i + (2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6);
+}
+inline Scalar ULCat(Index i, Index j, Index k, Index M) const {
+    return this->operator()(i + (2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6);
+}
+inline Scalar& ULCat(Index i, Index j, Index k, Index M) {
+    return this->operator()(i + (2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6);
+}
+
+// (j,k)-th "column" in ULC
+inline VectorBlock<Derived> ULCcol(Index j, Index k) const {
+    Index M = ULC_getM();
+    return this->segment((2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, M - j - k);
+}
+inline VectorBlock<Derived> ULCcol(Index j, Index k) {
+    Index M = ULC_getM();
+    return this->segment((2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, M - j - k);
+}
+inline VectorBlock<Derived> ULCcol(Index j, Index k, Index M) const {
+    return this->segment((2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, M - j - k);
+}
+inline VectorBlock<Derived> ULCcol(Index j, Index k, Index M) {
+    return this->segment((2 * M - 2 * k - j + 1) * j / 2 + (3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, M - j - k);
+}
+
+// k-th "slice" in ULC
+inline VectorBlock<Derived> ULCslice(Index k) const {
+    Index M = ULC_getM();
+    return this->segment((3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, (M - k) * (M - k + 1) / 2);
+}
+inline VectorBlock<Derived> ULCslice(Index k) {
+    Index M = ULC_getM();
+    return this->segment((3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, (M - k) * (M - k + 1) / 2);
+}
+inline VectorBlock<Derived> ULCslice(Index k, Index M) const {
+    return this->segment((3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, (M - k) * (M - k + 1) / 2);
+}
+inline VectorBlock<Derived> ULCslice(Index k, Index M) {
+    return this->segment((3 * M * M - 3 * (k - 2) * M + (k - 1) * (k - 2)) * k / 6, (M - k) * (M - k + 1) / 2);
 }
 
 // // segment in j-th "column" in ULT
