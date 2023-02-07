@@ -188,43 +188,6 @@ template ArrayXXl hgs_2dE(const ArrayBase<ArrayXXl>& dks,
 //
 // // [[Rcpp::export]]
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
-        const typename Derived::Scalar a1, const typename Derived::Scalar a2,
-        const typename Derived::Scalar b, const typename Derived::Scalar lconst,
-        const Eigen::ArrayBase<Derived>& lscf) {
-    const Index m = dks.rows() - 1;
-    typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    ArrayXx Alnumi = get_lrf(a1, m + 1);
-    ArrayXx Alnumj = get_lrf(a2, m + 1);
-    ArrayXXx ansmat = ArrayXXx::Zero(m + 1, m + 1);
-    ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
-    ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
-    ansmat.colwise() += Alnumi;
-    ansmat.rowwise() += Alnumj.transpose();
-    for(Index k = 0; k <= m; k++) {
-        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
-        for(Index i = 0; i <= k; i++) ansmat(i, k - i) -= lden;
-    }
-    ansmat += log(abs(dks)) + lconst;
-    ansmat -= lscf;
-    ansmat = exp(ansmat);
-    ansmat.colwise() *= Asgnsi;
-    ansmat.rowwise() *= Asgnsj.transpose();
-    ansmat *= sign(dks);
-    return ansmat;
-}
-template ArrayXXd hgs_2dE(const ArrayBase<ArrayXXd> &dks,
-                          const double a1, const double a2,
-                          const double b, const double lconst,
-                          const ArrayBase<ArrayXXd> &lscf);
-
-// Eigen template version of hgs_2d(); coefficient-wise lscf
-//
-// // [[Rcpp::export]]
-template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 hgs_2dEc(const Eigen::ArrayBase<Derived>& dks,
         const typename Derived::Scalar a1, const typename Derived::Scalar a2,
