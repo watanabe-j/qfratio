@@ -57,14 +57,14 @@ d2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
          const typename Derived::Scalar thr_margin);
 
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
          const Eigen::Index m,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads);
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 d2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& A2,
          const Eigen::Index m,
@@ -72,7 +72,7 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const typename Derived::Scalar thr_margin, int nthreads);
 
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
          const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
@@ -80,7 +80,7 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
          Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
          const typename Derived::Scalar thr_margin, int nthreads);
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
          const Eigen::ArrayBase<Derived>& A2,
          const Eigen::ArrayBase<Derived>& mu,
@@ -134,7 +134,7 @@ dtil2_pq_vE(const Eigen::ArrayBase<Derived>& A1,
             const Eigen::Index p, const Eigen::Index q);
 
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
           const Eigen::MatrixBase<Derived>& A3,
@@ -142,7 +142,7 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1> &lscf,
           const typename Derived::Scalar thr_margin, int nthreads);
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,
@@ -168,7 +168,7 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
           const typename Derived::Scalar thr_margin, int nthreads);
 
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
           const Eigen::MatrixBase<Derived>& A3,
@@ -177,7 +177,7 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
           Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
           const typename Derived::Scalar thr_margin, int nthreads);
 template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
           const Eigen::ArrayBase<Derived>& A2,
           const Eigen::ArrayBase<Derived>& A3,

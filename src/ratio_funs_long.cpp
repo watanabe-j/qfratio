@@ -45,14 +45,13 @@ SEXP ApIq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl mud = UA.transpose() * mu;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
+    ArrayXl dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
                              // + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -76,14 +75,13 @@ SEXP ApBq_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -105,14 +103,13 @@ SEXP ApBq_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
     DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -135,14 +132,13 @@ SEXP ApBq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -165,14 +161,13 @@ SEXP ApBq_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
     DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -197,18 +192,17 @@ SEXP ApBIqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl zeromat = ArrayXl::Zero(n);
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
                               // + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
 
     if(error_bound) {
         bool twosided = true;
@@ -217,8 +211,8 @@ SEXP ApBIqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
         long double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
         long double s = std::max(q, r);
         lscf.setZero();
-        ArrayXXl dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-        dkstm.resize(m + 1, m + 1);
+        ArrayXl dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+        // dkstm.resize(m + 1, m + 1);
         ArrayXl dkst = sum_counterdiagE(dkstm);
         ArrayXl cumsum_dkst(m + 1);
         // ArrayXl lscfp0 = lscf.row(p).head(m + 1);
@@ -269,18 +263,17 @@ SEXP ApBIqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl zeromat = MatrixXl::Zero(n, n);
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = htil3_pjk_mE(A, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = htil3_pjk_mE(A, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
                               // + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(p + 1) + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
 
     if(error_bound) {
         bool twosided = true;
@@ -290,8 +283,8 @@ SEXP ApBIqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
         long double s = std::max(q, r);
         MatrixXl Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
         lscf.setZero();
-        ArrayXXl dkstm = hhat3_pjk_mE(Ap, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-        dkstm.resize(m + 1, m + 1);
+        ArrayXl dkstm = hhat3_pjk_mE(Ap, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+        // dkstm.resize(m + 1, m + 1);
         ArrayXl dkst = sum_counterdiagE(dkstm);
         ArrayXl cumsum_dkst(m + 1);
         // ArrayXl lscfp0 = lscf.row(p).head(m + 1);
@@ -342,14 +335,13 @@ SEXP ApBIqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl zeromat = ArrayXl::Zero(n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -372,14 +364,13 @@ SEXP ApBIqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl zeromat = MatrixXl::Zero(n, n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -402,18 +393,13 @@ SEXP ApBIqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl zeromat = ArrayXl::Zero(n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -437,18 +423,13 @@ SEXP ApBIqr_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl zeromat = MatrixXl::Zero(n, n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+    ArrayXl dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -471,14 +452,13 @@ SEXP IpBDqr_gen_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
     ArrayXl LDh = ArrayXl::Ones(n) - bD * LD;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+    ArrayXl dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -501,14 +481,13 @@ SEXP IpBDqr_gen_cmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, m + 1);
     ArrayXl lscf = ArrayXl::Zero(m + 1);
     // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
-    ArrayXXl dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_2dE(dks, r, q, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+    ArrayXl dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_2dE(dks, r, q, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -531,18 +510,13 @@ SEXP IpBDqr_gen_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
     ArrayXl zeromat = ArrayXl::Zero(n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+    ArrayXl dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r)  - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r)  - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -564,18 +538,13 @@ SEXP IpBDqr_gen_nmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
     MatrixXl zeromat = MatrixXl::Zero(n, n);
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+    ArrayXl dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -597,19 +566,18 @@ SEXP ApBDqr_int_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, cons
     ArrayXl LDh = ArrayXl::Ones(n) - bD * LD;
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgammal(p + 1)
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -630,19 +598,18 @@ SEXP ApBDqr_int_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgammal(p + 1)
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -665,19 +632,18 @@ SEXP ApBDqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl LDh = ArrayXl::Ones(n) - bD * LD;
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgammal(p + 1)
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -700,19 +666,18 @@ SEXP ApBDqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
     // ArrayXXl lscf = ArrayXXl::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = htil3_pjk_mE(A, Bh, Dh, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    dks.resize(m + 1, m + 1);
+    ArrayXl dks = htil3_pjk_mE(A, Bh, Dh, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    // dks.resize(m + 1, m + 1);
     // ArrayXXl lscfp = lscf.row(p);
     // lscfp.resize(m + 1, m + 1);
-    ArrayXXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
+    ArrayXl ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgammal(p + 1)
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscfp);
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2 + p)));
     ArrayXl ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() &&
-                      dks.rowwise().reverse().matrix().diagonal().cwiseEqual(0).any();
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -736,19 +701,14 @@ SEXP ApBDqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
     ArrayXl LDh = ArrayXl::Ones(n) - bD * LD;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
+    ArrayXl dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -771,19 +731,14 @@ SEXP ApBDqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
+    ArrayXl dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -806,19 +761,14 @@ SEXP ApBDqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, cons
     ArrayXl LDh = ArrayXl::Ones(n) - bD * LD;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
+    ArrayXl dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -841,19 +791,14 @@ SEXP ApBDqr_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
     MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
     // ArrayXXl lscf = ArrayXXl::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXXl dks = h3_ijk_mE(Ah, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
+    ArrayXl dks = h3_ijk_mE(Ah, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXl ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)), lscf);
                               // + lgammal(n_ / 2 + p - q - r) - lgammal(n_ / 2)));
     ArrayXl ansseq = sum_counterdiag3DE(ansmat);
     // ansseq /= exp(lscf);
-    bool diminished = false;
-    if((lscf < 0).any()) {
-        for(Index i = 0; i <= m && !diminished; i++) {
-            diminished = dks.block(0, i * (m + 1), m + 1, m + 1).rowwise().reverse().matrix().diagonal(i).cwiseEqual(0).any();
-        }
-    }
+    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished);
