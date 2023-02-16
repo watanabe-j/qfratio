@@ -8,3 +8,5 @@
 .vscode
 R/int
 src/int
+README.html
+inst/doc

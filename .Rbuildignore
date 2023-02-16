@@ -4,5 +4,6 @@
 ^R/int
 ^src/int
 ^README\.Rmd$
+^README\.html$
 ^\.vscode$
 ^\.lintr$
