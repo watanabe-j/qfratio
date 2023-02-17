@@ -260,7 +260,7 @@ Expect the computational time to scale with \code{m^2} for
 \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
 the rest.
 
-Most of these functions, excepting \code{qfmrm_ApBiqr_int()} with zero
+Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
 \code{mu}, involve evaluation of multiple series, which can suffer
 from numerical overflow and underflow (see "Scaling" in
 \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
