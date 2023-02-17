@@ -48,8 +48,8 @@ specifically for evaluating average evolvability measures in
 evolutionary quantitative genetics [@Watanabe2022cevo].
 
 This project is in a late stage of development.
-Most planned functionalities have been implemented and work properly.
-A comprehensive documentation of the package is coming in the near future.
+Most functionalities have been implemented and are considered stable.
+Documentations of the package and functions are partly under construction.
 Feedbacks are much appreciated.
 
 
@@ -77,6 +77,8 @@ This package has the following dependencies:
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0), knitr, rmarkdown
 
+You will also need [pandoc](https://pandoc.org) (including pandoc-citeproc)
+for correctly building the vignette.
 
 ## Examples
 

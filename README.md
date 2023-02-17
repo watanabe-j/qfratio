@@ -4,6 +4,7 @@
 # qfratio: R Package for Moments of Ratios of Quadratic Forms
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 This package provides functions to evaluate moments of ratios (and
@@ -19,13 +20,13 @@ different functionalities, including evaluation of moments of multiple
 ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
-evolutionary quantitative genetics ([Watanabe,
-2022](#ref-Watanabe2022cevo)).
+evolutionary quantitative genetics (Watanabe,
+[2022](#ref-Watanabe2022cevo)).
 
-This project is in a late stage of development. Most planned
-functionalities have been implemented and work properly. A comprehensive
-documentation of the package is coming in the near future. Feedbacks are
-much appreciated.
+This project is in a late stage of development. Most functionalities
+have been implemented and are considered stable. Documentations of the
+package and functions are partly under construction. Feedbacks are much
+appreciated.
 
 ## Installation
 
@@ -49,6 +50,9 @@ This package has the following dependencies:
     Imports: Rcpp, MASS, rlang (>= 0.4.7)
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0), knitr, rmarkdown
+
+You will also need [pandoc](https://pandoc.org) (including
+pandoc-citeproc) for correctly building the vignette.
 
 ## Examples
 
@@ -171,10 +175,9 @@ plot(mom_A2B3)
 
 ## References
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-line-spacing="2">
+<div id="refs" class="references">
 
-<div id="ref-BaoKan2013" class="csl-entry">
+<div id="ref-BaoKan2013">
 
 Bao, Y., & Kan, R. (2013). On the moments of ratios of quadratic forms
 in normal random variables. *Journal of Multivariate Analysis*, *117*,
@@ -182,7 +185,7 @@ in normal random variables. *Journal of Multivariate Analysis*, *117*,
 
 </div>
 
-<div id="ref-HillierEtAl2009" class="csl-entry">
+<div id="ref-HillierEtAl2009">
 
 Hillier, G., Kan, R., & Wang, X. (2009). Computationally efficient
 recursions for top-order invariant polynomials with applications.
@@ -191,7 +194,7 @@ recursions for top-order invariant polynomials with applications.
 
 </div>
 
-<div id="ref-HillierEtAl2014" class="csl-entry">
+<div id="ref-HillierEtAl2014">
 
 Hillier, G., Kan, R., & Wang, X. (2014). Generating functions and short
 recursions, with applications to the moments of quadratic forms in
@@ -200,7 +203,7 @@ noncentral normal vectors. *Econometric Theory*, *30*, 436–473.
 
 </div>
 
-<div id="ref-Smith1989" class="csl-entry">
+<div id="ref-Smith1989">
 
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in
 normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
@@ -208,7 +211,7 @@ normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
 
 </div>
 
-<div id="ref-Smith1993" class="csl-entry">
+<div id="ref-Smith1993">
 
 Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
 variables: Evaluating some top-order invariant polynomials. *Australian
@@ -217,7 +220,7 @@ Journal of Statistics*, *35*, 271–282.
 
 </div>
 
-<div id="ref-Watanabe2022cevo" class="csl-entry">
+<div id="ref-Watanabe2022cevo">
 
 Watanabe, J. (2022). Exact expressions and numerical evaluation of
 average evolvability measures for characterizing and comparing **G**

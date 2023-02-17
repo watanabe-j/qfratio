@@ -161,8 +161,8 @@ calculate the moment.
 The function calls are followed by outputs from the `print` method for
 the results, which show the values of the moments.
 
-You might have wondered what it means by results being 'exact' or
-having 'error', or about the unexplained argument `m = 300` in the last example.
+You might have wondered what it means by results being "exact" or
+having "error", or about the unexplained argument `m = 300` in the last example.
 Seeing this requires some excursion into the maths involved.
 
 
@@ -588,6 +588,397 @@ $\dtk{\m{A}}{\m{0}_n}$ (where all $v$'s are $0$) or by dropping any terms
 with $\m{A}_2$ or $j-1$ as an index from that for the two-argument version of
 $d$ above.
 
+
+
+# Functions
+
+The package is designed for evaluation of moments of ratios of quadratic forms
+using the recursive algorithms described above.
+The primary front-end functions are `qfrm()` and `qfmrm()`, which return
+a `qfrm` object containing terms in the truncated series and error bound
+when available.
+Simple `print` and `plot` methods are defined for the `qfrm` class,
+for quick inspection of evaluation results.
+
+
+## `qfrm()`: *q*uadratic *f*orm *r*atio *m*oment
+
+This function is for evaluating moments of the simple ratios of quadratic forms,
+$\E \left( \frac{\left( \m{x}^T \m{A} \m{x} \right)^p}
+{\left( \m{x}^T \m{B} \m{x} \right)^q} \right)$,
+where $\m{x} \sim N_n \left( \bm{\mu}, \bm{\Sigma} \right)$.
+
+#### Usage
+```
+qfrm(A, B, p = 1, q = p, m = 100L,
+     mu = rep.int(0, n), Sigma = diag(n),
+     tol_zero = .Machine$double.eps * 100,
+     tol_sing = .Machine$double.eps * 100, ...)
+```
+
+`A` and `B` are the argument matrices; when one is missing, $\m{I}_n$ is
+inserted.
+
+`m` determines the order of evaluation, so will be one of the most important
+arguments specified by the user.
+
+`mu` and `Sigma` specify the mean and covariance of $\m{x}$, so by default
+$\m{x} \sim N_n \left( \m{0}_n, \m{I}_n \right)$.
+
+`tol_zero` and `tol_sing` just determine the numerical tolerance for assessing
+identity and singularity, respectively, so usually need not be changed
+except when handling edgy cases.
+
+
+#### Inside the function
+When `Sigma` is provided and not $\m{I}_n$, this function calls itself
+recursively with `A`, `B`, and `mu` transformed as described above (and dropping
+`Sigma`).
+
+As the evaluation is based on different series expressions depending on
+whether $\m{B} = \m{I}_n$ or not and whether $p$ is an integer or not,
+actual calculation is done by one of the following four "internal" functions,
+for which `qfrm()` acts as a switcher:
+
+| Function          | Argument matrices | $p$                        | Expression                                 | Error bound                              | Number of recursions                                         |
+| ---               | ---               | ---                        | ---                                        | ---                                      | ---                                                          |
+| `qfrm_ApIq_int()` | $\m{B} = \m{I}_n$ | *int*eger                  | (5)                                        | Exact\*                                  | $\sim p$                                                     |
+| `qfrm_ApIq_npi()` | $\m{B} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\bm{\mu} = \m{0}_n$) | Available only when $\bm{\mu} = \m{0}_n$ | $\sim m$ when $\bm{\mu} = \m{0}_n$, $\sim m^2 / 2$ otherwise |
+| `qfrm_ApBq_int()` | $\m{B}$ arbitrary | *int*eger                  | (2)                                        | Available                                | $\sim (p + 1)m$                                              |
+| `qfrm_ApBq_npi()` | $\m{B}$ arbitrary | *n*on-*p*ositive-*i*nteger | (1)                                        | Unavailable                              | $\sim m^2 / 2$                                               |
+\*: requires the `gsl` package when $\bm{\mu} \neq \m{0}_n$
+
+These functions are exported into the package namespace so can be directly used
+if necessary.
+
+They do the following sequence:
+
+1. Check structures of arguments (e.g., `A`, `B` being square, `p`, `q` being scalar)
+2. Symmetrize the argument matrices (`A <- (A + t(A)) / 2`; same for `B`)
+3. Rotate `A`, `B`, and `mu` with the eigenvectors of `B`, to
+    - check for the moment existence conditions (above)
+    - see whether `A` is co-diagonalized, in which case computation can be simplified
+4. Calculate $d$, $h$, or $\tilde{h}$ up to the order `m` with an internal function
+5. Multiply the result with the appropriate coefficients in (1), (2) or (5) with an internal function
+6. In `qfrm_ApBq_npi()`, the same-order terms in the double series are summed up
+7. Conduct a rough check of numerical convergence
+8. Calculate the sequence of error bound as in the steps 4--6 when applicable
+9. Return a structured object of the series and error bound
+
+By default, the steps 4--8 are handled by internal `C++` functions.
+The steps 7 and 8 can be suppressed if desired (by using
+`check_convergence = "none"` or `FALSE` and `error_bound = FALSE`).
+
+
+## `qfmrm()`: *q*uadratic *f*orm *m*ultiple *r*atio *m*oment
+
+This function is for evaluating moments of the multiple ratios of quadratic forms,
+$\E \left( \frac{\left( \m{x}^T \m{A} \m{x} \right)^p}
+{\left( \m{x}^T \m{B} \m{x} \right)^q\left( \m{x}^T \m{D} \m{x} \right)^r} \right)$,
+where $\m{x} \sim N_n \left( \bm{\mu}, \bm{\Sigma} \right)$.
+
+It works in a way very similar to `qfrm()`, just with the additional arguments
+`D` and `r`. The corresponding "internal" functions are:
+
+| Function             | Argument matrices | $p$                        | Expression                                                    | Error bound                              | Number of recursions                                                         |
+| ---                  | ---               | ---                        | ---                                                           | ---                                      | ---                                                                          |
+| `qfmrm_ApBIqr_int()` | $\m{D} = \m{I}_n$ | *int*eger                  | (4) (simplified when $\bm{\mu} = \m{0}_n$)                    | Available                                | $\sim (p + 1) m$ when $\bm{\mu} = \m{0}_n$, $\sim (p + 1) m^2 / 2$ otherwise |
+| `qfmrm_ApBIqr_npi()` | $\m{D} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (3) (simplified when $\bm{\mu} = \m{0}_n$)                    | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$, $\sim m^3 / 6$ otherwise           |
+| `qfmrm_IpBDqr_gen()` | $\m{A} = \m{I}_n$ | *gen*eral                  | (4) simplified (when $\bm{\mu} = \m{0}_n$) or (3) (otherwise) | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$, $\sim m^3 / 6$ otherwise           |
+| `qfmrm_ApBDqr_int()` | Arbitrary         | *int*eger                  | (4)                                                           | Unavailable                              | $\sim (p + 1) m^2 / 2$                                                       |
+| `qfmrm_ApBDqr_npi()` | Arbitrary         | *n*on-*p*ositive-*i*nteger | (3)                                                           | Unavailable                              | $\sim m^3 / 6$                                                               |
+
+#### Usage
+```
+qfmrm(A, B, D, p = 1, q = p/2, r = q, m = 100L,
+      mu = rep.int(0, n), Sigma = diag(n),
+      tol_zero = .Machine$double.eps * 100,
+      tol_sing = .Machine$double.eps * 100, ...)
+```
+Essentially the same as `qfrm()`.
+
+
+## `qfm_Ap_int()`, `qfpm_ABpq_int()`, `qfpm_ABDpqr_int()`: *q*uadratic *f*orm (*p*roduct) *m*oment
+
+These functions are for evaluating moments of (products of) quadratic forms,
+$\E \left( \left( \m{x}^T \m{A} \m{x} \right)^p \right)$,
+$\E \left( \left( \m{x}^T \m{A} \m{x} \right)^p
+    \left( \m{x}^T \m{B} \m{x} \right)^q \right)$, and
+$\E \left( \left( \m{x}^T \m{A} \m{x} \right)^p
+    \left( \m{x}^T \m{B} \m{x} \right)^q
+    \left( \m{x}^T \m{D} \m{x} \right)^r \right)$,
+where $\m{x} \sim N_n \left( \bm{\mu}, \bm{\Sigma} \right)$,
+using the algorithm described in @HillierEtAl2014[sections 3--4].
+The exponents should be positive integers.
+
+In principle, the same algorithm can be applied to a product of more than three
+quadratic forms, but this package has not implemented functions for them.
+
+As these expressions only involve finite series, all the results are exact.
+The functions return a `qfpm` object, for which a simple `print` method is defined.
+
+#### Usage
+```
+qfpm_ABDpqr_int(A, B, D, p = 1, q = 1, r = 1,
+                mu = rep.int(0, n), Sigma = diag(n),
+                use_cpp = TRUE, cpp_method = "double",
+                tol_zero = .Machine$double.eps * 100,
+                tol_sing = .Machine$double.eps * 100)
+```
+
+The other two functions have the same arguments, just dropping inapplicable
+argument matrices and exponents.
+
+`cpp_method` is a dummy argument and ignored in these functions.
+
+
+## `rqfr()`, `rqfmr()`, `rqfp()`: random number generation
+
+These functions generate a random sample of the simple ratio
+$\frac{\left( \m{x}^T \m{A} \m{x} \right)^p}
+{\left( \m{x}^T \m{B} \m{x} \right)^q}$,
+multiple ratio $\frac{\left( \m{x}^T \m{A} \m{x} \right)^p}
+{\left( \m{x}^T \m{B} \m{x} \right)^q\left( \m{x}^T \m{D} \m{x} \right)^r}$,
+and product $\left( \m{x}^T \m{A} \m{x} \right)^p
+\left( \m{x}^T \m{B} \m{x} \right)^q \left( \m{x}^T \m{D} \m{x} \right)^r$,
+respectively, of quadratic forms in normal variables
+$\m{x} \sim N_n \left( \bm{\mu}, \bm{\Sigma} \right)$.
+
+They can be used for verifying results from the above functions,
+or as a Monte Carlo surrogate when numerical convergence cannot be
+obtained within reasonable computational memory and time.
+
+#### Usage
+```
+rqfr(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE)
+rqfmr(nit = 1000L, A, B, D, p = 1, q = p/2, r = q, mu, Sigma, use_cpp = TRUE)
+rqfp(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = TRUE)
+```
+
+Similar to the regular random number generation functions, e.g.,
+`stats::rnorm()`; the first argument `nit` is the desired size of the random
+sample (or *n*umber of *it*eration), followed by other parameters.
+
+
+## `d1_i()`, `d2_*j_*()`, `d3_*jk_*()`, etc.: recursion algorithms
+
+The package has a number of internal functions that implement the recursive
+algorithms described above.
+They are usually **not** accessed by the user, but are documented herein
+to aid understanding of the package structure.
+Note also that, by default, the actual calculations are handled by `C++`
+equivalents, which are not exposed to the user.
+
+Arranged in the target variable and the number of argument matrices,
+these are:
+
+| Target      | One matrix    | Two matrices             | Three matrices             |
+| ---         | ---           | ---                      | ---                        |
+| $d$         | `d1_i()`      | `d2_ij_*()`, `d2_pj_*()` | `d3_ijk_*()`, `d3_pjk_*()` |
+| $\tilde{d}$ | `dtil1_i_*()` | `dtil2_pq_*()`           | `dtil3_pqr_*()`            |
+| $h$         | ---           | `h2_ij_*()`              | `h3_ijk_*()`               |
+| $\tilde{h}$ | ---           | `htil2_pj_*()`           | `htil3_pjk_*()`            |
+| $\hat{h}$   | ---           | `hhat2_pj_*()`           | `htil3_pjk_*()`            |
+| $a$         | `arl()`       | ---                      | ---                        |
+
+The functions with `*_ij_*` or `*_ijk_*` are to calculate terms in
+double and triple infinite series, with the dimensions of the output determined
+by the argument `m` (typically used with non-integer $p$, (1) or (3) above),
+whereas `*_pj_*` and `*_pjk_*` are for terms in series truncated along
+the first argument matrix (used with integral $p$, (2) or (4)).
+The one matrix functions assume either of these two cases, and `dtil2_pq_*()`
+and `dtil3_pqr_*()` assume finite series along all argument matrices.
+
+All these functions, excepting `d1_i()` and `arl()`, have two versions ending
+in `*_m` or `*_v`, which stand for the matrix and vector "methods".
+The latter is for the situations where all the argument matrices are
+co-diagonalized by the same eigenvectors, in which case the above recursive
+algorithms reduce from full matrix arithmetics to element-wise ones of
+the eigenvalues (and the rotated mean vector), which is much less
+computationally intensive.
+
+Most of these functions automatically scale the result to avoid numerical
+overflow, and (log of) the scaling factors are appended as an attribute
+of the return value, so that the front-end functions can appropriately
+scale the results back to the original one (see below).
+
+
+
+# Using the package
+
+## Recommended workflow
+
+This package implements the recursive algorithms with `C++` functions with
+the aid of the `RcppEigen` package to accelerate calculations.
+The evaluation of moments can still be computationally intensive and take
+non-trivial computational time, especially when a double or triple series
+is involved (see (1), (3) and (4)).
+
+Unless an exact solution is available (i.e., when using (5)), it is always
+recommended to check for numerical convergence by inspecting the error bound
+and the `plot` method.
+Thus, a recommended workflow is:
+
+1. Use `qfrm()` (or `qfmrm()`) with the desired arguments with a small `m`
+   (perhaps the default `m = 100`), **assigning the result into an object**
+    - This may yield a warning when clear non-convergence is detected
+2. Inspect the result with the `print` method (or list element access),
+   paying attention to the error bound whenever available
+3. Use `plot()` of the object to see if numerical convergence has been reached
+4. If unsatisfied, repeat the cycle with a larger `m`
+
+Here are some examples:
+
+```{r, example, fig.width = 4, fig.height = 4}
+## Preparing simple objects
+nv <- 10
+A <- diag(1:nv)
+B <- diag(sqrt(nv:1))
+
+#####
+## I: Simple case, (x^T A t)^2 / (x^T x)^2, where x ~ N(0, I)
+##    Exact solution available
+res <- qfrm(A, p = 2, q = 2)
+res
+## In this case, plot is moot because the result is exact
+
+#####
+## II: Simple case, (x^T A t)^2 / (x^T B x)^2, where x ~ N(0, I)
+##     Error bound available
+res <- qfrm(A, B, 2, 2)
+res
+
+## Displaying more digits
+print(res, digits = 10)
+
+## Direct access to the results:
+names(res)
+res$statistic       # Evaluation result (partial sum)
+res$error_bound     # Error bound for $statistic
+tail(res$terms)     # Tail of truncated series; sum($terms) == $statistic
+tail(res$seq_error) # Tail of sequence of error bounds; last one is $error_bound
+
+## Inspect plot
+plot(res)
+
+#####
+## III: Simple case, (x^T A t)^(1/2) / (x^T x)^(1/2), where x ~ N(0, I)
+##      Error bound can be negative
+res <- qfrm(A, p = 1/2, q = 1/2)
+res # Note negative (though one-sided) error bound
+
+## Inspect plot
+plot(res)
+
+#####
+## IV: Non-central case, (x^T A t)^2 / (x^T B x)^2, where x ~ N(mu, I)
+##     Two-sided error bound
+mu <- 1:nv / sum(1:nv)
+res <- qfrm(A, B, p = 2, q = 2, mu = mu)
+res # Note two-sided error bound
+
+## plot() automatically handles two-sided error bound
+plot(res)
+
+
+#####
+## V: Difficult case with highly disparsed eigenvalues
+##    Error bound available
+A <- diag((1:nv) ^ 2)
+B <- diag((nv:1) ^ 3)
+
+res <- qfrm(A, B, 2, 2) # Note the warning
+res
+
+plot(res) # Clear evidence of non-convergence
+
+## Try larger m
+res <- qfrm(A, B, 2, 2, m = 2000)
+res
+
+plot(res) # Much better
+
+
+#####
+## VI: Difficult case with highly disparsed eigenvalues
+##     Error bound unavailable
+
+## check_convergence = "strict_relative" is recommended
+## when error bound is unavailable
+## (although this might be too strict)
+
+## It is recommended to use a tol_conv stricter than
+## the default value, which is .Machine$double.eps ^ (1/4)
+res <- qfrm(A, B, 1/2, 1/2, tol_conv = sqrt(.Machine$double.eps))
+res
+
+plot(res) # Close to convergence, but still growing
+
+## Try larger m
+res <- qfrm(A, B, 1/2, 1/2, m = 500, tol_conv = sqrt(.Machine$double.eps))
+res
+
+plot(res) # Better
+```
+
+## Checking for numerical convergence
+
+In the last example above, the argument `tol_conv` was used to adjust
+the tolerance in assessing numerical convergence;
+by default  (`check_convergence = "relative"`), a warning is thrown
+when the ratio of the last term in the series to the partial sum is larger
+than this tolerance, whose default is `.Machine$double.eps ^ (1/4)`
+(= `~1.2e-4`).
+Using a smaller value for this argument as done above can safeguard against
+non-convergence, although it is up to the user's discretion at which point
+the result is deemed satisfactory.
+
+Other options:
+
+- `check_convergence = "strict_relative"` or `TRUE`: 
+sets `tol_conv = .Machine$double.eps`, which is rather strict
+- `check_convergence = "absolute"`: check is done in terms of absolute value
+rather than relative magnitude
+- `check_convergence = "none"` or `FALSE`: skips convergence check
+
+
+## Computational cost
+
+The computational cost for the recursive algorithms increases drastically
+with the order of evaluation $m$.
+An approximate number of recursions required in each function is listed
+in the tables for `qfrm` and `qfmrm` functions above;
+the computational memory and time increase at least proportionally
+to this value.
+Of course the computational cost is also influenced by the number of variables
+$n$.
+
+In extremely large problems, therefore, it may be impossible to obtain
+a satisfactory numerical convergence within reasonable amount of time and
+memory.
+A potential practical alternative is a Monte Carlo approach using `rqfr()`.
+
+```{r, MC, fig.width = 4, fig.height = 4}
+## A large problem
+nv <- 200
+large_A <- diag(c(1000, rep.int(1, nv - 1)))
+large_B <- diag(c(rep.int(1, nv - 1), 1000))
+large_D <- diag((nv:1) ^ 2)
+
+res <- qfmrm(large_A, large_B, large_D, 1, 1/2, 1/2, m = 500)
+res
+
+plot(res) # Far to convergence
+
+## This problem needs much larger m (>5000)
+## taking computational time + memory
+
+## Monte Carlo sample
+MCres <- rqfmr(10000, large_A, large_B, large_D, 1, 1/2, 1/2)
+
+## Monte Carlo 95% CI of the moment
+mean(MCres) + sd(MCres) / sqrt(10000) * qt(c(0.025, 0.975), 10000 - 1)
+```
 
 
 # References
