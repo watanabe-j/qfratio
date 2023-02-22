@@ -1065,6 +1065,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' installed (which this package \code{Suggests}). Otherwise, the function uses
 #' the ordinary infinite series expression (Hillier et al. 2009), which is
 #' less accurate and slow, and throws a message (once per session).
+#' (This is handled without \code{C++} codes.)
 #' It is recommended to install that package if an accurate estimate
 #' is desired for that case.
 #'
@@ -1096,6 +1097,13 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     A <- (A + t(A)) / 2
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     exact <- TRUE
+    if(!(central || requireNamespace("gsl", quietly = TRUE))) {
+        if(!missing(use_cpp) && use_cpp) {
+            message("use_cpp = TRUE is ignored when package \"gsl\" is ",
+                    "unavailable and mu is nonzero")
+        }
+        use_cpp <- FALSE
+    }
     if(use_cpp) {
         if(central) {
             cppres <- ApIq_int_cmE(A, p, q)

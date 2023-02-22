@@ -313,6 +313,7 @@ This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
 installed (which this package \code{Suggests}). Otherwise, the function uses
 the ordinary infinite series expression (Hillier et al. 2009), which is
 less accurate and slow, and throws a message (once per session).
+(This is handled without \code{C++} codes.)
 It is recommended to install that package if an accurate estimate
 is desired for that case.
 }
