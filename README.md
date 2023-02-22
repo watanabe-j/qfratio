@@ -4,7 +4,6 @@
 # qfratio: R Package for Moments of Ratios of Quadratic Forms
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 This package provides functions to evaluate moments of ratios (and
@@ -20,8 +19,8 @@ different functionalities, including evaluation of moments of multiple
 ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
-evolutionary quantitative genetics (Watanabe,
-[2022](#ref-Watanabe2022cevo)).
+evolutionary quantitative genetics ([Watanabe,
+2022](#ref-Watanabe2022cevo)).
 
 This project is in a late stage of development. Most functionalities
 have been implemented and are considered stable. Documentations of the
@@ -30,15 +29,15 @@ appreciated.
 
 ## Installation
 
-***WARNING*** Installation size of this package can be very large (\~130
-MB on Linux; \~3 MB on Windows with `Rtools42`), as it involves lots of
+***WARNING*** Installation size of this package can be very large (~130
+MB on Linux; ~3 MB on Windows with `Rtools42`), as it involves lots of
 `RcppEigen` functions.
 
 ``` r
 ## Install devtools first:
 # install.packages("devtools")
 
-## Recommended installation:
+## Recommended installation (pandoc required):
 devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignettes = TRUE)
 
 ## Minimal installation:
@@ -51,8 +50,8 @@ This package has the following dependencies:
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0), knitr, rmarkdown
 
-You will also need [pandoc](https://pandoc.org) (including
-pandoc-citeproc) for correctly building the vignette.
+You also need [`pandoc`](https://pandoc.org) for correctly building the
+vignette. (For `pandoc < 2.11`, `pandoc-citeproc` is required as well.)
 
 ## Examples
 
@@ -175,9 +174,10 @@ plot(mom_A2B3)
 
 ## References
 
-<div id="refs" class="references">
+<div id="refs" class="references csl-bib-body hanging-indent"
+line-spacing="2">
 
-<div id="ref-BaoKan2013">
+<div id="ref-BaoKan2013" class="csl-entry">
 
 Bao, Y., & Kan, R. (2013). On the moments of ratios of quadratic forms
 in normal random variables. *Journal of Multivariate Analysis*, *117*,
@@ -185,7 +185,7 @@ in normal random variables. *Journal of Multivariate Analysis*, *117*,
 
 </div>
 
-<div id="ref-HillierEtAl2009">
+<div id="ref-HillierEtAl2009" class="csl-entry">
 
 Hillier, G., Kan, R., & Wang, X. (2009). Computationally efficient
 recursions for top-order invariant polynomials with applications.
@@ -194,7 +194,7 @@ recursions for top-order invariant polynomials with applications.
 
 </div>
 
-<div id="ref-HillierEtAl2014">
+<div id="ref-HillierEtAl2014" class="csl-entry">
 
 Hillier, G., Kan, R., & Wang, X. (2014). Generating functions and short
 recursions, with applications to the moments of quadratic forms in
@@ -203,7 +203,7 @@ noncentral normal vectors. *Econometric Theory*, *30*, 436–473.
 
 </div>
 
-<div id="ref-Smith1989">
+<div id="ref-Smith1989" class="csl-entry">
 
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in
 normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
@@ -211,7 +211,7 @@ normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
 
 </div>
 
-<div id="ref-Smith1993">
+<div id="ref-Smith1993" class="csl-entry">
 
 Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
 variables: Evaluating some top-order invariant polynomials. *Australian
@@ -220,7 +220,7 @@ Journal of Statistics*, *35*, 271–282.
 
 </div>
 
-<div id="ref-Watanabe2022cevo">
+<div id="ref-Watanabe2022cevo" class="csl-entry">
 
 Watanabe, J. (2022). Exact expressions and numerical evaluation of
 average evolvability measures for characterizing and comparing **G**

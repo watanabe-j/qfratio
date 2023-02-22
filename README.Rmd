@@ -64,7 +64,7 @@ as it involves lots of `RcppEigen` functions.
 ## Install devtools first:
 # install.packages("devtools")
 
-## Recommended installation:
+## Recommended installation (pandoc required):
 devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignettes = TRUE)
 
 ## Minimal installation:
@@ -77,8 +77,8 @@ This package has the following dependencies:
     LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0), knitr, rmarkdown
 
-You will also need [pandoc](https://pandoc.org) (including pandoc-citeproc)
-for correctly building the vignette.
+You also need [`pandoc`](https://pandoc.org) for correctly building
+the vignette. (For `pandoc < 2.11`, `pandoc-citeproc` is required as well.)
 
 ## Examples
 
