@@ -174,7 +174,8 @@
 #'     \item{\code{"relative"}: }{default; magnitude of the last term of
 #'           the series relative to the sum is compared with \code{tol_conv}}
 #'     \item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
-#'           default by setting \code{tol_conv = .Machine$double.eps}}
+#'           default by setting \code{tol_conv = .Machine$double.eps}
+#'           (unless a smaller value is specified by the user)}
 #'     \item{\code{"absolute"}: }{absolute magnitude of the last term is
 #'           compared with \code{tol_conv}}
 #'     \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
@@ -1277,8 +1278,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     #                        "\"long_double\" or \"coef_wise\"."))
     # }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -1490,8 +1491,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         attr(ansseq, "truncated") <- TRUE
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -1788,8 +1789,8 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           "\"coef_wise\"."))
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -2006,8 +2007,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     #                        "\"long_double\" or \"coef_wise\"."))
     # }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -2336,8 +2337,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                           "\"coef_wise\"."))
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -2593,8 +2594,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                           "\"coef_wise\"."))
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -2868,8 +2869,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                           "\"coef_wise\"."))
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
@@ -3161,8 +3162,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                           "\"coef_wise\"."))
     }
     if(check_convergence != "none") {
-        if(missing(tol_conv) && check_convergence == "strict_relative") {
-            tol_conv <- .Machine$double.eps
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         non_convergence <- if(check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv

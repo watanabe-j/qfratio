@@ -139,7 +139,8 @@ in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 \item{\code{"relative"}: }{default; magnitude of the last term of
 the series relative to the sum is compared with \code{tol_conv}}
 \item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
-default by setting \code{tol_conv = .Machine$double.eps}}
+default by setting \code{tol_conv = .Machine$double.eps}
+(unless a smaller value is specified by the user)}
 \item{\code{"absolute"}: }{absolute magnitude of the last term is
 compared with \code{tol_conv}}
 \item{\code{"none"} or \code{FALSE}: }{skips convergence check}

@@ -936,7 +936,8 @@ the result is deemed satisfactory.
 Other options:
 
 - `check_convergence = "strict_relative"` or `TRUE`: 
-sets `tol_conv = .Machine$double.eps`, which is rather strict
+sets `tol_conv = .Machine$double.eps` (unless a smaller `tol_conv` is specified
+by the user), which is rather strict
 - `check_convergence = "absolute"`: check is done in terms of absolute value
 rather than relative magnitude
 - `check_convergence = "none"` or `FALSE`: skips convergence check
