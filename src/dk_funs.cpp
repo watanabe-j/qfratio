@@ -132,12 +132,13 @@ template ArrayXl dtil1_i_mE(const MatrixBase<MatrixXl>& A,
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-arl_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::ArrayBase<Derived>& D,
-       const Eigen::Index m, const typename Derived::Scalar thr_margin) {
+a1_pk_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::ArrayBase<Derived>& mu,
+         const Eigen::Index m, const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = L.size();
+    ArrayXx D = square(mu);
     ArrayXx lscf = ArrayXx::Zero(m + 1);
     ArrayXXx arls = ArrayXXx::Zero(m + 1, m + 1);
     arls.col(0) = d1_i_vE(L, m, lscf, thr_margin);
@@ -150,26 +151,25 @@ arl_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::ArrayBase<Derived>& D,
     }
     return arls;
 }
-template ArrayXXd arl_vE(const ArrayBase<ArrayXd>& L,
-                         const ArrayBase<ArrayXd>& D, const Index m,
-                         const double thr_margin);
+template ArrayXXd a1_pk_vE(const ArrayBase<ArrayXd>& L,
+                           const ArrayBase<ArrayXd>& mu, const Index m,
+                           const double thr_margin);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-arl_mE(const Eigen::MatrixBase<Derived>& A,
-       const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
-       const Eigen::Index m, const typename Derived::Scalar thr_margin) {
+a1_pk_mE(const Eigen::MatrixBase<Derived>& A,
+         const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
+         const Eigen::Index m, const typename Derived::Scalar thr_margin) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     Eigen::SelfAdjointEigenSolver<Derived> eigA(A);
     ArrayXx L = eigA.eigenvalues();
     ArrayXx mud = eigA.eigenvectors().transpose() * mu;
-    ArrayXx D = square(mud);
-    return arl_vE(L, D, m, thr_margin);
+    return a1_pk_vE(L, mud, m, thr_margin);
 }
-template ArrayXXd arl_mE(const MatrixBase<MatrixXd>& A, const VectorXd& mu,
-                         const Index m, const double thr_margin);
+template ArrayXXd a1_pk_mE(const MatrixBase<MatrixXd>& A, const VectorXd& mu,
+                           const Index m, const double thr_margin);
 
 
 // // [[Rcpp::export]]

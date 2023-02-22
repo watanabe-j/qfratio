@@ -1118,8 +1118,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             mu <- c(mu)
             if(requireNamespace("gsl", quietly = TRUE)) {
                 ## This is an exact expression (Hillier et al. 2014, (58))
-                D <- c(crossprod(eigA$vectors, mu)) ^ 2
-                aps <- arl(LA, D, m = p)[p + 1, ]
+                mu <- c(crossprod(eigA$vectors, c(mu)))
+                aps <- a1_pk(LA, mu, m = p)[p + 1, ]
                 ls <- 0:p
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(p + 1)

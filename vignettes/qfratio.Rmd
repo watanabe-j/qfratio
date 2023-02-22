@@ -779,7 +779,7 @@ these are:
 | $h$         | ---           | `h2_ij_*()`              | `h3_ijk_*()`               |
 | $\tilde{h}$ | ---           | `htil2_pj_*()`           | `htil3_pjk_*()`            |
 | $\hat{h}$   | ---           | `hhat2_pj_*()`           | `htil3_pjk_*()`            |
-| $a$         | `arl()`       | ---                      | ---                        |
+| $a$         | `a1_pk()`     | ---                      | ---                        |
 
 The functions with `*_ij_*` or `*_ijk_*` are to calculate terms in
 double and triple infinite series, with the dimensions of the output determined
@@ -789,7 +789,7 @@ the first argument matrix (used with integral $p$, (2) or (4)).
 The one matrix functions assume either of these two cases, and `dtil2_pq_*()`
 and `dtil3_pqr_*()` assume finite series along all argument matrices.
 
-All these functions, excepting `d1_i()` and `arl()`, have two versions ending
+All these functions, excepting `d1_i()` and `a1_pk()`, have two versions ending
 in `*_m` or `*_v`, which stand for the matrix and vector "methods".
 The latter is for the situations where all the argument matrices are
 co-diagonalized by the same eigenvectors, in which case the above recursive

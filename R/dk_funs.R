@@ -834,63 +834,35 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
 }
 
 
-##### arl #####
-#' Recursion for a_{r,l}
+##### a1_pk #####
+#' Recursion for a_{p,k}
 #'
-#' \code{arl()} is an internal function to calculate \eqn{a_{r,l}} as defined
-#' in Hillier et al. (2014; eq. 24), which is used in the calculation of
-#' the moment of such a ratio of quadratic forms in normal variables
-#' where the denominator matrix is identity.
+#' \code{a1_pk()} is an internal function to calculate \eqn{a_{p,k}}
+#' (\eqn{a_{r,l}} in Hillier et al. 2014; eq. 24), which is used in the
+#' calculation of the moment of such a ratio of quadratic forms in normal
+#' variables where the denominator matrix is identity.
 #'
 #' This function implements the super-short recursion described in
 #' Hillier et al. (2014  eqs. 31--32).
 #' Note that \eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
 #' the index \eqn{l} fixed for each \eqn{a_{r,l}}.
 #'
-#' The \code{matrix} method just calculates \code{L} and \code{D} from
-#' \code{A} and \code{mu} and passes them to the \code{default} method.
-#'
 #' @param L
 #'   Eigenvalues of the argument matrix; vector of \eqn{\lambda_i}
-#' @param A
-#'   Argument matrix.  Assumed to be symmetric.
 #' @param mu
 #'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
-#' @param D
-#'   Squared norm of the mean vector projected on the eigenvalues of
-#'   the argument matrix: vectors of \eqn{\delta_i}
 #' @param m
 #'   Scalar to specify the desired order
-#' @param ...
-#'   Additional arguments passed to internal methods
 #'
 #' @seealso
 #' \code{\link{qfrm_ApIq_int}()}, in which this function is used
 #' (for noncentral cases only)
 #'
-#' @name arl
-#' @order 1
+#' @name a1_pk
 #'
-arl <- function(L, ...) {
-    UseMethod("arl", L)
-}
-
-#' @rdname arl
-#' @order 3
-#'
-arl.matrix <- function(A, mu, m = 10L) {
-    if(any(dim(A) == 1L)) return(arl.default(A, mu ^ 2, m))
-    eigA <- eigen(A, symmetric = TRUE)
-    L <- eigA$values
-    D <- c(crossprod(eigA$vectors, mu)) ^ 2
-    return(arl.default(L, D, m))
-}
-
-#' @rdname arl
-#' @order 2
-#'
-arl.default <- function(L, D, m = 10L) {
+a1_pk <- function(L, mu = rep.int(0, n), m = 10L) {
     n <- length(L)
+    D <- mu ^ 2
     arls <- matrix(0, m + 1L, m + 1L)
     arls[, 1L] <- d1_i(L, m)
     wrls <- matrix(0, n, m)

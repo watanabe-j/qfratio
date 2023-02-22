@@ -194,7 +194,7 @@ SEXP ApIq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
                   const double thr_margin = 100) {
     const Index n = A.rows();
     const double n_ = n;
-    ArrayXd aps = arl_mE(A, mu, p, thr_margin).row(p);
+    ArrayXd aps = a1_pk_mE(A, mu, p, thr_margin).row(p);
     ArrayXd ls = ArrayXd::LinSpaced(p + 1, 0, p);
     double nsqnorm2 = -mu.matrix().squaredNorm() / 2;
 

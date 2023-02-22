@@ -33,11 +33,7 @@ dtil1_i_mE(const Eigen::MatrixBase<Derived> &A,
 
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-arl_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::ArrayBase<Derived>& D,
-       const Eigen::Index m, const typename Derived::Scalar thr_margin);
-template <typename Derived>
-Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-arl_mE(const Eigen::MatrixBase<Derived>& A,
+a1_pk_mE(const Eigen::MatrixBase<Derived>& A,
        const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
        const Eigen::Index m, const typename Derived::Scalar thr_margin);
 
