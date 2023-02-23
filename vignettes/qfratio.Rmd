@@ -219,8 +219,9 @@ $\m{x} \sim N_n \left( \bm{\mu}, \m{I}_n \right)$.
 For arbitrary but nonsingular $\bm{\Sigma}$, it is always possible to transform
 the variables and argument matrices by using
 $\m{x}_{\mathrm{new}} = \m{K}^{-1} \m{x}$,
-$\m{A}_{\mathrm{new}} = \m{K}^T \m{A} \m{K}$, etc., where $\m{K}$ satisfies
-$\m{K} \m{K}^T = \bm{\Sigma}$ [@MathaiProvost1992, chapter 3].
+$\m{A}_{\mathrm{new}} = \m{K}^T \m{A} \m{K}$, etc., where $\m{K}$ is an
+$n \times n$ matrix that satisfies $\m{K} \m{K}^T = \bm{\Sigma}$
+[@MathaiProvost1992, chapter 3].
 When $\bm{\Sigma}$ is singular, certain conditions need to be met by
 the argument matrices, $\bm{\Sigma}$, and $\bm{\mu}$ for this transformation,
 and hence the following expressions, to be valid
@@ -279,7 +280,7 @@ For the multiple ratio, the expression for an arbitrary $p$ is
 \end{aligned}
 \tag{3}
 \end{equation}
-and for an positive-integral $p$ [@Watanabe2022cevo, eq. (B38)],
+and for a positive-integral $p$ [@Watanabe2022cevo, eq. (B38)],
 \begin{equation}
 \begin{aligned}
   \E \! \left( \frac{(\m{x}^T \m{A} \m{x})^p}{(\m{x}^T \m{B} \m{x})^q (\m{x}^T \m{D} \m{x})^r} \right)
@@ -300,7 +301,8 @@ In these expressions, $\beta_{\cdot}$ are arbitrary scaling constants that
 satisfy $0 < \beta < 2 / \lmax$, with $\lmax$ being
 the largest eigenvalue of the argument matrix.
 In addition, $h_{k_1, \dots k_s}$ and $\tilde{h}_{k_1; k_2 \dots k_s}$ are
-the coefficients of $t_1^{k_1} \dots t_s^{k_s}$ in the following expansions:
+the coefficients of $t_1^{k_1} \dots t_s^{k_s}$ in the following power series
+expansions:
 \begin{multline}
   \det{ \m{I}_n - t_1 \m{A}_1 - \dots - t_s \m{A}_s }^{-\frac{1}{2}}
   \\
@@ -415,7 +417,7 @@ sums of the same-order terms, along with other things.
 
 The default is `m = 100`, which sufficed for most of the above examples,
 but for large problems, the user would want to use a larger value
-(which can be hundreds of thousands for very large problems).
+(which can be hundreds of thousands for very large problems; see below).
 
 The coefficients $d$, $h$, $\tilde{h}$ are evaluated by recursive algorithms
 described below. At the core of this package are internal functions to
@@ -570,10 +572,12 @@ where
 with $\lambda_i$ being the $i$th eigenvalue of $\m{A}$,
 $\delta_i = \left( \m{h}_i^T \bm{\mu} \right)^2$, $\m{h}_i$ being
 the eigenvector of $\m{A}$ corresponding to $\lambda_i$,
-and the initial conditions are $u_{0,i} = v_{0,i} = 0$ for all $i$.
+and the initial conditions are $\tilde{d}_0 = 1$ and $u_{0,i} = v_{0,i} = 0$
+for all $i$.
 
 The recursion for $a_{p,k} \left( \m{A}, \bm{\mu} \right)$ is
-[@HillierEtAl2014, eqs. (31), (32), noting that $w$ should be index by $k$ as well]:
+[@HillierEtAl2014, eqs. (31), (32), noting that $w$ should be indexed by $k$
+as well]:
 \begin{equation}
   a_{p,k} = \sum_{i=1}^n \delta_i w_{p,k,i},
 \end{equation}
@@ -637,13 +641,13 @@ recursively with `A`, `B`, and `mu` transformed as described above (and dropping
 
 As the evaluation is based on different series expressions depending on
 whether $\m{B} = \m{I}_n$ or not and whether $p$ is an integer or not,
-actual calculation is done by one of the following four "internal" functions,
-for which `qfrm()` acts as a switcher:
+the actual calculation is done by one of the following four "internal"
+functions, for which `qfrm()` acts as a switcher:
 
 | Function          | Argument matrices | $p$                        | Expression                                 | Error bound                              | Number of recursions                                         |
 | ---               | ---               | ---                        | ---                                        | ---                                      | ---                                                          |
 | `qfrm_ApIq_int()` | $\m{B} = \m{I}_n$ | *int*eger                  | (5)                                        | Exact\*                                  | $\sim p$                                                     |
-| `qfrm_ApIq_npi()` | $\m{B} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\bm{\mu} = \m{0}_n$) | Available only when $\bm{\mu} = \m{0}_n$ | $\sim m$ when $\bm{\mu} = \m{0}_n$, $\sim m^2 / 2$ otherwise |
+| `qfrm_ApIq_npi()` | $\m{B} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\bm{\mu} = \m{0}_n$) | Available only when $\bm{\mu} = \m{0}_n$ | $\sim m$ when $\bm{\mu} = \m{0}_n$; $\sim m^2 / 2$ otherwise |
 | `qfrm_ApBq_int()` | $\m{B}$ arbitrary | *int*eger                  | (2)                                        | Available                                | $\sim (p + 1)m$                                              |
 | `qfrm_ApBq_npi()` | $\m{B}$ arbitrary | *n*on-*p*ositive-*i*nteger | (1)                                        | Unavailable                              | $\sim m^2 / 2$                                               |
 \*: requires the `gsl` package when $\bm{\mu} \neq \m{0}_n$
@@ -651,7 +655,7 @@ for which `qfrm()` acts as a switcher:
 These functions are exported into the package namespace so can be directly used
 if necessary.
 
-They do the following sequence:
+They do the following operations:
 
 1. Check structures of arguments (e.g., `A`, `B` being square, `p`, `q` being scalar)
 2. Symmetrize the argument matrices (`A <- (A + t(A)) / 2`; same for `B`)
@@ -667,7 +671,8 @@ They do the following sequence:
 
 By default, the steps 4--8 are handled by internal `C++` functions.
 The steps 7 and 8 can be suppressed if desired (by using
-`check_convergence = "none"` or `FALSE` and `error_bound = FALSE`).
+`check_convergence = "none"` or `FALSE` and `error_bound = FALSE`,
+respectively).
 
 
 ## `qfmrm()`: *q*uadratic *f*orm *m*ultiple *r*atio *m*oment
@@ -682,9 +687,9 @@ It works in a way very similar to `qfrm()`, just with the additional arguments
 
 | Function             | Argument matrices | $p$                        | Expression                                                    | Error bound                              | Number of recursions                                                         |
 | ---                  | ---               | ---                        | ---                                                           | ---                                      | ---                                                                          |
-| `qfmrm_ApBIqr_int()` | $\m{D} = \m{I}_n$ | *int*eger                  | (4) (simplified when $\bm{\mu} = \m{0}_n$)                    | Available                                | $\sim (p + 1) m$ when $\bm{\mu} = \m{0}_n$, $\sim (p + 1) m^2 / 2$ otherwise |
-| `qfmrm_ApBIqr_npi()` | $\m{D} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (3) (simplified when $\bm{\mu} = \m{0}_n$)                    | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$, $\sim m^3 / 6$ otherwise           |
-| `qfmrm_IpBDqr_gen()` | $\m{A} = \m{I}_n$ | *gen*eral                  | (4) simplified (when $\bm{\mu} = \m{0}_n$) or (3) (otherwise) | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$, $\sim m^3 / 6$ otherwise           |
+| `qfmrm_ApBIqr_int()` | $\m{D} = \m{I}_n$ | *int*eger                  | (4) (simplified when $\bm{\mu} = \m{0}_n$)                    | Available                                | $\sim (p + 1) m$ when $\bm{\mu} = \m{0}_n$; $\sim (p + 1) m^2 / 2$ otherwise |
+| `qfmrm_ApBIqr_npi()` | $\m{D} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (3) (simplified when $\bm{\mu} = \m{0}_n$)                    | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$; $\sim m^3 / 6$ otherwise           |
+| `qfmrm_IpBDqr_gen()` | $\m{A} = \m{I}_n$ | *gen*eral                  | (4) simplified (when $\bm{\mu} = \m{0}_n$) or (3) (otherwise) | Unavailable                              | $\sim m^2 / 2$ when $\bm{\mu} = \m{0}_n$; $\sim m^3 / 6$ otherwise           |
 | `qfmrm_ApBDqr_int()` | Arbitrary         | *int*eger                  | (4)                                                           | Unavailable                              | $\sim (p + 1) m^2 / 2$                                                       |
 | `qfmrm_ApBDqr_npi()` | Arbitrary         | *n*on-*p*ositive-*i*nteger | (3)                                                           | Unavailable                              | $\sim m^3 / 6$                                                               |
 
@@ -726,7 +731,7 @@ qfpm_ABDpqr_int(A, B, D, p = 1, q = 1, r = 1,
                 tol_sing = .Machine$double.eps * 100)
 ```
 
-The other two functions have the same arguments, just dropping inapplicable
+The other two functions have the same arguments, just dropping the inapplicable
 argument matrices and exponents.
 
 `cpp_method` is a dummy argument and ignored in these functions.
@@ -784,7 +789,7 @@ these are:
 The functions with `*_ij_*` or `*_ijk_*` are to calculate terms in
 double and triple infinite series, with the dimensions of the output determined
 by the argument `m` (typically used with non-integer $p$, (1) or (3) above),
-whereas `*_pj_*` and `*_pjk_*` are for terms in series truncated along
+whereas `*_pj_*` and `*_pjk_*` are for the terms in series truncated along
 the first argument matrix (used with integral $p$, (2) or (4)).
 The one matrix functions assume either of these two cases, and `dtil2_pq_*()`
 and `dtil3_pqr_*()` assume finite series along all argument matrices.
@@ -903,10 +908,6 @@ plot(res) # Much better
 ## VI: Difficult case with highly disparsed eigenvalues
 ##     Error bound unavailable
 
-## check_convergence = "strict_relative" is recommended
-## when error bound is unavailable
-## (although this might be too strict)
-
 ## It is recommended to use a tol_conv stricter than
 ## the default value, which is .Machine$double.eps ^ (1/4)
 res <- qfrm(A, B, 1/2, 1/2, tol_conv = sqrt(.Machine$double.eps))
@@ -973,6 +974,7 @@ plot(res) # Far to convergence
 
 ## This problem needs much larger m (>5000)
 ## taking computational time + memory
+## (though still manageable with a regular machine in this particular case)
 
 ## Monte Carlo sample
 MCres <- rqfmr(10000, large_A, large_B, large_D, 1, 1/2, 1/2)
