@@ -1805,7 +1805,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(terms = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
 
@@ -2353,7 +2353,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(terms = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
 ##### qfmrm_IpBDqr_gen #####
@@ -2610,7 +2610,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(terms = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
 ##### qfmrm_ApBDqr_int #####
@@ -2885,7 +2885,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(terms = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
 ##### qfmrm_ApBDqr_npi #####
@@ -3178,5 +3178,5 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     ",\n  suggesting non-convergence. Consider using larger m.")
         }
     }
-    new_qfrm(terms = ansseq, seq_error = NA_real_)
+    new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }

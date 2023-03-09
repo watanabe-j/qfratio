@@ -14,6 +14,7 @@ new_qfrm(
   twosided = FALSE,
   alphaout = FALSE,
   singular_arg = FALSE,
+  diminished = FALSE,
   ...,
   class = character()
 )
@@ -32,6 +33,9 @@ When missing, obtained as \code{seq_error[length(seq_error)]}.}
 \item{seq_error}{Vector of error bounds corresponding to \code{cumsum(terms)}}
 
 \item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound
+(see "Value")}
+
+\item{diminished}{Logical used to append attribute to the resultant statistic and terms
 (see "Value")}
 
 \item{...}{Additional arguments for accommodating subclasses}
@@ -69,6 +73,10 @@ two-sided}
 is (numerically) singular, in which case the error bound is
 invalid}
 }
+Similariy, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
+have the attribute \code{"diminished"} being \code{TRUE}, which indicates
+that numerical underflow/diminishing happened during scaling
+(see "Scaling" in \code{\link{d1_i}}).
 }
 \description{
 These are internal ``constructor'' functions used to make \code{qfrm} and

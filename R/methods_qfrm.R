@@ -18,6 +18,9 @@
 #' @param exact,twosided,alphaout,singular_arg
 #'   Logicals used to append attributes to the resultant error bound
 #'   (see "Value")
+#' @param diminished
+#'   Logical used to append attribute to the resultant statistic and terms
+#'   (see "Value")
 #' @param class
 #'   Character vector to (pre-)append classes to the return value
 #' @param ...
@@ -54,6 +57,10 @@
 #'                is (numerically) singular, in which case the error bound is
 #'                invalid}
 #' }
+#' Similariy, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
+#' have the attribute \code{"diminished"} being \code{TRUE}, which indicates
+#' that numerical underflow/diminishing happened during scaling
+#' (see "Scaling" in \code{\link{d1_i}}).
 #'
 #' @seealso
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, \code{\link{qfpm}}: functions
@@ -66,7 +73,7 @@
 new_qfrm <- function(statistic, error_bound = NULL,
                      terms = statistic, seq_error = NULL,
                      exact = FALSE, twosided = FALSE, alphaout = FALSE,
-                     singular_arg = FALSE, ...,
+                     singular_arg = FALSE, diminished = FALSE, ...,
                      class = character()) {
     if(missing(statistic) && !missing(terms)) {
         statistic <- sum(terms)
@@ -95,6 +102,10 @@ new_qfrm <- function(statistic, error_bound = NULL,
     if(isTRUE(singular_arg)) {
         if(!is.null(error_bound)) attr(error_bound, "singular") <- TRUE
         if(!is.null(seq_error)) attr(seq_error, "singular") <- TRUE
+    }
+    if(isTRUE(diminished)) {
+        if(!is.null(terms)) attr(terms, "diminished") <- TRUE
+        if(!is.null(statistic)) attr(statistic, "diminished") <- TRUE
     }
     structure(list(statistic = statistic, error_bound = error_bound,
                    terms = terms, seq_error = seq_error),
@@ -135,9 +146,6 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' @param show_range
 #'   Logical to specify whether the possible range for the moment
 #'   is printed (when available).  Default \code{TRUE} when available.
-#' @param prefix
-#'   String passed to \code{\link{strwrap}}, as in
-#'   \code{\link[stats]{print.power.htest}}
 #' @param add_error
 #'   Logical to specify whether the sequence of error bounds is plotted
 #'   (when available).  Default \code{TRUE} when available.
@@ -197,14 +205,13 @@ NULL
 #' @exportS3Method
 #'
 print.qfrm <- function(x, digits = getOption("digits"),
-                       show_range = !is.null(x$error_bound),
-                       prefix = "\t", ...) {
+                       show_range = !is.null(x$error_bound), ...) {
     stat <- x$statistic
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     twosided <- isTRUE(attr(errorb, "twosided"))
     cat("\n")
-    cat(strwrap("Moment of ratio of quadratic forms", prefix = prefix),
+    cat(strwrap("Moment of ratio of quadratic forms", prefix = "\t"),
         sep = "\n")
     cat("\n")
     out <- character()
@@ -240,6 +247,10 @@ print.qfrm <- function(x, digits = getOption("digits"),
     if(isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
         cat("Note: Adjustment parameter(s) alpha above 1,",
             "so error bound is unreliable\n")
+    }
+    if(isTRUE(attr(stat, "diminished"))) {
+        cat("Note: Numerical underflow was encountered in evaluation,",
+            "so the result is likely inaccurate\n")
     }
     cat("\n")
     invisible(x)
@@ -291,13 +302,12 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
 #'
 #' @exportS3Method
 #'
-print.qfpm <- function(x, digits = getOption("digits"),
-                       prefix = "\t", ...) {
+print.qfpm <- function(x, digits = getOption("digits"), ...) {
     stat <- x$statistic
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     cat("\n")
-    cat(strwrap("Moment of (product of) quadratic form(s)", prefix = prefix),
+    cat(strwrap("Moment of (product of) quadratic form(s)", prefix = "\t"),
         sep = "\n")
     cat("\n")
     out <- paste("Moment =", format(stat, digits = max(1L, digits)))

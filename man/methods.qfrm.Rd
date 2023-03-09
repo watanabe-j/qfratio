@@ -11,11 +11,10 @@
   x,
   digits = getOption("digits"),
   show_range = !is.null(x$error_bound),
-  prefix = "\\t",
   ...
 )
 
-\method{print}{qfpm}(x, digits = getOption("digits"), prefix = "\\t", ...)
+\method{print}{qfpm}(x, digits = getOption("digits"), ...)
 
 \method{plot}{qfrm}(
   x,
@@ -42,9 +41,6 @@
 
 \item{show_range}{Logical to specify whether the possible range for the moment
 is printed (when available).  Default \code{TRUE} when available.}
-
-\item{prefix}{String passed to \code{\link{strwrap}}, as in
-\code{\link[stats]{print.power.htest}}}
 
 \item{...}{In the \code{plot} methods, passed to \code{\link[graphics]{plot.default}}.
 In the \code{print} methods, ignored (retained for the compatibility
