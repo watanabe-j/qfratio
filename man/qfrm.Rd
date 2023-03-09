@@ -348,7 +348,7 @@ plot(res2)
 qfrm_ApIq_npi(A, p = 0.5)
 
 # This is not allowed (throws an error):
-\dontrun{qfrm_ApIq_int(A, p = 0.5)}
+try(qfrm_ApIq_int(A, p = 0.5))
 
 ## (x^T A x)^2 / (x^T B x)^3 where x ~ N(0, I)
 (res3 <- qfrm(A, B, 2, 3))
@@ -364,7 +364,7 @@ plot(res4)
 plot(res5)
 
 # Sigma is not allowed in the "internal" functions:
-\dontrun{qfrm_ApBq_int(A, B, p = 2, q = 2, Sigma = Sigma)}
+try(qfrm_ApBq_int(A, B, p = 2, q = 2, Sigma = Sigma))
 
 # In res5 above, the error bound didn't converge
 # Use larger m to evaluate higher-order terms
