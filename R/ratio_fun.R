@@ -1328,14 +1328,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         }
     } else {
         if(error_bound) {
-            mess_str <- paste0("Error bound is unavailable for ",
-                               "qfrm_ApIq_npi() when mu is nonzero")
-            if(requireNamespace("rlang", quietly = TRUE)) {
-                rlang::inform(mess_str, .frequency = "once",
-                            .frequency_id = "errorb_ApIq_npi_noncentral")
-            } else {
-                message(mess_str)
-            }
             errseq <- NA_real_
         } else {
             errseq <- NULL
