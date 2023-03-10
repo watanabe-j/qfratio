@@ -5,9 +5,12 @@
 \alias{qfratio-package}
 \title{qfratio: Moments of Ratios of Quadratic Forms Using Recursion}
 \description{
-This package provides functions to evaluate moments of ratios (and products)
-of quadratic forms of normal variables, specifically using recursive
-algorithms developed by Hillier, Bao, Kan and colleagues.
+This package is for evaluating moments of ratios (and products) of quadratic
+forms in normal variables, specifically using recursive algorithms developed
+by Bao et al. (2013) and Hillier et al. (2014). It was originally developed
+as a supplement to Watanabe (2022) for evaluating average evolvability
+measures in evolutionary quantitative genetics, but can be used for a
+broader class of moments.
 }
 \details{
 The primary front-end functions of this package are
