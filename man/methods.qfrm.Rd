@@ -65,6 +65,11 @@ the moment (\code{***_m}) and its error bound (\code{***_e})}
 \item{pos_leg}{Position of the legend, e.g., \code{"topright"}, \code{"bottomright"},
 passed as the first argument for \code{\link[graphics]{legend}}}
 }
+\value{
+The \code{print} method invisibly returns the input.
+The \code{plot} method is used for the side effect (invisibly returns
+\code{NULL}).
+}
 \description{
 Straightforward \code{print} and \code{plot} methods are defined
 for \code{qfrm} and \code{qfpm} objects which result from the

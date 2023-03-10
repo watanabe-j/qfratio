@@ -438,6 +438,9 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   Additional arguments in the front-end \code{qfmrm()} will be passed to
 #'   the appropriate ``internal'' function.
 #'
+#' @return
+#' A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
+#'
 #' @references
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,

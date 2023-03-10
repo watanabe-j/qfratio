@@ -196,6 +196,9 @@ in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
 \code{\link{qfrm}}.}
 }
+\value{
+A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
+}
 \description{
 \code{qfmrm()} is a front-end function to obtain the (compound) moment
 of a multiple ratio of quadratic forms in normal variables in the following

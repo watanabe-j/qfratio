@@ -170,6 +170,11 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'   In the \code{print} methods, ignored (retained for the compatibility
 #'   with the generic method).
 #'
+#' @return
+#' The \code{print} method invisibly returns the input.
+#' The \code{plot} method is used for the side effect (invisibly returns
+#' \code{NULL}).
+#'
 #' @name methods.qfrm
 #'
 #' @seealso
@@ -270,7 +275,7 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                       pos_leg = "topright", ...) {
     if(!requireNamespace("graphics", quietly = TRUE)) {
         message("Package \"graphics\" not found. Exit from plot.qfrm")
-        return(invisible())
+        invisible()
     }
     terms <- x$terms
     seq_error <- x$seq_error
@@ -296,6 +301,7 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
                lty = c(lty_m, lty_e))
     }
+    invisible()
 }
 
 #' @rdname methods.qfrm
