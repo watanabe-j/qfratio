@@ -4,6 +4,8 @@
 # qfratio: R Package for Moments of Ratios of Quadratic Forms
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/watanabe-j/qfratio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/watanabe-j/qfratio/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 This package provides functions to evaluate moments of ratios (and
