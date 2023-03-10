@@ -17,21 +17,6 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
     return D.array().sqrt().matrix().asDiagonal() * U * ldltX.transpositionsP().transpose();
 }
 
-// // Eigen function to obtain matrix square root via Cholesky decomposition
-// // with pivoting; lower  triangular
-// inline Eigen::MatrixXd cholpiv_LE(const Eigen::MatrixXd& X) {
-//     Eigen::LDLT<MatrixXd> ldltX(X);
-//     MatrixXd D = ldltX.vectorD();
-//     MatrixXd L = ldltX.matrixL();
-//     return ldltX.transpositionsP() * L * D.array().sqrt().matrix().asDiagonal();
-// }
-
-// // Eigen function to obtain matrix square root via eigendecomposition
-// inline Eigen::MatrixXd matsqrtE(const Eigen::MatrixXd& X) {
-//     Eigen::SelfAdjointEigenSolver<MatrixXd> eigX(X);
-//     return eigX.operatorSqrt();
-// }
-
 // Eigen function to obtain multivariate normal variables
 // with specified mean vector and covariance
 // This uses Rcpp::rnorm(), which may not be particularly efficient
@@ -55,41 +40,6 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
     X.rowwise() += mu.transpose();
     return X;
 }
-
-// //' @describeIn qfrm_cpp
-// //'   \code{rqfr()}
-// //'
-// // [[Rcpp::export]]
-// Eigen::ArrayXd rqfrE(const int nit,
-//                      const Eigen::MatrixXd A, const Eigen::MatrixXd B,
-//                      const double p, const double q,
-//                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
-//     MatrixXd X = rmvnE(nit, mu, Sigma);
-//     // MatrixXd cAL = cholpiv_LE(A);
-//     // MatrixXd cBL = cholpiv_LE(B);
-//     // ArrayXd Num = (X * cAL).rowwise().squaredNorm().array().pow(p);
-//     // ArrayXd Den = (X * cBL).rowwise().squaredNorm().array().pow(q);
-//     ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
-//     ArrayXd Den = (X * B * X.transpose()).diagonal().array().pow(q);
-//     ArrayXd ans = Num / Den;
-//     return ans;
-// }
-
-// //' @describeIn qfrm_cpp
-// //'   \code{rqfmr()}
-// //'
-// // [[Rcpp::export]]
-// Eigen::ArrayXd rqfmrE(const int nit,
-//                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
-//                      const double p, const double q, const double r,
-//                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
-//     MatrixXd X = rmvnE(nit, mu, Sigma);
-//     ArrayXd Num = (X * A * X.transpose()).diagonal().array().pow(p);
-//     ArrayXd Den1 = (X * B * X.transpose()).diagonal().array().pow(q);
-//     ArrayXd Den2 = (X * D * X.transpose()).diagonal().array().pow(r);
-//     ArrayXd ans = Num / Den1 / Den2;
-//     return ans;
-// }
 
 //' @describeIn qfrm_cpp
 //'   \code{rqfp()}

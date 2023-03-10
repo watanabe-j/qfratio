@@ -3,7 +3,6 @@
 
 #include <RcppEigen.h>
 // [[Rcpp::depends(RcppEigen)]]
-// #include "qfratio_types.h"
 
 // template <typename T>
 // Eigen::Array<T, Eigen::Dynamic, 1> get_lrf(const T a, const Eigen::Index n);

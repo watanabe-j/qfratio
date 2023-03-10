@@ -322,11 +322,6 @@ d2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
         if(Gn.maxCoeff() > thr) {
             for(Index i1 = 0; i1 <= k; i1++) dks.ULTat(i1, k - i1, m + 1) /= 1e10;
             Gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= LN1E10;
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -387,11 +382,6 @@ d2_ij_vE(const Eigen::ArrayBase<Derived>& A1, const Eigen::ArrayBase<Derived>& A
         if(Gn.maxCoeff() > thr) {
             for(Index i1 = 0; i1 <= k; i1++) dks.ULTat(i1, k - i1, m + 1) /= 1e10;
             Gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= LN1E10;
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -475,11 +465,6 @@ h2_ij_mE(const Eigen::MatrixBase<Derived>& A1,
             for(Index i1 = 0; i1 <= k; i1++) dks.ULTat(i1, k - i1, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= LN1E10;
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -562,11 +547,6 @@ h2_ij_vE(const Eigen::ArrayBase<Derived>& A1,
             for(Index i1 = 0; i1 <= k; i1++) dks.ULTat(i1, k - i1, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = std::max(k - i1, 0); i2 <= m - i1; i2++) {
-            //         lscf(i1, i2) -= LN1E10;
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -631,7 +611,6 @@ htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -685,7 +664,6 @@ htil2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -747,7 +725,6 @@ hhat2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -803,7 +780,6 @@ hhat2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
             dks.col(k) /= 1e10;
             G_k_i /= 1e10;
             g_k_i /= 1e10;
-            //lscf.rightCols(m + 1 - k) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -821,14 +797,13 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 dtil2_pq_mE(const Eigen::MatrixBase<Derived>& A1,
             const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
             const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
-            const Eigen::Index p, const Eigen::Index q) { //, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, const typename Derived::Scalar thr_margin) {
+            const Eigen::Index p, const Eigen::Index q) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, q + 1);
     dks(0, 0) = 1;
-    // Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     MatrixXx G_k_i = MatrixXx::Zero(n, n * (p + 1));
     MatrixXx g_k_i = MatrixXx::Zero(n, p + 1);
     G_k_i.block(0, 0, n, n).diagonal().array() += dks(0, 0);
@@ -854,12 +829,6 @@ dtil2_pq_mE(const Eigen::MatrixBase<Derived>& A1,
             dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
             G_k_i.block(0, i * n, n, n).diagonal().array() += dks(i, k);
         }
-        // if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-        //     dks /= 1e10;
-        //     G_k_i /= 1e10;
-        //     g_k_i /= 1e10;
-        //     lscf -= LN1E10;
-        // }
     }
     return dks;
 }
@@ -873,14 +842,13 @@ Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
 dtil2_pq_vE(const Eigen::ArrayBase<Derived>& A1,
             const Eigen::ArrayBase<Derived>& A2,
             const Eigen::ArrayBase<Derived>& mu,
-            const Eigen::Index p, const Eigen::Index q) { //, EEigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, const typename Derived::Scalar thr_margin) {
+            const Eigen::Index p, const Eigen::Index q) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.size();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, q + 1);
     dks(0, 0) = 1;
-    // Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     ArrayXXx G_k_i = ArrayXXx::Zero(n, p + 1);
     ArrayXXx g_k_i = ArrayXXx::Zero(n, p + 1);
     for(Index i = 1; i <= p; i++) {
@@ -902,12 +870,6 @@ dtil2_pq_vE(const Eigen::ArrayBase<Derived>& A1,
                            A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
             dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
         }
-        // if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-        //     dks /= 1e10;
-        //     G_k_i /= 1e10;
-        //     g_k_i /= 1e10;
-        //     lscf -= LN1E10;
-        // }
     }
     return dks;
 }
@@ -1004,7 +966,6 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
 #ifdef _OPENMP
 }
 #endif
-        //
         MatrixXx::Map(Gn.block(0, n * k, n, n).data(), n, n).noalias() =
             A1 * Go.block(0, n * (k - 1), n, n);
         dks.ULCat(k, 0, 0, m + 1) = Gn.block(0, n * k, n, n).trace() / (2 * k);
@@ -1017,13 +978,6 @@ d3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
                 }
             }
             Gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = 0; i2 <= m - i1; i2++) {
-            //         for(Index i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
-            //         }
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1115,13 +1069,6 @@ d3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
                 }
             }
             Gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = 0; i2 <= m - i1; i2++) {
-            //         for(Index i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
-            //         }
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1220,8 +1167,6 @@ d3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         if(Gn.maxCoeff() > thr) {
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1309,8 +1254,6 @@ d3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
         if(Gn.maxCoeff() > thr) {
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1443,13 +1386,6 @@ h3_ijk_mE(const Eigen::MatrixBase<Derived>& A1,
             }
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = 0; i2 <= m - i1; i2++) {
-            //         for(Index i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
-            //         }
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1577,13 +1513,6 @@ h3_ijk_vE(const Eigen::ArrayBase<Derived>& A1,
             }
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index i1 = 0; i1 <= m; i1++) {
-            //     for(Index i2 = 0; i2 <= m - i1; i2++) {
-            //         for(Index i3 = std::max(k - i1 - i2, 0); i3 <= m - i1 - i2; i3++) {
-            //             lscf(i1, i2 + i3 * (m + 1)) -= LN1E10;
-            //         }
-            //     }
-            // }
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1706,8 +1635,6 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1822,8 +1749,6 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -1950,8 +1875,6 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -2068,8 +1991,6 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
             for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
             Gn /= 1e10;
             gn /= 1e10;
-            // for(Index j = 0; j < k; j++) lscf.block(0, (k - j) + j * (m + 1), p + 1, m + 1 - (k - j)) -= LN1E10;
-            // lscf.block(0, k * (m + 1), p + 1, (m + 1) * (m + 1 - k)) -= LN1E10;
             lscf.tail(m + 1 - k) -= LN1E10;
         }
     }
@@ -2097,7 +2018,7 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
-             const Eigen::Index p, const Eigen::Index q, const Eigen::Index r) { //, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, const typename Derived::Scalar thr_margin) {
+             const Eigen::Index p, const Eigen::Index q, const Eigen::Index r) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -2105,7 +2026,6 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
     const Index m = q + r;
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (q + 1) * (r + 1));
     dks(0, 0) = 1;
-    // Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     const MatrixXx zeromat_n_np = MatrixXx::Zero(n, n * (p + 1));
     const MatrixXx zeromat_n_p = MatrixXx::Zero(n, p + 1);
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
@@ -2189,12 +2109,6 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
             Gn.block(0, k * n * (p + 1), n, n * (p + 1)) = zeromat_n_p;
             gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
         }
-        // if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-        //     dks /= 1e10;
-        //     Gn /= 1e10;
-        //     gn /= 1e10;
-        //     lscf -= LN1E10;
-        // }
     }
     return dks;
 }
@@ -2211,7 +2125,7 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& A2,
              const Eigen::ArrayBase<Derived>& A3,
              const Eigen::ArrayBase<Derived>& mu,
-             const Eigen::Index p, const Eigen::Index q, const Eigen::Index r) { //, Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf, const typename Derived::Scalar thr_margin) {
+             const Eigen::Index p, const Eigen::Index q, const Eigen::Index r) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -2219,7 +2133,6 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
     const Index m = q + r;
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (q + 1) * (r + 1));
     dks(0, 0) = 1;
-    // Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
     const ArrayXXx zeromat_n_p = ArrayXXx::Zero(n, p + 1);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
@@ -2295,12 +2208,6 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
             Gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
             gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
         }
-        // if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-        //     dks /= 1e10;
-        //     Gn /= 1e10;
-        //     gn /= 1e10;
-        //     lscf -= LN1E10;
-        // }
     }
     return dks;
 }

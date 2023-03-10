@@ -117,15 +117,11 @@
 #'
 #' @docType package
 #' @name qfratio-package
-# #' @aliases qfratio
 #'
 ## Setting Rcpp-related import
 #' @useDynLib qfratio, .registration = TRUE
-# #' @import RcppEigen
 #' @importFrom Rcpp evalCpp
 #'
-# #' @importFrom Rcpp sourceCpp
-# #' @exportPattern "^[[:alpha:]]+"
 NULL
 
 ## Documentation of C++ functions

@@ -1224,7 +1224,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     stopifnot("Moment does not exist in this combination of p, q, and rank(B)" =
                   cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    # diminished <- FALSE
     bA <- alphaA / max(abs(LA))
     if(use_cpp) {
         if(central) {
@@ -1240,7 +1239,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 cppres <- ApIq_npi_nvE(LA, UA, bA, mu, p, q, m,
                                        thr_margin, nthreads)
             }
-            # diminished <- cppres$diminished
         }
         ansseq <- cppres$ansseq
     } else {
@@ -1264,7 +1262,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ansmat <- hgs_2d(dks, -p, q, n / 2, ((p - q) * log(2) - p * log(bA)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            # diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
         }
     }
     ## If there's any NaN, truncate series before summing up
@@ -1277,14 +1274,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    # if(diminished) {
-    #     warning("Some terms in multiple series numerically diminished to 0 ",
-    #             "as they were\n  scaled to avoid numerical overflow. ",
-    #             "The result will be inaccurate.",
-    #             if(cpp_method == "double")
-    #                 paste0("\n  Consider using the option cpp_method = ",
-    #                        "\"long_double\" or \"coef_wise\"."))
-    # }
     if(check_convergence != "none") {
         if(check_convergence == "strict_relative") {
             if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
@@ -1914,7 +1903,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    # diminished <- FALSE
     if(use_vec) {
         LA <- diag(A)
         LBh <- rep.int(1, n) - bB * LB
@@ -1958,7 +1946,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                                              error_bound, thr_margin, nthreads)
                 }
             }
-            # diminished <- cppres$diminished
         }
         ansseq <- cppres$ansseq
     } else {
@@ -1989,7 +1976,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
                               - lscf))
             ansseq <- sum_counterdiag(ansmat)
-            # diminished <- any(lscf < 0) && any(diag(dks[(m + 1):1, ]) == 0)
         }
     }
     ## If there's any NaN, truncate series before summing up
@@ -2002,14 +1988,6 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    # if(diminished) {
-    #     warning("Some terms in multiple series numerically diminished to 0 ",
-    #             "as they were\n  scaled to avoid numerical overflow. ",
-    #             "The result will be inaccurate.",
-    #             if(cpp_method == "double")
-    #                 paste0("\n  Consider using the option cpp_method = ",
-    #                        "\"long_double\" or \"coef_wise\"."))
-    # }
     if(check_convergence != "none") {
         if(check_convergence == "strict_relative") {
             if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps

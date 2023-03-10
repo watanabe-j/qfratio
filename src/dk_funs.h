@@ -4,8 +4,6 @@
 #include <RcppEigen.h>
 // [[Rcpp::depends(RcppEigen)]]
 
-// #include "qfratio_types.h"
-
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>
 d1_i_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::Index m, 

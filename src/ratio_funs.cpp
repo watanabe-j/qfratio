@@ -8,7 +8,6 @@
 // // [[Rcpp::depends(RcppGSL)]]
 // #include <gsl/gsl_sf_hyperg.h>
 
-// #include "qfratio_types.h"
 #include "dk_funs.h"
 #include "hgs_funs.h"
 
@@ -54,11 +53,8 @@ SEXP Ap_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
 // [[Rcpp::export]]
 SEXP ABpq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double p = 1, const double q = 1, const double thr_margin = 100) {
-    // const Index n = LB.size();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, q + 1);
     ArrayXd lscf = ArrayXd::Zero(q + 1);
     double dpq = d2_pj_vE(LA, LB, q, p, lscf, thr_margin)(p, q);
-    // double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(p, q)) * dpq;
     double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(q)) * dpq;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
@@ -69,12 +65,9 @@ SEXP ABpq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 // [[Rcpp::export]]
 SEXP ABpq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double p = 1, const double q = 1, const double thr_margin = 100) {
-    // const Index n = LB.size();
     DiagMatXd B = LB.matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, q + 1);
     ArrayXd lscf = ArrayXd::Zero(q + 1);
     double dpq = d2_pj_mE(A, B, q, p, lscf, thr_margin)(p, q);
-    // double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(p, q)) * dpq;
     double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(q)) * dpq;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
@@ -86,7 +79,6 @@ SEXP ABpq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 SEXP ABpq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd mu,
                     const double p = 1, const double q = 1) {
-    // const Index n = LB.size();
     double dpq = dtil2_pq_vE(LA, LB, mu, p, q)(p, q);
     double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1)) * dpq;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
@@ -99,7 +91,6 @@ SEXP ABpq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 SEXP ABpq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd mu,
                     const double p = 1, const double q = 1) {
-    // const Index n = LB.size();
     DiagMatXd B = LB.matrix().asDiagonal();
     double dpq = dtil2_pq_mE(A, B, mu, p, q)(p, q);
     double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1)) * dpq;
@@ -115,11 +106,8 @@ SEXP ABDpqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD,
                     const double p = 1, const double q = 1, const double r = 1, 
                     const double thr_margin = 100) {
-    // const Index n = LB.size();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (q + r + 1) * (q + r + q));
     ArrayXd lscf = ArrayXd::Zero(q + r + 1);
     double dpqr = d3_pjk_vE(LA, LB, LD, q + r, p, lscf, thr_margin, 1)(p, (q + r + 1) * r + q);
-    // double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(p, (q + r + 1) * r + q)) * dpqr;
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
@@ -132,9 +120,7 @@ SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D,
                     const double p = 1, const double q = 1, const double r = 1,
                     const double thr_margin = 100) {
-    // const Index n = LB.size();
     DiagMatXd B = LB.matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (q + r + 1) * (q + r + q));
     ArrayXd lscf = ArrayXd::Zero(q + r + 1);
     double dpqr = d3_pjk_mE(A, B, D, q + r, p, lscf, thr_margin, 1)(p, (q + r + 1) * r + q);
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
@@ -148,7 +134,6 @@ SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 SEXP ABDpqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const Eigen::ArrayXd LD, const Eigen::ArrayXd mu,
                     const double p = 1, const double q = 1, const double r = 1) {
-    // const Index n = LB.size();
     double dpqr = dtil3_pqr_vE(LA, LB, LD, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1)) * dpqr;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
@@ -161,7 +146,6 @@ SEXP ABDpqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 SEXP ABDpqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const Eigen::MatrixXd D, const Eigen::ArrayXd mu,
                     const double p = 1, const double q = 1, const double r = 1) {
-    // const Index n = LB.size();
     DiagMatXd B = LB.matrix().asDiagonal();
     double dpqr = dtil3_pqr_mE(A, B, D, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1)) * dpqr;
@@ -234,22 +218,18 @@ SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
     ArrayXd dks = d1_i_vE(LAh, m, lscf, thr_margin);
     ArrayXd ansseq = hgs_1dE(dks, -p, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-    //                          + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         ArrayXd cumsum_dkst(m + 1);
         ArrayXd signseq = get_sign_rfp1(-p, m + 1);
         dks /= exp(lscf - lscf(m));
         set_cumsum(dks, cumsum_dkst);
-        // set_cumprod_sign(-p, m + 1, signseq);
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, -p + 1, -p + 1 + m).lgamma() - lgamma(-p) -
             ArrayXd::LinSpaced(m + 1, n_ / 2 + 1, n_ / 2 + 1 + m).lgamma() +
             lgamma(n_ / 2 + p - q);
         lcoefe += (p - q) * M_LN2 - p * log(bA);
         ArrayXd errseq = exp(lcoefe - log(bA * LA).sum() / 2) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
         errseq *= signseq;
 
@@ -275,14 +255,11 @@ SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const doubl
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd zeromat = ArrayXd::Zero(n);
     ArrayXd mud = UA.transpose() * mu;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-                             // + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -302,15 +279,10 @@ SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
-    // ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscfp);
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
@@ -324,7 +296,6 @@ SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             dkst = dks;
         }
         ArrayXd cumsum_dkst(m + 1);
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
@@ -336,8 +307,6 @@ SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             lgamma(n_ / 2 + p - q);
         lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -362,15 +331,10 @@ SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     const Index n = LB.size();
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
-    // ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscfp);
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
@@ -382,13 +346,11 @@ SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
             lscf.setZero();
             dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
-            // lscfp = lscf.row(p);
         } else {
             Ap = A;
             dkst = dks;
         }
         ArrayXd cumsum_dkst(m + 1);
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
@@ -401,8 +363,6 @@ SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             lgamma(n_ / 2 + p - q);
         lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -427,15 +387,11 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil2_pj_vE(LA, LBh, mu, m, p, lscf, thr_margin).row(p);
     ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscfp);
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-    //                          + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = true;
@@ -444,9 +400,7 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
         lscf.setZero();
         ArrayXd dkst = hhat2_pj_vE(LAp, LBh, mu, m, p, lscf, thr_margin).row(p);
-        // lscfp = lscf.row(p);
         ArrayXd cumsum_dkst(m + 1);
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
@@ -458,8 +412,6 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             lgamma(n_ / 2 + p - q);
         lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -485,15 +437,11 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     const Index n = LB.size();
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil2_pj_mE(A, Bh, mu, m, p, lscf, thr_margin).row(p);
     ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             // + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscfp);
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-    //                          + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = true;
@@ -503,9 +451,7 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         MatrixXd Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
         lscf.setZero();
         ArrayXd dkst = hhat2_pj_mE(Ap, Bh, mu, m, p, lscf, thr_margin).row(p);
-        // lscfp = lscf.row(p);
         ArrayXd cumsum_dkst(m + 1);
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
@@ -518,8 +464,6 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             lgamma(n_ / 2 + p - q);
         lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -546,14 +490,11 @@ SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -572,14 +513,11 @@ SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     const double n_ = n;
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -598,14 +536,11 @@ SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -624,14 +559,11 @@ SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     const double n_ = n;
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -652,15 +584,10 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const Index n = LB.size();
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
-    // ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    //           + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
@@ -672,11 +599,9 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         if(twosided) {
             lscf.setZero();
             dkst = d2_pj_vE(LAp, LBh, m, p, lscf, thr_margin).row(p);
-            // lscfp = lscf.row(p);
         } else {
             dkst = dks;
         }
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
@@ -688,8 +613,6 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             lgamma(n_ / 2 + p - q - r);
         lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -715,15 +638,10 @@ SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     const Index n = LB.size();
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
-    // ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    //           + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
-    // ansseq /= exp(lscf);
 
     if(error_bound) {
         bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
@@ -737,12 +655,10 @@ SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
             lscf.setZero();
             dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
-            // lscfp = lscf.row(p);
         } else {
             Ap = A;
             dkst = dks;
         }
-        // dkst /= exp(lscfp - lscfp(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
@@ -755,8 +671,6 @@ SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             lgamma(n_ / 2 + p - q - r);
         lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -782,18 +696,12 @@ SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-                              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
 
     if(error_bound) {
@@ -807,8 +715,6 @@ SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         // dkstm.resize(m + 1, m + 1);
         ArrayXd dkst = sum_counterdiagE(dkstm);
         ArrayXd cumsum_dkst(m + 1);
-        // ArrayXd lscfp0 = lscf.row(p).head(m + 1);
-        // dkst /= exp(lscfp0 - lscfp0(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         ArrayXd lscfdp = ArrayXd::Zero(p + 1);
@@ -820,8 +726,6 @@ SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
             lgamma(n_ / 2 + p - q - r);
         lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp0(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -850,16 +754,11 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd zeromat = MatrixXd::Zero(n, n);
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil3_pjk_mE(A, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-                              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -876,8 +775,6 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         // dkstm.resize(m + 1, m + 1);
         ArrayXd dkst = sum_counterdiagE(dkstm);
         ArrayXd cumsum_dkst(m + 1);
-        // ArrayXd lscfp0 = lscf.row(p).head(m + 1);
-        // dkst /= exp(lscfp0 - lscfp0(m));
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
         DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
@@ -890,8 +787,6 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
             lgamma(n_ / 2 + p - q - r);
         lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
         ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         // exp(lcoefe + log(cumsum_dkst)); // - lscf);
-                         // exp(lcoefe + log(cumsum_dkst) - lscfp0(m));
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
@@ -921,14 +816,11 @@ SEXP ApBIqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -949,14 +841,11 @@ SEXP ApBIqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd zeromat = MatrixXd::Zero(n, n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -977,14 +866,11 @@ SEXP ApBIqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1005,14 +891,11 @@ SEXP ApBIqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd zeromat = MatrixXd::Zero(n, n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1033,14 +916,11 @@ SEXP IpBDqr_gen_cvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1060,15 +940,12 @@ SEXP IpBDqr_gen_cmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
     ArrayXd dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, r, q, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1089,14 +966,11 @@ SEXP IpBDqr_gen_nvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r)  - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r)  - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1117,14 +991,11 @@ SEXP IpBDqr_gen_nmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
     MatrixXd zeromat = MatrixXd::Zero(n, n);
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1146,19 +1017,13 @@ SEXP ApBDqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1179,17 +1044,12 @@ SEXP ApBDqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -1213,17 +1073,12 @@ SEXP ApBDqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     const double n_ = n;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -1247,17 +1102,12 @@ SEXP ApBDqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     const double n_ = n;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    // ArrayXXd lscf = ArrayXXd::Zero(p + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil3_pjk_mE(A, Bh, Dh, mu, m, p, lscf, thr_margin, nthreads).row(p);
     // dks.resize(m + 1, m + 1);
-    // ArrayXXd lscfp = lscf.row(p);
-    // lscfp.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscfp);
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)));
     ArrayXd ansseq = sum_counterdiagE(ansmat);
     // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -1281,15 +1131,12 @@ SEXP ApBDqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1311,15 +1158,12 @@ SEXP ApBDqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1342,15 +1186,12 @@ SEXP ApBDqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1373,15 +1214,12 @@ SEXP ApBDqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    // ArrayXXd lscf = ArrayXXd::Zero(m + 1, (m + 1) * (m + 1));
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = h3_ijk_mE(Ah, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-                              // + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)));
     ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    // ansseq /= exp(lscf);
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
