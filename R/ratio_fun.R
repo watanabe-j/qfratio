@@ -1080,7 +1080,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' @export
 #'
 qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                          use_cpp = TRUE, cpp_method = "double",
+                          use_cpp = TRUE, cpp_method = "double", nthreads = 1,
                           tol_zero = .Machine$double.eps * 100,
                           thr_margin = 100) {
     if(!missing(cpp_method)) use_cpp <- TRUE
@@ -1357,7 +1357,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     error_bound = TRUE,
                     check_convergence = c("relative", "strict_relative",
                                           "absolute", "none"),
-                    use_cpp = TRUE, cpp_method = "double",
+                    use_cpp = TRUE, cpp_method = "double", nthreads = 1,
                     alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,

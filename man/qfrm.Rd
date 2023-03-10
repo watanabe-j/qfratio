@@ -29,6 +29,7 @@ qfrm_ApIq_int(
   mu = rep.int(0, n),
   use_cpp = TRUE,
   cpp_method = "double",
+  nthreads = 1,
   tol_zero = .Machine$double.eps * 100,
   thr_margin = 100
 )
@@ -62,6 +63,7 @@ qfrm_ApBq_int(
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = "double",
+  nthreads = 1,
   alphaB = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
@@ -128,6 +130,10 @@ memory-inefficient}
 most robust but variably slow}
 }}
 
+\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
+\code{0} or any negative value is special and means one-half of
+the number of processors detected. See "Multithreading" in "Details".}
+
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
 in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
@@ -145,10 +151,6 @@ default by setting \code{tol_conv = .Machine$double.eps}
 compared with \code{tol_conv}}
 \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
 }}
-
-\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
-\code{0} or any negative value is special and means one-half of
-the number of processors detected. See "Multithreading" in "Details".}
 
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively. See "Details".}

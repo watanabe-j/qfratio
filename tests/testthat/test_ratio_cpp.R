@@ -26,17 +26,17 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
                 expect_equal(qfrm(A1, I,  p, q, m = m, use_cpp = FALSE),
-                             qfrm(A1, I,  p, q, m = m, use_cpp = TRUE), tolerance = tol)
+                             qfrm(A1, I,  p, q, m = m, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = FALSE)),
-                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE)), tolerance = tol)
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1)), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
             }
         }
     }
@@ -70,29 +70,29 @@ test_that("Expect equal from R and Cpp methods: qfmrm", {
                 for(r in ks/2) {
                     if(nv / 2 + p <= q + r) next
                     expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                     expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE), tolerance = tol)
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 }
             }
         }
@@ -124,16 +124,16 @@ test_that("Expect equal from double and long double in C++: qfrm", {
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "double")),
-                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "long_double")), tolerance = tol)
-                expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
+                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "double")),
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double")), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
             }
         }
     }
@@ -165,30 +165,30 @@ test_that("Expect equal from double and long double in C++: qfmrm", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if(nv / 2 + p <= q + r) next
-                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
                 }
             }
         }
@@ -220,16 +220,16 @@ test_that("Expect equal from double and coef_wise in C++: qfrm", {
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "double")),
-                             suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, cpp_method = "coef_wise")), tolerance = tol)
-                expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
+                expect_equal(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "double")),
+                             suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise")), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
             }
         }
     }
@@ -261,30 +261,30 @@ test_that("Expect equal from double and coef_wise in C++: qfmrm", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if(nv / 2 + p <= q + r) next
-                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
-                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "double"),
-                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, I, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(I, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
+                    expect_equal(qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
+                                 qfmrm(A1, A2r, A3, p, q, r, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "coef_wise"), tolerance = tol)
                 }
             }
         }
