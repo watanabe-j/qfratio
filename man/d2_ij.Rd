@@ -206,21 +206,21 @@ in the signs of some terms.
 Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
-doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002}.
+\doi{10.1016/j.jmva.2013.03.002}.
 
 Chikuse, Y. (1987). Methods for constructing top order invariant polynomials.
 \emph{Econometric Theory}, \strong{3}, 195--207.
-doi:\href{https://doi.org/10.1017/S026646660001029X}{10.1017/S026646660001029X}.
+\doi{10.1017/S026646660001029X}.
 
 Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
 for top-order invariant polynomials with applications.
 \emph{Econometric Theory}, \strong{25}, 211--242.
-doi:\href{https://doi.org/10.1017/S0266466608090075}{10.1017/S0266466608090075}.
+\doi{10.1017/S0266466608090075}.
 
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
-doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
+\doi{10.1017/S0266466613000364}.
 }
 \seealso{
 \code{\link{qfrm}} and \code{\link{qfmrm}} are

@@ -71,7 +71,7 @@ recursion algorithm described in Hillier et al. (2014: sec. 4.2).
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
-doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
+\doi{10.1017/S0266466613000364}.
 }
 \seealso{
 \code{\link{qfpm}} is a front-end functions that utilizes these functions

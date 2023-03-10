@@ -375,26 +375,26 @@ plot(print(qfrm(A, B, p = 2, q = 2, mu = mu, Sigma = Sigma, m = 300)))
 Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
-doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002}.
+\doi{10.1016/j.jmva.2013.03.002}.
 
 Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
 for top-order invariant polynomials with applications.
 \emph{Econometric Theory}, \strong{25}, 211--242.
-doi:\href{https://doi.org/10.1017/S0266466608090075}{10.1017/S0266466608090075}.
+\doi{10.1017/S0266466608090075}.
 
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
-doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
+\doi{10.1017/S0266466613000364}.
 
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
 in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
-doi:\href{https://doi.org/10.1016/0047-259X(89)90065-1}{10.1016/0047-259X(89)90065-1}.
+\doi{10.1016/0047-259X(89)90065-1}.
 
 Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
 variables: evaluating some top-order invariant polynomials.
 \emph{Australian Journal of Statistics}, \strong{35}, 271--282.
-doi:\href{https://doi.org/10.1111/j.1467-842X.1993.tb01335.x}{10.1111/j.1467-842X.1993.tb01335.x}.
+\doi{10.1111/j.1467-842X.1993.tb01335.x}.
 }
 \seealso{
 \code{\link{qfmrm}} for multiple ratio

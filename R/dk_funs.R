@@ -87,17 +87,17 @@
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
-#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
 #' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
 #'   *Econometric Theory*, **25**, 211--242.
-#'   doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+#'   \doi{10.1017/S0266466608090075}.
 #'
 #' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
-#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'   \doi{10.1017/S0266466613000364}.
 #'
 #' @seealso
 #' \code{\link{qfpm}}, \code{\link{qfrm}}, and \code{\link{qfmrm}} are
@@ -164,7 +164,7 @@ NULL
 #' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
-#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'   \doi{10.1017/S0266466613000364}.
 #'
 #' @seealso
 #' \code{\link{qfpm}} is a front-end functions that utilizes these functions
@@ -290,21 +290,21 @@ NULL
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
-#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
 #' Chikuse, Y. (1987). Methods for constructing top order invariant polynomials.
 #'   *Econometric Theory*, **3**, 195--207.
-#'   doi:[10.1017/S026646660001029X](https://doi.org/10.1017/S026646660001029X).
+#'   \doi{10.1017/S026646660001029X}.
 #'
 #' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
 #'   *Econometric Theory*, **25**, 211--242.
-#'   doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
+#'   \doi{10.1017/S0266466608090075}.
 #'
 #' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
-#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'   \doi{10.1017/S0266466613000364}.
 #'
 #' @seealso
 #' \code{\link{qfrm}} and \code{\link{qfmrm}} are
@@ -415,12 +415,12 @@ NULL
 #' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
-#'   doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+#'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
 #' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
-#'   doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+#'   \doi{10.1017/S0266466613000364}.
 #'
 #' @seealso
 #' \code{\link{qfmrm}} is a

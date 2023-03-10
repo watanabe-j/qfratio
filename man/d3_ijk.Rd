@@ -177,12 +177,12 @@ Bao & Kan (2014: sec. 5).
 Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
-doi:\href{https://doi.org/10.1016/j.jmva.2013.03.002}{10.1016/j.jmva.2013.03.002}.
+\doi{10.1016/j.jmva.2013.03.002}.
 
 Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
-doi:\href{https://doi.org/10.1017/S0266466613000364}{10.1017/S0266466613000364}.
+\doi{10.1017/S0266466613000364}.
 }
 \seealso{
 \code{\link{qfmrm}} is a
