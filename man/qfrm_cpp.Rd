@@ -1224,7 +1224,7 @@ At present, \code{ApIq_int_nmE()} calls the \code{R} function
 the \code{R} equivalent.
 Ideally, the \code{C++} library \code{gsl} (or the like) should be used with
 \code{RcppGSL}, but this is not done (commented out in the source code)
-to increase portability.
+to ensure portability.
 
 \code{rqfpE} uses \code{Rcpp::rnorm()},
 which may not be particularly efficient.

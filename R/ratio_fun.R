@@ -6,7 +6,7 @@
 #' \eqn{ \mathrm{E} \left(
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 #' Internally, \code{qfrm()} calls one of the following functions which does
 #' the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 #' and \eqn{p}. Usually the best one is automatically selected.
@@ -60,7 +60,7 @@
 #' \eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}},
 #' \eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}, and
 #' \eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
-#'      \sim N(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
+#'      \sim N_n(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
 #' \code{qfrm()} handles this by transforming \code{A}, \code{B},
 #' and \code{mu} and calling itself recursively with these new arguments.
 #' Note that the ``internal'' functions do not accommodate \code{Sigma}
@@ -81,7 +81,7 @@
 #' Straightforward implementation of the original recursive algorithms can
 #' suffer from numerical overflow when the problem is large.
 #' Internal functions (\code{\link{d1_i}}, \code{\link{d2_ij}},
-#' \code{\link{d3_ijk}}) are desinged to avoid overflow by order-wise scaling.
+#' \code{\link{d3_ijk}}) are designed to avoid overflow by order-wise scaling.
 #' However, when evaluation of multiple series is required
 #' (\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
 #' the scaling occasionally yields underflow/diminishing of some terms to
@@ -98,8 +98,8 @@
 #' generally only modestly slower than the \code{"double"} option, but can be
 #' the slowest in some extreme conditions.
 #'
-#' For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
-#' \eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
+#' For the sake of completeness (only), the scaling parameters \eqn{\beta}
+#' (see the package vignette) can be modified via
 #' the arguments \code{alphaA} and \code{alphaB}. These are the factors for
 #' the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
 #' \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
@@ -112,7 +112,7 @@
 #' All these functions use \code{C++} versions to speed up computation
 #' by default.
 #' Furthermore, some of the \code{C++} functions, in particular those
-#' using more than one matrix arguments, are parallelized with \code{OpenMP}
+#' using more than one matrix arguments, are parallelized with '\code{OpenMP}'
 #' (when available). Use the argument \code{nthreads} to control the number
 #' of \code{OpenMP} threads. By default (\code{nthreads = 0}), one-half of
 #' the processors detected with \code{omp_get_num_procs()} are used.
@@ -188,7 +188,7 @@
 #'   in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
 #'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
 #' @param nthreads
-#'   Number of threads used in OpenMP-enabled \code{C++} functions.
+#'   Number of threads used in '\code{OpenMP}'-enabled \code{C++} functions.
 #'   \code{0} or any negative value is special and means one-half of
 #'   the number of processors detected. See "Multithreading" in "Details".
 #'
@@ -365,7 +365,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }
 #'        {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
 #'   \right) },
-#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 #' Like \code{qfrm()}, this function calls one of the following ``internal''
 #' functions for actual calculation, as appropriate.
 #'
@@ -377,10 +377,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' When \code{B} is identity or missing, this and its exponent \code{q} will
 #' be swapped with \code{D} and \code{r}, respectively, before
 #' \code{qfmrm_ApBIqr_***()} is called.
-#'
-#' The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-#' This is similar to that in \code{qfrm_ApBq_int()} (Watanabe, 2022).
-# #' See \code{vignette("qfratio")} for technical details.
 #'
 #' The existence conditions for the moments of this multiple ratio can be
 #' reduced to those for a simple ratio, provided that one of the null spaces
@@ -399,14 +395,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' denominator matrix whose null space is union of those of \eqn{\mathbf{B}}
 #' and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
 #' condition is not met in this case.
-#'
-#' Note that these functions may take a substantially longer computational time
-#' than those for a simple ratio, because thee former involves
-#' multiple infinite series along which summation is to be taken.
-#' Expect the computational time to scale with \code{m^2} for
-#' \code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
-#' \code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
-#' the rest.
 #'
 #' Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
 #' \code{mu}, involve evaluation of multiple series, which can suffer
@@ -632,7 +620,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' \eqn{ \mathrm{E} \left(
 #'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
 #'   (\mathbf{x^\mathit{T} D x})^r \right) },
-#' where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 #'
 #' These functions implement the super-short recursion algorithms described in
 #' Hillier et al. (2014: sec. 3.1--3.2 and 4).
@@ -1065,11 +1053,11 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 #' a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
 #' (Hillier et al. 2014: theorem 4).
-#' This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
+#' This is done via \code{gsl::hyperg_1F1()} if the package '\code{gsl}' is
 #' installed (which this package \code{Suggests}). Otherwise, the function uses
 #' the ordinary infinite series expression (Hillier et al. 2009), which is
-#' less accurate and slow, and throws a message (once per session).
-#' (This is handled without \code{C++} codes.)
+#' less accurate and slow, and throws a message.
+#' (In this case, the calculation is handled without \code{C++} codes.)
 #' It is recommended to install that package if an accurate estimate
 #' is desired for that case.
 #'

@@ -7,10 +7,10 @@
 \description{
 This package is for evaluating moments of ratios (and products) of quadratic
 forms in normal variables, specifically using recursive algorithms developed
-by Bao et al. (2013) and Hillier et al. (2014). It was originally developed
-as a supplement to Watanabe (2022) for evaluating average evolvability
-measures in evolutionary quantitative genetics, but can be used for a
-broader class of moments.
+by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
+Hillier et al., 2009). It was originally developed as a supplement to
+Watanabe (2022) for evaluating average evolvability measures in evolutionary
+quantitative genetics, but can be used for a broader class of moments.
 }
 \details{
 The primary front-end functions of this package are
@@ -29,6 +29,8 @@ power-series expansion of generating functions for these moments
 (Bao & Kan, 2013; Hillier et al. 2014).
 Some of these coefficients are related to the top-order zonal and invariant
 polynomials of matrix arguments.
+
+See package vignette (\code{vignette("qfratio")}) for more details.
 
 The DESCRIPTION file:
 \packageDESCRIPTION{qfratio}

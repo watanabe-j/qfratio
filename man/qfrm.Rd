@@ -130,7 +130,7 @@ memory-inefficient}
 most robust but variably slow}
 }}
 
-\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
+\item{nthreads}{Number of threads used in '\code{OpenMP}'-enabled \code{C++} functions.
 \code{0} or any negative value is special and means one-half of
 the number of processors detected. See "Multithreading" in "Details".}
 
@@ -174,7 +174,7 @@ of a ratio of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
   \right) },
-where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 Internally, \code{qfrm()} calls one of the following functions which does
 the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
 and \eqn{p}. Usually the best one is automatically selected.
@@ -240,7 +240,7 @@ columns \eqn{m} of \eqn{\mathbf{K}} equals the rank of \eqn{\mathbf{\Sigma}},
 \eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}},
 \eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}, and
 \eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
-     \sim N(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
+     \sim N_n(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
 \code{qfrm()} handles this by transforming \code{A}, \code{B},
 and \code{mu} and calling itself recursively with these new arguments.
 Note that the ``internal'' functions do not accommodate \code{Sigma}
@@ -261,7 +261,7 @@ are not met.
 Straightforward implementation of the original recursive algorithms can
 suffer from numerical overflow when the problem is large.
 Internal functions (\code{\link{d1_i}}, \code{\link{d2_ij}},
-\code{\link{d3_ijk}}) are desinged to avoid overflow by order-wise scaling.
+\code{\link{d3_ijk}}) are designed to avoid overflow by order-wise scaling.
 However, when evaluation of multiple series is required
 (\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
 the scaling occasionally yields underflow/diminishing of some terms to
@@ -278,8 +278,8 @@ against underflow issues. Computational time varies a lot with conditions;
 generally only modestly slower than the \code{"double"} option, but can be
 the slowest in some extreme conditions.
 
-For the sake of completeness (only), the scaling parameters \eqn{\alpha} and
-\eqn{\beta} (see, e.g., Bau & Kan 2013: eqs. 10 and 12) can be modified via
+For the sake of completeness (only), the scaling parameters \eqn{\beta}
+(see the package vignette) can be modified via
 the arguments \code{alphaA} and \code{alphaB}. These are the factors for
 the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
 \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
@@ -292,7 +292,7 @@ recommended as the error bound will not strictly hold
 All these functions use \code{C++} versions to speed up computation
 by default.
 Furthermore, some of the \code{C++} functions, in particular those
-using more than one matrix arguments, are parallelized with \code{OpenMP}
+using more than one matrix arguments, are parallelized with '\code{OpenMP}'
 (when available). Use the argument \code{nthreads} to control the number
 of \code{OpenMP} threads. By default (\code{nthreads = 0}), one-half of
 the processors detected with \code{omp_get_num_procs()} are used.
@@ -312,11 +312,11 @@ An exact expression of the moment is available when
 (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
 (Hillier et al. 2014: theorem 4).
-This is done via \code{gsl::hyperg_1F1()} if the package \code{gsl} is
+This is done via \code{gsl::hyperg_1F1()} if the package '\code{gsl}' is
 installed (which this package \code{Suggests}). Otherwise, the function uses
 the ordinary infinite series expression (Hillier et al. 2009), which is
-less accurate and slow, and throws a message (once per session).
-(This is handled without \code{C++} codes.)
+less accurate and slow, and throws a message.
+(In this case, the calculation is handled without \code{C++} codes.)
 It is recommended to install that package if an accurate estimate
 is desired for that case.
 }

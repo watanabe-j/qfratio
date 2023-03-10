@@ -59,13 +59,11 @@ This document is to provide an overview of the `R` package `qfratio`
 - $n$: number of variables
 - $m$: order of evaluation at which infinite series is truncated
 - $p, q, r$: exponents of quadratic forms (positive real numbers)
-- $t_1, \dots, t_s$: parameters in generating functions; $s$ here denotes the number of arguments (typically $t = 2$ or $3$)
+- $t_1, \dots, t_s$: parameters in generating functions; $s$ here denotes the number of arguments (typically $s = 2$ or $3$)
 - $a$, $d$, $\tilde{d}$, $h$, $\tilde{h}$, $\hat{h}$: coefficients in generating functions defined in text
 - $C$: (top-order) zonal and invariant polynomials of matrix arguments [@Muirhead1982; @Davis1980proc; @Chikuse1980msa; @Chikuse1987]
 - $\m{x}$: $n$-variate random vector (in most cases normal)
-- $N_n \left( \cdot , \cdot \right)$: $n$-variate normal distribution
-- $\bm{\mu}$: $n$-variate mean vector for $\m{x}$
-- $\bm{\Sigma}$: $n \times n$ covariance matrix for $\m{x}$
+- $N_n \left( \bm{\mu} , \bm{\Sigma}\right)$: $n$-variate normal distribution with mean vector $\bm{\mu}$ and covariance matrix $\bm{\Sigma}$
 - $\m{A}, \m{B}, \m{D}$: $n \times n$ argument matrices
 - $\m{I}_n$: $n$-dimensional identity matrix
 - $\m{0}_n$: $n$-variate vector of $0$'s
@@ -81,7 +79,6 @@ This document is to provide an overview of the `R` package `qfratio`
 - $\lambda_i$: $i$th eigenvalue of the matrix concerned
 - $\lmax$: largest eigenvalue of the matrix concerned
 - $\m{h}_i$: eigenvector corresponding to $\lambda_i$
-- $\delta_i$: defined as $(\m{h}_i^T \bm{\mu})^2$
 - $\beta_{\m{A}}$: scaling constant that satisfies $0 < \beta < 2 / \lmax$ for $\m{A}$
 - $\m{A}^+$: matrix with "positivized" eigenvalues, i.e., $\m{A}^+ = \sum_{i=1}^n \lvert \lambda_i \rvert \m{h}_i \m{h}_i^T$
 
@@ -195,13 +192,15 @@ exist is stated in @BaoKan2013[proposition 1]:
       exists if and only if $\frac{l}{2} > q$.
 
 For the multiple ratio, the existence conditions are more difficult to define.
-When the range of $\m{B}$ is a subspace of that of $\m{D}$ (or vice versa),
+When the null space of $\m{B}$ is a subspace of that of $\m{D}$ (or vice versa),
 the existence problem reduces to that of the simple ratio, and the above
 conditions apply by inserting the rank of $\m{B}$ and $q + r$ into $l$ and $q$
 above [@Watanabe2022cevo].
 However, when both $\m{B}$ and $\m{D}$ are singular and neither of their ranges
 is a subspace of each other, no general existence conditions seem to be known
 in the literature.
+See the documentations for `qfrm` and `qfmrm` for the behaviors when
+the existence conditions are not satisfied.
 
 
 ## Expressions for moments
@@ -342,7 +341,7 @@ the coefficients $d$ in the following expansion is used:
   .
 \end{equation}
 
-Actually, the above expressions for moments can be written in terms of $d$
+Actually, the above expressions (1)--(4) can be written in terms of $d$
 with an additional argument [@HillierEtAl2009; @BaoKan2013],
 but those alternative expressions are not utilized in the package.
 
@@ -452,7 +451,7 @@ $\hat{M}_m \left( \m{A}, \m{B}, p, q \right)$, the error bound is
   ,
 \end{multline}
 where $\m{A}^+$ is a symmetric matrix constructed from the eigenvectors and 
-absolute values of the eigenvalues of $\m{A}$,
+"positivized" eigenvalues of $\m{A}$ (above),
 $\bar{\bm{\mu}} = \sqrt{2}\left( \beta_\m{B} \m{B} \right)^{-\frac{1}{2}} \bm{\mu}$,
 $\bar{\m{A}} = \beta_{\m{B}}^{-1} \m{B}^{-\frac{1}{2}} \m{A}^+ \m{B}^{-\frac{1}{2}}$,
 and $\tilde{d}$ and $\hat{h}$ are coefficients in the following generating functions:
@@ -650,7 +649,7 @@ functions, for which `qfrm()` acts as a switcher:
 | `qfrm_ApIq_npi()` | $\m{B} = \m{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\bm{\mu} = \m{0}_n$) | Available only when $\bm{\mu} = \m{0}_n$ | $\sim m$ when $\bm{\mu} = \m{0}_n$; $\sim m^2 / 2$ otherwise |
 | `qfrm_ApBq_int()` | $\m{B}$ arbitrary | *int*eger                  | (2)                                        | Available                                | $\sim (p + 1)m$                                              |
 | `qfrm_ApBq_npi()` | $\m{B}$ arbitrary | *n*on-*p*ositive-*i*nteger | (1)                                        | Unavailable                              | $\sim m^2 / 2$                                               |
-\*: requires the `gsl` package when $\bm{\mu} \neq \m{0}_n$
+\*: requires the '`gsl`' package when $\bm{\mu} \neq \m{0}_n$
 
 These functions are exported into the package namespace so can be directly used
 if necessary.
@@ -667,7 +666,7 @@ They do the following operations:
 6. In `qfrm_ApBq_npi()`, the same-order terms in the double series are summed up
 7. Conduct a rough check of numerical convergence
 8. Calculate the sequence of error bound as in the steps 4--6 when applicable
-9. Return a structured object of the series and error bound
+9. Return a structured object including the series and error bound
 
 By default, the steps 4--8 are handled by internal `C++` functions.
 The steps 7 and 8 can be suppressed if desired (by using
@@ -826,7 +825,7 @@ Thus, a recommended workflow is:
 
 1. Use `qfrm()` (or `qfmrm()`) with the desired arguments with a small `m`
    (perhaps the default `m = 100`), **assigning the result into an object**
-    - This may yield a warning when clear non-convergence is detected
+    - This may yield a warning when non-convergence is evident
 2. Inspect the result with the `print` method (or list element access),
    paying attention to the error bound whenever available
 3. Use `plot()` of the object to see if numerical convergence has been reached
@@ -865,6 +864,8 @@ tail(res$seq_error) # Tail of sequence of error bounds; last one is $error_bound
 
 ## Inspect plot
 plot(res)
+## Note that profile for error bound is shown as
+## upper bound of the true value in the plot
 
 #####
 ## III: Simple case, (x^T A t)^(1/2) / (x^T x)^(1/2), where x ~ N(0, I)
@@ -887,7 +888,7 @@ plot(res)
 
 
 #####
-## V: Difficult case with highly disparsed eigenvalues
+## V: Difficult case with highly dispersed eigenvalues
 ##    Error bound available
 A <- diag((1:nv) ^ 2)
 B <- diag((nv:1) ^ 3)
@@ -895,7 +896,7 @@ B <- diag((nv:1) ^ 3)
 res <- qfrm(A, B, 2, 2) # Note the warning
 res
 
-plot(res) # Clear evidence of non-convergence
+plot(res) # Non-convergence evident
 
 ## Try larger m
 res <- qfrm(A, B, 2, 2, m = 2000)
@@ -905,7 +906,7 @@ plot(res) # Much better
 
 
 #####
-## VI: Difficult case with highly disparsed eigenvalues
+## VI: Difficult case with highly dispersed eigenvalues
 ##     Error bound unavailable
 
 ## It is recommended to use a tol_conv stricter than

@@ -121,13 +121,13 @@ This is an array of the same size as the return itself.
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving three quadratic forms.
 }
 \details{
-All these functions have equivalents for two matrices (\code{\link{d2_ij}}),
-to which the user is referred for documentations.
+All these functions have equivalents for two-matrix cases
+(\code{\link{d2_ij}}), to which the user is referred for documentations.
 The primary difference of these functions from the latter is
 the addition of arguments for the third matrix \code{A3}/\code{L3}.
 
@@ -141,7 +141,7 @@ in \code{\link{d2_ij}}.
 calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
 \eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
 \eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
-respectively, as described in Watanabe (forthcoming). These are equivalent
+respectively, as described in the package vignette. These are equivalent
 to similar coefficients described in Bao & Kan (2013) and
 Hillier et al. (2014).
 
@@ -159,19 +159,6 @@ calculations.
 In the return of the \code{*_ijk_*} functions, only the triangular prism
 close to the \code{[1, 1, 1]} is filled with coefficients, which
 correspond to the terms satisfying \eqn{i + j + k \leq m}.
-
-(At present, the \code{*_ijk_*} functions have the functionality to
-fill all coefficients of a potentially non-cubic output array,
-but this is less efficient than \code{*_pjk_*} functions so may
-be omitted in the future development.)
-
-This package also involves \code{C++} equivalents for most of these functions
-(which are suffixed by \code{E} for \code{Eigen}),
-but these are exclusively for internal use and not exposed to the user.
-
-These functions calculate the coefficients based on the super-short
-recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
-Bao & Kan (2014: sec. 5).
 }
 \references{
 Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in

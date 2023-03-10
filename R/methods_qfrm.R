@@ -39,8 +39,8 @@
 #'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
 #'                              partial sums (\code{cumsum(terms)})}
 #' }
-#' When the result is exact, \code{$terms} is of length 1 and equal to
-#' \code{$statistic}, so the former is essentially redundant.
+#' When the result is exact, \code{$terms} can be of length 1 and equal to
+#' \code{$statistic}.
 #' This is always the case for the \code{qfpm} class.
 #'
 #' When the relevant flags are provided in the constructor, \code{$error_bound}
@@ -128,8 +128,11 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 #'
 #' The \code{print} methods simply display the moment \code{x$statistic}
-#' (typically a partial sum), along with its error bound \code{x$error_bound}
-#' (when available).
+#' (typically a partial sum), its error bound \code{x$error_bound}
+#' (when available), and the possible range of the moment
+#' (\code{x$statistic} to \code{x$statistic + x$error_bound} in case of
+#' one-sided error bound; \code{x$statistic - x$error_bound} to
+#' \code{x$statistic + x$error_bound} in case of two-sided).
 #'
 #' The \code{plot} method is designed for quick inspection of the profile of
 #' the partial sum of the series along varying orders \code{cumsum(x$terms)}.
@@ -172,7 +175,7 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'
 #' @return
 #' The \code{print} method invisibly returns the input.
-#' The \code{plot} method is used for the side effect (invisibly returns
+#' The \code{plot} method is used for the side effect (and invisibly returns
 #' \code{NULL}).
 #'
 #' @name methods.qfrm

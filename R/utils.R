@@ -31,7 +31,7 @@ S_fromUL <- function(evec, evalues) {
 #'   Covariance matrix. Symmetry and positive (semi-)definiteness are checked.
 #' @param tol
 #'   Tolerance to determine the rank of \eqn{\mathbf{S}}.
-#'   Eigenvalues smaller than this value is considered zero.
+#'   Eigenvalues smaller than this value are considered zero.
 #'
 #' @return
 #'   List with \code{K} and \code{iK}, with the latter being \eqn{\mathbf{K}^-}

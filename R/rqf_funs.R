@@ -1,7 +1,7 @@
 ##### rqfr #####
 #' Monte Carlo sampling of ratio/product of quadratic forms
 #'
-#' \code{rqfr()}, \code{rqfmr()}, \code{rqfp()} calculates a random sample of
+#' \code{rqfr()}, \code{rqfmr()}, and \code{rqfp()} calculate a random sample of
 #' a simple ratio, multiple ratio (of special form), and product, respectively,
 #' of quadratic forms in normal variables of specified mean and covariance
 #' (standard multivariate normal by default).

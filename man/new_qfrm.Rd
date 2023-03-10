@@ -55,8 +55,8 @@ The return object is a list of 4 elements which are intended to be:
 \item{\code{$seq_error}: }{vector of error bounds corresponding to
 partial sums (\code{cumsum(terms)})}
 }
-When the result is exact, \code{$terms} is of length 1 and equal to
-\code{$statistic}, so the former is essentially redundant.
+When the result is exact, \code{$terms} can be of length 1 and equal to
+\code{$statistic}.
 This is always the case for the \code{qfpm} class.
 
 When the relevant flags are provided in the constructor, \code{$error_bound}

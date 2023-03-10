@@ -130,7 +130,7 @@ This is a matrix of the same size as the return itself.
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 They are primarily used in calculations around moments of a ratio
 involving two or three quadratic forms.
 }
@@ -148,11 +148,11 @@ where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}
 
 \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
 \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
-\eqn{\tilde{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}, respectively,
+\eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}, respectively,
 in Bao & Kan (2013). Note that the latter is denoted by the symbol
 \eqn{h_{i,j}} in Hillier et al. (2014).
 \code{hhat2_pj_*()} functions are for
-\eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
+\eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}
 in Hillier et al. (2014), used to calculate an error bound for
 truncated sum for moments of a ratio of quadratic forms.
 The mean vector \eqn{\bm{\mu}} is a parameter in all these.
@@ -194,13 +194,6 @@ but is substantially faster.
 This package also involves \code{C++} equivalents for most of these functions
 (which are suffixed by \code{E} for \code{Eigen}),
 but these are exclusively for internal use and not exposed to the user.
-
-These functions calculate the coefficients based on the super-short
-recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
-Bao & Kan (2014: sec. 5).
-The algorithm for \eqn{\hat{h}_{i,j}} was said to be ``very similar'' to
-that of \eqn{\tilde{h}_{i,j}} by Hillier et al. (2014), but differs
-in the signs of some terms.
 }
 \references{
 Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in

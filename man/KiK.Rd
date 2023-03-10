@@ -10,7 +10,7 @@ KiK(S, tol = .Machine$double.eps * 100)
 \item{S}{Covariance matrix. Symmetry and positive (semi-)definiteness are checked.}
 
 \item{tol}{Tolerance to determine the rank of \eqn{\mathbf{S}}.
-Eigenvalues smaller than this value is considered zero.}
+Eigenvalues smaller than this value are considered zero.}
 }
 \value{
 List with \code{K} and \code{iK}, with the latter being \eqn{\mathbf{K}^-}

@@ -38,10 +38,10 @@ in polynomial expansion of generating functions for quadratic forms
 in multivariate normal variables.
 
 \code{d1_i()} is for standard multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\mathbf{0}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N_n(\mathbf{0}, \mathbf{I}_n)}.
 
 \code{dtil1_i_v()} is for noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 
 \code{dtil1_i_m()} is a wrapper for \code{dtil1_i_v()}
 and takes the argument matrix rather than its eigenvalues.

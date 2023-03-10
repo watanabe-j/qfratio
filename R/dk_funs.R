@@ -121,7 +121,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two or three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used to calculate moments of a product of two or
 #' three quadratic forms.
 #'
@@ -183,7 +183,7 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving two or three quadratic forms.
 #'
@@ -200,11 +200,11 @@ NULL
 #'
 #' \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
 #' \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
-#' \eqn{\tilde{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}, respectively,
+#' \eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}, respectively,
 #' in Bao & Kan (2013). Note that the latter is denoted by the symbol
 #' \eqn{h_{i,j}} in Hillier et al. (2014).
 #' \code{hhat2_pj_*()} functions are for
-#' \eqn{\hat{h}_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}
+#' \eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}
 #' in Hillier et al. (2014), used to calculate an error bound for
 #' truncated sum for moments of a ratio of quadratic forms.
 #' The mean vector \eqn{\bm{\mu}} is a parameter in all these.
@@ -246,13 +246,6 @@ NULL
 #' This package also involves \code{C++} equivalents for most of these functions
 #' (which are suffixed by \code{E} for \code{Eigen}),
 #' but these are exclusively for internal use and not exposed to the user.
-#'
-#' These functions calculate the coefficients based on the super-short
-#' recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
-#' Bao & Kan (2014: sec. 5).
-#' The algorithm for \eqn{\hat{h}_{i,j}} was said to be ``very similar'' to
-#' that of \eqn{\tilde{h}_{i,j}} by Hillier et al. (2014), but differs
-#' in the signs of some terms.
 #'
 #' @return
 #' \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
@@ -327,12 +320,12 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 #' They are primarily used in calculations around moments of a ratio
 #' involving three quadratic forms.
 #'
-#' All these functions have equivalents for two matrices (\code{\link{d2_ij}}),
-#' to which the user is referred for documentations.
+#' All these functions have equivalents for two-matrix cases
+#' (\code{\link{d2_ij}}), to which the user is referred for documentations.
 #' The primary difference of these functions from the latter is
 #' the addition of arguments for the third matrix \code{A3}/\code{L3}.
 #'
@@ -346,7 +339,7 @@ NULL
 #'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
 #' \eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
 #' \eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
-#' respectively, as described in Watanabe (forthcoming). These are equivalent
+#' respectively, as described in the package vignette. These are equivalent
 #' to similar coefficients described in Bao & Kan (2013) and
 #' Hillier et al. (2014).
 #'
@@ -364,19 +357,6 @@ NULL
 #' In the return of the \code{*_ijk_*} functions, only the triangular prism
 #' close to the \code{[1, 1, 1]} is filled with coefficients, which
 #' correspond to the terms satisfying \eqn{i + j + k \leq m}.
-#'
-#' (At present, the \code{*_ijk_*} functions have the functionality to
-#' fill all coefficients of a potentially non-cubic output array,
-#' but this is less efficient than \code{*_pjk_*} functions so may
-#' be omitted in the future development.)
-#'
-#' This package also involves \code{C++} equivalents for most of these functions
-#' (which are suffixed by \code{E} for \code{Eigen}),
-#' but these are exclusively for internal use and not exposed to the user.
-#'
-#' These functions calculate the coefficients based on the super-short
-#' recursion algorithm described in Hillier et al. (2014: sec. 5.4) abd
-#' Bao & Kan (2014: sec. 5).
 #'
 #' @return
 #'
@@ -440,7 +420,7 @@ NULL
 #' Coefficients in polynomial expansion of generating function
 #'
 #' \code{d1_i()} is for standard multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\mathbf{0}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\mathbf{0}, \mathbf{I}_n)}.
 #'
 #' @rdname d1_i
 #'
@@ -467,7 +447,7 @@ d1_i <- function(L, m = 100L, thr_margin = 100) {
 #' Coefficients in polynomial expansion of generating function
 #'
 #' \code{dtil1_i_v()} is for noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 #'
 #' @rdname d1_i
 #'

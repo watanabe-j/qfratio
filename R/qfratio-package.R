@@ -3,10 +3,10 @@
 #'
 #' This package is for evaluating moments of ratios (and products) of quadratic
 #' forms in normal variables, specifically using recursive algorithms developed
-#' by Bao et al. (2013) and Hillier et al. (2014). It was originally developed
-#' as a supplement to Watanabe (2022) for evaluating average evolvability
-#' measures in evolutionary quantitative genetics, but can be used for a
-#' broader class of moments.
+#' by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
+#' Hillier et al., 2009). It was originally developed as a supplement to
+#' Watanabe (2022) for evaluating average evolvability measures in evolutionary
+#' quantitative genetics, but can be used for a broader class of moments.
 #'
 #' The primary front-end functions of this package are
 #' \code{\link{qfrm}()} and \code{\link{qfmrm}()} for evaluating moments of
@@ -24,6 +24,8 @@
 #' (Bao & Kan, 2013; Hillier et al. 2014).
 #' Some of these coefficients are related to the top-order zonal and invariant
 #' polynomials of matrix arguments.
+#'
+#' See package vignette (\code{vignette("qfratio")}) for more details.
 #'
 #' The DESCRIPTION file:
 #' \packageDESCRIPTION{qfratio}
@@ -137,7 +139,7 @@ NULL
 #' the \code{R} equivalent.
 #' Ideally, the \code{C++} library \code{gsl} (or the like) should be used with
 #' \code{RcppGSL}, but this is not done (commented out in the source code)
-#' to increase portability.
+#' to ensure portability.
 #'
 #' \code{rqfpE} uses \code{Rcpp::rnorm()},
 #' which may not be particularly efficient.

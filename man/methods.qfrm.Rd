@@ -67,7 +67,7 @@ passed as the first argument for \code{\link[graphics]{legend}}}
 }
 \value{
 The \code{print} method invisibly returns the input.
-The \code{plot} method is used for the side effect (invisibly returns
+The \code{plot} method is used for the side effect (and invisibly returns
 \code{NULL}).
 }
 \description{
@@ -77,8 +77,11 @@ for \code{qfrm} and \code{qfpm} objects which result from the
 }
 \details{
 The \code{print} methods simply display the moment \code{x$statistic}
-(typically a partial sum), along with its error bound \code{x$error_bound}
-(when available).
+(typically a partial sum), its error bound \code{x$error_bound}
+(when available), and the possible range of the moment
+(\code{x$statistic} to \code{x$statistic + x$error_bound} in case of
+one-sided error bound; \code{x$statistic - x$error_bound} to
+\code{x$statistic + x$error_bound} in case of two-sided).
 
 The \code{plot} method is designed for quick inspection of the profile of
 the partial sum of the series along varying orders \code{cumsum(x$terms)}.

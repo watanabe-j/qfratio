@@ -81,7 +81,7 @@ of a product of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
   (\mathbf{x^\mathit{T} D x})^r \right) },
-where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 
 \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
 

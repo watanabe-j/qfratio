@@ -45,7 +45,7 @@ to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two or three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{I}_n)}.
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
 They are primarily used to calculate moments of a product of two or
 three quadratic forms.
 }

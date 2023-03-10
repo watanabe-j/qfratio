@@ -207,7 +207,7 @@ special form:
   \frac{(\mathbf{x^\mathit{T} A x})^p }
        {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
   \right) },
-where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
+where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 Like \code{qfrm()}, this function calls one of the following ``internal''
 functions for actual calculation, as appropriate.
 
@@ -235,9 +235,6 @@ When \code{B} is identity or missing, this and its exponent \code{q} will
 be swapped with \code{D} and \code{r}, respectively, before
 \code{qfmrm_ApBIqr_***()} is called.
 
-The error bound is only available for \code{qfmrm_ApBIqr_int()}.
-This is similar to that in \code{qfrm_ApBq_int()} (Watanabe, 2022).
-
 The existence conditions for the moments of this multiple ratio can be
 reduced to those for a simple ratio, provided that one of the null spaces
 of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
@@ -255,14 +252,6 @@ condition can be obtained by applying the same proposition with a new
 denominator matrix whose null space is union of those of \eqn{\mathbf{B}}
 and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
 condition is not met in this case.
-
-Note that these functions may take a substantially longer computational time
-than those for a simple ratio, because thee former involves
-multiple infinite series along which summation is to be taken.
-Expect the computational time to scale with \code{m^2} for
-\code{qfmrm_IpBDqr_gen()} (when \code{mu} is zero),
-\code{qfmrm_ApBIqr_int()}, and \code{qfmrm_ApBDqr_int()}, and \code{m^3} for
-the rest.
 
 Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
 \code{mu}, involve evaluation of multiple series, which can suffer
