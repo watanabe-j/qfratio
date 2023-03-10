@@ -269,7 +269,8 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
     if(!requireNamespace("graphics", quietly = TRUE)) {
-        stop("Package \"graphics\" is required for plot.qfrm")
+        message("Package \"graphics\" not found. Exit from plot.qfrm")
+        return(invisible())
     }
     terms <- x$terms
     seq_error <- x$seq_error

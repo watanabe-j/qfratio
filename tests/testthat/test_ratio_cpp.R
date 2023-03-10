@@ -13,10 +13,14 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
         # A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks) {
             for(q in ks) {
@@ -52,10 +56,14 @@ test_that("Expect equal from R and Cpp methods: qfmrm", {
         A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks) {
             for(q in ks/2) {
@@ -104,10 +112,14 @@ test_that("Expect equal from double and long double in C++: qfrm", {
         # A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
@@ -140,10 +152,14 @@ test_that("Expect equal from double and long double in C++: qfmrm", {
         A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks) {
             for(q in ks/2) {
@@ -192,10 +208,14 @@ test_that("Expect equal from double and coef_wise in C++: qfrm", {
         # A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
@@ -228,10 +248,14 @@ test_that("Expect equal from double and coef_wise in C++: qfmrm", {
         A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-        # A1r <- Q %*% A1 %*% t(Q)
-        A2r <- Q %*% A2 %*% t(Q)
-        # A3r <- Q %*% A3 %*% t(Q)
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            # A1r <- Q %*% A1 %*% t(Q)
+            A2r <- Q %*% A2 %*% t(Q)
+            # A3r <- Q %*% A3 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
 
         for(p in ks) {
             for(q in ks/2) {
