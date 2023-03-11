@@ -160,7 +160,7 @@ the results, which show the values of the moments.
 
 You might have wondered what it means by results being "exact" or
 having "error", or about the unexplained argument `m = 300` in the last example.
-Seeing this requires some excursion into the maths involved.
+Seeing this requires some excursion into the math involved.
 
 
 # Mathematical details
@@ -515,7 +515,7 @@ and other notations are as above.
 ## Recursions
 
 The coefficients $h$, $\tilde{h}$, and $\hat{h}$ in the above
-series expressions are evaluated by the "super-short" recusrive algorithm
+series expressions are evaluated by the "super-short" recursive algorithm
 developed by Hillier and colleagues [@BaoKan2013; @HillierEtAl2014].
 That is,
 \begin{align}
@@ -797,7 +797,7 @@ All these functions, excepting `d1_i()` and `a1_pk()`, have two versions ending
 in `*_m` or `*_v`, which stand for the matrix and vector "methods".
 The latter is for the situations where all the argument matrices are
 co-diagonalized by the same eigenvectors, in which case the above recursive
-algorithms reduce from full matrix arithmetics to element-wise ones of
+algorithms reduce from full matrix arithmetic to element-wise operations of
 the eigenvalues (and the rotated mean vector), which is much less
 computationally intensive.
 

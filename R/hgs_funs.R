@@ -2,7 +2,7 @@
 #'
 #' These internal functions calculate (summands of) hypergeometric series.
 #'
-#' The denominator paramter \code{b} is assumed positive,
+#' The denominator parameter \code{b} is assumed positive,
 #' whereas the numerator parameters can be positive or negative.
 #' The signs of the latter will be reflected in the result.
 #'

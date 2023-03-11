@@ -41,7 +41,7 @@ These internal functions calculate (summands of) hypergeometric series.
 \eqn{c \frac{(a_1)_i (a_2)_j (a_3)_k}{(b)_{i+j+k}} d_{i, j, k}}
 }
 \details{
-The denominator paramter \code{b} is assumed positive,
+The denominator parameter \code{b} is assumed positive,
 whereas the numerator parameters can be positive or negative.
 The signs of the latter will be reflected in the result.
 }

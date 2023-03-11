@@ -57,7 +57,7 @@
 #'                is (numerically) singular, in which case the error bound is
 #'                invalid}
 #' }
-#' Similariy, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
+#' Similarly, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
 #' have the attribute \code{"diminished"} being \code{TRUE}, which indicates
 #' that numerical underflow/diminishing happened during scaling
 #' (see "Scaling" in \code{\link{d1_i}}).

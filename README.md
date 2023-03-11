@@ -26,7 +26,7 @@ evolutionary quantitative genetics ([Watanabe,
 
 This project is in a late stage of development. Most functionalities
 have been implemented and are considered stable. Documentations of the
-package and functions are partly under construction. Feedbacks are much
+package and functions are partly under construction. Feedback is much
 appreciated.
 
 ## Installation

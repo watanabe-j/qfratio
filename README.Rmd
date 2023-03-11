@@ -51,7 +51,7 @@ evolutionary quantitative genetics [@Watanabe2022cevo].
 This project is in a late stage of development.
 Most functionalities have been implemented and are considered stable.
 Documentations of the package and functions are partly under construction.
-Feedbacks are much appreciated.
+Feedback is much appreciated.
 
 
 

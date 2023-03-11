@@ -8,7 +8,7 @@
 #' These functions are primarily for empirical verification of the analytic
 #' results provided in this package.
 #'
-#' These functions generate a random smaple of
+#' These functions generate a random sample of
 #' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q} }
 #' (\code{rqfr()}),
 #' \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}
