@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
 link-citations: TRUE
-csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+csl: minimal_style.csl
 ---
 
 ```{r, include = FALSE}

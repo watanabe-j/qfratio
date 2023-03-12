@@ -182,9 +182,10 @@ line-spacing="2">
 
 <div id="ref-BaoKan2013" class="csl-entry">
 
-Bao, Y., & Kan, R. (2013). On the moments of ratios of quadratic forms
-in normal random variables. *Journal of Multivariate Analysis*, *117*,
-229–245. <https://doi.org/10.1016/j.jmva.2013.03.002>
+Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+normal random variables. *Journal of Multivariate Analysis*, **117**:
+229–245.
+doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
 
 </div>
 
@@ -192,8 +193,8 @@ in normal random variables. *Journal of Multivariate Analysis*, *117*,
 
 Hillier, G., Kan, R., & Wang, X. (2009). Computationally efficient
 recursions for top-order invariant polynomials with applications.
-*Econometric Theory*, *25*, 211–242.
-<https://doi.org/10.1017/S0266466608090075>
+*Econometric Theory*, **25**: 211–242.
+doi:[10.1017/S0266466608090075](https://doi.org/10.1017/S0266466608090075).
 
 </div>
 
@@ -201,16 +202,16 @@ recursions for top-order invariant polynomials with applications.
 
 Hillier, G., Kan, R., & Wang, X. (2014). Generating functions and short
 recursions, with applications to the moments of quadratic forms in
-noncentral normal vectors. *Econometric Theory*, *30*, 436–473.
-<https://doi.org/10.1017/S0266466613000364>
+noncentral normal vectors. *Econometric Theory*, **30**: 436–473.
+doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
 
 </div>
 
 <div id="ref-Smith1989" class="csl-entry">
 
 Smith, M. D. (1989). On the expectation of a ratio of quadratic forms in
-normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
-<https://doi.org/10.1016/0047-259X(89)90065-1>
+normal variables. *Journal of Multivariate Analysis*, **31**: 244–257.
+doi:[10.1016/0047-259X(89)90065-1](https://doi.org/10.1016/0047-259X(89)90065-1).
 
 </div>
 
@@ -218,8 +219,8 @@ normal variables. *Journal of Multivariate Analysis*, *31*, 244–257.
 
 Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
 variables: Evaluating some top-order invariant polynomials. *Australian
-Journal of Statistics*, *35*, 271–282.
-<https://doi.org/10.1111/j.1467-842X.1993.tb01335.x>
+Journal of Statistics*, **35**: 271–282.
+doi:[10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.1993.tb01335.x).
 
 </div>
 
@@ -227,8 +228,8 @@ Journal of Statistics*, *35*, 271–282.
 
 Watanabe, J. (2022). Exact expressions and numerical evaluation of
 average evolvability measures for characterizing and comparing **G**
-matrices. *bioRxiv*, 2022.11.02.514929.
-<https://doi.org/10.1101/2022.11.02.514929>
+matrices. *bioRxiv*: 2022.11.02.514929.
+doi:[10.1101/2022.11.02.514929](https://doi.org/10.1101/2022.11.02.514929).
 
 </div>
 

@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<style class="in-text" version="1.0" name-as-sort-order="all" demote-non-dropping-particle="never" xmlns="http://purl.org/net/xbiblio/csl">
+  <!-- This style was edited with the Visual CSL Editor (https://editor.citationstyles.org/visualEditor/) -->
+  <info>
+    <title>minimal_style</title>
+    <id>http://www.zotero.org/styles/minimal_style</id>
+    <link rel="self" href="http://www.zotero.org/styles/minimal_style"/>
+    <author>
+      <name>Junya Watanabe</name>
+    </author>
+    <category citation-format="author-date"/>
+    <updated>2023-03-12T02:10:29+00:00</updated>
+  </info>
+  <macro name="author-text">
+    <names variable="author">
+      <name form="short" delimiter="" and="symbol"/>
+    </names>
+  </macro>
+  <macro name="date-text">
+    <date date-parts="year" form="text" variable="issued"/>
+  </macro>
+  <macro name="author-bib">
+    <names variable="author">
+      <name initialize-with=". " name-as-sort-order="all"/>
+    </names>
+  </macro>
+  <macro name="date-bib">
+    <date date-parts="year" form="text" variable="issued" prefix=" (" suffix=")">
+      <date-part name="year"/>
+    </date>
+    <text variable="year-suffix"/>
+  </macro>
+  <macro name="title-and-descriptions">
+    <choose>
+      <if type="article-journal article-magazine article chapter" match="any">
+        <text variable="title" prefix=" "/>
+      </if>
+      <else>
+        <group delimiter=", ">
+          <text variable="title" text-case="title" strip-periods="false" font-style="italic" prefix=" "/>
+          <choose>
+            <if match="any" variable="edition">
+              <group>
+                <number variable="edition" form="ordinal"/>
+                <label prefix=" " variable="edition" form="short"/>
+              </group>
+            </if>
+          </choose>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="container">
+    <choose>
+      <if type="article article-journal article-magazine article-newspaper" match="any">
+        <group>
+          <text variable="container-title" font-style="italic"/>
+          <group>
+            <choose>
+              <if match="any" variable="volume">
+                <text variable="volume" font-weight="bold" prefix=", "/>
+                <choose>
+                  <if match="any" variable="issue">
+                    <text variable="issue" prefix="(" suffix=")"/>
+                  </if>
+                </choose>
+              </if>
+              <else>
+                <text variable="issue" font-weight="bold"/>
+              </else>
+            </choose>
+          </group>
+          <number prefix=": " variable="page"/>
+        </group>
+      </if>
+      <else-if type="chapter" match="any">
+        <group>
+          <text term="in" text-case="capitalize-first" font-style="italic" prefix=" " suffix=": "/>
+          <choose>
+            <if match="any" variable="editor">
+              <text macro="editor-chapter"/>
+            </if>
+          </choose>
+          <text variable="container-title" text-case="title" font-style="italic" prefix=", "/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="editor-chapter">
+    <names variable="editor" delimiter=", ">
+      <name delimiter-precedes-last="always" initialize-with=". " name-as-sort-order="all"/>
+      <label form="short" text-case="lowercase" prefix=", (" suffix=")"/>
+    </names>
+  </macro>
+  <macro name="doi">
+    <text variable="DOI" prefix="doi:"/>
+  </macro>
+  <macro name="date-sort">
+    <date form="numeric" variable="issued"/>
+  </macro>
+  <citation et-al-min="3" et-al-use-first="1" disambiguate-add-names="true" disambiguate-add-givenname="true" disambiguate-add-year-suffix="true" givenname-disambiguation-rule="primary-name-with-initials" collapse="year">
+    <sort>
+      <key macro="date-sort"/>
+      <key macro="author-text"/>
+      <key variable="status"/>
+    </sort>
+    <layout delimiter="; " prefix="(" suffix=")">
+      <group delimiter=", ">
+        <text macro="author-text"/>
+        <text macro="date-text"/>
+        <group delimiter=" ">
+          <label variable="locator" form="short"/>
+          <text variable="locator"/>
+        </group>
+      </group>
+    </layout>
+  </citation>
+  <bibliography and="symbol" entry-spacing="0" line-spacing="2" hanging-indent="true">
+    <sort>
+      <key macro="author-bib"/>
+      <key macro="date-sort"/>
+      <key variable="title"/>
+      <key variable="status"/>
+    </sort>
+    <layout>
+      <group delimiter=". " suffix=".">
+        <text macro="author-bib"/>
+        <text macro="date-bib"/>
+        <text macro="title-and-descriptions"/>
+        <text macro="container"/>
+        <choose>
+          <if type="book chapter" match="any">
+            <group>
+              <choose>
+                <if match="any" variable="publisher">
+                  <text variable="publisher" prefix=" " suffix=", "/>
+                </if>
+              </choose>
+              <text variable="publisher-place"/>
+            </group>
+          </if>
+        </choose>
+        <choose>
+          <if type="chapter" match="any">
+            <group>
+              <label suffix=" " variable="page" form="short"/>
+              <number variable="page"/>
+            </group>
+          </if>
+        </choose>
+        <choose>
+          <if match="any" variable="DOI">
+            <text macro="doi"/>
+          </if>
+        </choose>
+      </group>
+    </layout>
+  </bibliography>
+</style>

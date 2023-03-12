@@ -8,7 +8,7 @@ nocite: |
   @HillierEtAl2014
   @Smith1989
   @Smith1993
-csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+csl: vignettes/minimal_style.csl
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
