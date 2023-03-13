@@ -1,21 +1,21 @@
 citHeader("To cite qfratio in publications use:")
 
-citEntry(
-    entry   = "Misc",
+bibentry(
+    bibtype = "Misc",
     title   = "{qfratio}: {R} package for moments of ratios of quadratic forms using recursion",
-    author  = personList(as.person("Junya Watanabe")),
-    year    = "2022",
+    author  = c(person("Junya Watanabe")),
+    year    = "2023",
     url     = "https://github.com/watanabe-j/qfratio",
     textVersion =
-    paste("Watanabe, J. (2022). qfratio: R package for",
+    paste("Watanabe, J. (2023). qfratio: R package for",
           "moments of ratios of quadratic forms using recursion.",
           "URL https://github.com/watanabe-j/qfratio.")
 )
 
-citEntry(
-    entry   = "Article",
+bibentry(
+    bibtype = "Article",
     title   = "Exact expressions and numerical evaluation of average evolvability measures for characterizing and comparing G matrices",
-    author  = personList(as.person("Junya Watanabe")),
+    author  = c(person("Junya Watanabe")),
     journal = "bioRxiv",
     year    = "2022",
     pages   = "2022.11.02.514929",
