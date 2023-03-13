@@ -10,9 +10,10 @@
 
 This package provides functions to evaluate moments of ratios (and
 products) of quadratic forms in normal variables, specifically using
-recursive algorithms developed by Hillier, Bao, Kan and colleagues.
-Generating functions for these moments are closely related to the
-top-order zonal and invariant polynomials of matrix arguments.
+recursive algorithms developed by Bao & Kan ([2013](#ref-BaoKan2013))
+and Hillier et al. ([2014](#ref-HillierEtAl2014)). Generating functions
+for these moments are closely related to the top-order zonal and
+invariant polynomials of matrix arguments.
 
 There exist a couple of `Matlab` programs developed by Raymond Kan
 (available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R`
@@ -23,11 +24,6 @@ This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
 evolutionary quantitative genetics ([Watanabe,
 2022](#ref-Watanabe2022cevo)).
-
-This project is in a late stage of development. Most functionalities
-have been implemented and are considered stable. Documentations of the
-package and functions are partly under construction. Feedback is much
-appreciated.
 
 ## Installation
 
@@ -46,7 +42,7 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
 # devtools::install_github("watanabe-j/qfratio")
 ```
 
-This package has the following dependencies:
+### Dependencies
 
     Imports: Rcpp, MASS
     LinkingTo: Rcpp, RcppEigen
@@ -94,7 +90,7 @@ mean(rqfr(1000, A = A, p = 1/2))
 plot(mom_A0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-examples-1.png" width="100%" />
 
 ``` r
 
@@ -113,7 +109,7 @@ mean(rqfr(1000, A = diag(nv), B = solve(A), p = 1))
 plot(avr_cevoA)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
+<img src="man/figures/README-examples-2.png" width="100%" />
 
 ``` r
 
@@ -131,7 +127,7 @@ mean(rqfmr(1000, A = diag(nv), B = A, D = solve(A), p = 2, q = 1, r = 1))
 plot(avr_autoA)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-3.png" width="100%" />
+<img src="man/figures/README-examples-3.png" width="100%" />
 
 ``` r
 
@@ -153,7 +149,7 @@ mean(rqfmr(1000, A = crossprod(A, B), B = crossprod(A), D = crossprod(B),
 plot(avr_rcorA)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-4.png" width="100%" />
+<img src="man/figures/README-examples-4.png" width="100%" />
 
 ``` r
 
@@ -173,7 +169,7 @@ Sigma <- diag(runif(nv) * 3)
 plot(mom_A2B3)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-5.png" width="100%" />
+<img src="man/figures/README-examples-5.png" width="100%" />
 
 ## References
 
