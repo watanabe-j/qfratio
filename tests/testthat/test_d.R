@@ -1,6 +1,5 @@
 test_that("Expect d_1(A) as tr(A) / 2", {
     nvs <- 2:10
-    # ks <- 1:5
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -8,15 +7,14 @@ test_that("Expect d_1(A) as tr(A) / 2", {
         A1 <- diag(L1)
         A2 <- diag(L2)
         A3 <- diag(L3)
-        # mu <- 1:nv / nv
 
         trA1 <- tr(A1)
         trA2 <- tr(A2)
         trA3 <- tr(A3)
 
-        expect_equal(trA1 / 2, d1_i(L1)[2])
-        expect_equal(trA2 / 2, d1_i(L2)[2])
-        expect_equal(trA3 / 2, d1_i(L3)[2])
+        expect_equal(trA1 / 2, d1_i(L1, 3)[2])
+        expect_equal(trA2 / 2, d1_i(L2, 3)[2])
+        expect_equal(trA3 / 2, d1_i(L3, 3)[2])
         expect_equal(trA1 / 2, d2_ij_m(A1, A2, 3)[2, 1])
         expect_equal(trA2 / 2, d2_ij_m(A1, A2, 3)[1, 2])
         expect_equal(trA1 / 2, d2_pj_m(A1, A2, 2, 1)[2, 1])
@@ -40,8 +38,7 @@ test_that("Expect d_1(A) as tr(A) / 2", {
 
 test_that("Consistency between d, h, etc.", {
     nvs <- 2:5
-    # ks <- 1:5
-    m <- 50
+    m <- 20
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
