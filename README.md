@@ -31,6 +31,14 @@ evolutionary quantitative genetics ([Watanabe,
 MB on Linux; ~3 MB on Windows with `Rtools42`), as it involves lots of
 `RcppEigen` functions.
 
+### From CRAN (stable version)
+
+``` r
+install.packages("qfratio")
+```
+
+### From GitHub (development version)
+
 ``` r
 ## Install devtools first:
 # install.packages("devtools")

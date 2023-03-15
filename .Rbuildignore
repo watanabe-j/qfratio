@@ -8,3 +8,4 @@
 ^\.vscode$
 ^\.lintr$
 ^\.github$
+^cran-comments\.md$

@@ -54,6 +54,14 @@ evolutionary quantitative genetics [@Watanabe2022cevo].
 (~130 MB on Linux; ~3 MB on Windows with `Rtools42`),
 as it involves lots of `RcppEigen` functions.
 
+
+### From CRAN (stable version)
+```{r eval = FALSE}
+install.packages("qfratio")
+```
+
+
+### From GitHub (development version)
 ```{r eval = FALSE}
 ## Install devtools first:
 # install.packages("devtools")
