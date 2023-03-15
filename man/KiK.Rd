@@ -27,14 +27,3 @@ Returns this \eqn{\mathbf{K}} and its generalized inverse,
 At present, this utilizes \code{svd()},
 although there may be better alternatives.
 }
-\examples{
-(S1 <- diag(c(3, 2, 1, 0)))
-qfratio:::KiK(S1)
-
-(S2 <- diag(1e-4^(1:5)))
-qfratio:::KiK(S2)
-## Note that the smallest(s) of the eigenvalues was considered zero above
-## Specify tol if this is to be avoided
-qfratio:::KiK(S2, tol = 1e-20)
-
-}
