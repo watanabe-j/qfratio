@@ -51,7 +51,8 @@ $$
 
 
 This document is to provide an overview of the `R` package `qfratio`
-([GitHub](https://github.com/watanabe-j/qfratio)).
+([CRAN](https://CRAN.R-project.org/package=qfratio){target="_blank"};
+[GitHub](https://github.com/watanabe-j/qfratio){target="_blank"}).
 
 
 ## Symbols used
