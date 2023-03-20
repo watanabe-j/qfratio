@@ -287,7 +287,7 @@ The default is 1, which should suffice for most purposes.
 Values larger than 1 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold
 (see Hillier et al. 2009, 2014).
-\subsection{Multithreading:}{
+\subsection{Multithreading}{
 
 All these functions use \code{C++} versions to speed up computation
 by default.
@@ -305,7 +305,7 @@ a larger value or \code{0} for (typically marginal) speed gains in large
 problems.
 }
 
-\subsection{Dependency note:}{
+\subsection{Dependency note}{
 
 An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}

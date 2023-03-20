@@ -108,7 +108,7 @@
 #' recommended as the error bound will not strictly hold
 #' (see Hillier et al. 2009, 2014).
 #'
-#' ## Multithreading:
+#' ## Multithreading
 #' All these functions use \code{C++} versions to speed up computation
 #' by default.
 #' Furthermore, some of the \code{C++} functions, in particular those
@@ -1047,7 +1047,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
 #' positive-integral \eqn{p}.
 #'
-#' ## Dependency note:
+#' ## Dependency note
 #' An exact expression of the moment is available when
 #' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of

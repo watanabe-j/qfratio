@@ -28,8 +28,8 @@ evolutionary quantitative genetics ([Watanabe,
 ## Installation
 
 ***WARNING*** Installation size of this package can be very large (~130
-MB on Linux; ~3 MB on Windows with `Rtools42`), as it involves lots of
-`RcppEigen` functions.
+MB on Linux and macOS; ~3 MB on Windows with `Rtools42`), as it involves
+lots of `RcppEigen` functions.
 
 ### From CRAN (stable version)
 
@@ -57,8 +57,10 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
     Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0), rlang (>= 0.4.7),
               knitr, rmarkdown
 
-You also need [`pandoc`](https://pandoc.org) for correctly building the
-vignette. (For `pandoc < 2.11`, `pandoc-citeproc` is required as well.)
+If installing from GitHub, you also need [`pandoc`](https://pandoc.org)
+for correctly building the vignette. For `pandoc < 2.11`,
+`pandoc-citeproc` is required as well. (Never mind if you use `RStudio`,
+which appears to have them bundled.)
 
 ## Examples
 

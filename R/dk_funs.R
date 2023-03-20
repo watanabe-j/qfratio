@@ -17,7 +17,7 @@
 #' These functions calculate the coefficients based on the super-short
 #' recursion algorithm described in Hillier et al. (2014: 3.2, eqs. 28--30).
 #'
-#' ## Scaling:
+#' ## Scaling
 #' The coefficients described herein (and in \code{\link{d2_ij}} and
 #' \code{\link{d3_ijk}}) can become very large for higher-order terms,
 #' so there is a practical risk of numerical overflow when applied to

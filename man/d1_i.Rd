@@ -58,7 +58,7 @@ where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}.
 
 These functions calculate the coefficients based on the super-short
 recursion algorithm described in Hillier et al. (2014: 3.2, eqs. 28--30).
-\subsection{Scaling:}{
+\subsection{Scaling}{
 
 The coefficients described herein (and in \code{\link{d2_ij}} and
 \code{\link{d3_ijk}}) can become very large for higher-order terms,
