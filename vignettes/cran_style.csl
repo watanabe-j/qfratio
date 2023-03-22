@@ -2,14 +2,14 @@
 <style class="in-text" version="1.0" name-as-sort-order="all" demote-non-dropping-particle="never" xmlns="http://purl.org/net/xbiblio/csl">
   <!-- This style was edited with the Visual CSL Editor (https://editor.citationstyles.org/visualEditor/) -->
   <info>
-    <title>minimal_style</title>
-    <id>http://www.zotero.org/styles/minimal_style</id>
-    <link rel="self" href="http://www.zotero.org/styles/minimal_style"/>
+    <title>CRAN_style</title>
+    <id>http://www.zotero.org/styles/cran_style</id>
+    <link rel="self" href="http://www.zotero.org/styles/cran_style"/>
     <author>
       <name>Junya Watanabe</name>
     </author>
     <category citation-format="author-date"/>
-    <updated>2023-03-12T02:10:29+00:00</updated>
+    <updated>2023-03-22T19:25:29+00:00</updated>
   </info>
   <macro name="author-text">
     <names variable="author">
@@ -21,7 +21,7 @@
   </macro>
   <macro name="author-bib">
     <names variable="author">
-      <name initialize-with=". " name-as-sort-order="all"/>
+      <name and="text" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all"/>
     </names>
   </macro>
   <macro name="date-bib">
@@ -70,7 +70,7 @@
               </else>
             </choose>
           </group>
-          <number prefix=": " variable="page"/>
+          <number prefix=", " variable="page"/>
         </group>
       </if>
       <else-if type="chapter" match="any">
@@ -88,7 +88,7 @@
   </macro>
   <macro name="editor-chapter">
     <names variable="editor" delimiter=", ">
-      <name delimiter-precedes-last="always" initialize-with=". " name-as-sort-order="all"/>
+      <name and="text" delimiter-precedes-last="never" initialize-with=". " name-as-sort-order="all"/>
       <label form="short" text-case="lowercase" prefix=", (" suffix=")"/>
     </names>
   </macro>
@@ -123,20 +123,22 @@
       <key variable="status"/>
     </sort>
     <layout>
-      <group delimiter=". " suffix=".">
-        <text macro="author-bib"/>
-        <text macro="date-bib"/>
-        <text macro="title-and-descriptions"/>
-        <text macro="container"/>
+      <group delimiter=" " suffix=".">
+        <group>
+          <text macro="author-bib"/>
+          <text macro="date-bib"/>
+        </group>
+        <text macro="title-and-descriptions" suffix="."/>
+        <text macro="container" suffix="."/>
         <choose>
           <if type="book chapter" match="any">
-            <group>
+            <group suffix=".">
+              <text variable="publisher-place"/>
               <choose>
                 <if match="any" variable="publisher">
-                  <text variable="publisher" prefix=" " suffix=", "/>
+                  <text variable="publisher" prefix=": "/>
                 </if>
               </choose>
-              <text variable="publisher-place"/>
             </group>
           </if>
         </choose>

@@ -6,7 +6,7 @@ nocite: |
   @HillierEtAl2009
   @Smith1989
   @Smith1993
-csl: vignettes/minimal_style.csl
+csl: vignettes/cran_style.csl
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
