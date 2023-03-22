@@ -9,11 +9,11 @@
       <name>Junya Watanabe</name>
     </author>
     <category citation-format="author-date"/>
-    <updated>2023-03-22T19:25:29+00:00</updated>
+    <updated>2023-03-22T21:02:24+00:00</updated>
   </info>
   <macro name="author-text">
     <names variable="author">
-      <name form="short" delimiter="" and="symbol"/>
+      <name form="short" delimiter="" and="text" delimiter-precedes-last="never"/>
     </names>
   </macro>
   <macro name="date-text">

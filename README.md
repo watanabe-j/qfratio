@@ -10,7 +10,7 @@
 
 This package provides functions to evaluate moments of ratios (and
 products) of quadratic forms in normal variables, specifically using
-recursive algorithms developed by Bao & Kan ([2013](#ref-BaoKan2013))
+recursive algorithms developed by Bao and Kan ([2013](#ref-BaoKan2013))
 and Hillier et al. ([2014](#ref-HillierEtAl2014)). Generating functions
 for these moments are closely related to the top-order zonal and
 invariant polynomials of matrix arguments.
