@@ -2026,8 +2026,6 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
     const Index m = q + r;
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (q + 1) * (r + 1));
     dks(0, 0) = 1;
-    const MatrixXx zeromat_n_np = MatrixXx::Zero(n, n * (p + 1));
-    const MatrixXx zeromat_n_p = MatrixXx::Zero(n, p + 1);
     MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
     MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
     MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
@@ -2045,7 +2043,7 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
         Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         if(k <= q) {
-            MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() =A2 * Go.block(0, 0, n, n);
+            MatrixXx::Map(Gn.block(0, 0, n, n).data(), n, n).noalias() = A2 * Go.block(0, 0, n, n);
             MatrixXx::Map(gn.col(0).data(), n, 1).noalias() = Gn.block(0, 0, n, n) * mu + A2 * go.col(0);
             dks(0, k) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
             Gn.block(0, 0, n, n).diagonal().array() += dks(0, k);
@@ -2059,8 +2057,8 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
                 Gn.block(0, i * n, n, n).diagonal().array() += dks(i, k);
             }
         } else {
-            Gn.block(0, 0, n, n * (p + 1)) = zeromat_n_p;
-            gn.block(0, 0, n, p + 1) = zeromat_n_p;
+            Gn.block(0, 0, n, n * (p + 1)).setZero();
+            gn.block(0, 0, n, p + 1).setZero();
         }
         for(Index j = 1; j < k; j++) {
             if(((k - j) <= q) && (j <= r)) {
@@ -2084,8 +2082,8 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
                     Gn.block(0, j * n * (p + 1) + i * n, n, n).diagonal().array() += dks(i, (k - j) + j * (q + 1));
                 }
             } else {
-                Gn.block(0, j * n * (p + 1), n, n * (p + 1)) = zeromat_n_p;
-                gn.block(0, j * (p + 1), n, p + 1) = zeromat_n_p;
+                Gn.block(0, j * n * (p + 1), n, n * (p + 1)).setZero();
+                gn.block(0, j * (p + 1), n, p + 1).setZero();
             }
         }
         if(k <= r) {
@@ -2106,8 +2104,8 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
                 Gn.block(0, k * n * (p + 1) + i * n, n, n).diagonal().array() += dks(i, k * (q + 1));
             }
         } else {
-            Gn.block(0, k * n * (p + 1), n, n * (p + 1)) = zeromat_n_p;
-            gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
+            Gn.block(0, k * n * (p + 1), n, n * (p + 1)).setZero();
+            gn.block(0, k * (p + 1), n, p + 1).setZero();
         }
     }
     return dks;
@@ -2133,7 +2131,6 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
     const Index m = q + r;
     ArrayXXx dks = ArrayXXx::Zero(p + 1, (q + 1) * (r + 1));
     dks(0, 0) = 1;
-    const ArrayXXx zeromat_n_p = ArrayXXx::Zero(n, p + 1);
     ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
     ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
     ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
@@ -2161,8 +2158,8 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i, k) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
             }
         } else {
-            Gn.block(0, 0, n, p + 1) = zeromat_n_p;
-            gn.block(0, 0, n, p + 1) = zeromat_n_p;
+            Gn.block(0, 0, n, p + 1).setZero();
+            gn.block(0, 0, n, p + 1).setZero();
         }
         for(Index j = 1; j < k; j++) {
             if(((k - j) <= q) && (j <= r)) {
@@ -2186,8 +2183,8 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
                     dks(i, (k - j) + j * (q + 1)) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
                 }
             } else {
-                Gn.block(0, j * (p + 1), n, p + 1) = zeromat_n_p;
-                gn.block(0, j * (p + 1), n, p + 1) = zeromat_n_p;
+                Gn.block(0, j * (p + 1), n, p + 1).setZero();
+                gn.block(0, j * (p + 1), n, p + 1).setZero();
             }
         }
         if(k <= r) {
@@ -2205,8 +2202,8 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
                 dks(i, k * (q + 1)) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
             }
         } else {
-            Gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
-            gn.block(0, k * (p + 1), n, p + 1) = zeromat_n_p;
+            Gn.block(0, k * (p + 1), n, p + 1).setZero();
+            gn.block(0, k * (p + 1), n, p + 1).setZero();
         }
     }
     return dks;
