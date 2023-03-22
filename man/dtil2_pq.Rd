@@ -24,9 +24,9 @@ dtil3_pqr_m(A1, A2, A3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L)
 dtil3_pqr_v(L1, L2, L3, mu = rep.int(0, n), p = 1L, q = 1L, r = 1L)
 }
 \arguments{
-\item{A1, A2, A3}{Argument matrices. Assumed to be symmetric and of the same order.}
+\item{A1, A2, A3}{Argument matrices.  Assumed to be symmetric and of the same order.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
 \item{p, q, r}{Integer-alikes to specify the order along the three argument matrices}
 
@@ -37,38 +37,38 @@ A \code{(p + 1) * (q + 1)} matrix for the 2D functions,
 or a \code{(p + 1) * (q + 1) * (r + 1)} array for the 3D functions.
 
 The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
-\eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3},
-respectively. And the 1st row/column of each dimension corresponds
-to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+\eqn{\mathbf{A}_1}{A_1}, \eqn{\mathbf{A}_2}{A_2}, and
+\eqn{\mathbf{A}_3}{A_3}, respectively.  And the 1st row/column of each
+dimension corresponds to the 0th order (hence \code{[p + 1, q + 1]} for
+the \eqn{(p,q)}-th moment).
 }
 \description{
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two or three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-They are primarily used to calculate moments of a product of two or
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+are primarily used to calculate moments of a product of two or
 three quadratic forms.
 }
 \details{
 \code{dtil2_pq_m()} and \code{dtil2_pq_v()} calculate
-\eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)} in
-Hillier et al. (2014).
-\code{dtil2_1q_m()} and \code{dtil2_1q_v()} are fast versions
-for the commonly used case where \eqn{p = 1}.
-Similarly, \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
-\eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}.
+\eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)}{\tilde{d}_{p,q}(A_1, A_2)}
+in Hillier et al. (2014).  \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are
+fast versions for the commonly used case where \eqn{p = 1}.  Similarly,
+\code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
+\eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+     }{\tilde{d}_{p,q,r}(A_1, A_2, A_3)}.
 
 Those ending with \code{_m} take matrices as arguments, whereas
-those with \code{_v} take eigenvalues.
-The latter can be used only when the argument matrices share the same
-eigenvectors, to which the eigenvalues correspond in the orders given,
-but is substantially faster.
+those with \code{_v} take eigenvalues.  The latter can be used only when
+the argument matrices share the same eigenvectors, to which the eigenvalues
+correspond in the orders given, but is substantially faster.
 
 These functions calculate the coefficients based on the super-short
 recursion algorithm described in Hillier et al. (2014: sec. 4.2).
 }
 \references{
-Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
 \doi{10.1017/S0266466613000364}.

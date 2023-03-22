@@ -95,22 +95,22 @@ hhat2_pj_v(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 hhat2_1j_v(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100)
 }
 \arguments{
-\item{A1, A2}{Argument matrices. Assumed to be symmetric and of the same order.}
+\item{A1, A2}{Argument matrices.  Assumed to be symmetric and of the same order.}
 
 \item{m}{Integer-alike to specify the desired order along \code{A2}/\code{L2}}
 
 \item{p, q}{Integer-alikes to specify the desired orders along
 \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.}
 
-\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}})}
 
-\item{fill_all}{Logical to specify whether all the output matrix should be filled.
-See "Details".}
+\item{fill_all}{Logical to specify whether all the output matrix should be filled.  See
+\dQuote{Details}.}
 
 \item{L1, L2}{Eigenvalues of the argument matrices}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 }
 \value{
 \code{(p + 1) * (m + 1)} matrix for the \code{*_pj_*} functions.
@@ -118,61 +118,61 @@ See "Details".}
 \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 
 The rows and columns correspond to increasing orders for
-\eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
-And the 1st row/column of each dimension corresponds
+\eqn{\mathbf{A}_1}{A_1} and \eqn{\mathbf{A}_2}{A_2}, respectively.  And
+the 1st row/column of each dimension corresponds
 to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 
-Has the attribute \code{"logscale"} as described in the "Scaling" section
-in \code{\link{d1_i}}.
-This is a matrix of the same size as the return itself.
+Has the attribute \code{"logscale"} as described in the
+\dQuote{Scaling} section in \code{\link{d1_i}}.  This is
+a matrix of the same size as the return itself.
 }
 \description{
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for two
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-They are primarily used in calculations around moments of a ratio
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+are primarily used in calculations around moments of a ratio
 involving two or three quadratic forms.
 }
 \details{
 \code{d2_**_*()} functions calculate
-\eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} in
-Hillier et al. (2009, 2014) and Bao & Kan (2013).
-These are also related to the top-order invariant polynomials
-\eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)} in the following way:
+\eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{d_{i,j}(A_1, A_2)} in
+Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related to
+the top-order invariant polynomials
+\eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)}{C_{[k_1],[k_2]}(A_1, A_2)}
+in the following way:
 \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
-     C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
+     C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) }{d_{i,j}(A_1, A_2) =
+     (1 / (k_1! k_2!)) ( 1/2 )_{k_1 + k_2} C_{[k_1],[k_2]}(A_1, A_2) },
 where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}
 (Chikuse 1987; Hillier et al. 2009).
 
 \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
-\eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
-\eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}, respectively,
-in Bao & Kan (2013). Note that the latter is denoted by the symbol
-\eqn{h_{i,j}} in Hillier et al. (2014).
-\code{hhat2_pj_*()} functions are for
-\eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}
+\eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{h_{i,j}(A_1, A_2)} and
+\eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}{\tilde{h}_{i,j}(A_1; A_2)},
+respectively, in Bao and Kan (2013).  Note that the latter is denoted by the
+symbol \eqn{h_{i,j}} in Hillier et al. (2014).  \code{hhat2_pj_*()}
+functions are for
+\eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}{\hat{h}_{i,j}(A_1; A_2)}
 in Hillier et al. (2014), used to calculate an error bound for
-truncated sum for moments of a ratio of quadratic forms.
-The mean vector \eqn{\bm{\mu}} is a parameter in all these.
+truncated sum for moments of a ratio of quadratic forms.  The
+mean vector \eqn{\bm{\mu}}{\mu} is a parameter in all these.
 
 There are two different situations in which these coefficients are used
 in calculation of moments of ratios of quadratic forms:
 \strong{1}) within an infinite series for one of the subscripts, with the
 other subscript fixed (when the exponent \eqn{p} of the numerator
 is integer); \strong{2}) within a double infinite series for both subscripts
-(when \eqn{p} is non-integer) (see Bao & Kan 2013).
-In this package, the situation \strong{1} is handled by
-the \code{*_pj_*} (and \code{*_1j_*}) functions, and \strong{2} is by
-the \code{*_ij_*} functions.
+(when \eqn{p} is non-integer) (see Bao and Kan 2013).  In this package,
+the situation \strong{1} is handled by the \code{*_pj_*} (and \code{*_1j_*})
+functions, and \strong{2} is by the \code{*_ij_*} functions.
 
 In particular, the \code{*_pj_*} functions always return a
 \code{(p + 1) * (m + 1)} matrix where all elements are filled with
 the relevant coefficients (e.g., \eqn{d_{i,j}}, \eqn{\tilde{h}_{i,j}}),
 from which, typically, the \code{[p + 1, ]}-th row is used for
-subsequent calculations.
-(Those with \code{*_1q_*} are simply fast versions
+subsequent calculations.  (Those with \code{*_1q_*} are simply fast versions
 for the commonly used case where \eqn{p = 1}.)
 On the other hand, the \code{*_ij_*} functions by default return a
 \code{(m + 1) * (m + 1)} matrix whose upper-left triangular part
@@ -186,31 +186,30 @@ but this is less efficient than \code{*_pj_*} functions so may
 be omitted in the future development.)
 
 Those ending with \code{_m} take matrices as arguments, whereas
-those with \code{_v} take eigenvalues.
-The latter can be used only when the argument matrices share the same
-eigenvectors, to which the eigenvalues correspond in the orders given,
-but is substantially faster.
+those with \code{_v} take eigenvalues.  The latter can be used only when
+the argument matrices share the same eigenvectors, to which the eigenvalues
+correspond in the orders given, but is substantially faster.
 
 This package also involves \code{C++} equivalents for most of these functions
 (which are suffixed by \code{E} for \code{Eigen}),
 but these are exclusively for internal use and not exposed to the user.
 }
 \references{
-Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
 \doi{10.1016/j.jmva.2013.03.002}.
 
-Chikuse, Y. (1987). Methods for constructing top order invariant polynomials.
+Chikuse, Y. (1987) Methods for constructing top order invariant polynomials.
 \emph{Econometric Theory}, \strong{3}, 195--207.
 \doi{10.1017/S026646660001029X}.
 
-Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 for top-order invariant polynomials with applications.
 \emph{Econometric Theory}, \strong{25}, 211--242.
 \doi{10.1017/S0266466608090075}.
 
-Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
 \doi{10.1017/S0266466613000364}.

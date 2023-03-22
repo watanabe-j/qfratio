@@ -128,34 +128,35 @@ qfmrm_ApBDqr_npi(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Should be square. Will be automatically symmetrized.}
+\item{A, B, D}{Argument matrices.  Should be square.  Will be automatically symmetrized.}
 
-\item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
-respectively. By default, \code{q} equals \code{p/2} and
-\code{r} equals \code{q}. If unsure, specify all explicitly.}
+\item{p, q, r}{Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
+\eqn{\mathbf{D}}{D}, respectively.  By default, \code{q} equals \code{p/2}
+and \code{r} equals \code{q}.  If unsure, specify all explicitly.}
 
-\item{m}{Order of polynomials at which the series expression is truncated.
-\eqn{M} in Hillier et al. (2009, 2014).}
+\item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
+in Hillier et al. (2009, 2014).}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-Accommodated only by the front-end \code{qfmrm()}. See "Details"
-in \code{\link{qfrm}}.}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
+\eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
+\code{qfmrm()}.  See \dQuote{Details} in \code{\link{qfrm}}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
-The eigenvalues smaller than this are considered zero.}
+\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
+eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments in the front-end \code{qfmrm()} will be passed to
-the appropriate ``internal'' function.}
+the appropriate \dQuote{internal} function.}
 
 \item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 
-\item{check_convergence}{Specifies how numerical convergence is checked (see "Details"). Options:
+\item{check_convergence}{Specifies how numerical convergence is checked (see \dQuote{Details}).
+Options:
 \itemize{
 \item{\code{"relative"}: }{default; magnitude of the last term of
 the series relative to the sum is compared with \code{tol_conv}}
@@ -168,10 +169,10 @@ compared with \code{tol_conv}}
 }}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
-functions via \code{Rcpp}. \code{TRUE} by default.}
+functions via \code{Rcpp}.  \code{TRUE} by default.}
 
 \item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
-overflow/underflow (see "Details"). Options:
+overflow/underflow (see \dQuote{Details}).  Options:
 \itemize{
 \item{\code{"double"}: }{default; fastest but prone to underflow in
 some conditions}
@@ -182,19 +183,19 @@ memory-inefficient}
 most robust but variably slow}
 }}
 
-\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.
-See "Multithreading" in \code{\link{qfrm}}.}
+\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.  See
+\dQuote{Multithreading} in \code{\link{qfrm}}.}
 
-\item{tol_conv}{Tolerance against which numerical convergence of series is checked.
-Used with \code{check_convergence}.}
+\item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
+with \code{check_convergence}.}
 
-\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
-in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
+in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
 
-\item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}},
-\eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
-\code{\link{qfrm}}.}
+\item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
+\dQuote{Details} in \code{\link{qfrm}}.}
 }
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
@@ -206,29 +207,30 @@ special form:
 \eqn{ \mathrm{E} \left(
   \frac{(\mathbf{x^\mathit{T} A x})^p }
        {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
-  \right) },
-where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
-Like \code{qfrm()}, this function calls one of the following ``internal''
-functions for actual calculation, as appropriate.
+  \right) }{E( (x^T A x)^p / ( (x^T B x)^q (x^T D x)^r ) )}, where
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~
+     N_n(\mu, \Sigma)}.  Like \code{qfrm()}, this function calls one of
+the following \dQuote{internal} functions for actual calculation,
+as appropriate.
 
-\code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+\code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n}{D = I_n} and
 positive-integral \eqn{p}
 
-\code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+\code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n}{D = I_n} and
 non-integral \eqn{p}
 
-\code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}
+\code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}{A = I_n}
 
-\code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}, and positive-integral \eqn{p}
+\code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}
 
-\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}, and non-integral \eqn{p}
+\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which
-the user is referred for documentation.
-It is assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+the user is referred for documentation.  It is assumed that
+\eqn{\mathbf{B} \neq \mathbf{D}}{B != D}
 (otherwise, the problem reduces to a simple ratio).
 
 When \code{B} is identity or missing, this and its exponent \code{q} will
@@ -237,28 +239,29 @@ be swapped with \code{D} and \code{r}, respectively, before
 
 The existence conditions for the moments of this multiple ratio can be
 reduced to those for a simple ratio, provided that one of the null spaces
-of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
-(including the case they are null).
-The conditions of Bao & Kan (2013: proposition 1) can then be
+of \eqn{\mathbf{B}}{B} and \eqn{\mathbf{D}}{D} is a subspace of the other
+(including the case they are null).  The conditions of Bao and Kan
+(2013: proposition 1) can then be
 applied by replacing \eqn{q} and \eqn{m} there by \eqn{q + r} and
-\eqn{\min{( \mathrm{rank}(\mathbf{B}), \mathrm{rank}(\mathbf{D}) )}},
+\eqn{\min{( \mathrm{rank}(\mathbf{B}), \mathrm{rank}(\mathbf{D}) )}
+     }{min(rank B, rank D)},
 respectively (see also Smith 1989: p. 258 for
-nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}).
-An error is thrown if these conditions are not met in this case.
-Otherwise (i.e., \eqn{\mathbf{B}} and \eqn{\mathbf{D}} are both singular
-and neither of their null spaces is a subspace of the other), it seems
-difficult to define general moment existence conditions.  A sufficient
+nonsingular \eqn{\mathbf{B}}{B}, \eqn{\mathbf{D}}{D}).  An error is
+thrown if these conditions are not met in this case.  Otherwise
+(i.e., \eqn{\mathbf{B}}{B} and \eqn{\mathbf{D}}{D} are both
+singular and neither of their null spaces is a subspace of the other), it
+seems difficult to define general moment existence conditions.  A sufficient
 condition can be obtained by applying the same proposition with a new
-denominator matrix whose null space is union of those of \eqn{\mathbf{B}}
-and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
+denominator matrix whose null space is union of those of \eqn{\mathbf{B}}{B}
+and \eqn{\mathbf{D}}{D} (Watanabe, 2022).  A warning is thrown if that
 condition is not met in this case.
 
 Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
 \code{mu}, involve evaluation of multiple series, which can suffer
-from numerical overflow and underflow (see "Scaling" in
-\code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
-\code{cpp_method = "long_double"} or \code{"coef_wise"} options can be used
-(see "Details" in \code{\link{qfrm}}).
+from numerical overflow and underflow (see \dQuote{Scaling} in
+\code{\link{d1_i}} and \dQuote{Details} in \code{\link{qfrm}}).  To avoid
+this, \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be
+used (see \dQuote{Details} in \code{\link{qfrm}}).
 }
 \examples{
 ## Some symmetric matrices and parameters
@@ -304,7 +307,7 @@ plot(res5)
 
 }
 \references{
-Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
 \doi{10.1016/j.jmva.2013.03.002}.

@@ -22,21 +22,21 @@ new_qfrm(
 new_qfpm(statistic, exact = TRUE, ..., class = character())
 }
 \arguments{
-\item{statistic}{Terminal value (partial sum) for the moment.
-When missing, obtained as \code{sum(terms)}.}
+\item{statistic}{Terminal value (partial sum) for the moment.  When missing,
+obtained as \code{sum(terms)}.}
 
-\item{error_bound}{Terminal error bound.
-When missing, obtained as \code{seq_error[length(seq_error)]}.}
+\item{error_bound}{Terminal error bound.  When missing,
+obtained as \code{seq_error[length(seq_error)]}.}
 
 \item{terms}{Terms in series expression for the moment along varying polynomial degrees}
 
 \item{seq_error}{Vector of error bounds corresponding to \code{cumsum(terms)}}
 
 \item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound
-(see "Value")}
+(see \dQuote{Value})}
 
 \item{diminished}{Logical used to append attribute to the resultant statistic and terms
-(see "Value")}
+(see \dQuote{Value})}
 
 \item{...}{Additional arguments for accommodating subclasses}
 
@@ -44,8 +44,8 @@ When missing, obtained as \code{seq_error[length(seq_error)]}.}
 }
 \value{
 \code{new_qfrm()} and \code{new_qfpm()} return a list of class \code{qfrm}
-and \code{c(qfpm, qfrm)}, respectively.
-These classes are defined for the \code{print} and \code{plot} methods.
+and \code{c(qfpm, qfrm)}, respectively.  These classes are defined for
+the \code{print} and \code{plot} methods.
 
 The return object is a list of 4 elements which are intended to be:
 \itemize{
@@ -56,8 +56,7 @@ The return object is a list of 4 elements which are intended to be:
 partial sums (\code{cumsum(terms)})}
 }
 When the result is exact, \code{$terms} can be of length 1 and equal to
-\code{$statistic}.
-This is always the case for the \code{qfpm} class.
+\code{$statistic}.  This is always the case for the \code{qfpm} class.
 
 When the relevant flags are provided in the constructor, \code{$error_bound}
 and \code{$seq_error} have the following attributes which control behaviors
@@ -76,11 +75,11 @@ invalid}
 Similarly, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
 have the attribute \code{"diminished"} being \code{TRUE}, which indicates
 that numerical underflow/diminishing happened during scaling
-(see "Scaling" in \code{\link{d1_i}}).
+(see \dQuote{Scaling} in \code{\link{d1_i}}).
 }
 \description{
-These are internal ``constructor'' functions used to make \code{qfrm} and
-\code{qfpm} objects, which are used as a return value from the
+These are internal \dQuote{constructor} functions used to make \code{qfrm}
+and \code{qfpm} objects, which are used as a return value from the
 \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 }
 \seealso{

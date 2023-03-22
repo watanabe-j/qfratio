@@ -7,19 +7,19 @@
 is_diagonal(A, tol = .Machine$double.eps * 100, symmetric = FALSE)
 }
 \arguments{
-\item{A}{Square matrix. No check is done.}
+\item{A}{Square matrix.  No check is done.}
 
 \item{tol}{Numeric to specify \code{tolerance} in \code{all.equal()}}
 
 \item{symmetric}{If \code{FALSE} (default), sum of absolute values of the corresponding
-lower and upper triangular elements are examined with a doubled \code{tol}.
-If \code{TRUE}, only the lower triangular elements are examined
-assuming symmetry.}
+lower and upper triangular elements are examined with a doubled
+\code{tol}.  If \code{TRUE}, only the lower triangular elements are
+examined assuming symmetry.}
 }
 \description{
 This internal function is used to determine whether a square matrix
-is diagonal (within a specified tolerance).
-Returns \code{TRUE} when the absolute values of all off-diagonal elements
+is diagonal (within a specified tolerance).  Returns \code{TRUE}
+when the absolute values of all off-diagonal elements
 are below \code{tol}, using \code{all.equal()}.
 }
 \seealso{

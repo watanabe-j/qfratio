@@ -8,26 +8,25 @@
 This package is for evaluating moments of ratios (and products) of quadratic
 forms in normal variables, specifically using recursive algorithms developed
 by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
-Hillier et al., 2009). It was originally developed as a supplement to
+Hillier et al., 2009).  It was originally developed as a supplement to
 Watanabe (2022) for evaluating average evolvability measures in evolutionary
 quantitative genetics, but can be used for a broader class of moments.
 }
 \details{
 The primary front-end functions of this package are
 \code{\link{qfrm}()} and \code{\link{qfmrm}()} for evaluating moments of
-ratios of quadratic forms.
-These pass arguments to one of the several ``internal'' (though exported)
-functions which do actual calculations, depending on the argument matrices
-and exponents.
-In addition, there are a few functions to calculate moments of products
+ratios of quadratic forms.  These pass arguments to one of the several
+\dQuote{internal} (though exported) functions which do actual calculations,
+depending on the argument matrices and exponents.  In addition, there are
+a few functions to calculate moments of products
 of quadratic forms (integer exponents only; \code{\link{qfpm}}).
 
 There are many internal functions for calculating coefficients in
 power-series expansion of generating functions for these moments
 (\code{\link{d1_i}}, \code{\link{d2_ij}}, \code{\link{d3_ijk}},
 \code{\link{dtil2_pq}}) using ``super-short'' recursions
-(Bao & Kan, 2013; Hillier et al. 2014).
-Some of these coefficients are related to the top-order zonal and invariant
+(Bao and Kan, 2013; Hillier et al. 2014).  Some of these coefficients are
+related to the top-order zonal and invariant
 polynomials of matrix arguments.
 
 See package vignette (\code{vignette("qfratio")}) for more details.
@@ -86,31 +85,31 @@ mean(rqfp(1000, A = A, B = B, D = D, p = 1, q = 1, r = 1, mu = mu))
 
 }
 \references{
-Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
 \doi{10.1016/j.jmva.2013.03.002}.
 
-Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 for top-order invariant polynomials with applications.
 \emph{Econometric Theory}, \strong{25}, 211--242.
 \doi{10.1017/S0266466608090075}.
 
-Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
 \doi{10.1017/S0266466613000364}.
 
-Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+Smith, M. D. (1989) On the expectation of a ratio of quadratic forms
 in normal variables. \emph{Journal of Multivariate Analysis}, \strong{31}, 244--257.
 \doi{10.1016/0047-259X(89)90065-1}.
 
-Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
+Smith, M. D. (1993) Expectations of ratios of quadratic forms in normal
 variables: evaluating some top-order invariant polynomials.
 \emph{Australian Journal of Statistics}, \strong{35}, 271--282.
 \doi{10.1111/j.1467-842X.1993.tb01335.x}.
 
-Watanabe, J. (2022). Exact expressions and numerical evaluation of average
+Watanabe, J. (2022) Exact expressions and numerical evaluation of average
 evolvability measures for characterizing and comparing \strong{G} matrices.
 \emph{bioRxiv} preprint, 2022.11.02.514929.
 \doi{10.1101/2022.11.02.514929}.

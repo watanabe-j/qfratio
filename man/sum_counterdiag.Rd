@@ -13,11 +13,10 @@ sum_counterdiag3D(X)
 \item{X}{Square matrix or cubic array}
 }
 \description{
-sum_counterdiag() sums up counter-diagonal elements of a square matrix from
-the upper-left; i.e.,
+\code{sum_counterdiag()} sums up counter-diagonal elements of
+a square matrix from the upper-left; i.e.,
 \code{c(X[1, 1], X[1, 2] + X[2, 1], X[1, 3] + X[2, 2] + X[3, 1], ...)}
-(or a sequence of
-\eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
-sum_counterdiag3D() does a comparable in a 3D cubic array.
-No check is done on the structure of \code{X}.
+(or a sequence of \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for
+\eqn{k = 1, 2, ...}).  \code{sum_counterdiag3D()} does a comparable in
+a 3D cubic array.  No check is done on the structure of \code{X}.
 }

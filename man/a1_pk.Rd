@@ -9,7 +9,7 @@ a1_pk(L, mu = rep.int(0, n), m = 10L)
 \arguments{
 \item{L}{Eigenvalues of the argument matrix; vector of \eqn{\lambda_i}}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
 \item{m}{Scalar to specify the desired order}
 }
@@ -21,8 +21,8 @@ variables where the denominator matrix is identity.
 }
 \details{
 This function implements the super-short recursion described in
-Hillier et al. (2014  eqs. 31--32).
-Note that \eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
+Hillier et al. (2014  eqs. 31--32).  Note that
+\eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
 the index \eqn{l} fixed for each \eqn{a_{r,l}}.
 }
 \seealso{

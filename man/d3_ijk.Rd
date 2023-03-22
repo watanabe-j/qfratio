@@ -82,7 +82,7 @@ hhat3_pjk_m(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 hhat3_pjk_v(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L, thr_margin = 100)
 }
 \arguments{
-\item{A1, A2, A3}{Argument matrices. Assumed to be symmetric and of the same order.}
+\item{A1, A2, A3}{Argument matrices.  Assumed to be symmetric and of the same order.}
 
 \item{m}{Integer-alike to specify the desired order along \code{A2}/\code{L2}
 and \code{A3}/\code{L3}}
@@ -91,7 +91,7 @@ and \code{A3}/\code{L3}}
 \code{A1}/\code{L1}, \code{A2}/\code{L2}, and \code{A3}/\code{L3},
 respectively.}
 
-\item{thr_margin}{Optional argument to adjust the threshold for scaling (see "Scaling"
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}})}
 
 \item{fill_across}{Logical vector of length 3, to specify whether each dimension of
@@ -99,74 +99,76 @@ the output matrix should be filled.}
 
 \item{L1, L2, L3}{Eigenvalues of the argument matrices}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 }
 \value{
 \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
 
 \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
-(by default; see "Details").
+(by default; see \dQuote{Details}).
 
 The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
-\eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3}, respectively.
-And the 1st row/column of each dimension corresponds
-to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
-the \eqn{(p,q,r)}-th order).
+\eqn{\mathbf{A}_1}{A_1}, \eqn{\mathbf{A}_2}{A_2}, and
+\eqn{\mathbf{A}_3}{A_3}, respectively.  And the 1st row/column of
+each dimension corresponds to the 0th order (hence
+\code{[p + 1, q + 1, r + 1]} for the \eqn{(p,q,r)}-th order).
 
-Has the attribute \code{"logscale"} as described in the "Scaling" section
-in \code{\link{d1_i}}.
-This is an array of the same size as the return itself.
+Has the attribute \code{"logscale"} as described in the \dQuote{Scaling}
+section in \code{\link{d1_i}}.  This is an array of the same size
+as the return itself.
 }
 \description{
 These are internal functions to calculate the coefficients
 in polynomial expansion of joint generating functions for three
 quadratic forms in potentially noncentral multivariate normal variables,
-\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-They are primarily used in calculations around moments of a ratio
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+are primarily used in calculations around moments of a ratio
 involving three quadratic forms.
 }
 \details{
 All these functions have equivalents for two-matrix cases
-(\code{\link{d2_ij}}), to which the user is referred for documentations.
-The primary difference of these functions from the latter is
+(\code{\link{d2_ij}}), to which the user is referred for
+documentations.  The primary difference of these functions from the latter is
 the addition of arguments for the third matrix \code{A3}/\code{L3}.
 
 \code{d3_*jk_*()} functions calculate
-\eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)} in
-Hillier et al. (2009, 2014) and Bao & Kan (2013).
-These are also related to the top-order invariant polynomials as described
+\eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+     }{d_{i,j,k}(A_1, A_2, A_3)} in
+Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are
+also related to the top-order invariant polynomials as described
 in \code{\link{d2_ij}}.
 
 \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
-calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
-\eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
-\eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
-respectively, as described in the package vignette. These are equivalent
-to similar coefficients described in Bao & Kan (2013) and
+calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+               }{h_{i,j,k}(A_1, A_2, A_3)},
+\eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)
+     }{\tilde{h}_{i;j,k}(A_1; A_2, A_3)}, and
+\eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)
+     }{\hat{h}_{i;j,k}(A_1; A_2, A_3)},
+respectively, as described in the package vignette.  These are equivalent
+to similar coefficients described in Bao and Kan (2013) and
 Hillier et al. (2014).
 
 The difference between the \code{*_pjk_*} and \code{*_ijk_*} functions
 is as described for \code{*_pj_*} and \code{*_ij_*}
-(see "Details" in \code{\link{d2_ij}}).
-The only difference is that these functions return a 3D array.
-In the \code{*_pjk_*} functions, all the slices along the first dimension
-(i.e., \code{[i, , ]}) are an upper-left triangular matrix
-like what the \code{*_ij_*} functions return in the 2D case;
-in other words, the return has the coefficients for the terms that satisfy
-\eqn{j + k \leq m} for all \eqn{i = 0, 1, \dots, p}.
-Typically, the \code{[p + 1, , ]}-th slice is used for subsequent
-calculations.
-In the return of the \code{*_ijk_*} functions, only the triangular prism
+(see \dQuote{Details} in \code{\link{d2_ij}}).  The only difference is
+that these functions return a 3D array.  In the \code{*_pjk_*} functions,
+all the slices along the first dimension (i.e., \code{[i, , ]}) are
+an upper-left triangular matrix like what the \code{*_ij_*} functions return
+in the 2D case; in other words, the return has the coefficients for the terms
+that satisfy \eqn{j + k \le m} for all \eqn{i = 0, 1, \dots, p}.  Typically,
+the \code{[p + 1, , ]}-th slice is used for subsequent calculations.  In the
+return of the \code{*_ijk_*} functions, only the triangular prism
 close to the \code{[1, 1, 1]} is filled with coefficients, which
-correspond to the terms satisfying \eqn{i + j + k \leq m}.
+correspond to the terms satisfying \eqn{i + j + k \le m}.
 }
 \references{
-Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 normal random variables. \emph{Journal of Multivariate Analysis}, \strong{117},
 229--245.
 \doi{10.1016/j.jmva.2013.03.002}.
 
-Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 short recursions, with applications to the moments of quadratic forms
 in noncentral normal vectors. \emph{Econometric Theory}, \strong{30}, 436--473.
 \doi{10.1017/S0266466613000364}.

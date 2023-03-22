@@ -57,7 +57,7 @@ SEXP ApIq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central & vector, long double
+//'   \code{qfrm_ApBq_npi()}, central and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -82,7 +82,7 @@ SEXP ApBq_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central & matrix, long double
+//'   \code{qfrm_ApBq_npi()}, central and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -107,7 +107,7 @@ SEXP ApBq_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral & vector, long double
+//'   \code{qfrm_ApBq_npi()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -133,7 +133,7 @@ SEXP ApBq_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral & matrix, long double
+//'   \code{qfrm_ApBq_npi()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -161,7 +161,7 @@ SEXP ApBq_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral & vector, long double
+//'   \code{qfmrm_ApBIqr_int()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -220,7 +220,7 @@ SEXP ApBIqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral & matrix, long double
+//'   \code{qfmrm_ApBIqr_int()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -284,7 +284,7 @@ SEXP ApBIqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central & vector, long double
+//'   \code{qfmrm_ApBIqr_npi()}, central and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -311,7 +311,7 @@ SEXP ApBIqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central & matrix, long double
+//'   \code{qfmrm_ApBIqr_npi()}, central and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -337,7 +337,7 @@ SEXP ApBIqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral & vector, long double
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -363,7 +363,7 @@ SEXP ApBIqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, long double
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -391,7 +391,7 @@ SEXP ApBIqr_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central & vector, long double
+//'   \code{qfmrm_IpBDqr_gen()}, central and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -416,7 +416,7 @@ SEXP IpBDqr_gen_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central & matrix, long double
+//'   \code{qfmrm_IpBDqr_gen()}, central and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -442,7 +442,7 @@ SEXP IpBDqr_gen_cmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral & vector, long double
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -468,7 +468,7 @@ SEXP IpBDqr_gen_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, long double
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -494,7 +494,7 @@ SEXP IpBDqr_gen_nmEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central & vector, long double
+//'   \code{qfmrm_ApBDqr_int()}, central and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -520,7 +520,7 @@ SEXP ApBDqr_int_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, cons
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central & matrix, long double
+//'   \code{qfmrm_ApBDqr_int()}, central and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A, const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -546,7 +546,7 @@ SEXP ApBDqr_int_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral & vector, long double
+//'   \code{qfmrm_ApBDqr_int()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -574,7 +574,7 @@ SEXP ApBDqr_int_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral & matrix, long double
+//'   \code{qfmrm_ApBDqr_int()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -604,7 +604,7 @@ SEXP ApBDqr_int_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central & vector, long double
+//'   \code{qfmrm_ApBDqr_npi()}, central and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
@@ -631,7 +631,7 @@ SEXP ApBDqr_npi_cvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central & matrix, long double
+//'   \code{qfmrm_ApBDqr_npi()}, central and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A,
@@ -658,7 +658,7 @@ SEXP ApBDqr_npi_cmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dyn
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral & vector, long double
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral and vector, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
@@ -685,7 +685,7 @@ SEXP ApBDqr_npi_nvEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, cons
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, long double
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral and matrix, long double
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nmEl(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A, const Eigen::Array<long double, Eigen::Dynamic, 1> LB,

@@ -1169,35 +1169,36 @@ rqfpE(nit, A, B, D, p, q, r, mu, Sigma)
 \item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
 Symmetry is assumed.}
 
-\item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}.
+\item{p, q, r}{Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
+\eqn{\mathbf{D}}{D}.
 Passed as \code{double} or \code{long double}.}
 
-\item{thr_margin}{Optional argument to adjust the threshold for scaling. See "Scaling"
-in \code{\link{d1_i}}.}
+\item{thr_margin}{Optional argument to adjust the threshold for scaling.  See
+\dQuote{Scaling} in \code{\link{d1_i}}.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 passed as \code{Eigen::Array}}
 
 \item{LA, LB, LD}{Eigenvalues of the argument matrices passed as \code{Eigen::Array}}
 
-\item{bA, bB, bD}{Scaling coefficients for \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-and \eqn{\mathbf{D}}.  Passed as \code{double} or \code{long double}.}
+\item{bA, bB, bD}{Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.}
 
 \item{m}{Integer to specify the order of polynomials at which the series
-expression is truncated. Passed as \code{Eigen::Index}
+expression is truncated.  Passed as \code{Eigen::Index}
 (aka \code{std::ptrdiff_t} or \code{long long int})}
 
 \item{error_bound}{\code{bool} to specify whether the error bound is returned}
 
-\item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}} corresponding to
+\item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding to
 \code{LA}.  Passed as \code{Eigen::Matrix}.}
 
 \item{nthreads}{\code{int} to specify the number of threads in \code{OpenMP}-enabled
-functions.  See "Multithreading" in \code{\link{qfrm}}.}
+functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
 \item{nit}{\code{int} to specify the number of iteration or sample size}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}.
 Passed as \code{Eigen::Matrix}.}
 }
 \value{
@@ -1213,17 +1214,15 @@ All return a list via \code{Rcpp::List} of the following (as appropriate):
 }
 }
 \description{
-These are internal \code{C++} functions called from
-corresponding \code{R} functions when \code{use_cpp = TRUE}.
-Direct access by the user is \strong{not} assumed.
-All parameters are assumed to be appropriately structured.
+These are internal \code{C++} functions called from corresponding \code{R}
+functions when \code{use_cpp = TRUE}.  Direct access by the user is \strong{not}
+assumed.  All parameters are assumed to be appropriately structured.
 }
 \details{
 At present, \code{ApIq_int_nmE()} calls the \code{R} function
 \code{gsl::hyperg_1F1()}, so will not be much faster than
-the \code{R} equivalent.
-Ideally, the \code{C++} library \code{gsl} (or the like) should be used with
-\code{RcppGSL}, but this is not done (commented out in the source code)
+the \code{R} equivalent.  Ideally, the \code{C++} library \code{gsl}
+(or the like) should be used with \code{RcppGSL}, but this is not done
 to ensure portability.
 
 \code{rqfpE} uses \code{Rcpp::rnorm()},

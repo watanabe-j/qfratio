@@ -9,14 +9,14 @@ iseq(x, y = rep.int(0, length(x)), tol = .Machine$double.eps * 100)
 \arguments{
 \item{x}{Main \code{target} vector/matrix in \code{all.equal()}}
 
-\item{y}{\code{current} in \code{all.equal()}. Default zero vector.}
+\item{y}{\code{current} in \code{all.equal()}.  Default zero vector.}
 
 \item{tol}{Numeric to specify \code{tolerance} in \code{all.equal()}}
 }
 \description{
 This internal function is used to determine whether two vectors/matrices have
 the same elements (or, a vector/matrix is all equal to 0)
-using \code{all.equal()}. Attributes and dimensions are ignored as
+using \code{all.equal()}.  Attributes and dimensions are ignored as
 they are passed as vectors using \code{c()}.
 }
 \seealso{

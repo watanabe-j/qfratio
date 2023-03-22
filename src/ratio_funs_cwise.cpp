@@ -43,7 +43,7 @@ SEXP ApIq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const doub
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central & vector, coefficient-wise scaling
+//'   \code{qfrm_ApBq_npi()}, central and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -67,7 +67,7 @@ SEXP ApBq_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central & matrix, coefficient-wise scaling
+//'   \code{qfrm_ApBq_npi()}, central and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -90,7 +90,7 @@ SEXP ApBq_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfrm_ApBq_npi()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -113,7 +113,7 @@ SEXP ApBq_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfrm_ApBq_npi()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBq_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -137,7 +137,7 @@ SEXP ApBq_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_int()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -194,7 +194,7 @@ SEXP ApBIqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_int()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
@@ -255,7 +255,7 @@ SEXP ApBIqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_npi()}, central and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -280,7 +280,7 @@ SEXP ApBIqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_npi()}, central and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -305,7 +305,7 @@ SEXP ApBIqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -330,7 +330,7 @@ SEXP ApBIqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBIqr_npi()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBIqr_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -356,7 +356,7 @@ SEXP ApBIqr_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central & vector, coefficient-wise scaling
+//'   \code{qfmrm_IpBDqr_gen()}, central and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
@@ -380,7 +380,7 @@ SEXP IpBDqr_gen_cvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central & matrix, coefficient-wise scaling
+//'   \code{qfmrm_IpBDqr_gen()}, central and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_cmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
@@ -405,7 +405,7 @@ SEXP IpBDqr_gen_cmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
@@ -429,7 +429,7 @@ SEXP IpBDqr_gen_nvEc(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfmrm_IpBDqr_gen()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP IpBDqr_gen_nmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
@@ -455,7 +455,7 @@ SEXP IpBDqr_gen_nmEc(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_int()}, central and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -482,7 +482,7 @@ SEXP ApBDqr_int_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_int()}, central and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -509,7 +509,7 @@ SEXP ApBDqr_int_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_int()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -537,7 +537,7 @@ SEXP ApBDqr_int_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_int()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -566,7 +566,7 @@ SEXP ApBDqr_int_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_npi()}, central and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -592,7 +592,7 @@ SEXP ApBDqr_npi_cvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_npi()}, central and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -619,7 +619,7 @@ SEXP ApBDqr_npi_cmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral & vector, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral and vector, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
@@ -646,7 +646,7 @@ SEXP ApBDqr_npi_nvEc(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, coefficient-wise scaling
+//'   \code{qfmrm_ApBDqr_npi()}, noncentral and matrix, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
 SEXP ApBDqr_npi_nmEc(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,

@@ -2,7 +2,7 @@
 #' Make covariance matrix from eigenstructure
 #'
 #' This is an internal utility function to make covariance matrix from
-#' eigenvectors and eigenvalues. Symmetry is assumed for the original matrix.
+#' eigenvectors and eigenvalues.  Symmetry is assumed for the original matrix.
 #'
 #' @param evec
 #'   Matrix whose columns are eigenvectors
@@ -18,23 +18,25 @@ S_fromUL <- function(evec, evalues) {
 #' Matrix square root and generalized inverse
 #'
 #' This internal function calculates the decomposition
-#' \eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T} for an \eqn{n \times n}
-#' covariance matrix \eqn{\mathbf{S}}, so that \eqn{\mathbf{K}} is an
-#' \eqn{n \times m} matrix with \eqn{m} being the rank of \eqn{\mathbf{S}}.
-#' Returns this \eqn{\mathbf{K}} and its generalized inverse,
-#' \eqn{\mathbf{K}^-}, in a list.
+#' \eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T}{S = K K^T} for an
+#' \eqn{n \times n}{n x n} covariance matrix \eqn{\mathbf{S}}{S}, so that
+#' \eqn{\mathbf{K}}{K} is an \eqn{n \times m}{n x m} matrix with \eqn{m} being
+#' the rank of \eqn{\mathbf{S}}{S}.  Returns this
+#' \eqn{\mathbf{K}}{K} and its generalized inverse,
+#' \eqn{\mathbf{K}^-}{K^-}, in a list.
 #'
 #' At present, this utilizes \code{svd()},
 #' although there may be better alternatives.
 #'
 #' @param S
-#'   Covariance matrix. Symmetry and positive (semi-)definiteness are checked.
+#'   Covariance matrix.  Symmetry and positive (semi-)definiteness are checked.
 #' @param tol
-#'   Tolerance to determine the rank of \eqn{\mathbf{S}}.
-#'   Eigenvalues smaller than this value are considered zero.
+#'   Tolerance to determine the rank of \eqn{\mathbf{S}}{S}.  Eigenvalues
+#'   smaller than this value are considered zero.
 #'
 #' @return
-#'   List with \code{K} and \code{iK}, with the latter being \eqn{\mathbf{K}^-}
+#'   List with \code{K} and \code{iK}, with the latter being
+#'   \eqn{\mathbf{K}^-}{K^-}
 #'
 KiK <- function(S, tol = .Machine$double.eps * 100) {
     if(!isSymmetric(S)) stop("Covariance matrix should be symmetric")
@@ -51,7 +53,7 @@ KiK <- function(S, tol = .Machine$double.eps * 100) {
 ##### tr #####
 #' Matrix trace function
 #'
-#' This is an internal function. No check is done on the structure of \code{X}.
+#' This is an internal function.  No check is done on the structure of \code{X}.
 #'
 #' @param X
 #'   Square matrix whose trace is to be calculated
@@ -61,13 +63,12 @@ tr <- function(X) sum(diag(X))
 ##### sum_counterdiag #####
 #' Summing up counter-diagonal elements
 #'
-#' sum_counterdiag() sums up counter-diagonal elements of a square matrix from
-#' the upper-left; i.e.,
+#' \code{sum_counterdiag()} sums up counter-diagonal elements of
+#' a square matrix from the upper-left; i.e.,
 #' \code{c(X[1, 1], X[1, 2] + X[2, 1], X[1, 3] + X[2, 2] + X[3, 1], ...)}
-#' (or a sequence of
-#' \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for \eqn{k = 1, 2, ...}).
-#' sum_counterdiag3D() does a comparable in a 3D cubic array.
-#' No check is done on the structure of \code{X}.
+#' (or a sequence of \eqn{\sum_{i=1}^k x_{i, k - i + 1}} for
+#' \eqn{k = 1, 2, ...}).  \code{sum_counterdiag3D()} does a comparable in
+#' a 3D cubic array.  No check is done on the structure of \code{X}.
 #'
 #' @param X
 #'   Square matrix or cubic array
@@ -106,13 +107,13 @@ sum_counterdiag3D <- function(X) {
 #'
 #' This internal function is used to determine whether two vectors/matrices have
 #' the same elements (or, a vector/matrix is all equal to 0)
-#' using \code{all.equal()}. Attributes and dimensions are ignored as
+#' using \code{all.equal()}.  Attributes and dimensions are ignored as
 #' they are passed as vectors using \code{c()}.
 #'
 #' @param x
 #'   Main \code{target} vector/matrix in \code{all.equal()}
 #' @param y
-#'   \code{current} in \code{all.equal()}. Default zero vector.
+#'   \code{current} in \code{all.equal()}.  Default zero vector.
 #' @param tol
 #'   Numeric to specify \code{tolerance} in \code{all.equal()}
 #'
@@ -127,19 +128,19 @@ iseq <- function(x, y = rep.int(0, length(x)),
 #' Is this matrix diagonal?
 #'
 #' This internal function is used to determine whether a square matrix
-#' is diagonal (within a specified tolerance).
-#' Returns \code{TRUE} when the absolute values of all off-diagonal elements
+#' is diagonal (within a specified tolerance).  Returns \code{TRUE}
+#' when the absolute values of all off-diagonal elements
 #' are below \code{tol}, using \code{all.equal()}.
 #'
 #' @inheritParams iseq
 #'
 #' @param A
-#'   Square matrix. No check is done.
+#'   Square matrix.  No check is done.
 #' @param symmetric
 #'   If \code{FALSE} (default), sum of absolute values of the corresponding
-#'   lower and upper triangular elements are examined with a doubled \code{tol}.
-#'   If \code{TRUE}, only the lower triangular elements are examined
-#'   assuming symmetry.
+#'   lower and upper triangular elements are examined with a doubled
+#'   \code{tol}.  If \code{TRUE}, only the lower triangular elements are
+#'   examined assuming symmetry.
 #'
 #' @seealso \code{\link[base]{all.equal}}
 #'

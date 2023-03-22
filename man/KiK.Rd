@@ -7,21 +7,23 @@
 KiK(S, tol = .Machine$double.eps * 100)
 }
 \arguments{
-\item{S}{Covariance matrix. Symmetry and positive (semi-)definiteness are checked.}
+\item{S}{Covariance matrix.  Symmetry and positive (semi-)definiteness are checked.}
 
-\item{tol}{Tolerance to determine the rank of \eqn{\mathbf{S}}.
-Eigenvalues smaller than this value are considered zero.}
+\item{tol}{Tolerance to determine the rank of \eqn{\mathbf{S}}{S}.  Eigenvalues
+smaller than this value are considered zero.}
 }
 \value{
-List with \code{K} and \code{iK}, with the latter being \eqn{\mathbf{K}^-}
+List with \code{K} and \code{iK}, with the latter being
+\eqn{\mathbf{K}^-}{K^-}
 }
 \description{
 This internal function calculates the decomposition
-\eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T} for an \eqn{n \times n}
-covariance matrix \eqn{\mathbf{S}}, so that \eqn{\mathbf{K}} is an
-\eqn{n \times m} matrix with \eqn{m} being the rank of \eqn{\mathbf{S}}.
-Returns this \eqn{\mathbf{K}} and its generalized inverse,
-\eqn{\mathbf{K}^-}, in a list.
+\eqn{\mathbf{S} = \mathbf{K} \mathbf{K}^T}{S = K K^T} for an
+\eqn{n \times n}{n x n} covariance matrix \eqn{\mathbf{S}}{S}, so that
+\eqn{\mathbf{K}}{K} is an \eqn{n \times m}{n x m} matrix with \eqn{m} being
+the rank of \eqn{\mathbf{S}}{S}.  Returns this
+\eqn{\mathbf{K}}{K} and its generalized inverse,
+\eqn{\mathbf{K}^-}{K^-}, in a list.
 }
 \details{
 At present, this utilizes \code{svd()},

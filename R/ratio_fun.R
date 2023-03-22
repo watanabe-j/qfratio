@@ -5,158 +5,162 @@
 #' of a ratio of quadratic forms in normal variables, i.e.,
 #' \eqn{ \mathrm{E} \left(
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }{(\mathbf{x^\mathit{T} B x})^q}
-#'   \right) },
-#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
-#' Internally, \code{qfrm()} calls one of the following functions which does
-#' the actual calculation, depending on \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{p}. Usually the best one is automatically selected.
+#'   \right) }{E( (x^T A x)^p / (x^T B x)^q )}, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~
+#'      N_n(\mu, \Sigma)}.  Internally, \code{qfrm()} calls one of
+#' the following functions which does the actual calculation, depending on
+#' \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and \eqn{p}.  Usually
+#' the best one is automatically selected.
 #'
 #' These functions use infinite series expressions based on the joint
 #' moment-generating function (with the top-order zonal/invariant polynomials)
-#' (see Smith 1989, Hillier et al. 2009, 2014; Bao & Kan 2013), and the results
-#' are typically partial (truncated) sums from these infinite series,
-#' which necessarily involve truncation errors.
-#' (An exception is when \eqn{\mathbf{B} = \mathbf{I}_n} and \eqn{p} is a
-#' positive integer, the case handled by \code{qfrm_ApIq_int()}.)
+#' (see Smith 1989, Hillier et al. 2009, 2014; Bao and Kan 2013), and the
+#' results are typically partial (truncated) sums from these infinite series,
+#' which necessarily involve truncation errors.  (An exception is when
+#' \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and \eqn{p} is
+#' a positive integer, the case handled by \code{qfrm_ApIq_int()}.)
 #'
 #' The returned value is a list consisting of the truncated sequence
 #' up to the order specified by \code{m}, its sum,
-#' and error bounds corresponding to these (see "Values").
-#' The \code{print} method only displays the terminal partial sum and its
-#' error bound (when available).
-#' Use \code{plot()} for visual inspection, or the ordinary list
-#' element access as required.
+#' and error bounds corresponding to these (see \dQuote{Values}).  The
+#' \code{print} method only displays the terminal partial sum and its
+#' error bound (when available).  Use \code{plot()} for visual inspection,
+#' or the ordinary list element access as required.
 #'
 #' In most cases, \code{p} and \code{q} should be nonnegative
 #' (in addition, \code{p} should be an integer in
 #' \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()} when used directly),
-#' and an error is thrown otherwise. The only exception is
+#' and an error is thrown otherwise.  The only exception is
 #' \code{qfrm_ApIq_npi()} which accepts negative exponents to accommodate
-#' \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}}.
-#' Even in the latter case, the exponents should have the same sign.
-#' (Technically, not all of these conditions are necessary for the mathematical
+#' \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}
+#'      }{(x^T x)^q / (x^T A x)^p }.  Even in the latter case,
+#' the exponents should have the same sign.  (Technically, not all of
+#' these conditions are necessary for the mathematical
 #' results to hold, but they are enforced for simplicity).
 #'
 #' When \code{error_bound = TRUE} (default), \code{qfrm_ApBq_int()} evaluates
 #' a truncation error bound following Hillier et al. (2009: theorem 6) or
-#' Hillier et al. (2014: theorem 7) (for zero and nonzero means, respectively).
-#' \code{qfrm_ApIq_npi()} implements similar error bounds.
-#' No error bound is known for \code{qfrm_ApBq_npi()} to the
+#' Hillier et al. (2014: theorem 7) (for zero and nonzero means,
+#' respectively).  \code{qfrm_ApIq_npi()} implements similar error bounds.  No
+#' error bound is known for \code{qfrm_ApBq_npi()} to the
 #' author's knowledge.
-# #' See \code{vignette("qfratio")} for further technical details.
 #'
 #' For situations when the error bound is unavailable, a *very rough* check of
 #' numerical convergence is also conducted; a warning is thrown if
-#' the magnitude of the last term does not look small enough.
-#' By default, its relative magnitude to the sum is compared with
+#' the magnitude of the last term does not look small enough.  By default,
+#' its relative magnitude to the sum is compared with
 #' the tolerance controlled by \code{tol_conv}, whose default is
 #' \code{.Machine$double.eps^(1/4)} (= ~\code{1.2e-04})
 #' (see \code{check_convergence}).
 #'
 #' When \code{Sigma} is provided, the quadratic forms are transformed into
 #' a canonical form; that is, using the decomposition
-#' \eqn{\mathbf{\Sigma} = \mathbf{K} \mathbf{K}^T}, where the number of
-#' columns \eqn{m} of \eqn{\mathbf{K}} equals the rank of \eqn{\mathbf{\Sigma}},
-#' \eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}},
-#' \eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}, and
-#' \eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
-#'      \sim N_n(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)}.
-#' \code{qfrm()} handles this by transforming \code{A}, \code{B},
-#' and \code{mu} and calling itself recursively with these new arguments.
-#' Note that the ``internal'' functions do not accommodate \code{Sigma}
-#' (the error for unused arguments will happen).
-#' For singular \eqn{\mathbf{\Sigma}}, one of the following conditions should
-#' be met for the above transformation to be valid:
-#' **1**) \eqn{\bm{\mu}} is in the range of \eqn{\mathbf{\Sigma}};
-#' **2**) \eqn{\mathbf{A}} and \eqn{\mathbf{B}} are in the range of
-#' \eqn{\mathbf{\Sigma}}; or
-#' **3**) \eqn{\mathbf{A} \bm{\mu} = \mathbf{B} \bm{\mu} = \mathbf{0}}.
-#' An error is thrown if none is met with a singular \code{Sigma}.
+#' \eqn{\mathbf{\Sigma} = \mathbf{K} \mathbf{K}^T}{\Sigma = K K^T}, where the
+#' number of columns \eqn{m} of \eqn{\mathbf{K}}{K} equals the rank of
+#' \eqn{\mathbf{\Sigma}}{\Sigma},
+#' \eqn{\mathbf{A}_\mathrm{new} = \mathbf{K^\mathit{T} A K}}{A_new = K^T A K},
+#' \eqn{\mathbf{B}_\mathrm{new} = \mathbf{K^\mathit{T} B K}}{B_new = K^T B K},
+#' and \eqn{\mathbf{x}_\mathrm{new} = \mathbf{K}^{-} \mathbf{x}
+#'          \sim N_m(\mathbf{K}^{-} \bm{\mu}, \mathbf{I}_m)
+#'          }{x_new = K^- x ~ N_m(K^- \mu, I_m)}.  \code{qfrm()} handles this
+#' by transforming \code{A}, \code{B}, and \code{mu} and calling itself
+#' recursively with these new arguments.  Note that the \dQuote{internal}
+#' functions do not accommodate \code{Sigma} (the error for unused arguments
+#' will happen).  For singular \eqn{\mathbf{\Sigma}}{\Sigma}, one of the
+#' following conditions should be met for the above transformation to be valid:
+#' **1**) \eqn{\bm{\mu}}{\mu} is in the range of \eqn{\mathbf{\Sigma}}{\Sigma};
+#' **2**) \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B} are in the range of
+#' \eqn{\mathbf{\Sigma}}{\Sigma}; or
+#' **3**) \eqn{\mathbf{A} \bm{\mu} = \mathbf{B} \bm{\mu} = \mathbf{0}_n
+#'             }{A \mu = B \mu = 0_n}.  An error is thrown
+#' if none is met with a singular \code{Sigma}.
 #'
 #' The existence of the moment is assessed by the eigenstructures of
-#' \eqn{\mathbf{A}} and \eqn{\mathbf{B}}, \eqn{p}, and \eqn{q}, according to
-#' Bao & Kan (2013: proposition 1). An error will result if the conditions
+#' \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B}, \eqn{p}, and \eqn{q}, according
+#' to Bao and Kan (2013: proposition 1).  An error will result if the conditions
 #' are not met.
 #'
 #' Straightforward implementation of the original recursive algorithms can
-#' suffer from numerical overflow when the problem is large.
-#' Internal functions (\code{\link{d1_i}}, \code{\link{d2_ij}},
-#' \code{\link{d3_ijk}}) are designed to avoid overflow by order-wise scaling.
-#' However, when evaluation of multiple series is required
+#' suffer from numerical overflow when the problem is large.  Internal
+#' functions (\code{\link{d1_i}}, \code{\link{d2_ij}}, \code{\link{d3_ijk}})
+#' are designed to avoid overflow by order-wise scaling.  However,
+#' when evaluation of multiple series is required
 #' (\code{qfrm_ApIq_npi()} with nonzero \code{mu} and \code{qfrm_ApBq_npi()}),
 #' the scaling occasionally yields underflow/diminishing of some terms to
-#' numerical \code{0}, causing inaccuracy. A warning is
-#' thrown in this case. (See also "Scaling" in \code{\link{d1_i}}.)
+#' numerical \code{0}, causing inaccuracy.  A warning is
+#' thrown in this case.  (See also \dQuote{Scaling} in \code{\link{d1_i}}.)
 #' To avoid this problem, the \code{C++} versions of these functions have two
-#' workarounds, as controlled by \code{cpp_method}.
-#' **1**) The \code{"long_double"} option uses the \code{long double} variable
-#' type instead of the regular \code{double}. This is generally slow and
-#' most memory-inefficient.
-#' **2**) The \code{"coef_wise"} option uses a coefficient-wise scaling
-#' algorithm with the \code{double} variable type. This is generally robust
-#' against underflow issues. Computational time varies a lot with conditions;
+#' workarounds, as controlled by \code{cpp_method}.  **1**)
+#' The \code{"long_double"} option uses the \code{long double} variable
+#' type instead of the regular \code{double}.  This is generally slow and
+#' most memory-inefficient.  **2**) The \code{"coef_wise"} option uses
+#' a coefficient-wise scaling algorithm with the \code{double}
+#' variable type.  This is generally robust against
+#' underflow issues.  Computational time varies a lot with conditions;
 #' generally only modestly slower than the \code{"double"} option, but can be
 #' the slowest in some extreme conditions.
 #'
 #' For the sake of completeness (only), the scaling parameters \eqn{\beta}
 #' (see the package vignette) can be modified via
-#' the arguments \code{alphaA} and \code{alphaB}. These are the factors for
-#' the inverses of the largest eigenvalues of \eqn{\mathbf{A}} and
-#' \eqn{\mathbf{B}}, respectively, and should be between 0 and 2.
-#' The default is 1, which should suffice for most purposes.
-#' Values larger than 1 often yield faster convergence, but are *not*
+#' the arguments \code{alphaA} and \code{alphaB}.  These are the factors for
+#' the inverses of the largest eigenvalues of \eqn{\mathbf{A}}{A} and
+#' \eqn{\mathbf{B}}{B}, respectively, and should be between 0 and 2.  The
+#' default is 1, which should suffice for most purposes.  Values larger than 1
+#' often yield faster convergence, but are *not*
 #' recommended as the error bound will not strictly hold
 #' (see Hillier et al. 2009, 2014).
 #'
 #' ## Multithreading
 #' All these functions use \code{C++} versions to speed up computation
-#' by default.
-#' Furthermore, some of the \code{C++} functions, in particular those
-#' using more than one matrix arguments, are parallelized with '\code{OpenMP}'
-#' (when available). Use the argument \code{nthreads} to control the number
-#' of \code{OpenMP} threads. By default (\code{nthreads = 0}), one-half of
-#' the processors detected with \code{omp_get_num_procs()} are used.
-#' This is except when all the argument matrices share the same eigenvectors
-#' and hence the calculation only involves element-wise operations of
-#' eigenvalues. In that case, the calculation is typically fast without
+#' by default.  Furthermore, some of the \code{C++} functions, in particular
+#' those using more than one matrix arguments, are parallelized with
+#' '\code{OpenMP}' (when available).  Use the argument \code{nthreads} to
+#' control the number of \code{OpenMP} threads.  By default
+#' (\code{nthreads = 0}), one-half of the processors detected with
+#' \code{omp_get_num_procs()} are used.  This is except when all the
+#' argument matrices share the same eigenvectors and hence the calculation
+#' only involves element-wise operations of eigenvalues.  In that case,
+#' the calculation is typically fast without
 #' parallelization, so \code{nthreads} is automatically set to \code{1}
 #' unless explicitly specified otherwise; the user can still specify
 #' a larger value or \code{0} for (typically marginal) speed gains in large
 #' problems.
 #'
 #' @param A,B
-#'   Argument matrices. Should be square. Will be automatically symmetrized.
+#'   Argument matrices.  Should be square.  Will be automatically symmetrized.
 #' @param p,q
-#'   Exponents corresponding to \eqn{\mathbf{A}} and \eqn{\mathbf{B}},
-#'   respectively. When only one is provided, the other is set to the same
-#'   value. Should be length-one numeric (see "Details" for further conditions).
+#'   Exponents corresponding to \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B},
+#'   respectively.  When only one is provided, the other is set to the same
+#'   value.  Should be length-one numeric (see \dQuote{Details} for further
+#'   conditions).
 #' @param m
-#'   Order of polynomials at which the series expression is truncated.
-#'   \eqn{M} in Hillier et al. (2009, 2014).
+#'   Order of polynomials at which the series expression is truncated.  \eqn{M}
+#'   in Hillier et al. (2009, 2014).
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-#'   Accommodated only by the front-end \code{qfrm()}. See "Details".
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
+#'   \eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
+#'   \code{qfrm()}.  See \dQuote{Details}.
 #' @param tol_zero
 #'   Tolerance against which numerical zero is determined.  Used to determine,
 #'   e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 #'   the identity matrix, etc.
 #' @param tol_sing
-#'   Tolerance against which matrix singularity and rank are determined.
-#'   The eigenvalues smaller than this are considered zero.
+#'   Tolerance against which matrix singularity and rank are determined.  The
+#'   eigenvalues smaller than this are considered zero.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfrm()} will be passed to
-#'   the appropriate ``internal'' function.
+#'   the appropriate \dQuote{internal} function.
 #' @param alphaA,alphaB
-#'   Factors for the scaling constants for \eqn{\mathbf{A}} and
-#'   \eqn{\mathbf{B}}, respectively. See "Details".
+#'   Factors for the scaling constants for \eqn{\mathbf{A}}{A} and
+#'   \eqn{\mathbf{B}}{B}, respectively.  See \dQuote{Details}.
 #' @param use_cpp
 #'   Logical to specify whether the calculation is done with \code{C++}
-#'   functions via \code{Rcpp}. \code{TRUE} by default.
+#'   functions via \code{Rcpp}.  \code{TRUE} by default.
 #' @param cpp_method
 #'   Method used in \code{C++} calculations to avoid numerical
-#'   overflow/underflow (see "Details"). Options:
+#'   overflow/underflow (see \dQuote{Details}).  Options:
 #'   \itemize{
 #'     \item{\code{"double"}: }{default; fastest but prone to underflow in
 #'           some conditions}
@@ -169,7 +173,8 @@
 #' @param error_bound
 #'   Logical to specify whether an error bound is returned (if available).
 #' @param check_convergence
-#'   Specifies how numerical convergence is checked (see "Details"). Options:
+#'   Specifies how numerical convergence is checked (see \dQuote{Details}).
+#'   Options:
 #'   \itemize{
 #'     \item{\code{"relative"}: }{default; magnitude of the last term of
 #'           the series relative to the sum is compared with \code{tol_conv}}
@@ -181,16 +186,17 @@
 #'     \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
 #'   }
 #' @param tol_conv
-#'   Tolerance against which numerical convergence of series is checked.
-#'   Used with \code{check_convergence}.
+#'   Tolerance against which numerical convergence of series is checked.  Used
+#'   with \code{check_convergence}.
 #' @param thr_margin
-#'   Optional argument to adjust the threshold for scaling (see "Scaling"
-#'   in \code{\link{d1_i}}). Passed to internal functions (\code{\link{d1_i}},
+#'   Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
+#'   in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 #'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
 #' @param nthreads
-#'   Number of threads used in '\code{OpenMP}'-enabled \code{C++} functions.
-#'   \code{0} or any negative value is special and means one-half of
-#'   the number of processors detected. See "Multithreading" in "Details".
+#'   Number of threads used in '\code{OpenMP}'-enabled \code{C++}
+#'   functions.  \code{0} or any negative value is special and means one-half of
+#'   the number of processors detected.  See \dQuote{Multithreading} in
+#'   \dQuote{Details}.
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
@@ -203,26 +209,26 @@
 #'  }
 #'
 #' @references
-#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
 #'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#' Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
 #'   *Econometric Theory*, **25**, 211--242.
 #'   \doi{10.1017/S0266466608090075}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
 #'
-#' Smith, M. D. (1989). On the expectation of a ratio of quadratic forms
+#' Smith, M. D. (1989) On the expectation of a ratio of quadratic forms
 #'   in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
 #'   \doi{10.1016/0047-259X(89)90065-1}.
 #'
-#' Smith, M. D. (1993). Expectations of ratios of quadratic forms in normal
+#' Smith, M. D. (1993) Expectations of ratios of quadratic forms in normal
 #'   variables: evaluating some top-order invariant polynomials.
 #'   *Australian Journal of Statistics*, **35**, 271--282.
 #'   \doi{10.1111/j.1467-842X.1993.tb01335.x}.
@@ -364,14 +370,15 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' \eqn{ \mathrm{E} \left(
 #'   \frac{(\mathbf{x^\mathit{T} A x})^p }
 #'        {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} D x})^r}
-#'   \right) },
-#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
-#' Like \code{qfrm()}, this function calls one of the following ``internal''
-#' functions for actual calculation, as appropriate.
+#'   \right) }{E( (x^T A x)^p / ( (x^T B x)^q (x^T D x)^r ) )}, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~
+#'      N_n(\mu, \Sigma)}.  Like \code{qfrm()}, this function calls one of
+#' the following \dQuote{internal} functions for actual calculation,
+#' as appropriate.
 #'
 #' The usage of these functions is similar to \code{\link{qfrm}}, to which
-#' the user is referred for documentation.
-#' It is assumed that \eqn{\mathbf{B} \neq \mathbf{D}}
+#' the user is referred for documentation.  It is assumed that
+#' \eqn{\mathbf{B} \neq \mathbf{D}}{B != D}
 #' (otherwise, the problem reduces to a simple ratio).
 #'
 #' When \code{B} is identity or missing, this and its exponent \code{q} will
@@ -380,57 +387,58 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'
 #' The existence conditions for the moments of this multiple ratio can be
 #' reduced to those for a simple ratio, provided that one of the null spaces
-#' of \eqn{\mathbf{B}} and \eqn{\mathbf{D}} is a subspace of the other
-#' (including the case they are null).
-#' The conditions of Bao & Kan (2013: proposition 1) can then be
+#' of \eqn{\mathbf{B}}{B} and \eqn{\mathbf{D}}{D} is a subspace of the other
+#' (including the case they are null).  The conditions of Bao and Kan
+#' (2013: proposition 1) can then be
 #' applied by replacing \eqn{q} and \eqn{m} there by \eqn{q + r} and
-#' \eqn{\min{( \mathrm{rank}(\mathbf{B}), \mathrm{rank}(\mathbf{D}) )}},
+#' \eqn{\min{( \mathrm{rank}(\mathbf{B}), \mathrm{rank}(\mathbf{D}) )}
+#'      }{min(rank B, rank D)},
 #' respectively (see also Smith 1989: p. 258 for
-#' nonsingular \eqn{\mathbf{B}}, \eqn{\mathbf{D}}).
-#' An error is thrown if these conditions are not met in this case.
-#' Otherwise (i.e., \eqn{\mathbf{B}} and \eqn{\mathbf{D}} are both singular
-#' and neither of their null spaces is a subspace of the other), it seems
-#' difficult to define general moment existence conditions.  A sufficient
+#' nonsingular \eqn{\mathbf{B}}{B}, \eqn{\mathbf{D}}{D}).  An error is
+#' thrown if these conditions are not met in this case.  Otherwise
+#' (i.e., \eqn{\mathbf{B}}{B} and \eqn{\mathbf{D}}{D} are both
+#' singular and neither of their null spaces is a subspace of the other), it
+#' seems difficult to define general moment existence conditions.  A sufficient
 #' condition can be obtained by applying the same proposition with a new
-#' denominator matrix whose null space is union of those of \eqn{\mathbf{B}}
-#' and \eqn{\mathbf{D}} (Watanabe, 2022).  A warning is thrown if that
+#' denominator matrix whose null space is union of those of \eqn{\mathbf{B}}{B}
+#' and \eqn{\mathbf{D}}{D} (Watanabe, 2022).  A warning is thrown if that
 #' condition is not met in this case.
 #'
 #' Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
 #' \code{mu}, involve evaluation of multiple series, which can suffer
-#' from numerical overflow and underflow (see "Scaling" in
-#' \code{\link{d1_i}} and "Details" in \code{\link{qfrm}}). To avoid this,
-#' \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be used
-#' (see "Details" in \code{\link{qfrm}}).
+#' from numerical overflow and underflow (see \dQuote{Scaling} in
+#' \code{\link{d1_i}} and \dQuote{Details} in \code{\link{qfrm}}).  To avoid
+#' this, \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be
+#' used (see \dQuote{Details} in \code{\link{qfrm}}).
 #'
 #' @inheritParams qfrm
 #'
 #' @param A,B,D
-#'   Argument matrices. Should be square. Will be automatically symmetrized.
+#'   Argument matrices.  Should be square.  Will be automatically symmetrized.
 #' @param p,q,r
-#'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
-#'   respectively. By default, \code{q} equals \code{p/2} and
-#'   \code{r} equals \code{q}. If unsure, specify all explicitly.
+#'   Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
+#'   \eqn{\mathbf{D}}{D}, respectively.  By default, \code{q} equals \code{p/2}
+#'   and \code{r} equals \code{q}.  If unsure, specify all explicitly.
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-#'   Accommodated only by the front-end \code{qfmrm()}. See "Details"
-#'   in \code{\link{qfrm}}.
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
+#'   \eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
+#'   \code{qfmrm()}.  See \dQuote{Details} in \code{\link{qfrm}}.
 #' @param alphaA,alphaB,alphaD
-#'   Factors for the scaling constants for \eqn{\mathbf{A}},
-#'   \eqn{\mathbf{B}}, and \eqn{\mathbf{D}}, respectively. See "Details" in
-#'   \code{\link{qfrm}}.
+#'   Factors for the scaling constants for \eqn{\mathbf{A}}{A},
+#'   \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
+#'   \dQuote{Details} in \code{\link{qfrm}}.
 #' @param nthreads
-#'   Number of threads used in OpenMP-enabled \code{C++} functions.
-#'   See "Multithreading" in \code{\link{qfrm}}.
+#'   Number of threads used in OpenMP-enabled \code{C++} functions.  See
+#'   \dQuote{Multithreading} in \code{\link{qfrm}}.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfmrm()} will be passed to
-#'   the appropriate ``internal'' function.
+#'   the appropriate \dQuote{internal} function.
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
 #'
 #' @references
-#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
 #'   \doi{10.1016/j.jmva.2013.03.002}.
@@ -619,30 +627,31 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' of a product of quadratic forms in normal variables, i.e.,
 #' \eqn{ \mathrm{E} \left(
 #'   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
-#'   (\mathbf{x^\mathit{T} D x})^r \right) },
-#' where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
+#'   (\mathbf{x^\mathit{T} D x})^r \right)
+#'      }{E( (x^T A x)^p (x^T B x)^q (x^T D x)^r )}, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 #'
 #' These functions implement the super-short recursion algorithms described in
-#' Hillier et al. (2014: sec. 3.1--3.2 and 4).
-#' At present, only positive integers are accepted as exponents
-#' (negative exponents yield ratios, of course). All these yield exact results.
+#' Hillier et al. (2014: sec. 3.1--3.2 and 4).  At present,
+#' only positive integers are accepted as exponents
+#' (negative exponents yield ratios, of course).  All these yield exact results.
 #'
 #' @inheritParams qfmrm
 #'
 #' @param p,q,r
-#'   Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
-#'   respectively. By default, these are set to the same value.
-#'   If unsure, specify all explicitly.
+#'   Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
+#'   \eqn{\mathbf{D}}{D}, respectively.  By default, these are set to the same
+#'   value.  If unsure, specify all explicitly.
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}
 #' @param cpp_method
 #'   Variable type used in \code{C++} calculations.
 #'   In these functions this is ignored.
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfpm}} object which has the same elements as those
-#' returned by the \code{\link{qfrm}} functions.
-#' Use \code{$statistic} to access the value of the moment.
+#' returned by the \code{\link{qfrm}} functions.  Use
+#' \code{$statistic} to access the value of the moment.
 #'
 #' @seealso
 #' \code{\link{qfrm}} and \code{\link{qfmrm}} for moments of ratios
@@ -1044,22 +1053,21 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 ##
 #' Positive integer moment of ratio of quadratic forms in normal variables
 #'
-#' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+#' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 #' positive-integral \eqn{p}.
 #'
 #' ## Dependency note
 #' An exact expression of the moment is available when
-#' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}
+#' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n}
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
-#' a confluent hypergeometric function when \eqn{\bm{\mu}} is nonzero
-#' (Hillier et al. 2014: theorem 4).
-#' This is done via \code{gsl::hyperg_1F1()} if the package '\code{gsl}' is
-#' installed (which this package \code{Suggests}). Otherwise, the function uses
-#' the ordinary infinite series expression (Hillier et al. 2009), which is
-#' less accurate and slow, and throws a message.
-#' (In this case, the calculation is handled without \code{C++} codes.)
-#' It is recommended to install that package if an accurate estimate
-#' is desired for that case.
+#' a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
+#' (Hillier et al. 2014: theorem 4).  This is doen via \code{gsl::hyperg_1F1()}
+#' if the package '\code{gsl}' is installed (which this package
+#' \code{Suggests}).  Otherwise, the function uses the ordinary infinite
+#' series expression (Hillier et al. 2009), which is less accurate and slow,
+#' and throws a message.  (In this case, the calculation is handled without
+#' \code{C++} codes.)  It is recommended to install that package if
+#' an accurate estimate is desired for that case.
 #'
 # #' @importFrom gsl hyperg_1F1
 #'
@@ -1163,7 +1171,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfrm_ApIq_npi #####
 #' Non-positive-integer moment of ratio of quadratic forms in normal variables
 #'
-#' \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n} and
+#' \code{qfrm_ApIq_npi()}: For \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 #' non-positive-integral \eqn{p} (fraction or negative).
 #'
 #' @rdname qfrm
@@ -1322,7 +1330,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfrm_ApBq_int #####
 #' Positive integer moment of ratio of quadratic forms
 #'
-#' \code{qfrm_ApBq_int()}: For general \eqn{\mathbf{B}} and
+#' \code{qfrm_ApBq_int()}: For general \eqn{\mathbf{B}}{B} and
 #' positive-integral \eqn{p}.
 #'
 #'
@@ -1570,7 +1578,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfrm_ApBq_npi #####
 #' Non-positive-integer moment of ratio of quadratic forms
 #'
-#' \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}} and
+#' \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}}{B} and
 #' non-integral \eqn{p}.
 #'
 #' @rdname qfrm
@@ -1798,7 +1806,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 ##### qfmrm_ApBIqr_int #####
 #' Positive integer moment of multiple ratio when D is identity
 #'
-#' \code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+#' \code{qfmrm_ApBIqr_int()}: For \eqn{\mathbf{D} = \mathbf{I}_n}{D = I_n} and
 #' positive-integral \eqn{p}
 #'
 #' @rdname qfmrm
@@ -2079,7 +2087,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_ApBIqr_npi #####
 #' Non-positive-integer moment of multiple ratio when D is identity
 #'
-#' \code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n} and
+#' \code{qfmrm_ApBIqr_npi()}: For \eqn{\mathbf{D} = \mathbf{I}_n}{D = I_n} and
 #' non-integral \eqn{p}
 #'
 #'
@@ -2329,7 +2337,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_IpBDqr_gen #####
 #' Moment of multiple ratio when A is identity
 #'
-#' \code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}
+#' \code{qfmrm_IpBDqr_gen()}: For \eqn{\mathbf{A} = \mathbf{I}_n}{A = I_n}
 #'
 #' @rdname qfmrm
 #'
@@ -2586,8 +2594,8 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 ##### qfmrm_ApBDqr_int #####
 #' Positive integer moment of multiple ratio
 #'
-#' \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{\mathbf{D}}, and positive-integral \eqn{p}
+#' \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}{A},
+#' \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'
@@ -2861,8 +2869,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_ApBDqr_npi #####
 #' Positive integer moment of multiple ratio
 #'
-#' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}, \eqn{\mathbf{B}},
-#' and \eqn{\mathbf{D}}, and non-integral \eqn{p}
+#' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+#' and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'

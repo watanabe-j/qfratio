@@ -47,18 +47,18 @@ qfpm_ABDpqr_int(
 )
 }
 \arguments{
-\item{A, B, D}{Argument matrices. Should be square. Will be automatically symmetrized.}
+\item{A, B, D}{Argument matrices.  Should be square.  Will be automatically symmetrized.}
 
-\item{p, q, r}{Exponents for \eqn{\mathbf{A}}, \eqn{\mathbf{B}}, and \eqn{\mathbf{D}},
-respectively. By default, these are set to the same value.
-If unsure, specify all explicitly.}
+\item{p, q, r}{Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
+\eqn{\mathbf{D}}{D}, respectively.  By default, these are set to the same
+value.  If unsure, specify all explicitly.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
-functions via \code{Rcpp}. \code{TRUE} by default.}
+functions via \code{Rcpp}.  \code{TRUE} by default.}
 
 \item{cpp_method}{Variable type used in \code{C++} calculations.
 In these functions this is ignored.}
@@ -67,21 +67,22 @@ In these functions this is ignored.}
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.
-The eigenvalues smaller than this are considered zero.}
+\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
+eigenvalues smaller than this are considered zero.}
 }
 \value{
 A \code{\link[=new_qfrm]{qfpm}} object which has the same elements as those
-returned by the \code{\link{qfrm}} functions.
-Use \code{$statistic} to access the value of the moment.
+returned by the \code{\link{qfrm}} functions.  Use
+\code{$statistic} to access the value of the moment.
 }
 \description{
 Functions to obtain (compound) moments
 of a product of quadratic forms in normal variables, i.e.,
 \eqn{ \mathrm{E} \left(
   (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
-  (\mathbf{x^\mathit{T} D x})^r \right) },
-where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
+  (\mathbf{x^\mathit{T} D x})^r \right)
+     }{E( (x^T A x)^p (x^T B x)^q (x^T D x)^r )}, where
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 
 \code{qfm_Ap_int()} is for \eqn{q = r = 0} (simple moment)
 
@@ -91,9 +92,9 @@ where \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}.
 }
 \details{
 These functions implement the super-short recursion algorithms described in
-Hillier et al. (2014: sec. 3.1--3.2 and 4).
-At present, only positive integers are accepted as exponents
-(negative exponents yield ratios, of course). All these yield exact results.
+Hillier et al. (2014: sec. 3.1--3.2 and 4).  At present,
+only positive integers are accepted as exponents
+(negative exponents yield ratios, of course).  All these yield exact results.
 }
 \examples{
 ## Some symmetric matrices and parameters

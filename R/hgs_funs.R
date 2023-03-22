@@ -3,22 +3,22 @@
 #' These internal functions calculate (summands of) hypergeometric series.
 #'
 #' The denominator parameter \code{b} is assumed positive,
-#' whereas the numerator parameters can be positive or negative.
-#' The signs of the latter will be reflected in the result.
+#' whereas the numerator parameters can be positive or negative.  The signs
+#' of the latter will be reflected in the result.
 #'
 #' @name hgs
 #'
 #' @param dks
 #'   \code{(m + 1)} vector for \eqn{d_{i}},
-#'   \code{(m + 1) * (m + 1)} square matrix for \eqn{d_{i, j}}, or
-#'   \code{(m + 1) * (m + 1) * (m + 1)} array for \eqn{d_{i, j, k}}
+#'   \code{(m + 1) * (m + 1)} square matrix for \eqn{d_{i,j}}, or
+#'   \code{(m + 1) * (m + 1) * (m + 1)} array for \eqn{d_{i,j,k}}
 #'   (\eqn{i, j, k = 0, 1, \dots m})
 #' @param a1,a2,a3
 #'   Numerator parameters
 #' @param b
 #'   Denominator parameter
 #' @param lconst
-#'   Scalar \eqn{\log c}
+#'   Scalar \eqn{\log c}{log c}
 #'
 #' @return
 #' Numeric with the same dimension with \code{dks}
@@ -28,7 +28,7 @@ NULL
 #' Calculate 1D hypergeometric series
 #'
 #' \code{hgs_1d()} calculates the hypergeometric series
-#' \eqn{c \frac{(a_1)_i}{(b)_i} d_{i}}
+#' \eqn{c \frac{(a_1)_i}{(b)_i} d_{i}}{c ( (a_1)_i / (b)_i ) d_{i}}
 #'
 #' @rdname hgs
 #'
@@ -50,7 +50,8 @@ hgs_1d <- function(dks, a1, b, lconst = 0) {
 #' Calculate 2D hypergeometric series
 #'
 #' \code{hgs_2d()} calculates the hypergeometric series
-#' \eqn{c \frac{(a_1)_i (a_2)_j}{(b)_{i+j}} d_{i, j}}
+#' \eqn{c \frac{(a_1)_i (a_2)_j}{(b)_{i+j}} d_{i, j}}{c
+#'      ( (a_1)_i (a_2)_j / (b)_{i+j} ) d_{i,j}}
 #'
 #' @rdname hgs
 #'
@@ -78,7 +79,8 @@ hgs_2d <- function(dks, a1, a2, b, lconst = 0) {
 #' Calculate 3D hypergeometric series
 #'
 #' \code{hgs_3d()} calculates the hypergeometric series
-#' \eqn{c \frac{(a_1)_i (a_2)_j (a_3)_k}{(b)_{i+j+k}} d_{i, j, k}}
+#' \eqn{c \frac{(a_1)_i (a_2)_j (a_3)_k}{(b)_{i+j+k}} d_{i, j, k}}{c
+#'      ( (a_1)_i (a_2)_j (a_3)_k / (b)_{i+j+k} ) d_{i,j,k}}
 #'
 #' @rdname hgs
 #'

@@ -5,13 +5,14 @@
 #' in polynomial expansion of generating functions for quadratic forms
 #' in multivariate normal variables.
 #'
-#' \code{d1_i()} calculates \eqn{d_k(\mathbf{A})}, and \code{dtil1_i_v()} and
-#' \code{dtil1_i_m()} calculate \eqn{\tilde{d}_k(\mathbf{A})} in
-#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
-#' The former is related to the top-order zonal polynomial
-#' \eqn{C_{[k]}(\mathbf{A})} in the following way:
+#' \code{d1_i()} calculates \eqn{d_k(\mathbf{A})}{d_k(A)}, and
+#' \code{dtil1_i_v()} and \code{dtil1_i_m()} calculate
+#' \eqn{\tilde{d}_k(\mathbf{A})}{\tilde{d}_k(A)} in
+#' Hillier et al. (2009, 2014) and Bao and Kan (2013).  The former is
+#' related to the top-order zonal polynomial
+#' \eqn{C_{[k]}(\mathbf{A})}{C_[k](A)} in the following way:
 #' \eqn{ d_k(\mathbf{A}) = \frac{1}{k!} \left( \frac{1}{2} \right)_k
-#'      C_{[k]}(\mathbf{A}) },
+#'      C_{[k]}(\mathbf{A}) }{d_k(A) = (1/k!) (1/2)_k C_[k](A)},
 #' where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}.
 #'
 #' These functions calculate the coefficients based on the super-short
@@ -23,15 +24,15 @@
 #' so there is a practical risk of numerical overflow when applied to
 #' large matrices or matrices with many large eigenvalues
 #' (note that the latter typically arises from those with many small
-#' eigenvalues for the front-end \code{qfrm()} functions).
-#' To avoid numerical overflow, these functions automatically scale
+#' eigenvalues for the front-end \code{qfrm()} functions).  To avoid
+#' numerical overflow, these functions automatically scale
 #' coefficients (and temporary objects used to calculate them) by a large number
 #' (\code{1e10} at present) when any value in the temporary objects exceeds
 #' a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
-#' is the number of variables. This default value empirically seems to work well
+#' is the number of variables.  This default value empirically seems to work well
 #' in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
-#' if you encounter numerical overflow.
-#' (The \code{C++} functions use an equivalent expression,
+#' if you encounter numerical overflow.  (The \code{C++} functions use
+#' an equivalent expression,
 #' \code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with
 #' \code{Scalar} being \code{double} or \code{long double}.)
 #'
@@ -47,30 +48,30 @@
 #'
 #' The \code{qfrm} and \code{qfmrm} functions handle return values of these
 #' functions by first multiplying them with hypergeometric coefficients
-#' (which are typically \eqn{\ll 1}) and then scaling the products back
-#' to the original scale using the recorded scaling factors.
-#' (To be precise, this typically happens within \code{\link{hgs}} functions.)
-#' The \code{C++} functions handle the problem similarly (but by using
+#' (which are typically \eqn{\ll 1}{<< 1}) and then scaling the products back
+#' to the original scale using the recorded scaling factors.  (To be precise,
+#' this typically happens within \code{\link{hgs}} functions.)  The \code{C++}
+#' functions handle the problem similarly (but by using
 #' separate objects rather than attributes).
 #'
 #' However, this procedure does not always mitigate the problem in
 #' multiple series; when there are very large and very small
 #' coefficients in the same order, smaller ones can diminish/underflow to
-#' the numerical \code{0} after repeated scaling.
-#' (The \code{qfrm} and \code{qfmrm} functions try to detect and warn against
+#' the numerical \code{0} after repeated scaling.  (The \code{qfrm} and
+#' \code{qfmrm} functions try to detect and warn against
 #' this by examining whether any of the highest-order terms is \code{0}.)
 #' The present version of this package has implemented two methods to mitigate
-#' this problem, but only through \code{C++} functions. One is to use the
+#' this problem, but only through \code{C++} functions.  One is to use the
 #' \code{long double} variable type, and the other is to use coefficient-wise
 #' scaling (see \code{\link{qfrm}} and \code{\link{qfmrm}}).
 #'
 #' @return
 #' Vector of length \code{m + 1}, corresponding to
-#' the 0th, 1st, ..., and mth order terms.
-#' Hence, the \code{[m + 1]}-th element should be extracted
-#' when the coefficient for the mth order term is required.
+#' the 0th, 1st, ..., and mth order terms.  Hence, the \code{[m + 1]}-th
+#' element should be extracted when the coefficient for the \eqn{m}th order
+#' term is required.
 #'
-#' Has the attribute \code{"logscale"} as described in "Scaling" above.
+#' Has the attribute \code{"logscale"} as described in \dQuote{Scaling} above.
 #'
 #' @param L
 #'   Vector of eigenvalues of the argument matrix
@@ -79,22 +80,23 @@
 #' @param A
 #'   Argument matrix.  Assumed to be symmetric in these functions.
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 #' @param thr_margin
-#'   Optional argument to adjust the threshold for scaling (see "Details")
+#'   Optional argument to adjust the threshold for scaling
+#'   (see \dQuote{Details})
 #'
 #' @references
-#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
 #'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#' Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
 #'   *Econometric Theory*, **25**, 211--242.
 #'   \doi{10.1017/S0266466608090075}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
@@ -121,23 +123,22 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two or three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-#' They are primarily used to calculate moments of a product of two or
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+#' are primarily used to calculate moments of a product of two or
 #' three quadratic forms.
 #'
 #' \code{dtil2_pq_m()} and \code{dtil2_pq_v()} calculate
-#' \eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)} in
-#' Hillier et al. (2014).
-#' \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are fast versions
-#' for the commonly used case where \eqn{p = 1}.
-#' Similarly, \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
-#' \eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)}.
+#' \eqn{\tilde{d}_{p,q}(\mathbf{A}_1, \mathbf{A}_2)}{\tilde{d}_{p,q}(A_1, A_2)}
+#' in Hillier et al. (2014).  \code{dtil2_1q_m()} and \code{dtil2_1q_v()} are
+#' fast versions for the commonly used case where \eqn{p = 1}.  Similarly,
+#' \code{dtil3_pqr_m()} and \code{dtil3_pqr_v()} are for
+#' \eqn{\tilde{d}_{p,q,r}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+#'      }{\tilde{d}_{p,q,r}(A_1, A_2, A_3)}.
 #'
 #' Those ending with \code{_m} take matrices as arguments, whereas
-#' those with \code{_v} take eigenvalues.
-#' The latter can be used only when the argument matrices share the same
-#' eigenvectors, to which the eigenvalues correspond in the orders given,
-#' but is substantially faster.
+#' those with \code{_v} take eigenvalues.  The latter can be used only when
+#' the argument matrices share the same eigenvectors, to which the eigenvalues
+#' correspond in the orders given, but is substantially faster.
 #'
 #' These functions calculate the coefficients based on the super-short
 #' recursion algorithm described in Hillier et al. (2014: sec. 4.2).
@@ -147,21 +148,22 @@ NULL
 #' or a \code{(p + 1) * (q + 1) * (r + 1)} array for the 3D functions.
 #'
 #' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
-#' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3},
-#' respectively. And the 1st row/column of each dimension corresponds
-#' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th moment).
+#' \eqn{\mathbf{A}_1}{A_1}, \eqn{\mathbf{A}_2}{A_2}, and
+#' \eqn{\mathbf{A}_3}{A_3}, respectively.  And the 1st row/column of each
+#' dimension corresponds to the 0th order (hence \code{[p + 1, q + 1]} for
+#' the \eqn{(p,q)}-th moment).
 #'
 #' @param A1,A2,A3
-#'   Argument matrices. Assumed to be symmetric and of the same order.
+#'   Argument matrices.  Assumed to be symmetric and of the same order.
 #' @param L1,L2,L3
 #'   Eigenvalues of the argument matrices
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 #' @param p,q,r
 #'   Integer-alikes to specify the order along the three argument matrices
 #'
 #' @references
-#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
@@ -183,48 +185,48 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for two
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-#' They are primarily used in calculations around moments of a ratio
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+#' are primarily used in calculations around moments of a ratio
 #' involving two or three quadratic forms.
 #'
 #' \code{d2_**_*()} functions calculate
-#' \eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} in
-#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
-#' These are also related to the top-order invariant polynomials
-#' \eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)} in the following way:
+#' \eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{d_{i,j}(A_1, A_2)} in
+#' Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related to
+#' the top-order invariant polynomials
+#' \eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)}{C_{[k_1],[k_2]}(A_1, A_2)}
+#' in the following way:
 #' \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
 #'      \frac{1}{k_1! k_2!} \left( \frac{1}{2} \right)_{k_1 + k_2}
-#'      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) },
+#'      C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2) }{d_{i,j}(A_1, A_2) =
+#'      (1 / (k_1! k_2!)) ( 1/2 )_{k_1 + k_2} C_{[k_1],[k_2]}(A_1, A_2) },
 #' where \eqn{(x)_k = x (x + 1) \dots (x + k - 1)}
 #' (Chikuse 1987; Hillier et al. 2009).
 #'
 #' \code{h2_ij_*()} and \code{htil2_pj_*()} functions calculate
-#' \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)} and
-#' \eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}, respectively,
-#' in Bao & Kan (2013). Note that the latter is denoted by the symbol
-#' \eqn{h_{i,j}} in Hillier et al. (2014).
-#' \code{hhat2_pj_*()} functions are for
-#' \eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}
+#' \eqn{h_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{h_{i,j}(A_1, A_2)} and
+#' \eqn{\tilde{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}{\tilde{h}_{i,j}(A_1; A_2)},
+#' respectively, in Bao and Kan (2013).  Note that the latter is denoted by the
+#' symbol \eqn{h_{i,j}} in Hillier et al. (2014).  \code{hhat2_pj_*()}
+#' functions are for
+#' \eqn{\hat{h}_{i,j}(\mathbf{A}_1; \mathbf{A}_2)}{\hat{h}_{i,j}(A_1; A_2)}
 #' in Hillier et al. (2014), used to calculate an error bound for
-#' truncated sum for moments of a ratio of quadratic forms.
-#' The mean vector \eqn{\bm{\mu}} is a parameter in all these.
+#' truncated sum for moments of a ratio of quadratic forms.  The
+#' mean vector \eqn{\bm{\mu}}{\mu} is a parameter in all these.
 #'
 #' There are two different situations in which these coefficients are used
 #' in calculation of moments of ratios of quadratic forms:
 #' **1**) within an infinite series for one of the subscripts, with the
 #' other subscript fixed (when the exponent \eqn{p} of the numerator
 #' is integer); **2**) within a double infinite series for both subscripts
-#' (when \eqn{p} is non-integer) (see Bao & Kan 2013).
-#' In this package, the situation **1** is handled by
-#' the \code{*_pj_*} (and \code{*_1j_*}) functions, and **2** is by
-#' the \code{*_ij_*} functions.
+#' (when \eqn{p} is non-integer) (see Bao and Kan 2013).  In this package,
+#' the situation **1** is handled by the \code{*_pj_*} (and \code{*_1j_*})
+#' functions, and **2** is by the \code{*_ij_*} functions.
 #'
 #' In particular, the \code{*_pj_*} functions always return a
 #' \code{(p + 1) * (m + 1)} matrix where all elements are filled with
 #' the relevant coefficients (e.g., \eqn{d_{i,j}}, \eqn{\tilde{h}_{i,j}}),
 #' from which, typically, the \code{[p + 1, ]}-th row is used for
-#' subsequent calculations.
-#' (Those with \code{*_1q_*} are simply fast versions
+#' subsequent calculations.  (Those with \code{*_1q_*} are simply fast versions
 #' for the commonly used case where \eqn{p = 1}.)
 #' On the other hand, the \code{*_ij_*} functions by default return a
 #' \code{(m + 1) * (m + 1)} matrix whose upper-left triangular part
@@ -238,10 +240,9 @@ NULL
 #' be omitted in the future development.)
 #'
 #' Those ending with \code{_m} take matrices as arguments, whereas
-#' those with \code{_v} take eigenvalues.
-#' The latter can be used only when the argument matrices share the same
-#' eigenvectors, to which the eigenvalues correspond in the orders given,
-#' but is substantially faster.
+#' those with \code{_v} take eigenvalues.  The latter can be used only when
+#' the argument matrices share the same eigenvectors, to which the eigenvalues
+#' correspond in the orders given, but is substantially faster.
 #'
 #' This package also involves \code{C++} equivalents for most of these functions
 #' (which are suffixed by \code{E} for \code{Eigen}),
@@ -253,48 +254,48 @@ NULL
 #' \code{(m + 1) * (m + 1)} matrix for the \code{*_ij_*} functions.
 #'
 #' The rows and columns correspond to increasing orders for
-#' \eqn{\mathbf{A}_1} and \eqn{\mathbf{A}_2}, respectively.
-#' And the 1st row/column of each dimension corresponds
+#' \eqn{\mathbf{A}_1}{A_1} and \eqn{\mathbf{A}_2}{A_2}, respectively.  And
+#' the 1st row/column of each dimension corresponds
 #' to the 0th order (hence \code{[p + 1, q + 1]} for the \eqn{(p,q)}-th order).
 #'
-#' Has the attribute \code{"logscale"} as described in the "Scaling" section
-#' in \code{\link{d1_i}}.
-#' This is a matrix of the same size as the return itself.
+#' Has the attribute \code{"logscale"} as described in the
+#' \dQuote{Scaling} section in \code{\link{d1_i}}.  This is
+#' a matrix of the same size as the return itself.
 #'
 #' @param A1,A2
-#'   Argument matrices. Assumed to be symmetric and of the same order.
+#'   Argument matrices.  Assumed to be symmetric and of the same order.
 #' @param L1,L2
 #'   Eigenvalues of the argument matrices
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 #' @param m
 #'   Integer-alike to specify the desired order along \code{A2}/\code{L2}
 #' @param p,q
 #'   Integer-alikes to specify the desired orders along
 #'   \code{A1}/\code{L1} and \code{A2}/\code{L2}, respectively.
 #' @param thr_margin
-#'   Optional argument to adjust the threshold for scaling (see "Scaling"
+#'   Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 #'   in \code{\link{d1_i}})
 #' @param fill_all
-#'   Logical to specify whether all the output matrix should be filled.
-#'   See "Details".
+#'   Logical to specify whether all the output matrix should be filled.  See
+#'   \dQuote{Details}.
 #'
 #' @references
-#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
 #'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
-#' Chikuse, Y. (1987). Methods for constructing top order invariant polynomials.
+#' Chikuse, Y. (1987) Methods for constructing top order invariant polynomials.
 #'   *Econometric Theory*, **3**, 195--207.
 #'   \doi{10.1017/S026646660001029X}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2009). Computationally efficient recursions
+#' Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
 #'   *Econometric Theory*, **25**, 211--242.
 #'   \doi{10.1017/S0266466608090075}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
@@ -320,64 +321,66 @@ NULL
 #' These are internal functions to calculate the coefficients
 #' in polynomial expansion of joint generating functions for three
 #' quadratic forms in potentially noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
-#' They are primarily used in calculations around moments of a ratio
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.  They
+#' are primarily used in calculations around moments of a ratio
 #' involving three quadratic forms.
 #'
 #' All these functions have equivalents for two-matrix cases
-#' (\code{\link{d2_ij}}), to which the user is referred for documentations.
-#' The primary difference of these functions from the latter is
+#' (\code{\link{d2_ij}}), to which the user is referred for
+#' documentations.  The primary difference of these functions from the latter is
 #' the addition of arguments for the third matrix \code{A3}/\code{L3}.
 #'
 #' \code{d3_*jk_*()} functions calculate
-#' \eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)} in
-#' Hillier et al. (2009, 2014) and Bao & Kan (2013).
-#' These are also related to the top-order invariant polynomials as described
+#' \eqn{d_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+#'      }{d_{i,j,k}(A_1, A_2, A_3)} in
+#' Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are
+#' also related to the top-order invariant polynomials as described
 #' in \code{\link{d2_ij}}.
 #'
 #' \code{h3_ijk_*()}, \code{htil3_pjk_*()}, and \code{hhat3_pjk_*()} functions
-#'  calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)},
-#' \eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)}, and
-#' \eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)},
-#' respectively, as described in the package vignette. These are equivalent
-#' to similar coefficients described in Bao & Kan (2013) and
+#' calculate \eqn{h_{i,j,k}(\mathbf{A}_1, \mathbf{A}_2, \mathbf{A}_3)
+#'                }{h_{i,j,k}(A_1, A_2, A_3)},
+#' \eqn{\tilde{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)
+#'      }{\tilde{h}_{i;j,k}(A_1; A_2, A_3)}, and
+#' \eqn{\hat{h}_{i;j,k}(\mathbf{A}_1; \mathbf{A}_2, \mathbf{A}_3)
+#'      }{\hat{h}_{i;j,k}(A_1; A_2, A_3)},
+#' respectively, as described in the package vignette.  These are equivalent
+#' to similar coefficients described in Bao and Kan (2013) and
 #' Hillier et al. (2014).
 #'
 #' The difference between the \code{*_pjk_*} and \code{*_ijk_*} functions
 #' is as described for \code{*_pj_*} and \code{*_ij_*}
-#' (see "Details" in \code{\link{d2_ij}}).
-#' The only difference is that these functions return a 3D array.
-#' In the \code{*_pjk_*} functions, all the slices along the first dimension
-#' (i.e., \code{[i, , ]}) are an upper-left triangular matrix
-#' like what the \code{*_ij_*} functions return in the 2D case;
-#' in other words, the return has the coefficients for the terms that satisfy
-#' \eqn{j + k \leq m} for all \eqn{i = 0, 1, \dots, p}.
-#' Typically, the \code{[p + 1, , ]}-th slice is used for subsequent
-#' calculations.
-#' In the return of the \code{*_ijk_*} functions, only the triangular prism
+#' (see \dQuote{Details} in \code{\link{d2_ij}}).  The only difference is
+#' that these functions return a 3D array.  In the \code{*_pjk_*} functions,
+#' all the slices along the first dimension (i.e., \code{[i, , ]}) are
+#' an upper-left triangular matrix like what the \code{*_ij_*} functions return
+#' in the 2D case; in other words, the return has the coefficients for the terms
+#' that satisfy \eqn{j + k \le m} for all \eqn{i = 0, 1, \dots, p}.  Typically,
+#' the \code{[p + 1, , ]}-th slice is used for subsequent calculations.  In the
+#' return of the \code{*_ijk_*} functions, only the triangular prism
 #' close to the \code{[1, 1, 1]} is filled with coefficients, which
-#' correspond to the terms satisfying \eqn{i + j + k \leq m}.
+#' correspond to the terms satisfying \eqn{i + j + k \le m}.
 #'
 #' @return
 #'
 #' \code{(p + 1) * (m + 1) * (m + 1)} array for the \code{*_pjk_*} functions
 #'
 #' \code{(m + 1) * (m + 1) * (m + 1)} array for the \code{*_ijk_*} functions
-#' (by default; see "Details").
+#' (by default; see \dQuote{Details}).
 #'
 #' The 1st, 2nd, and 3rd dimensions correspond to increasing orders for
-#' \eqn{\mathbf{A}_1}, \eqn{\mathbf{A}_2}, and \eqn{\mathbf{A}_3}, respectively.
-#' And the 1st row/column of each dimension corresponds
-#' to the 0th order (hence \code{[p + 1, q + 1, r + 1]} for
-#' the \eqn{(p,q,r)}-th order).
+#' \eqn{\mathbf{A}_1}{A_1}, \eqn{\mathbf{A}_2}{A_2}, and
+#' \eqn{\mathbf{A}_3}{A_3}, respectively.  And the 1st row/column of
+#' each dimension corresponds to the 0th order (hence
+#' \code{[p + 1, q + 1, r + 1]} for the \eqn{(p,q,r)}-th order).
 #'
-#' Has the attribute \code{"logscale"} as described in the "Scaling" section
-#' in \code{\link{d1_i}}.
-#' This is an array of the same size as the return itself.
+#' Has the attribute \code{"logscale"} as described in the \dQuote{Scaling}
+#' section in \code{\link{d1_i}}.  This is an array of the same size
+#' as the return itself.
 #'
 #' @inheritParams d2_ij
 #' @param A1,A2,A3
-#'   Argument matrices. Assumed to be symmetric and of the same order.
+#'   Argument matrices.  Assumed to be symmetric and of the same order.
 #' @param L1,L2,L3
 #'   Eigenvalues of the argument matrices
 #' @param m
@@ -392,12 +395,12 @@ NULL
 #'   the output matrix should be filled.
 #'
 #' @references
-#' Bao, Y. & Kan, R. (2013). On the moments of ratios of quadratic forms in
+#' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
 #'   229--245.
 #'   \doi{10.1016/j.jmva.2013.03.002}.
 #'
-#' Hillier, G., Kan, R, & Wang, X. (2014). Generating functions and
+#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
 #'   short recursions, with applications to the moments of quadratic forms
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
@@ -420,7 +423,7 @@ NULL
 #' Coefficients in polynomial expansion of generating function
 #'
 #' \code{d1_i()} is for standard multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N_n(\mathbf{0}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\mathbf{0}_n, \mathbf{I}_n)}{x ~ N_n(0_n, I_n)}.
 #'
 #' @rdname d1_i
 #'
@@ -447,7 +450,7 @@ d1_i <- function(L, m = 100L, thr_margin = 100) {
 #' Coefficients in polynomial expansion of generating function
 #'
 #' \code{dtil1_i_v()} is for noncentral multivariate normal variables,
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}.
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{I}_n)}{x ~ N_n(\mu, I_n)}.
 #'
 #' @rdname d1_i
 #'
@@ -823,14 +826,14 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
 #' variables where the denominator matrix is identity.
 #'
 #' This function implements the super-short recursion described in
-#' Hillier et al. (2014  eqs. 31--32).
-#' Note that \eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
+#' Hillier et al. (2014  eqs. 31--32).  Note that
+#' \eqn{w_{r,i}} there should be understood as \eqn{w_{r,l,i}} with
 #' the index \eqn{l} fixed for each \eqn{a_{r,l}}.
 #'
 #' @param L
 #'   Eigenvalues of the argument matrix; vector of \eqn{\lambda_i}
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
 #' @param m
 #'   Scalar to specify the desired order
 #'

@@ -16,22 +16,22 @@ rqfp(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = TRUE)
 \item{nit}{Number of iteration or sample size.  Should be an integer-alike of
 length 1.}
 
-\item{A, B, D}{Argument matrices (see "Details").  Assumed to be square matrices of
+\item{A, B, D}{Argument matrices (see \dQuote{Details}).  Assumed to be square matrices of
 the same order.  When missing, set to the identity matrix.  At least
 one of these should be specified.}
 
-\item{p, q, r}{Exponents for A, B, D, respectively (see "Details").  Assumed to be
-numeric of length 1 each.  See "Details" for default values.}
+\item{p, q, r}{Exponents for A, B, D, respectively (see \dQuote{Details}).  Assumed to be
+numeric of length 1 each.  See \dQuote{Details} for default values.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}} for \eqn{\mathbf{x}}. Default zero vector.}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}.  Default
+zero vector.}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}} for \eqn{\mathbf{x}}.
-Default identity matrix.
-\code{mu} and \code{Sigma} are assumed to be of the same order as
-the argument matrices.}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
+\eqn{\mathbf{x}}{x}.  Default identity matrix.  \code{mu} and
+\code{Sigma} are assumed to be of the same order as the argument matrices.}
 
-\item{use_cpp}{Logical to specify whether an \code{C++} version is called or not.
-\code{TRUE} by default.}
+\item{use_cpp}{Logical to specify whether an \code{C++} version is called or
+not.  \code{TRUE} by default.}
 }
 \value{
 Numeric vector of length \code{nit}.
@@ -40,34 +40,36 @@ Numeric vector of length \code{nit}.
 \code{rqfr()}, \code{rqfmr()}, and \code{rqfp()} calculate a random sample of
 a simple ratio, multiple ratio (of special form), and product, respectively,
 of quadratic forms in normal variables of specified mean and covariance
-(standard multivariate normal by default).
-These functions are primarily for empirical verification of the analytic
-results provided in this package.
+(standard multivariate normal by default).  These functions are primarily for
+empirical verification of the analytic results provided in this package.
 }
 \details{
 These functions generate a random sample of
-\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q} }
+\eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q}
+     }{(x^T A x)^p / (x^T B x)^q}
 (\code{rqfr()}),
 \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}
-           {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r} }
+           {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r}
+     }{(x^T A x)^p / ( (x^T B x)^q (x^T D x)^r )}
 (\code{rqfmr()}), and
 \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
-      (\mathbf{x^\mathit{T} D x})^r } (\code{rqfp()}),
-where \eqn{\mathbf{x} \sim N(\bm{\mu}, \mathbf{\Sigma})}.
-(Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()}
-with negative exponents.)
+      (\mathbf{x^\mathit{T} D x})^r }{(x^T A x)^p (x^T B x)^q (x^T D x)^r}
+(\code{rqfp()}), where
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})
+     }{x ~ N_n(\mu, \Sigma)}.  (Internally, \code{rqfr()} and \code{rqfmr()}
+just call \code{rqfp()} with negative exponents.)
 
 When only one of \code{p} and \code{q} is provided in \code{rqfr()},
 the other (missing) one is set to the same value.
 
 In \code{rqfmr()}, \code{q} and \code{r} are set to \code{p/2}
-when both missing, and set to the same value when only one is missing.
-When \code{p} is missing, this is set to be \code{q + r}.
-If unsure, specify all these explicitly.
+when both missing, and set to the same value when only one is missing.  When
+\code{p} is missing, this is set to be \code{q + r}.  If unsure,
+specify all these explicitly.
 
 In \code{rqfp()}, \code{p}, \code{q} and \code{r} are \code{1} by default,
-provided that the corresponding argument matrices are given.
-If both an argument matrix and its exponent (e.g., \code{D} and \code{r})
+provided that the corresponding argument matrices are given.  If both
+an argument matrix and its exponent (e.g., \code{D} and \code{r})
 are missing, the exponent is set to \code{0} so that the factor be unity.
 }
 \examples{

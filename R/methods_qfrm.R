@@ -1,26 +1,26 @@
 ##### new_qfrm #####
 #' Construct qfrm object
 #'
-#' These are internal ``constructor'' functions used to make \code{qfrm} and
-#' \code{qfpm} objects, which are used as a return value from the
+#' These are internal \dQuote{constructor} functions used to make \code{qfrm}
+#' and \code{qfpm} objects, which are used as a return value from the
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, and \code{\link{qfpm}} functions.
 #'
 #' @param statistic
-#'   Terminal value (partial sum) for the moment.
-#'   When missing, obtained as \code{sum(terms)}.
+#'   Terminal value (partial sum) for the moment.  When missing,
+#'   obtained as \code{sum(terms)}.
 #' @param error_bound
-#'   Terminal error bound.
-#'   When missing, obtained as \code{seq_error[length(seq_error)]}.
+#'   Terminal error bound.  When missing,
+#'   obtained as \code{seq_error[length(seq_error)]}.
 #' @param terms
 #'   Terms in series expression for the moment along varying polynomial degrees
 #' @param seq_error
 #'   Vector of error bounds corresponding to \code{cumsum(terms)}
 #' @param exact,twosided,alphaout,singular_arg
 #'   Logicals used to append attributes to the resultant error bound
-#'   (see "Value")
+#'   (see \dQuote{Value})
 #' @param diminished
 #'   Logical used to append attribute to the resultant statistic and terms
-#'   (see "Value")
+#'   (see \dQuote{Value})
 #' @param class
 #'   Character vector to (pre-)append classes to the return value
 #' @param ...
@@ -28,8 +28,8 @@
 #'
 #' @return
 #' \code{new_qfrm()} and \code{new_qfpm()} return a list of class \code{qfrm}
-#' and \code{c(qfpm, qfrm)}, respectively.
-#' These classes are defined for the \code{print} and \code{plot} methods.
+#' and \code{c(qfpm, qfrm)}, respectively.  These classes are defined for
+#' the \code{print} and \code{plot} methods.
 #'
 #' The return object is a list of 4 elements which are intended to be:
 #' \itemize{
@@ -40,8 +40,7 @@
 #'                              partial sums (\code{cumsum(terms)})}
 #' }
 #' When the result is exact, \code{$terms} can be of length 1 and equal to
-#' \code{$statistic}.
-#' This is always the case for the \code{qfpm} class.
+#' \code{$statistic}.  This is always the case for the \code{qfpm} class.
 #'
 #' When the relevant flags are provided in the constructor, \code{$error_bound}
 #' and \code{$seq_error} have the following attributes which control behaviors
@@ -60,7 +59,7 @@
 #' Similarly, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
 #' have the attribute \code{"diminished"} being \code{TRUE}, which indicates
 #' that numerical underflow/diminishing happened during scaling
-#' (see "Scaling" in \code{\link{d1_i}}).
+#' (see \dQuote{Scaling} in \code{\link{d1_i}}).
 #'
 #' @seealso
 #' \code{\link{qfrm}}, \code{\link{qfmrm}}, \code{\link{qfpm}}: functions
@@ -135,10 +134,10 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #' \code{x$statistic + x$error_bound} in case of two-sided).
 #'
 #' The \code{plot} method is designed for quick inspection of the profile of
-#' the partial sum of the series along varying orders \code{cumsum(x$terms)}.
-#' When the object has a sequence for error bounds \code{x$seq_error}, this is
-#' also shown with a broken line (by default).
-#' When the object has an exact moment (i.e., resulting from
+#' the partial sum of the series along varying orders
+#' \code{cumsum(x$terms)}.  When the object has a sequence for error bounds
+#' \code{x$seq_error}, this is also shown with a broken line (by default).  When
+#' the object has an exact moment (i.e., resulting from
 #' \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
 #' is thrown to tell inspection of the plot will not be required in this case.
 #'
@@ -156,10 +155,10 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'   Logical to specify whether a legend is added.  Turned on by default
 #'   when \code{add_error = TRUE}.
 #' @param ylim,ylim_f
-#'   \code{ylim} is passed to \code{\link[graphics]{plot.default}}.
-#'   By default, this is automatically set to \code{ylim_f} times
-#'   the terminal value of the seies expression (\code{x$statistic}).
-#'   \code{ylim_f} is by default \code{c(0.9, 1.1)}.
+#'   \code{ylim} is passed to \code{\link[graphics]{plot.default}}.  By default,
+#'   this is automatically set to \code{ylim_f} times the terminal value of
+#'   the seies expression (\code{x$statistic}).  \code{ylim_f} is
+#'   by default \code{c(0.9, 1.1)}.
 #' @param xlab,ylab
 #'   Passed to \code{\link[graphics]{plot.default}}
 #' @param col_m,col_e,lwd_m,lwd_e,lty_m,lty_e
@@ -169,12 +168,13 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'   Position of the legend, e.g., \code{"topright"}, \code{"bottomright"},
 #'   passed as the first argument for \code{\link[graphics]{legend}}
 #' @param ...
-#'   In the \code{plot} methods, passed to \code{\link[graphics]{plot.default}}.
-#'   In the \code{print} methods, ignored (retained for the compatibility
-#'   with the generic method).
+#'   In the \code{plot} methods, passed to
+#'   \code{\link[graphics]{plot.default}}.  In the \code{print} methods,
+#'   ignored (retained for the compatibility with the generic method).
 #'
 #' @return
 #' The \code{print} method invisibly returns the input.
+#' 
 #' The \code{plot} method is used for the side effect (and invisibly returns
 #' \code{NULL}).
 #'
@@ -182,7 +182,7 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'
 #' @seealso
 #' \code{\link{new_qfrm}}: descriptions of the classes and their
-#' ``constructors''
+#' \dQuote{constructors}
 #'
 #' @examples
 #' nv <- 4

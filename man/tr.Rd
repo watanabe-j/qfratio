@@ -10,5 +10,5 @@ tr(X)
 \item{X}{Square matrix whose trace is to be calculated}
 }
 \description{
-This is an internal function. No check is done on the structure of \code{X}.
+This is an internal function.  No check is done on the structure of \code{X}.
 }

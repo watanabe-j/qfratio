@@ -13,5 +13,5 @@ S_fromUL(evec, evalues)
 }
 \description{
 This is an internal utility function to make covariance matrix from
-eigenvectors and eigenvalues. Symmetry is assumed for the original matrix.
+eigenvectors and eigenvalues.  Symmetry is assumed for the original matrix.
 }

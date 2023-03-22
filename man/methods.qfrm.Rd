@@ -42,9 +42,9 @@
 \item{show_range}{Logical to specify whether the possible range for the moment
 is printed (when available).  Default \code{TRUE} when available.}
 
-\item{...}{In the \code{plot} methods, passed to \code{\link[graphics]{plot.default}}.
-In the \code{print} methods, ignored (retained for the compatibility
-with the generic method).}
+\item{...}{In the \code{plot} methods, passed to
+\code{\link[graphics]{plot.default}}.  In the \code{print} methods,
+ignored (retained for the compatibility with the generic method).}
 
 \item{add_error}{Logical to specify whether the sequence of error bounds is plotted
 (when available).  Default \code{TRUE} when available.}
@@ -52,10 +52,10 @@ with the generic method).}
 \item{add_legend}{Logical to specify whether a legend is added.  Turned on by default
 when \code{add_error = TRUE}.}
 
-\item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}}.
-By default, this is automatically set to \code{ylim_f} times
-the terminal value of the seies expression (\code{x$statistic}).
-\code{ylim_f} is by default \code{c(0.9, 1.1)}.}
+\item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}}.  By default,
+this is automatically set to \code{ylim_f} times the terminal value of
+the seies expression (\code{x$statistic}).  \code{ylim_f} is
+by default \code{c(0.9, 1.1)}.}
 
 \item{xlab, ylab}{Passed to \code{\link[graphics]{plot.default}}}
 
@@ -67,6 +67,7 @@ passed as the first argument for \code{\link[graphics]{legend}}}
 }
 \value{
 The \code{print} method invisibly returns the input.
+
 The \code{plot} method is used for the side effect (and invisibly returns
 \code{NULL}).
 }
@@ -84,10 +85,10 @@ one-sided error bound; \code{x$statistic - x$error_bound} to
 \code{x$statistic + x$error_bound} in case of two-sided).
 
 The \code{plot} method is designed for quick inspection of the profile of
-the partial sum of the series along varying orders \code{cumsum(x$terms)}.
-When the object has a sequence for error bounds \code{x$seq_error}, this is
-also shown with a broken line (by default).
-When the object has an exact moment (i.e., resulting from
+the partial sum of the series along varying orders
+\code{cumsum(x$terms)}.  When the object has a sequence for error bounds
+\code{x$seq_error}, this is also shown with a broken line (by default).  When
+the object has an exact moment (i.e., resulting from
 \code{\link{qfrm_ApIq_int}()} or the \code{\link{qfpm}} functions), a message
 is thrown to tell inspection of the plot will not be required in this case.
 }
@@ -115,5 +116,5 @@ plot(res2)
 }
 \seealso{
 \code{\link{new_qfrm}}: descriptions of the classes and their
-``constructors''
+\dQuote{constructors}
 }
