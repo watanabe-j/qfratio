@@ -389,7 +389,6 @@ SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
     ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil2_pj_vE(LA, LBh, mu, m, p, lscf, thr_margin).row(p);
-    ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
 
@@ -439,7 +438,6 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
     DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
     ArrayXd lscf = ArrayXd::Zero(m + 1);
     ArrayXd dks = htil2_pj_mE(A, Bh, mu, m, p, lscf, thr_margin).row(p);
-    ArrayXd lscfp = lscf.row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
 
