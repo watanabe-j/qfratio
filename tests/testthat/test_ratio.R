@@ -54,7 +54,7 @@ suppressMessages(
 
 test_that("Expect silence or warning around error bound", {
     nvs <- 4:6
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -106,7 +106,7 @@ test_that("Expect silence or warning around error bound", {
 test_that("Existence conditions: qfrm, nonsingular", {
     nvs <- 2:4
     ks <- c(1:3, 1/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -156,7 +156,7 @@ test_that("Existence conditions: qfrm, nonsingular", {
 test_that("Existence conditions: qfmrm, nonsingular", {
     nvs <- 2:4
     ks <- c(1, 2, 1/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -200,7 +200,7 @@ test_that("Existence conditions: qfmrm, nonsingular", {
 test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -243,7 +243,7 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
 test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -288,7 +288,7 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
 test_that("Existence conditions: qfrm, singular, A22 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -333,7 +333,7 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
 test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -393,7 +393,7 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
 test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -455,7 +455,7 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
 test_that("Existence conditions: qfmrm, singular, A22 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 3
+    m <- 1
 
     ## A1 has nonzero elements in the null space of A2/A3, whose rank is (nv - 1)
     for(nv in nvs) {

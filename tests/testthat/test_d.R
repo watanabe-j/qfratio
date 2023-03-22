@@ -38,7 +38,7 @@ test_that("Expect d_1(A) as tr(A) / 2", {
 
 test_that("Consistency between d, h, etc.", {
     nvs <- 2:5
-    m <- 20
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1

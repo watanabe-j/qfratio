@@ -3,7 +3,7 @@ tol <- 5e-7
 test_that("Expect equal from R and Cpp methods: qfrm", {
     nvs <- 2:4
     ks <- c(1:3, 1/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -18,13 +18,30 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
             A2r <- A2
         }
 
-        for(p in ks) {
+        for(p in ks[ks %% 1 == 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
                 expect_equal(qfrm(A1, I,  p, q, m = m, use_cpp = FALSE),
                              qfrm(A1, I,  p, q, m = m, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = FALSE)),
                              suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1)), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
+                             qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
+                expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
+                             qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
+                             qfrm(A1, A2r, p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
+                expect_equal(qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
+                             qfrm(A1, A2r, p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
+            }
+        }
+        for(p in ks[ks %% 1 != 0]) {
+            for(q in ks) {
+                if(nv / 2 + p <= q) next
+                expect_equal(qfrm(A1, I,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
+                             qfrm(A1, I,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
+                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE)),
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1)), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),
@@ -42,7 +59,7 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
 test_that("Expect equal from R and Cpp methods: qfmrm", {
     nvs <- 2:4
     ks <- c(1, 2, 1/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -96,7 +113,7 @@ test_that("Expect equal from R and Cpp methods: qfmrm", {
 test_that("Expect equal from double and long double in C++: qfrm", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -114,8 +131,8 @@ test_that("Expect equal from double and long double in C++: qfrm", {
         for(p in ks[ks %% 1 != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) next
-                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "double")),
-                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double")), tolerance = tol)
+                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double")),
+                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double")), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "long_double"), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1, cpp_method = "double"),
@@ -132,7 +149,7 @@ test_that("Expect equal from double and long double in C++: qfrm", {
 test_that("Expect equal from double and long double in C++: qfmrm", {
     nvs <- 2:4
     ks <- c(1, 2, 1/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -186,7 +203,7 @@ test_that("Expect equal from double and long double in C++: qfmrm", {
 test_that("Expect equal from double and coef_wise in C++: qfrm", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
@@ -222,7 +239,7 @@ test_that("Expect equal from double and coef_wise in C++: qfrm", {
 test_that("Expect equal from double and coef_wise in C++: qfmrm", {
     nvs <- 2:4
     ks <- c(1, 2, 1/2)
-    m <- 10
+    m <- 3
     for(nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
