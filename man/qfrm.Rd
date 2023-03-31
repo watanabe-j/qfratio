@@ -117,10 +117,10 @@ eigenvalues smaller than this are considered zero.}
 \item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to
 the appropriate \dQuote{internal} function.}
 
-\item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
 
-\item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
+\item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details}).  Options:
 \itemize{
 \item{\code{"double"}: }{default; fastest but prone to underflow in
@@ -132,14 +132,14 @@ memory-inefficient}
 most robust but variably slow}
 }}
 
-\item{nthreads}{Number of threads used in '\code{OpenMP}'-enabled \code{C++}
+\item{nthreads}{Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 functions.  \code{0} or any negative value is special and means one-half of
 the number of processors detected.  See \dQuote{Multithreading} in
 \dQuote{Details}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
 
 \item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 
@@ -274,7 +274,7 @@ when evaluation of multiple series is required
 the scaling occasionally yields underflow/diminishing of some terms to
 numerical \code{0}, causing inaccuracy.  A warning is
 thrown in this case.  (See also \dQuote{Scaling} in \code{\link{d1_i}}.)
-To avoid this problem, the \code{C++} versions of these functions have two
+To avoid this problem, the \proglang{C++} versions of these functions have two
 workarounds, as controlled by \code{cpp_method}.  \strong{1})
 The \code{"long_double"} option uses the \code{long double} variable
 type instead of the regular \code{double}.  This is generally slow and
@@ -296,11 +296,11 @@ recommended as the error bound will not strictly hold
 (see Hillier et al. 2009, 2014).
 \subsection{Multithreading}{
 
-All these functions use \code{C++} versions to speed up computation
-by default.  Furthermore, some of the \code{C++} functions, in particular
+All these functions use \proglang{C++} versions to speed up computation
+by default.  Furthermore, some of the \proglang{C++} functions, in particular
 those using more than one matrix arguments, are parallelized with
-'\code{OpenMP}' (when available).  Use the argument \code{nthreads} to
-control the number of \code{OpenMP} threads.  By default
+\proglang{OpenMP} (when available).  Use the argument \code{nthreads} to
+control the number of \proglang{OpenMP} threads.  By default
 (\code{nthreads = 0}), one-half of the processors detected with
 \code{omp_get_num_procs()} are used.  This is except when all the
 argument matrices share the same eigenvectors and hence the calculation
@@ -319,11 +319,11 @@ An exact expression of the moment is available when
 (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
 (Hillier et al. 2014: theorem 4).  This is doen via \code{gsl::hyperg_1F1()}
-if the package '\code{gsl}' is installed (which this package
+if the package \pkg{gsl} is installed (which this package
 \code{Suggests}).  Otherwise, the function uses the ordinary infinite
 series expression (Hillier et al. 2009), which is less accurate and slow,
 and throws a message.  (In this case, the calculation is handled without
-\code{C++} codes.)  It is recommended to install that package if
+\proglang{C++} codes.)  It is recommended to install that package if
 an accurate estimate is desired for that case.
 }
 }

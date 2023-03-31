@@ -57,10 +57,10 @@ value.  If unsure, specify all explicitly.}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}}
 
-\item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
 
-\item{cpp_method}{Variable type used in \code{C++} calculations.
+\item{cpp_method}{Variable type used in \proglang{C++} calculations.
 In these functions this is ignored.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,

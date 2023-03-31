@@ -24,7 +24,7 @@ of quadratic forms (integer exponents only; \code{\link{qfpm}}).
 There are many internal functions for calculating coefficients in
 power-series expansion of generating functions for these moments
 (\code{\link{d1_i}}, \code{\link{d2_ij}}, \code{\link{d3_ijk}},
-\code{\link{dtil2_pq}}) using ``super-short'' recursions
+\code{\link{dtil2_pq}}) using \dQuote{super-short} recursions
 (Bao and Kan, 2013; Hillier et al. 2014).  Some of these coefficients are
 related to the top-order zonal and invariant
 polynomials of matrix arguments.

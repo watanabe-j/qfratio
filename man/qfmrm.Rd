@@ -168,10 +168,10 @@ compared with \code{tol_conv}}
 \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
 }}
 
-\item{use_cpp}{Logical to specify whether the calculation is done with \code{C++}
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
 
-\item{cpp_method}{Method used in \code{C++} calculations to avoid numerical
+\item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details}).  Options:
 \itemize{
 \item{\code{"double"}: }{default; fastest but prone to underflow in
@@ -183,7 +183,7 @@ memory-inefficient}
 most robust but variably slow}
 }}
 
-\item{nthreads}{Number of threads used in OpenMP-enabled \code{C++} functions.  See
+\item{nthreads}{Number of threads used in OpenMP-enabled \proglang{C++} functions.  See
 \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
 \item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
@@ -191,7 +191,7 @@ with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
 
 \item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See

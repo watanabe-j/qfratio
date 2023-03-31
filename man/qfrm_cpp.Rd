@@ -1190,10 +1190,10 @@ expression is truncated.  Passed as \code{Eigen::Index}
 
 \item{error_bound}{\code{bool} to specify whether the error bound is returned}
 
-\item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding to
-\code{LA}.  Passed as \code{Eigen::Matrix}.}
+\item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding
+to \code{LA}.  Passed as \code{Eigen::Matrix}.}
 
-\item{nthreads}{\code{int} to specify the number of threads in \code{OpenMP}-enabled
+\item{nthreads}{\code{int} to specify the number of threads in \proglang{OpenMP}-enabled
 functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
 \item{nit}{\code{int} to specify the number of iteration or sample size}
@@ -1214,15 +1214,15 @@ All return a list via \code{Rcpp::List} of the following (as appropriate):
 }
 }
 \description{
-These are internal \code{C++} functions called from corresponding \code{R}
+These are internal \proglang{C++} functions called from corresponding \R
 functions when \code{use_cpp = TRUE}.  Direct access by the user is \strong{not}
 assumed.  All parameters are assumed to be appropriately structured.
 }
 \details{
-At present, \code{ApIq_int_nmE()} calls the \code{R} function
+At present, \code{ApIq_int_nmE()} calls the \R function
 \code{gsl::hyperg_1F1()}, so will not be much faster than
-the \code{R} equivalent.  Ideally, the \code{C++} library \code{gsl}
-(or the like) should be used with \code{RcppGSL}, but this is not done
+the \R equivalent.  Ideally, the \proglang{C++} library \code{GSL}
+(or the like) should be used with \pkg{RcppGSL}, but this is not done
 to ensure portability.
 
 \code{rqfpE} uses \code{Rcpp::rnorm()},
@@ -1234,21 +1234,21 @@ which may not be particularly efficient.
 
 \item \code{Ap_int_nmE()}: \code{qfm_Ap_int()}, noncentral
 
-\item \code{ABpq_int_cvE()}: \code{qfpm_ABpq_int()}, central & vector
+\item \code{ABpq_int_cvE()}: \code{qfpm_ABpq_int()}, central and vector
 
-\item \code{ABpq_int_cmE()}: \code{qfpm_ABpq_int()}, central & matrix
+\item \code{ABpq_int_cmE()}: \code{qfpm_ABpq_int()}, central and matrix
 
-\item \code{ABpq_int_nvE()}: \code{qfpm_ABpq_int()}, noncentral & vector
+\item \code{ABpq_int_nvE()}: \code{qfpm_ABpq_int()}, noncentral and vector
 
-\item \code{ABpq_int_nmE()}: \code{qfpm_ABpq_int()}, noncentral & matrix
+\item \code{ABpq_int_nmE()}: \code{qfpm_ABpq_int()}, noncentral and matrix
 
-\item \code{ABDpqr_int_cvE()}: \code{qfpm_ABDpqr_int()}, central & vector
+\item \code{ABDpqr_int_cvE()}: \code{qfpm_ABDpqr_int()}, central and vector
 
-\item \code{ABDpqr_int_cmE()}: \code{qfpm_ABDpqr_int()}, central & matrix
+\item \code{ABDpqr_int_cmE()}: \code{qfpm_ABDpqr_int()}, central and matrix
 
-\item \code{ABDpqr_int_nvE()}: \code{qfpm_ABDpqr_int()}, noncentral & vector
+\item \code{ABDpqr_int_nvE()}: \code{qfpm_ABDpqr_int()}, noncentral and vector
 
-\item \code{ABDpqr_int_nmE()}: \code{qfpm_ABDpqr_int()}, central & matrix
+\item \code{ABDpqr_int_nmE()}: \code{qfpm_ABDpqr_int()}, central and matrix
 
 \item \code{ApIq_int_cmE()}: \code{qfrm_ApIq_int()}, central
 
@@ -1258,153 +1258,153 @@ which may not be particularly efficient.
 
 \item \code{ApIq_npi_nvE()}: \code{qfrm_ApIq_npi()}, noncentral
 
-\item \code{ApBq_int_cvE()}: \code{qfrm_ApBq_int()}, central & vector
+\item \code{ApBq_int_cvE()}: \code{qfrm_ApBq_int()}, central and vector
 
-\item \code{ApBq_int_cmE()}: \code{qfrm_ApBq_int()}, central & matrix
+\item \code{ApBq_int_cmE()}: \code{qfrm_ApBq_int()}, central and matrix
 
-\item \code{ApBq_int_nvE()}: \code{qfrm_ApBq_int()}, noncentral & vector
+\item \code{ApBq_int_nvE()}: \code{qfrm_ApBq_int()}, noncentral and vector
 
-\item \code{ApBq_int_nmE()}: \code{qfrm_ApBq_int()}, noncentral & matrix
+\item \code{ApBq_int_nmE()}: \code{qfrm_ApBq_int()}, noncentral and matrix
 
-\item \code{ApBq_npi_cvE()}: \code{qfrm_ApBq_npi()}, central & vector
+\item \code{ApBq_npi_cvE()}: \code{qfrm_ApBq_npi()}, central and vector
 
-\item \code{ApBq_npi_cmE()}: \code{qfrm_ApBq_npi()}, central & matrix
+\item \code{ApBq_npi_cmE()}: \code{qfrm_ApBq_npi()}, central and matrix
 
-\item \code{ApBq_npi_nvE()}: \code{qfrm_ApBq_npi()}, noncentral & vector
+\item \code{ApBq_npi_nvE()}: \code{qfrm_ApBq_npi()}, noncentral and vector
 
-\item \code{ApBq_npi_nmE()}: \code{qfrm_ApBq_npi()}, noncentral & matrix
+\item \code{ApBq_npi_nmE()}: \code{qfrm_ApBq_npi()}, noncentral and matrix
 
-\item \code{ApBIqr_int_cvE()}: \code{qfmrm_ApBIqr_int()}, central & vector
+\item \code{ApBIqr_int_cvE()}: \code{qfmrm_ApBIqr_int()}, central and vector
 
-\item \code{ApBIqr_int_cmE()}: \code{qfmrm_ApBIqr_int()}, central & matrix
+\item \code{ApBIqr_int_cmE()}: \code{qfmrm_ApBIqr_int()}, central and matrix
 
-\item \code{ApBIqr_int_nvE()}: \code{qfmrm_ApBIqr_int()}, noncentral & vector
+\item \code{ApBIqr_int_nvE()}: \code{qfmrm_ApBIqr_int()}, noncentral and vector
 
-\item \code{ApBIqr_int_nmE()}: \code{qfmrm_ApBIqr_int()}, noncentral & matrix
+\item \code{ApBIqr_int_nmE()}: \code{qfmrm_ApBIqr_int()}, noncentral and matrix
 
-\item \code{ApBIqr_npi_cvE()}: \code{qfmrm_ApBIqr_npi()}, central & vector
+\item \code{ApBIqr_npi_cvE()}: \code{qfmrm_ApBIqr_npi()}, central and vector
 
-\item \code{ApBIqr_npi_cmE()}: \code{qfmrm_ApBIqr_npi()}, central & matrix
+\item \code{ApBIqr_npi_cmE()}: \code{qfmrm_ApBIqr_npi()}, central and matrix
 
-\item \code{ApBIqr_npi_nvE()}: \code{qfmrm_ApBIqr_npi()}, noncentral & vector
+\item \code{ApBIqr_npi_nvE()}: \code{qfmrm_ApBIqr_npi()}, noncentral and vector
 
-\item \code{ApBIqr_npi_nmE()}: \code{qfmrm_ApBIqr_npi()}, noncentral & matrix
+\item \code{ApBIqr_npi_nmE()}: \code{qfmrm_ApBIqr_npi()}, noncentral and matrix
 
-\item \code{IpBDqr_gen_cvE()}: \code{qfmrm_IpBDqr_gen()}, central & vector
+\item \code{IpBDqr_gen_cvE()}: \code{qfmrm_IpBDqr_gen()}, central and vector
 
-\item \code{IpBDqr_gen_cmE()}: \code{qfmrm_IpBDqr_gen()}, central & matrix
+\item \code{IpBDqr_gen_cmE()}: \code{qfmrm_IpBDqr_gen()}, central and matrix
 
-\item \code{IpBDqr_gen_nvE()}: \code{qfmrm_IpBDqr_gen()}, noncentral & vector
+\item \code{IpBDqr_gen_nvE()}: \code{qfmrm_IpBDqr_gen()}, noncentral and vector
 
-\item \code{IpBDqr_gen_nmE()}: \code{qfmrm_IpBDqr_gen()}, noncentral & matrix
+\item \code{IpBDqr_gen_nmE()}: \code{qfmrm_IpBDqr_gen()}, noncentral and matrix
 
-\item \code{ApBDqr_int_cvE()}: \code{qfmrm_ApBDqr_int()}, central & vector
+\item \code{ApBDqr_int_cvE()}: \code{qfmrm_ApBDqr_int()}, central and vector
 
-\item \code{ApBDqr_int_cmE()}: \code{qfmrm_ApBDqr_int()}, central & matrix
+\item \code{ApBDqr_int_cmE()}: \code{qfmrm_ApBDqr_int()}, central and matrix
 
-\item \code{ApBDqr_int_nvE()}: \code{qfmrm_ApBDqr_int()}, noncentral & vector
+\item \code{ApBDqr_int_nvE()}: \code{qfmrm_ApBDqr_int()}, noncentral and vector
 
-\item \code{ApBDqr_int_nmE()}: \code{qfmrm_ApBDqr_int()}, noncentral & matrix
+\item \code{ApBDqr_int_nmE()}: \code{qfmrm_ApBDqr_int()}, noncentral and matrix
 
-\item \code{ApBDqr_npi_cvE()}: \code{qfmrm_ApBDqr_npi()}, central & vector
+\item \code{ApBDqr_npi_cvE()}: \code{qfmrm_ApBDqr_npi()}, central and vector
 
-\item \code{ApBDqr_npi_cmE()}: \code{qfmrm_ApBDqr_npi()}, central & matrix
+\item \code{ApBDqr_npi_cmE()}: \code{qfmrm_ApBDqr_npi()}, central and matrix
 
-\item \code{ApBDqr_npi_nvE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector
+\item \code{ApBDqr_npi_nvE()}: \code{qfmrm_ApBDqr_npi()}, noncentral and vector
 
-\item \code{ApBDqr_npi_nmE()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix
+\item \code{ApBDqr_npi_nmE()}: \code{qfmrm_ApBDqr_npi()}, noncentral and matrix
 
 \item \code{ApIq_npi_nvEc()}: \code{qfrm_ApIq_npi()}, noncentral, coefficient-wise scaling
 
-\item \code{ApBq_npi_cvEc()}: \code{qfrm_ApBq_npi()}, central & vector, coefficient-wise scaling
+\item \code{ApBq_npi_cvEc()}: \code{qfrm_ApBq_npi()}, central and vector, coefficient-wise scaling
 
-\item \code{ApBq_npi_cmEc()}: \code{qfrm_ApBq_npi()}, central & matrix, coefficient-wise scaling
+\item \code{ApBq_npi_cmEc()}: \code{qfrm_ApBq_npi()}, central and matrix, coefficient-wise scaling
 
-\item \code{ApBq_npi_nvEc()}: \code{qfrm_ApBq_npi()}, noncentral & vector, coefficient-wise scaling
+\item \code{ApBq_npi_nvEc()}: \code{qfrm_ApBq_npi()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{ApBq_npi_nmEc()}: \code{qfrm_ApBq_npi()}, noncentral & matrix, coefficient-wise scaling
+\item \code{ApBq_npi_nmEc()}: \code{qfrm_ApBq_npi()}, noncentral and matrix, coefficient-wise scaling
 
-\item \code{ApBIqr_int_nvEc()}: \code{qfmrm_ApBIqr_int()}, noncentral & vector, coefficient-wise scaling
+\item \code{ApBIqr_int_nvEc()}: \code{qfmrm_ApBIqr_int()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{ApBIqr_int_nmEc()}: \code{qfmrm_ApBIqr_int()}, noncentral & matrix, coefficient-wise scaling
+\item \code{ApBIqr_int_nmEc()}: \code{qfmrm_ApBIqr_int()}, noncentral and matrix, coefficient-wise scaling
 
-\item \code{ApBIqr_npi_cvEc()}: \code{qfmrm_ApBIqr_npi()}, central & vector, coefficient-wise scaling
+\item \code{ApBIqr_npi_cvEc()}: \code{qfmrm_ApBIqr_npi()}, central and vector, coefficient-wise scaling
 
-\item \code{ApBIqr_npi_cmEc()}: \code{qfmrm_ApBIqr_npi()}, central & matrix, coefficient-wise scaling
+\item \code{ApBIqr_npi_cmEc()}: \code{qfmrm_ApBIqr_npi()}, central and matrix, coefficient-wise scaling
 
-\item \code{ApBIqr_npi_nvEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral & vector, coefficient-wise scaling
+\item \code{ApBIqr_npi_nvEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{ApBIqr_npi_nmEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, coefficient-wise scaling
+\item \code{ApBIqr_npi_nmEc()}: \code{qfmrm_ApBIqr_npi()}, noncentral and matrix, coefficient-wise scaling
 
-\item \code{IpBDqr_gen_cvEc()}: \code{qfmrm_IpBDqr_gen()}, central & vector, coefficient-wise scaling
+\item \code{IpBDqr_gen_cvEc()}: \code{qfmrm_IpBDqr_gen()}, central and vector, coefficient-wise scaling
 
-\item \code{IpBDqr_gen_cmEc()}: \code{qfmrm_IpBDqr_gen()}, central & matrix, coefficient-wise scaling
+\item \code{IpBDqr_gen_cmEc()}: \code{qfmrm_IpBDqr_gen()}, central and matrix, coefficient-wise scaling
 
-\item \code{IpBDqr_gen_nvEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral & vector, coefficient-wise scaling
+\item \code{IpBDqr_gen_nvEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{IpBDqr_gen_nmEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, coefficient-wise scaling
+\item \code{IpBDqr_gen_nmEc()}: \code{qfmrm_IpBDqr_gen()}, noncentral and matrix, coefficient-wise scaling
 
-\item \code{ApBDqr_int_cvEc()}: \code{qfmrm_ApBDqr_int()}, central & vector, coefficient-wise scaling
+\item \code{ApBDqr_int_cvEc()}: \code{qfmrm_ApBDqr_int()}, central and vector, coefficient-wise scaling
 
-\item \code{ApBDqr_int_cmEc()}: \code{qfmrm_ApBDqr_int()}, central & matrix, coefficient-wise scaling
+\item \code{ApBDqr_int_cmEc()}: \code{qfmrm_ApBDqr_int()}, central and matrix, coefficient-wise scaling
 
-\item \code{ApBDqr_int_nvEc()}: \code{qfmrm_ApBDqr_int()}, noncentral & vector, coefficient-wise scaling
+\item \code{ApBDqr_int_nvEc()}: \code{qfmrm_ApBDqr_int()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{ApBDqr_int_nmEc()}: \code{qfmrm_ApBDqr_int()}, noncentral & matrix, coefficient-wise scaling
+\item \code{ApBDqr_int_nmEc()}: \code{qfmrm_ApBDqr_int()}, noncentral and matrix, coefficient-wise scaling
 
-\item \code{ApBDqr_npi_cvEc()}: \code{qfmrm_ApBDqr_npi()}, central & vector, coefficient-wise scaling
+\item \code{ApBDqr_npi_cvEc()}: \code{qfmrm_ApBDqr_npi()}, central and vector, coefficient-wise scaling
 
-\item \code{ApBDqr_npi_cmEc()}: \code{qfmrm_ApBDqr_npi()}, central & matrix, coefficient-wise scaling
+\item \code{ApBDqr_npi_cmEc()}: \code{qfmrm_ApBDqr_npi()}, central and matrix, coefficient-wise scaling
 
-\item \code{ApBDqr_npi_nvEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector, coefficient-wise scaling
+\item \code{ApBDqr_npi_nvEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral and vector, coefficient-wise scaling
 
-\item \code{ApBDqr_npi_nmEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, coefficient-wise scaling
+\item \code{ApBDqr_npi_nmEc()}: \code{qfmrm_ApBDqr_npi()}, noncentral and matrix, coefficient-wise scaling
 
 \item \code{ApIq_npi_nvEl()}: \code{qfrm_ApIq_npi()}, noncentral
 
-\item \code{ApBq_npi_cvEl()}: \code{qfrm_ApBq_npi()}, central & vector, long double
+\item \code{ApBq_npi_cvEl()}: \code{qfrm_ApBq_npi()}, central and vector, long double
 
-\item \code{ApBq_npi_cmEl()}: \code{qfrm_ApBq_npi()}, central & matrix, long double
+\item \code{ApBq_npi_cmEl()}: \code{qfrm_ApBq_npi()}, central and matrix, long double
 
-\item \code{ApBq_npi_nvEl()}: \code{qfrm_ApBq_npi()}, noncentral & vector, long double
+\item \code{ApBq_npi_nvEl()}: \code{qfrm_ApBq_npi()}, noncentral and vector, long double
 
-\item \code{ApBq_npi_nmEl()}: \code{qfrm_ApBq_npi()}, noncentral & matrix, long double
+\item \code{ApBq_npi_nmEl()}: \code{qfrm_ApBq_npi()}, noncentral and matrix, long double
 
-\item \code{ApBIqr_int_nvEl()}: \code{qfmrm_ApBIqr_int()}, noncentral & vector, long double
+\item \code{ApBIqr_int_nvEl()}: \code{qfmrm_ApBIqr_int()}, noncentral and vector, long double
 
-\item \code{ApBIqr_int_nmEl()}: \code{qfmrm_ApBIqr_int()}, noncentral & matrix, long double
+\item \code{ApBIqr_int_nmEl()}: \code{qfmrm_ApBIqr_int()}, noncentral and matrix, long double
 
-\item \code{ApBIqr_npi_cvEl()}: \code{qfmrm_ApBIqr_npi()}, central & vector, long double
+\item \code{ApBIqr_npi_cvEl()}: \code{qfmrm_ApBIqr_npi()}, central and vector, long double
 
-\item \code{ApBIqr_npi_cmEl()}: \code{qfmrm_ApBIqr_npi()}, central & matrix, long double
+\item \code{ApBIqr_npi_cmEl()}: \code{qfmrm_ApBIqr_npi()}, central and matrix, long double
 
-\item \code{ApBIqr_npi_nvEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral & vector, long double
+\item \code{ApBIqr_npi_nvEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral and vector, long double
 
-\item \code{ApBIqr_npi_nmEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral & matrix, long double
+\item \code{ApBIqr_npi_nmEl()}: \code{qfmrm_ApBIqr_npi()}, noncentral and matrix, long double
 
-\item \code{IpBDqr_gen_cvEl()}: \code{qfmrm_IpBDqr_gen()}, central & vector, long double
+\item \code{IpBDqr_gen_cvEl()}: \code{qfmrm_IpBDqr_gen()}, central and vector, long double
 
-\item \code{IpBDqr_gen_cmEl()}: \code{qfmrm_IpBDqr_gen()}, central & matrix, long double
+\item \code{IpBDqr_gen_cmEl()}: \code{qfmrm_IpBDqr_gen()}, central and matrix, long double
 
-\item \code{IpBDqr_gen_nvEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral & vector, long double
+\item \code{IpBDqr_gen_nvEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral and vector, long double
 
-\item \code{IpBDqr_gen_nmEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral & matrix, long double
+\item \code{IpBDqr_gen_nmEl()}: \code{qfmrm_IpBDqr_gen()}, noncentral and matrix, long double
 
-\item \code{ApBDqr_int_cvEl()}: \code{qfmrm_ApBDqr_int()}, central & vector, long double
+\item \code{ApBDqr_int_cvEl()}: \code{qfmrm_ApBDqr_int()}, central and vector, long double
 
-\item \code{ApBDqr_int_cmEl()}: \code{qfmrm_ApBDqr_int()}, central & matrix, long double
+\item \code{ApBDqr_int_cmEl()}: \code{qfmrm_ApBDqr_int()}, central and matrix, long double
 
-\item \code{ApBDqr_int_nvEl()}: \code{qfmrm_ApBDqr_int()}, noncentral & vector, long double
+\item \code{ApBDqr_int_nvEl()}: \code{qfmrm_ApBDqr_int()}, noncentral and vector, long double
 
-\item \code{ApBDqr_int_nmEl()}: \code{qfmrm_ApBDqr_int()}, noncentral & matrix, long double
+\item \code{ApBDqr_int_nmEl()}: \code{qfmrm_ApBDqr_int()}, noncentral and matrix, long double
 
-\item \code{ApBDqr_npi_cvEl()}: \code{qfmrm_ApBDqr_npi()}, central & vector, long double
+\item \code{ApBDqr_npi_cvEl()}: \code{qfmrm_ApBDqr_npi()}, central and vector, long double
 
-\item \code{ApBDqr_npi_cmEl()}: \code{qfmrm_ApBDqr_npi()}, central & matrix, long double
+\item \code{ApBDqr_npi_cmEl()}: \code{qfmrm_ApBDqr_npi()}, central and matrix, long double
 
-\item \code{ApBDqr_npi_nvEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral & vector, long double
+\item \code{ApBDqr_npi_nvEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral and vector, long double
 
-\item \code{ApBDqr_npi_nmEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral & matrix, long double
+\item \code{ApBDqr_npi_nmEl()}: \code{qfmrm_ApBDqr_npi()}, noncentral and matrix, long double
 
 \item \code{rqfpE()}: \code{rqfp()}
 

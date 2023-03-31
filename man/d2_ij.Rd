@@ -190,7 +190,7 @@ those with \code{_v} take eigenvalues.  The latter can be used only when
 the argument matrices share the same eigenvectors, to which the eigenvalues
 correspond in the orders given, but is substantially faster.
 
-This package also involves \code{C++} equivalents for most of these functions
+This package also involves \proglang{C++} equivalents for most of these functions
 (which are suffixed by \code{E} for \code{Eigen}),
 but these are exclusively for internal use and not exposed to the user.
 }

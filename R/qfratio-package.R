@@ -19,7 +19,7 @@
 #' There are many internal functions for calculating coefficients in
 #' power-series expansion of generating functions for these moments
 #' (\code{\link{d1_i}}, \code{\link{d2_ij}}, \code{\link{d3_ijk}},
-#' \code{\link{dtil2_pq}}) using ``super-short'' recursions
+#' \code{\link{dtil2_pq}}) using \dQuote{super-short} recursions
 #' (Bao and Kan, 2013; Hillier et al. 2014).  Some of these coefficients are
 #' related to the top-order zonal and invariant
 #' polynomials of matrix arguments.
@@ -128,14 +128,14 @@ NULL
 ## Documentation of C++ functions
 #' Internal C++ functions
 #'
-#' These are internal \code{C++} functions called from corresponding \code{R}
+#' These are internal \proglang{C++} functions called from corresponding \R
 #' functions when \code{use_cpp = TRUE}.  Direct access by the user is **not**
 #' assumed.  All parameters are assumed to be appropriately structured.
 #'
-#' At present, \code{ApIq_int_nmE()} calls the \code{R} function
+#' At present, \code{ApIq_int_nmE()} calls the \R function
 #' \code{gsl::hyperg_1F1()}, so will not be much faster than
-#' the \code{R} equivalent.  Ideally, the \code{C++} library \code{gsl}
-#' (or the like) should be used with \code{RcppGSL}, but this is not done
+#' the \R equivalent.  Ideally, the \proglang{C++} library \code{GSL}
+#' (or the like) should be used with \pkg{RcppGSL}, but this is not done
 #' to ensure portability.
 #'
 #' \code{rqfpE} uses \code{Rcpp::rnorm()},
@@ -147,8 +147,8 @@ NULL
 #' @param LA,LB,LD
 #'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
 #' @param UA
-#'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding to
-#'   \code{LA}.  Passed as \code{Eigen::Matrix}.
+#'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding
+#'   to \code{LA}.  Passed as \code{Eigen::Matrix}.
 #' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 #'   and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.
@@ -169,7 +169,7 @@ NULL
 #' @param error_bound
 #'   \code{bool} to specify whether the error bound is returned
 #' @param nthreads
-#'   \code{int} to specify the number of threads in \code{OpenMP}-enabled
+#'   \code{int} to specify the number of threads in \proglang{OpenMP}-enabled
 #'   functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling.  See

@@ -53,7 +53,7 @@
 #'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  \code{mu} and
 #'   \code{Sigma} are assumed to be of the same order as the argument matrices.
 #' @param use_cpp
-#'   Logical to specify whether an \code{C++} version is called or
+#'   Logical to specify whether an \proglang{C++} version is called or
 #'   not.  \code{TRUE} by default.
 #'
 #' @return Numeric vector of length \code{nit}.

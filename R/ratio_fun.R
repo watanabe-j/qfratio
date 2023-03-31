@@ -89,7 +89,7 @@
 #' the scaling occasionally yields underflow/diminishing of some terms to
 #' numerical \code{0}, causing inaccuracy.  A warning is
 #' thrown in this case.  (See also \dQuote{Scaling} in \code{\link{d1_i}}.)
-#' To avoid this problem, the \code{C++} versions of these functions have two
+#' To avoid this problem, the \proglang{C++} versions of these functions have two
 #' workarounds, as controlled by \code{cpp_method}.  **1**)
 #' The \code{"long_double"} option uses the \code{long double} variable
 #' type instead of the regular \code{double}.  This is generally slow and
@@ -111,11 +111,11 @@
 #' (see Hillier et al. 2009, 2014).
 #'
 #' ## Multithreading
-#' All these functions use \code{C++} versions to speed up computation
-#' by default.  Furthermore, some of the \code{C++} functions, in particular
+#' All these functions use \proglang{C++} versions to speed up computation
+#' by default.  Furthermore, some of the \proglang{C++} functions, in particular
 #' those using more than one matrix arguments, are parallelized with
-#' '\code{OpenMP}' (when available).  Use the argument \code{nthreads} to
-#' control the number of \code{OpenMP} threads.  By default
+#' \proglang{OpenMP} (when available).  Use the argument \code{nthreads} to
+#' control the number of \proglang{OpenMP} threads.  By default
 #' (\code{nthreads = 0}), one-half of the processors detected with
 #' \code{omp_get_num_procs()} are used.  This is except when all the
 #' argument matrices share the same eigenvectors and hence the calculation
@@ -156,10 +156,10 @@
 #'   Factors for the scaling constants for \eqn{\mathbf{A}}{A} and
 #'   \eqn{\mathbf{B}}{B}, respectively.  See \dQuote{Details}.
 #' @param use_cpp
-#'   Logical to specify whether the calculation is done with \code{C++}
+#'   Logical to specify whether the calculation is done with \proglang{C++}
 #'   functions via \code{Rcpp}.  \code{TRUE} by default.
 #' @param cpp_method
-#'   Method used in \code{C++} calculations to avoid numerical
+#'   Method used in \proglang{C++} calculations to avoid numerical
 #'   overflow/underflow (see \dQuote{Details}).  Options:
 #'   \itemize{
 #'     \item{\code{"double"}: }{default; fastest but prone to underflow in
@@ -191,9 +191,9 @@
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 #'   in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-#'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \code{C++} equivalents.
+#'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.
 #' @param nthreads
-#'   Number of threads used in '\code{OpenMP}'-enabled \code{C++}
+#'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 #'   functions.  \code{0} or any negative value is special and means one-half of
 #'   the number of processors detected.  See \dQuote{Multithreading} in
 #'   \dQuote{Details}.
@@ -428,7 +428,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
 #'   \dQuote{Details} in \code{\link{qfrm}}.
 #' @param nthreads
-#'   Number of threads used in OpenMP-enabled \code{C++} functions.  See
+#'   Number of threads used in OpenMP-enabled \proglang{C++} functions.  See
 #'   \dQuote{Multithreading} in \code{\link{qfrm}}.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfmrm()} will be passed to
@@ -645,7 +645,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}
 #' @param cpp_method
-#'   Variable type used in \code{C++} calculations.
+#'   Variable type used in \proglang{C++} calculations.
 #'   In these functions this is ignored.
 #'
 #' @return
@@ -1062,11 +1062,11 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 #' a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
 #' (Hillier et al. 2014: theorem 4).  This is doen via \code{gsl::hyperg_1F1()}
-#' if the package '\code{gsl}' is installed (which this package
+#' if the package \pkg{gsl} is installed (which this package
 #' \code{Suggests}).  Otherwise, the function uses the ordinary infinite
 #' series expression (Hillier et al. 2009), which is less accurate and slow,
 #' and throws a message.  (In this case, the calculation is handled without
-#' \code{C++} codes.)  It is recommended to install that package if
+#' \proglang{C++} codes.)  It is recommended to install that package if
 #' an accurate estimate is desired for that case.
 #'
 # #' @importFrom gsl hyperg_1F1
@@ -1099,7 +1099,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     exact <- TRUE
     if(!(central || requireNamespace("gsl", quietly = TRUE))) {
         if(!missing(use_cpp) && use_cpp) {
-            message("use_cpp = TRUE is ignored when package \"gsl\" is ",
+            message("use_cpp = TRUE is ignored when package 'gsl' is ",
                     "unavailable and mu is nonzero")
         }
         use_cpp <- FALSE
@@ -1139,7 +1139,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 ## which is less accurate (by truncation) and slower
                 mess_str <-
                     paste0("  When using qfrm_ApIq_int() with nonzero mu, it ",
-                           "is recommended to\n  install the package \"gsl\", ",
+                           "is recommended to\n  install the package 'gsl', ",
                            "with which an exact result is available.\n  See ",
                            "\"Details\" in documentation of this function.")
                 if(requireNamespace("rlang", quietly = TRUE)) {

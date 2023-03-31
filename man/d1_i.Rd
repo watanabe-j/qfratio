@@ -74,12 +74,12 @@ coefficients (and temporary objects used to calculate them) by a large number
 a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
 is the number of variables.  This default value empirically seems to work well
 in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
-if you encounter numerical overflow.  (The \code{C++} functions use
+if you encounter numerical overflow.  (The \proglang{C++} functions use
 an equivalent expression,
 \code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with
 \code{Scalar} being \code{double} or \code{long double}.)
 
-In these \code{R} functions, the scaling happens order-wise;
+In these \R functions, the scaling happens order-wise;
 i.e., it influences all the coefficients of the same order in
 multidimensional coefficients (in \code{\link{d2_ij}} and
 \code{\link{d3_ijk}}) and the coefficients of the subsequent orders.
@@ -93,8 +93,8 @@ The \code{qfrm} and \code{qfmrm} functions handle return values of these
 functions by first multiplying them with hypergeometric coefficients
 (which are typically \eqn{\ll 1}{<< 1}) and then scaling the products back
 to the original scale using the recorded scaling factors.  (To be precise,
-this typically happens within \code{\link{hgs}} functions.)  The \code{C++}
-functions handle the problem similarly (but by using
+this typically happens within \code{\link{hgs}} functions.)  The
+\proglang{C++} functions handle the problem similarly (but by using
 separate objects rather than attributes).
 
 However, this procedure does not always mitigate the problem in
@@ -104,7 +104,7 @@ the numerical \code{0} after repeated scaling.  (The \code{qfrm} and
 \code{qfmrm} functions try to detect and warn against
 this by examining whether any of the highest-order terms is \code{0}.)
 The present version of this package has implemented two methods to mitigate
-this problem, but only through \code{C++} functions.  One is to use the
+this problem, but only through \proglang{C++} functions.  One is to use the
 \code{long double} variable type, and the other is to use coefficient-wise
 scaling (see \code{\link{qfrm}} and \code{\link{qfmrm}}).
 }

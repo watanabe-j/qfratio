@@ -30,7 +30,7 @@ zero vector.}
 \eqn{\mathbf{x}}{x}.  Default identity matrix.  \code{mu} and
 \code{Sigma} are assumed to be of the same order as the argument matrices.}
 
-\item{use_cpp}{Logical to specify whether an \code{C++} version is called or
+\item{use_cpp}{Logical to specify whether an \proglang{C++} version is called or
 not.  \code{TRUE} by default.}
 }
 \value{
