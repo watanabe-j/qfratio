@@ -844,7 +844,6 @@ dtil2_pq_vE(const Eigen::ArrayBase<Derived>& A1,
             const Eigen::ArrayBase<Derived>& mu,
             const Eigen::Index p, const Eigen::Index q) {
     typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.size();
     ArrayXXx dks = ArrayXXx::Zero(p + 1, q + 1);
@@ -2125,7 +2124,6 @@ dtil3_pqr_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::ArrayBase<Derived>& mu,
              const Eigen::Index p, const Eigen::Index q, const Eigen::Index r) {
     typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
     const Index m = q + r;

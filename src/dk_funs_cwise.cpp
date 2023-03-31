@@ -134,7 +134,6 @@ d2_ij_mEc(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
     ArrayXx dks = ArrayXx::Zero((m + 1) * (m + 2) / 2);
     dks.ULTat(0, 0, m + 1) = 1;
@@ -289,7 +288,6 @@ h2_ij_mEc(const Eigen::MatrixBase<Derived>& A1,
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
     const Index n = A1.rows();
     ArrayXx dks = ArrayXx::Zero((m + 1) * (m + 2) / 2);
     dks.ULTat(0, 0, m + 1) = 1;
