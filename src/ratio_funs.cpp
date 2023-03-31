@@ -12,6 +12,7 @@
 #include "hgs_funs.h"
 
 using Eigen::log;
+using Eigen::abs;
 using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 using Eigen::MatrixXd;

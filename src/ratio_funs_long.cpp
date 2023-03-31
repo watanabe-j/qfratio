@@ -8,6 +8,7 @@
 
 using std::lgammal;
 using Eigen::log;
+using Eigen::abs;
 using Eigen::SelfAdjointEigenSolver;
 using Eigen::Index;
 
