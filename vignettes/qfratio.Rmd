@@ -247,9 +247,7 @@ and for a positive-integral $p$, this can be simplified into
   = &
   2^{p - q} \beta_{\mathbf{B}}^{q} p! \Gamma \left( \frac{n}{2} + p - q \right)
   \sum_{j=0}^{\infty}
-  \frac{ \qfrrf[j]{q} }{ \Gamma \left( \frac{n}{2} + p + j \right) } % \\
-  % & \qquad
-  % \cdot
+  \frac{ \qfrrf[j]{q} }{ \Gamma \left( \frac{n}{2} + p + j \right) }
   \qfrhtij[p;j]{ \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }
   .
 \end{aligned}
@@ -644,7 +642,7 @@ functions, for which `qfrm()` acts as a switcher:
 | `qfrm_ApIq_npi()` | $\mathbf{B} = \mathbf{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\boldsymbol{\mu} = \mathbf{0}_n$) | Available only when $\boldsymbol{\mu} = \mathbf{0}_n$ | $\sim m$ when $\boldsymbol{\mu} = \mathbf{0}_n$; $\sim m^2 / 2$ otherwise |
 | `qfrm_ApBq_int()` | $\mathbf{B}$ arbitrary | *int*eger                  | (2)                                        | Available                                | $\sim (p + 1)m$                                              |
 | `qfrm_ApBq_npi()` | $\mathbf{B}$ arbitrary | *n*on-*p*ositive-*i*nteger | (1)                                        | Unavailable                              | $\sim m^2 / 2$                                               |
-\*: requires the '`gsl`' package when $\boldsymbol{\mu} \neq \mathbf{0}_n$
+\*: requires the `gsl` package when $\boldsymbol{\mu} \neq \mathbf{0}_n$
 
 These functions are exported into the package namespace so can be directly used
 if necessary.
