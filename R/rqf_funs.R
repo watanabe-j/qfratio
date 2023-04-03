@@ -41,7 +41,7 @@
 #' @param A,B,D
 #'   Argument matrices (see \dQuote{Details}).  Assumed to be square matrices of
 #'   the same order.  When missing, set to the identity matrix.  At least
-#'   one of these should be specified.
+#'   one of these must be specified.
 #' @param p,q,r
 #'   Exponents for A, B, D, respectively (see \dQuote{Details}).  Assumed to be
 #'   numeric of length 1 each.  See \dQuote{Details} for default values.
@@ -170,7 +170,7 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
 rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1,
                  mu, Sigma, use_cpp = TRUE) {
     if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
-        stop("Package \"mvtnorm\" is required to use this function.")
+        stop("Package 'mvtnorm' required to use this function")
     }
     if(missing(A)) {
         if(missing(B)) {

@@ -164,8 +164,8 @@ Seeing this requires some excursion into the math involved.
 
 For the above quantities to be well-defined and have finite moments:
 
-- $\mathbf{B}$ (and $\mathbf{D}$) should be nonnegative definite (i.e., has no negative eigenvalues)
-- when $p$ is non-positive-integer, $\mathbf{A}$ should be nonnegative definite as well
+- $\mathbf{B}$ (and $\mathbf{D}$) must be nonnegative definite (i.e., has no negative eigenvalues)
+- when $p$ is non-positive-integer, $\mathbf{A}$ must be nonnegative definite as well
 
 For the simple ratio, the necessary and sufficient conditions for the moment to
 exist is stated in @BaoKan2013[proposition 1]:
@@ -706,7 +706,7 @@ $\qfrE \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p
     \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r \right)$,
 where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$,
 using the algorithm described in @HillierEtAl2014[sections 3--4].
-The exponents should be positive integers.
+The exponents must be positive integers.
 
 In principle, the same algorithm can be applied to a product of more than three
 quadratic forms, but this package has not implemented functions for them.

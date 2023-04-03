@@ -212,14 +212,14 @@ and error bounds corresponding to these (see \dQuote{Values}).  The
 error bound (when available).  Use \code{plot()} for visual inspection,
 or the ordinary list element access as required.
 
-In most cases, \code{p} and \code{q} should be nonnegative
-(in addition, \code{p} should be an integer in
+In most cases, \code{p} and \code{q} must be nonnegative
+(in addition, \code{p} must be an integer in
 \code{qfrm_ApIq_int()} and \code{qfrm_ApBq_int()} when used directly),
 and an error is thrown otherwise.  The only exception is
 \code{qfrm_ApIq_npi()} which accepts negative exponents to accommodate
 \eqn{\frac{(\mathbf{x^\mathit{T} x})^q }{(\mathbf{x^\mathit{T} A x})^p}
      }{(x^T x)^q / (x^T A x)^p }.  Even in the latter case,
-the exponents should have the same sign.  (Technically, not all of
+the exponents must have the same sign.  (Technically, not all of
 these conditions are necessary for the mathematical
 results to hold, but they are enforced for simplicity).
 
@@ -252,7 +252,7 @@ by transforming \code{A}, \code{B}, and \code{mu} and calling itself
 recursively with these new arguments.  Note that the \dQuote{internal}
 functions do not accommodate \code{Sigma} (the error for unused arguments
 will happen).  For singular \eqn{\mathbf{\Sigma}}{\Sigma}, one of the
-following conditions should be met for the above transformation to be valid:
+following conditions must be met for the above transformation to be valid:
 \strong{1}) \eqn{\bm{\mu}}{\mu} is in the range of \eqn{\mathbf{\Sigma}}{\Sigma};
 \strong{2}) \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B} are in the range of
 \eqn{\mathbf{\Sigma}}{\Sigma}; or
@@ -289,7 +289,7 @@ For the sake of completeness (only), the scaling parameters \eqn{\beta}
 (see the package vignette) can be modified via
 the arguments \code{alphaA} and \code{alphaB}.  These are the factors for
 the inverses of the largest eigenvalues of \eqn{\mathbf{A}}{A} and
-\eqn{\mathbf{B}}{B}, respectively, and should be between 0 and 2.  The
+\eqn{\mathbf{B}}{B}, respectively, and must be between 0 and 2.  The
 default is 1, which should suffice for most purposes.  Values larger than 1
 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold

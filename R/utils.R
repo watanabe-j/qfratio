@@ -39,11 +39,11 @@ S_fromUL <- function(evec, evalues) {
 #'   \eqn{\mathbf{K}^-}{K^-}
 #'
 KiK <- function(S, tol = .Machine$double.eps * 100) {
-    if(!isSymmetric(S)) stop("Covariance matrix should be symmetric")
+    if(!isSymmetric(S)) stop("Covariance matrix must be symmetric")
     svdS <- svd(S, nv = 0)
     d <- svdS$d
     u <- svdS$u
-    if(any(d < 0)) stop("Covariance matrix should be nonnegative definite")
+    if(any(d < 0)) stop("Covariance matrix must be nonnegative definite")
     pos <- d > tol
     K <- u[, pos] %*% diag(sqrt(d[pos]), nrow = sum(pos))
     iK <- diag(1 / sqrt(d[pos]), nrow = sum(pos)) %*% t(u[, pos])

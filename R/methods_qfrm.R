@@ -249,16 +249,16 @@ print.qfrm <- function(x, digits = getOption("digits"),
         paste(format(ra, digits = digits + 2L), collapse = " "), "\n", sep = "")
     }
     if(isTRUE(attr(errorb, "singular")) && !all_na_errorb) {
-        cat("Note: Argument matrix (numerically) singular,",
-            "so error bound is unreliable\n")
+        cat("Note: Argument matrix numerically singular;",
+            "error bound is unreliable\n")
     }
     if(isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
-        cat("Note: Adjustment parameter(s) alpha above 1,",
-            "so error bound is unreliable\n")
+        cat("Note: Adjustment parameter(s) alpha > 1;",
+            "error bound is unreliable\n")
     }
     if(isTRUE(attr(stat, "diminished"))) {
-        cat("Note: Numerical underflow was encountered in evaluation,",
-            "so the result is likely inaccurate\n")
+        cat("Note: Numerical underflow encountered;",
+            "result is likely inaccurate\n")
     }
     cat("\n")
     invisible(x)
@@ -277,16 +277,16 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
     if(!requireNamespace("graphics", quietly = TRUE)) {
-        message("Package \"graphics\" not found. Exit from plot.qfrm")
+        message("Package 'graphics' not found. Exit from plot.qfrm")
         invisible()
     }
     terms <- x$terms
     seq_error <- x$seq_error
     seq_partial <- cumsum(terms)
     if(isTRUE(attr(seq_error, "exact"))) {
-        message("plot method for this class is provided for inspecting ",
+        message("plot method for this class is for inspecting ",
                 "partial sums.\n  This particular object has an exact moment, ",
-                "so the plot method is inapplicable.")
+                "so plot is moot.")
     }
     try(plot(seq_along(terms) - 1L, seq_partial, type = "l", col = col_m,
          ylim = ylim, xlab = xlab,
