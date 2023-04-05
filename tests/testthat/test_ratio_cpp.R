@@ -110,6 +110,54 @@ test_that("Expect equal from R and Cpp methods: qfmrm", {
     }
 })
 
+test_that("Expect equal from R and Cpp methods: qfm", {
+    nvs <- 2:4
+    ks <- c(1, 2)
+    for(nv in nvs) {
+        L1 <- 1:nv
+        L2 <- nv:1
+        L3 <- sqrt(nv:1)
+        A1 <- diag(L1)
+        A2 <- diag(L2)
+        A3 <- diag(L3)
+        I <- diag(nv)
+        mu <- 1:nv / nv
+        if(requireNamespace("stats", quietly = TRUE)) {
+            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+            A2r <- Q %*% A2 %*% t(Q)
+        } else {
+            A2r <- A2
+        }
+
+        for(p in ks) {
+            expect_equal(qfm_Ap_int(A1, p,          use_cpp = FALSE),
+                         qfm_Ap_int(A1, p,          use_cpp = TRUE), tolerance = tol)
+            expect_equal(qfm_Ap_int(A1, p, mu = mu, use_cpp = FALSE),
+                         qfm_Ap_int(A1, p, mu = mu, use_cpp = TRUE), tolerance = tol)
+            for(q in ks) {
+                expect_equal(qfpm_ABpq_int(A1, A2,  p, q,          use_cpp = FALSE),
+                             qfpm_ABpq_int(A1, A2,  p, q,          use_cpp = TRUE), tolerance = tol)
+                expect_equal(qfpm_ABpq_int(A1, A2,  p, q, mu = mu, use_cpp = FALSE),
+                             qfpm_ABpq_int(A1, A2,  p, q, mu = mu, use_cpp = TRUE), tolerance = tol)
+                expect_equal(qfpm_ABpq_int(A1, A2r, p, q,          use_cpp = FALSE),
+                             qfpm_ABpq_int(A1, A2r, p, q,          use_cpp = TRUE), tolerance = tol)
+                expect_equal(qfpm_ABpq_int(A1, A2r, p, q, mu = mu, use_cpp = FALSE),
+                             qfpm_ABpq_int(A1, A2r, p, q, mu = mu, use_cpp = TRUE), tolerance = tol)
+                for(r in ks) {
+                    expect_equal(qfpm_ABDpqr_int(A1, A2,  A3, p, q, r,          use_cpp = FALSE),
+                                 qfpm_ABDpqr_int(A1, A2,  A3, p, q, r,          use_cpp = TRUE), tolerance = tol)
+                    expect_equal(qfpm_ABDpqr_int(A1, A2,  A3, p, q, r, mu = mu, use_cpp = FALSE),
+                                 qfpm_ABDpqr_int(A1, A2,  A3, p, q, r, mu = mu, use_cpp = TRUE), tolerance = tol)
+                    expect_equal(qfpm_ABDpqr_int(A1, A2r, A3, p, q, r,          use_cpp = FALSE),
+                                 qfpm_ABDpqr_int(A1, A2r, A3, p, q, r,          use_cpp = TRUE), tolerance = tol)
+                    expect_equal(qfpm_ABDpqr_int(A1, A2r, A3, p, q, r, mu = mu, use_cpp = FALSE),
+                                 qfpm_ABDpqr_int(A1, A2r, A3, p, q, r, mu = mu, use_cpp = TRUE), tolerance = tol)
+                }
+            }
+        }
+    }
+})
+
 test_that("Expect equal from double and long double in C++: qfrm", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)

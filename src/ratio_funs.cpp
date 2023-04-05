@@ -108,7 +108,7 @@ SEXP ABDpqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
                     const double p = 1, const double q = 1, const double r = 1, 
                     const double thr_margin = 100) {
     ArrayXd lscf = ArrayXd::Zero(q + r + 1);
-    double dpqr = d3_pjk_vE(LA, LB, LD, q + r, p, lscf, thr_margin, 1)(p, (q + r + 1) * r + q);
+    double dpqr = d3_pjk_vE(LA, LB, LD, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
@@ -123,7 +123,7 @@ SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double thr_margin = 100) {
     DiagMatXd B = LB.matrix().asDiagonal();
     ArrayXd lscf = ArrayXd::Zero(q + r + 1);
-    double dpqr = d3_pjk_mE(A, B, D, q + r, p, lscf, thr_margin, 1)(p, (q + r + 1) * r + q);
+    double dpqr = d3_pjk_mE(A, B, D, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }

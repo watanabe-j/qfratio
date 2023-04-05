@@ -2034,6 +2034,7 @@ dtil3_pqr_mE(const Eigen::MatrixBase<Derived>& A1,
         MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() = A1 * Gn.block(0, (i - 1) * n, n, n);
         MatrixXx::Map(gn.col(i).data(), n, 1).noalias() = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
         dks(i, 0) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
+        Gn.block(0, i * n, n, n).diagonal().array() += dks(i, 0);
     }
     for(Index k = 1; k <= m; k++) {
         if(k % 500 == 0) {
