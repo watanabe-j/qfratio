@@ -29,23 +29,21 @@ Eigen::Array<long double, Eigen::Dynamic, 1> LinSpaced_lgammal(const Eigen::Inde
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApIq_npi()}, noncentral
+//'   \code{qfrm_ApIq_npi()}, noncentral, long double
 //'
 // [[Rcpp::export]]
 SEXP ApIq_npi_nEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA,
-                   const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> UA,
-                   const long double bA,
-                   const Eigen::Matrix<long double, Eigen::Dynamic, 1> mu,
-                   const long double p = 1, const long double q = 1,
-                   const Eigen::Index m = 100, const long double thr_margin = 100,
-                   int nthreads = 1) {
+                  const long double bA,
+                  const Eigen::Array<long double, Eigen::Dynamic, 1> mu,
+                  const long double p = 1, const long double q = 1,
+                  const Eigen::Index m = 100, const long double thr_margin = 100,
+                  int nthreads = 1) {
     const Index n = LA.size();
     const long double n_ = n;
     ArrayXl LAh = ArrayXl::Ones(n) - bA * LA;
     ArrayXl zeromat = ArrayXl::Zero(n);
-    ArrayXl mud = UA.transpose() * mu;
     ArrayXl lscf = ArrayXl::Zero(m + 1);
-    ArrayXl dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
+    ArrayXl dks = h2_ij_vE(LAh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXl ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgammal(n_ / 2 + p - q) - lgammal(n_ / 2)), lscf);
     ArrayXl ansseq = sum_counterdiagE(ansmat);

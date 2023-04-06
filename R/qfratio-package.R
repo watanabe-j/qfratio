@@ -146,9 +146,6 @@ NULL
 #'   Symmetry is assumed.
 #' @param LA,LB
 #'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
-#' @param UA
-#'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding
-#'   to \code{LA}.  Passed as \code{Eigen::Matrix}.
 #' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 #'   and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.

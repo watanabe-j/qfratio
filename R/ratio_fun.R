@@ -1078,11 +1078,11 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     if(use_cpp) {
         if(central) {
-            cppres <- ApIq_int_cEd(A, p, q)
+            cppres <- ApIq_int_cE(A, p, q)
             ans <- cppres$ans
             ansseq <- ans
         } else {
-            cppres <- ApIq_int_nEd(A, mu, p, q)
+            cppres <- ApIq_int_nE(A, mu, p, q)
             ansseq <- cppres$ansseq
             ans <- sum(ansseq)
         }
@@ -1180,7 +1180,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     A <- (A + t(A)) / 2
     eigA <- eigen(A, symmetric = TRUE)
     LA <- eigA$values
-    UA <- eigA$vectors
     if(any(LA < -tol_sing) && ((p %% 1) != 0 || p < 0)) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
@@ -1193,18 +1192,19 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                   cond_exist)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     bA <- alphaA / max(abs(LA))
+    mu <- c(crossprod(eigA$vectors, c(mu)))
     if(use_cpp) {
         if(central) {
-            cppres <- ApIq_npi_cEd(LA, bA, p, q, m, error_bound, thr_margin)
+            cppres <- ApIq_npi_cE(LA, bA, p, q, m, error_bound, thr_margin)
         } else {
             if(cpp_method == "coef_wise") {
-                cppres <- ApIq_npi_nEc(LA, UA, bA, mu, p, q, m,
-                                        thr_margin, nthreads)
+                cppres <- ApIq_npi_nEc(LA, bA, mu, p, q, m,
+                                       thr_margin, nthreads)
             } else if(cpp_method == "long_double") {
-                cppres <- ApIq_npi_nEl(LA, UA, bA, mu, p, q, m,
-                                        thr_margin, nthreads)
+                cppres <- ApIq_npi_nEl(LA, bA, mu, p, q, m,
+                                       thr_margin, nthreads)
             } else {
-                cppres <- ApIq_npi_nEd(LA, UA, bA, mu, p, q, m,
+                cppres <- ApIq_npi_nEd(LA, bA, mu, p, q, m,
                                        thr_margin, nthreads)
             }
         }
@@ -1218,7 +1218,6 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ansseq <- hgs_1d(dks, -p, n / 2, ((p - q) * log(2) - p * log(bA)
                              + lgamma(n/2 + p - q) - lgamma(n/2) - lscf))
         } else {
-            mu <- c(crossprod(UA, c(mu)))
             # ## This is based on recursion for d as in Hillier et al. (2009)
             # dks <- d2_ij_m(diag(LAh), tcrossprod(mu), m)
             # ansmat <- hgs_dmu_2d(dks, -p, n / 2 + p - q, n / 2,

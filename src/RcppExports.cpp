@@ -62,9 +62,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ApIq_int_cEd
-SEXP ApIq_int_cEd(const Eigen::MatrixXd A, const double p, const double q, const double thr_margin);
-RcppExport SEXP _qfratio_ApIq_int_cEd(SEXP ASEXP, SEXP pSEXP, SEXP qSEXP, SEXP thr_marginSEXP) {
+// ApIq_int_cE
+SEXP ApIq_int_cE(const Eigen::MatrixXd A, const double p, const double q, const double thr_margin);
+RcppExport SEXP _qfratio_ApIq_int_cE(SEXP ASEXP, SEXP pSEXP, SEXP qSEXP, SEXP thr_marginSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -72,13 +72,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type p(pSEXP);
     Rcpp::traits::input_parameter< const double >::type q(qSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_int_cEd(A, p, q, thr_margin));
+    rcpp_result_gen = Rcpp::wrap(ApIq_int_cE(A, p, q, thr_margin));
     return rcpp_result_gen;
 END_RCPP
 }
-// ApIq_int_nEd
-SEXP ApIq_int_nEd(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p, const double q, const double thr_margin);
-RcppExport SEXP _qfratio_ApIq_int_nEd(SEXP ASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP thr_marginSEXP) {
+// ApIq_int_nE
+SEXP ApIq_int_nE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p, const double q, const double thr_margin);
+RcppExport SEXP _qfratio_ApIq_int_nE(SEXP ASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP thr_marginSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -87,13 +87,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type p(pSEXP);
     Rcpp::traits::input_parameter< const double >::type q(qSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_int_nEd(A, mu, p, q, thr_margin));
+    rcpp_result_gen = Rcpp::wrap(ApIq_int_nE(A, mu, p, q, thr_margin));
     return rcpp_result_gen;
 END_RCPP
 }
-// ApIq_npi_cEd
-SEXP ApIq_npi_cEd(const Eigen::ArrayXd LA, const double bA, const double p, const double q, const Eigen::Index m, bool error_bound, const double thr_margin);
-RcppExport SEXP _qfratio_ApIq_npi_cEd(SEXP LASEXP, SEXP bASEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP error_boundSEXP, SEXP thr_marginSEXP) {
+// ApIq_npi_cE
+SEXP ApIq_npi_cE(const Eigen::ArrayXd LA, const double bA, const double p, const double q, const Eigen::Index m, bool error_bound, const double thr_margin);
+RcppExport SEXP _qfratio_ApIq_npi_cE(SEXP LASEXP, SEXP bASEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP error_boundSEXP, SEXP thr_marginSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -104,26 +104,25 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
     Rcpp::traits::input_parameter< bool >::type error_bound(error_boundSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_npi_cEd(LA, bA, p, q, m, error_bound, thr_margin));
+    rcpp_result_gen = Rcpp::wrap(ApIq_npi_cE(LA, bA, p, q, m, error_bound, thr_margin));
     return rcpp_result_gen;
 END_RCPP
 }
 // ApIq_npi_nEd
-SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA, const Eigen::VectorXd mu, const double p, const double q, const Eigen::Index m, const double thr_margin, int nthreads);
-RcppExport SEXP _qfratio_ApIq_npi_nEd(SEXP LASEXP, SEXP UASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
+SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const double bA, const Eigen::ArrayXd mu, const double p, const double q, const Eigen::Index m, const double thr_margin, int nthreads);
+RcppExport SEXP _qfratio_ApIq_npi_nEd(SEXP LASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type LA(LASEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type UA(UASEXP);
     Rcpp::traits::input_parameter< const double >::type bA(bASEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const double >::type p(pSEXP);
     Rcpp::traits::input_parameter< const double >::type q(qSEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEd(LA, UA, bA, mu, p, q, m, thr_margin, nthreads));
+    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEd(LA, bA, mu, p, q, m, thr_margin, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -302,21 +301,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // ApIq_npi_nEc
-SEXP ApIq_npi_nEc(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA, const Eigen::VectorXd mu, const double p, const double q, const Eigen::Index m, const double thr_margin, int nthreads);
-RcppExport SEXP _qfratio_ApIq_npi_nEc(SEXP LASEXP, SEXP UASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
+SEXP ApIq_npi_nEc(const Eigen::ArrayXd LA, const double bA, const Eigen::ArrayXd mu, const double p, const double q, const Eigen::Index m, const double thr_margin, int nthreads);
+RcppExport SEXP _qfratio_ApIq_npi_nEc(SEXP LASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type LA(LASEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type UA(UASEXP);
     Rcpp::traits::input_parameter< const double >::type bA(bASEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const double >::type p(pSEXP);
     Rcpp::traits::input_parameter< const double >::type q(qSEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEc(LA, UA, bA, mu, p, q, m, thr_margin, nthreads));
+    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEc(LA, bA, mu, p, q, m, thr_margin, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -455,21 +453,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // ApIq_npi_nEl
-SEXP ApIq_npi_nEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> UA, const long double bA, const Eigen::Matrix<long double, Eigen::Dynamic, 1> mu, const long double p, const long double q, const Eigen::Index m, const long double thr_margin, int nthreads);
-RcppExport SEXP _qfratio_ApIq_npi_nEl(SEXP LASEXP, SEXP UASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
+SEXP ApIq_npi_nEl(const Eigen::Array<long double, Eigen::Dynamic, 1> LA, const long double bA, const Eigen::Array<long double, Eigen::Dynamic, 1> mu, const long double p, const long double q, const Eigen::Index m, const long double thr_margin, int nthreads);
+RcppExport SEXP _qfratio_ApIq_npi_nEl(SEXP LASEXP, SEXP bASEXP, SEXP muSEXP, SEXP pSEXP, SEXP qSEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type LA(LASEXP);
-    Rcpp::traits::input_parameter< const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> >::type UA(UASEXP);
     Rcpp::traits::input_parameter< const long double >::type bA(bASEXP);
-    Rcpp::traits::input_parameter< const Eigen::Matrix<long double, Eigen::Dynamic, 1> >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const long double >::type p(pSEXP);
     Rcpp::traits::input_parameter< const long double >::type q(qSEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
     Rcpp::traits::input_parameter< const long double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEl(LA, UA, bA, mu, p, q, m, thr_margin, nthreads));
+    rcpp_result_gen = Rcpp::wrap(ApIq_npi_nEl(LA, bA, mu, p, q, m, thr_margin, nthreads));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -631,10 +628,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_Ap_int_E", (DL_FUNC) &_qfratio_Ap_int_E, 5},
     {"_qfratio_ABpq_int_E", (DL_FUNC) &_qfratio_ABpq_int_E, 7},
     {"_qfratio_ABDpqr_int_E", (DL_FUNC) &_qfratio_ABDpqr_int_E, 9},
-    {"_qfratio_ApIq_int_cEd", (DL_FUNC) &_qfratio_ApIq_int_cEd, 4},
-    {"_qfratio_ApIq_int_nEd", (DL_FUNC) &_qfratio_ApIq_int_nEd, 5},
-    {"_qfratio_ApIq_npi_cEd", (DL_FUNC) &_qfratio_ApIq_npi_cEd, 7},
-    {"_qfratio_ApIq_npi_nEd", (DL_FUNC) &_qfratio_ApIq_npi_nEd, 9},
+    {"_qfratio_ApIq_int_cE", (DL_FUNC) &_qfratio_ApIq_int_cE, 4},
+    {"_qfratio_ApIq_int_nE", (DL_FUNC) &_qfratio_ApIq_int_nE, 5},
+    {"_qfratio_ApIq_npi_cE", (DL_FUNC) &_qfratio_ApIq_npi_cE, 7},
+    {"_qfratio_ApIq_npi_nEd", (DL_FUNC) &_qfratio_ApIq_npi_nEd, 8},
     {"_qfratio_ApBq_int_E", (DL_FUNC) &_qfratio_ApBq_int_E, 10},
     {"_qfratio_ApBq_npi_Ed", (DL_FUNC) &_qfratio_ApBq_npi_Ed, 11},
     {"_qfratio_ApBIqr_int_cEd", (DL_FUNC) &_qfratio_ApBIqr_int_cEd, 10},
@@ -643,14 +640,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_IpBDqr_gen_Ed", (DL_FUNC) &_qfratio_IpBDqr_gen_Ed, 12},
     {"_qfratio_ApBDqr_int_Ed", (DL_FUNC) &_qfratio_ApBDqr_int_Ed, 13},
     {"_qfratio_ApBDqr_npi_Ed", (DL_FUNC) &_qfratio_ApBDqr_npi_Ed, 14},
-    {"_qfratio_ApIq_npi_nEc", (DL_FUNC) &_qfratio_ApIq_npi_nEc, 9},
+    {"_qfratio_ApIq_npi_nEc", (DL_FUNC) &_qfratio_ApIq_npi_nEc, 8},
     {"_qfratio_ApBq_npi_Ec", (DL_FUNC) &_qfratio_ApBq_npi_Ec, 11},
     {"_qfratio_ApBIqr_int_nEc", (DL_FUNC) &_qfratio_ApBIqr_int_nEc, 12},
     {"_qfratio_ApBIqr_npi_Ec", (DL_FUNC) &_qfratio_ApBIqr_npi_Ec, 12},
     {"_qfratio_IpBDqr_gen_Ec", (DL_FUNC) &_qfratio_IpBDqr_gen_Ec, 12},
     {"_qfratio_ApBDqr_int_Ec", (DL_FUNC) &_qfratio_ApBDqr_int_Ec, 13},
     {"_qfratio_ApBDqr_npi_Ec", (DL_FUNC) &_qfratio_ApBDqr_npi_Ec, 14},
-    {"_qfratio_ApIq_npi_nEl", (DL_FUNC) &_qfratio_ApIq_npi_nEl, 9},
+    {"_qfratio_ApIq_npi_nEl", (DL_FUNC) &_qfratio_ApIq_npi_nEl, 8},
     {"_qfratio_ApBq_npi_El", (DL_FUNC) &_qfratio_ApBq_npi_El, 11},
     {"_qfratio_ApBIqr_int_nEl", (DL_FUNC) &_qfratio_ApBIqr_int_nEl, 12},
     {"_qfratio_ApBIqr_npi_El", (DL_FUNC) &_qfratio_ApBIqr_npi_El, 12},

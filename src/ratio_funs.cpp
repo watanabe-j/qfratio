@@ -115,9 +115,9 @@ SEXP ABDpqr_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 //'   \code{qfrm_ApIq_int()}, central
 //'
 // [[Rcpp::export]]
-SEXP ApIq_int_cEd(const Eigen::MatrixXd A,
-                  const double p = 1, const double q = 1, 
-                  const double thr_margin = 100) {
+SEXP ApIq_int_cE(const Eigen::MatrixXd A,
+                 const double p = 1, const double q = 1, 
+                 const double thr_margin = 100) {
     const Index n = A.rows();
     const double n_ = n;
     ArrayXd lscf = ArrayXd::Zero(p + 1);
@@ -131,9 +131,9 @@ SEXP ApIq_int_cEd(const Eigen::MatrixXd A,
 //'   \code{qfrm_ApIq_int()}, noncentral
 //'
 // [[Rcpp::export]]
-SEXP ApIq_int_nEd(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1, 
-                  const double thr_margin = 100) {
+SEXP ApIq_int_nE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
+                 const double p = 1, const double q = 1, 
+                 const double thr_margin = 100) {
     const Index n = A.rows();
     const double n_ = n;
     ArrayXd aps = a1_pk_mE(A, mu, p, thr_margin).row(p);
@@ -164,11 +164,11 @@ SEXP ApIq_int_nEd(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
 //'   \code{qfrm_ApIq_npi()}, central
 //'
 // [[Rcpp::export]]
-SEXP ApIq_npi_cEd(const Eigen::ArrayXd LA,
-                    const double bA,
-                    const double p = 1, const double q = 1,
-                    const Eigen::Index m = 100, bool error_bound = true,
-                    const double thr_margin = 100) {
+SEXP ApIq_npi_cE(const Eigen::ArrayXd LA,
+                 const double bA,
+                 const double p = 1, const double q = 1,
+                 const Eigen::Index m = 100, bool error_bound = true,
+                 const double thr_margin = 100) {
     const Index n = LA.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
@@ -201,20 +201,19 @@ SEXP ApIq_npi_cEd(const Eigen::ArrayXd LA,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApIq_npi()}, noncentral
+//'   \code{qfrm_ApIq_npi()}, noncentral, double
 //'
 // [[Rcpp::export]]
-SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA,
-                  const Eigen::VectorXd mu,
+SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const double bA,
+                  const Eigen::ArrayXd mu,
                   const double p = 1, const double q = 1, const Eigen::Index m = 100,
                   const double thr_margin = 100, int nthreads = 1) {
     const Index n = LA.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    ArrayXd mud = UA.transpose() * mu;
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h2_ij_vE(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
+    ArrayXd dks = h2_ij_vE(LAh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);

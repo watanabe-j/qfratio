@@ -4,9 +4,9 @@
 \alias{Ap_int_E}
 \alias{ABpq_int_E}
 \alias{ABDpqr_int_E}
-\alias{ApIq_int_cEd}
-\alias{ApIq_int_nEd}
-\alias{ApIq_npi_cEd}
+\alias{ApIq_int_cE}
+\alias{ApIq_int_nE}
+\alias{ApIq_npi_cE}
 \alias{ApIq_npi_nEd}
 \alias{ApBq_int_E}
 \alias{ApBq_npi_Ed}
@@ -50,11 +50,11 @@ ABDpqr_int_E(
   tol_zero = 2.2e-14
 )
 
-ApIq_int_cEd(A, p = 1, q = 1, thr_margin = 100)
+ApIq_int_cE(A, p = 1, q = 1, thr_margin = 100)
 
-ApIq_int_nEd(A, mu, p = 1, q = 1, thr_margin = 100)
+ApIq_int_nE(A, mu, p = 1, q = 1, thr_margin = 100)
 
-ApIq_npi_cEd(
+ApIq_npi_cE(
   LA,
   bA,
   p = 1,
@@ -66,7 +66,6 @@ ApIq_npi_cEd(
 
 ApIq_npi_nEd(
   LA,
-  UA,
   bA,
   mu,
   p = 1,
@@ -196,7 +195,6 @@ ApBDqr_npi_Ed(
 
 ApIq_npi_nEc(
   LA,
-  UA,
   bA,
   mu,
   p = 1,
@@ -300,7 +298,6 @@ ApBDqr_npi_Ec(
 
 ApIq_npi_nEl(
   LA,
-  UA,
   bA,
   mu,
   p = 1L,
@@ -431,9 +428,6 @@ expression is truncated.  Passed as \code{Eigen::Index}
 
 \item{error_bound}{\code{bool} to specify whether the error bound is returned}
 
-\item{UA}{Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding
-to \code{LA}.  Passed as \code{Eigen::Matrix}.}
-
 \item{nthreads}{\code{int} to specify the number of threads in \proglang{OpenMP}-enabled
 functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
@@ -477,13 +471,13 @@ which may not be particularly efficient.
 
 \item \code{ABDpqr_int_E()}: \code{qfpm_ABDpqr_int()}
 
-\item \code{ApIq_int_cEd()}: \code{qfrm_ApIq_int()}, central
+\item \code{ApIq_int_cE()}: \code{qfrm_ApIq_int()}, central
 
-\item \code{ApIq_int_nEd()}: \code{qfrm_ApIq_int()}, noncentral
+\item \code{ApIq_int_nE()}: \code{qfrm_ApIq_int()}, noncentral
 
-\item \code{ApIq_npi_cEd()}: \code{qfrm_ApIq_npi()}, central
+\item \code{ApIq_npi_cE()}: \code{qfrm_ApIq_npi()}, central
 
-\item \code{ApIq_npi_nEd()}: \code{qfrm_ApIq_npi()}, noncentral
+\item \code{ApIq_npi_nEd()}: \code{qfrm_ApIq_npi()}, noncentral, double
 
 \item \code{ApBq_int_E()}: \code{qfrm_ApBq_int()}
 
@@ -515,7 +509,7 @@ which may not be particularly efficient.
 
 \item \code{ApBDqr_npi_Ec()}: \code{qfmrm_ApBDqr_npi()}, coefficient-wise scaling
 
-\item \code{ApIq_npi_nEl()}: \code{qfrm_ApIq_npi()}, noncentral
+\item \code{ApIq_npi_nEl()}: \code{qfrm_ApIq_npi()}, noncentral, long double
 
 \item \code{ApBq_npi_El()}: \code{qfrm_ApBq_npi()}, long double
 

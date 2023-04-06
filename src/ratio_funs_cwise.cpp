@@ -22,17 +22,16 @@ typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatXd;
 //'   \code{qfrm_ApIq_npi()}, noncentral, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
-SEXP ApIq_npi_nEc(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA,
-                   const Eigen::VectorXd mu,
-                   const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                   const double thr_margin = 100, int nthreads = 1) {
+SEXP ApIq_npi_nEc(const Eigen::ArrayXd LA, const double bA, 
+                  const Eigen::ArrayXd mu,
+                  const double p = 1, const double q = 1, const Eigen::Index m = 100,
+                  const double thr_margin = 100, int nthreads = 1) {
     const Index n = LA.size();
     const double n_ = n;
     ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
     ArrayXd zeromat = ArrayXd::Zero(n);
-    ArrayXd mud = UA.transpose() * mu;
     ArrayXd lscf = ArrayXd::Zero((m + 1) * (m + 2) / 2);
-    ArrayXd dks = h2_ij_vEc(LAh, zeromat, mud, m, lscf, thr_margin, nthreads);
+    ArrayXd dks = h2_ij_vEc(LAh, zeromat, mu, m, lscf, thr_margin, nthreads);
     ArrayXd ansmat = hgs_2dEc(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA)
                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
