@@ -2,7 +2,6 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <unsupported/Eigen/SpecialFunctions>
 #include <cmath>
-#include <limits>
 
 // // These are to use gsl in ApIq_int_nmE
 // #include <RcppGSL.h>
