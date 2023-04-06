@@ -51,7 +51,7 @@ evolutionary quantitative genetics [@Watanabe2022cevo].
 ## Installation
 
 ***WARNING*** Installation size of this package can be very large
-(~130 MB on Linux and macOS; ~3 MB on Windows with `Rtools42`),
+(>100 MB on Linux and macOS; ~3 MB on Windows with `Rtools42`),
 as it involves lots of `RcppEigen` functions.
 
 

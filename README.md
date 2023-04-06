@@ -27,7 +27,7 @@ evolutionary quantitative genetics ([Watanabe,
 
 ## Installation
 
-***WARNING*** Installation size of this package can be very large (~130
+***WARNING*** Installation size of this package can be very large (\>100
 MB on Linux and macOS; ~3 MB on Windows with `Rtools42`), as it involves
 lots of `RcppEigen` functions.
 
