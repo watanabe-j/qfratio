@@ -566,12 +566,13 @@ template ArrayXl h2_ij_vE(const ArrayBase<ArrayXl>& A1,
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
+hxxx2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
             const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
             const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
             const Eigen::Index m, const Eigen::Index p,
             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-            const typename Derived::Scalar thr_margin) {
+            const typename Derived::Scalar thr_margin,
+            const typename Derived::Scalar c) {
     typedef typename Derived::Scalar Scalar;
     typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -586,7 +587,8 @@ htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
     for(Index i = 1; i <= p; i++) {
         G_k_i.block(0, i * n, n, n) = A1 * G_k_i.block(0, (i - 1) * n, n, n);
         g_k_i.col(i) = G_k_i.block(0, i * n, n, n) * mu + A1 * g_k_i.col(i - 1);
-        dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
+        dks(i, 0) =
+            (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
         G_k_i.block(0, i * n, n, n).diagonal().array() += dks(i, 0);
     }
     for(Index k = 1; k <= m; k++) {
@@ -594,17 +596,19 @@ htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
             Rcpp::checkUserInterrupt();
         }
         tG.noalias() = A2 * G_k_i.block(0, 0, n, n);
-        g_k_i.col(0) = (tG - G_k_i.block(0, 0, n, n)) * mu + A2 * g_k_i.col(0);
+        g_k_i.col(0) = (tG + c * G_k_i.block(0, 0, n, n)) * mu + A2 * g_k_i.col(0);
         G_k_i.block(0, 0, n, n) = tG;
-        dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
+        dks(0, k) =
+            (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
         G_k_i.block(0, 0, n, n).diagonal().array() += dks(0, k);
         for(Index i = 1; i <= p; i++) {
             tG.noalias() = A1 * G_k_i.block(0, (i - 1) * n, n, n) +
                            A2 * G_k_i.block(0, i * n, n, n);
-            g_k_i.col(i) = (tG - G_k_i.block(0, i * n, n, n)) * mu + // require aliasing
+            g_k_i.col(i) = (tG + c * G_k_i.block(0, i * n, n, n)) * mu + // require aliasing
                            A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
             G_k_i.block(0, i * n, n, n) = tG;
-            dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
+            dks(i, k) =
+                (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
             G_k_i.block(0, i * n, n, n).diagonal().array() += dks(i, k);
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
@@ -616,19 +620,16 @@ htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
     }
     return dks;
 }
-template ArrayXXd htil2_pj_mE(const MatrixBase<MatrixXd>& A1, 
-                              const DiagMatXd& A2,
-                              const VectorXd& mu, const Index m, const Index p,
-                              ArrayXd& lscf, const double thr_margin);
 
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-htil2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
+hxxx2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
             const Eigen::ArrayBase<Derived>& A2,
             const Eigen::ArrayBase<Derived>& mu, const Eigen::Index m, const Eigen::Index p,
             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-            const typename Derived::Scalar thr_margin) {
+            const typename Derived::Scalar thr_margin,
+            const typename Derived::Scalar c) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
@@ -649,16 +650,18 @@ htil2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
             Rcpp::checkUserInterrupt();
         }
         tG = A2 * (dks(0, k - 1) + G_k_i.col(0));
-        g_k_i.col(0) = (tG - G_k_i.col(0) - dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
+        g_k_i.col(0) =
+            (tG + c * G_k_i.col(0) + c * dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
         G_k_i.col(0) = tG;
         dks(0, k) = (G_k_i.col(0).sum() + (g_k_i.col(0) * mu).sum()) / (2 * k);
         for(Index i = 1; i <= p; i++) {
             tG = A1 * (dks(i - 1, k) + G_k_i.col(i - 1)) +
                  A2 * (dks(i, k - 1) + G_k_i.col(i));
-            g_k_i.col(i) = (tG - G_k_i.col(i) - dks(i, k - 1)) * mu +
+            g_k_i.col(i) = (tG + c * G_k_i.col(i) + c * dks(i, k - 1)) * mu +
                            A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
             G_k_i.col(i) = tG;
-            dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
+            dks(i, k) =
+                (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
         }
         if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
             dks.col(k) /= 1e10;
@@ -668,6 +671,33 @@ htil2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
         }
     }
     return dks;
+}
+
+// // [[Rcpp::export]]
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+htil2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
+            const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
+            const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1>& mu,
+            const Eigen::Index m, const Eigen::Index p,
+            Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
+            const typename Derived::Scalar thr_margin) {
+    return hxxx2_pj_mE(A1, A2, mu, m, p, lscf, thr_margin, -1);
+}
+template ArrayXXd htil2_pj_mE(const MatrixBase<MatrixXd>& A1, 
+                              const DiagMatXd& A2,
+                              const VectorXd& mu, const Index m, const Index p,
+                              ArrayXd& lscf, const double thr_margin);
+
+// // [[Rcpp::export]]
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+htil2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
+            const Eigen::ArrayBase<Derived>& A2,
+            const Eigen::ArrayBase<Derived>& mu, const Eigen::Index m, const Eigen::Index p,
+            Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
+            const typename Derived::Scalar thr_margin) {
+    return hxxx2_pj_vE(A1, A2, mu, m, p, lscf, thr_margin, -1);
 }
 template ArrayXXd htil2_pj_vE(const ArrayBase<ArrayXd>& A1,
                               const ArrayBase<ArrayXd>& A2,
@@ -684,51 +714,7 @@ hhat2_pj_mE(const Eigen::MatrixBase<Derived>& A1,
             const Eigen::Index m, const Eigen::Index p,
             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
             const typename Derived::Scalar thr_margin) {
-    typedef typename Derived::Scalar Scalar;
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const Index n = A1.rows();
-    ArrayXXx dks = ArrayXXx::Zero(p + 1, m + 1);
-    dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
-    MatrixXx tG(n, n);
-    MatrixXx G_k_i = MatrixXx::Zero(n, n * (p + 1));
-    MatrixXx g_k_i = MatrixXx::Zero(n, p + 1);
-    G_k_i.block(0, 0, n, n).diagonal().array() += dks(0, 0);
-    for(Index i = 1; i <= p; i++) {
-        MatrixXx::Map(G_k_i.block(0, i * n, n, n).data(), n, n).noalias() =
-            A1 * G_k_i.block(0, (i - 1) * n, n, n);
-        MatrixXx::Map(g_k_i.col(i).data(), n, 1).noalias() =
-            G_k_i.block(0, i * n, n, n) * mu + A1 * g_k_i.col(i - 1);
-        dks(i, 0) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * i);
-        G_k_i.block(0, i * n, n, n).diagonal().array() += dks(i, 0);
-    }
-    for(Index k = 1; k <= m; k++) {
-        if(k % 10000 == 0) {
-            Rcpp::checkUserInterrupt();
-        }
-        tG.noalias() = A2 * G_k_i.block(0, 0, n, n);
-        g_k_i.col(0) = (tG + G_k_i.block(0, 0, n, n)) * mu + A2 * g_k_i.col(0);
-        G_k_i.block(0, 0, n, n) = tG;
-        dks(0, k) = (G_k_i.block(0, 0, n, n).trace() + g_k_i.col(0).dot(mu)) / (2 * k);
-        G_k_i.block(0, 0, n, n).diagonal().array() += dks(0, k);
-        for(Index i = 1; i <= p; i++) {
-            tG.noalias() = A1 * G_k_i.block(0, (i - 1) * n, n, n) +
-                           A2 * G_k_i.block(0, i * n, n, n);
-            g_k_i.col(i) = (tG + G_k_i.block(0, i * n, n, n)) * mu +
-                           A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
-            G_k_i.block(0, i * n, n, n) = tG;
-            dks(i, k) = (G_k_i.block(0, i * n, n, n).trace() + g_k_i.col(i).dot(mu)) / (2 * (k + i));
-            G_k_i.block(0, i * n, n, n).diagonal().array() += dks(i, k);
-        }
-        if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            g_k_i /= 1e10;
-            lscf.tail(m + 1 - k) -= LN1E10;
-        }
-    }
-    return dks;
+    return hxxx2_pj_mE(A1, A2, mu, m, p, lscf, thr_margin, 1);
 }
 template ArrayXXd hhat2_pj_mE(const MatrixBase<MatrixXd>& A1, 
                               const DiagMatXd& A2,
@@ -745,45 +731,7 @@ hhat2_pj_vE(const Eigen::ArrayBase<Derived>& A1,
             const Eigen::Index m, const Eigen::Index p,
             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
             const typename Derived::Scalar thr_margin) {
-    typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const Index n = A1.size();
-    ArrayXXx dks = ArrayXXx::Zero(p + 1, m + 1);
-    dks(0, 0) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
-    ArrayXx tG(n);
-    ArrayXXx G_k_i = ArrayXXx::Zero(n, p + 1);
-    ArrayXXx g_k_i = ArrayXXx::Zero(n, p + 1);
-    for(Index i = 1; i <= p; i++) {
-        G_k_i.col(i) = A1 * (dks(i - 1, 0) + G_k_i.col(i - 1));
-        g_k_i.col(i) = G_k_i.col(i) * mu + A1 * g_k_i.col(i - 1);
-        dks(i, 0) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * i);
-    }
-    for(Index k = 1; k <= m; k++) {
-        if(k % 1000000 == 0) {
-            Rcpp::checkUserInterrupt();
-        }
-        tG = A2 * (dks(0, k - 1) + G_k_i.col(0));
-        g_k_i.col(0) = (tG + G_k_i.col(0) + dks(0, k - 1)) * mu + A2 * g_k_i.col(0);
-        G_k_i.col(0) = tG;
-        dks(0, k) = (G_k_i.col(0).sum() + (g_k_i.col(0) * mu).sum()) / (2 * k);
-        for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks(i - 1, k) + G_k_i.col(i - 1)) +
-                 A2 * (dks(i, k - 1) + G_k_i.col(i));
-            g_k_i.col(i) = (tG + G_k_i.col(i) + dks(i, k - 1)) * mu +
-                           A1 * g_k_i.col(i - 1) + A2 * g_k_i.col(i);
-            G_k_i.col(i) = tG;
-            dks(i, k) = (G_k_i.col(i).sum() + (g_k_i.col(i) * mu).sum()) / (2 * (k + i));
-        }
-        if(G_k_i.maxCoeff() > thr || g_k_i.maxCoeff() > thr) {
-            dks.col(k) /= 1e10;
-            G_k_i /= 1e10;
-            g_k_i /= 1e10;
-            lscf.tail(m + 1 - k) -= LN1E10;
-        }
-    }
-    return dks;
+    return hxxx2_pj_vE(A1, A2, mu, m, p, lscf, thr_margin, 1);
 }
 template ArrayXXd hhat2_pj_vE(const ArrayBase<ArrayXd>& A1,
                               const ArrayBase<ArrayXd>& A2,
@@ -1530,16 +1478,19 @@ template ArrayXl h3_ijk_vE(const ArrayBase<ArrayXl>& A1,
                            ArrayXl& lscf, const long double thr_margin,
                            int nthreads);
 
+
+
 // // [[Rcpp::export]]
 template <typename Derived>
 Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
-htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
+hxxx3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
              const Eigen::MatrixBase<Derived>& A3,
              const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
-             const typename Derived::Scalar thr_margin, int nthreads) {
+             const typename Derived::Scalar thr_margin, int nthreads,
+             const typename Derived::Scalar c) {
 #ifdef _OPENMP
     if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
     omp_set_num_threads(nthreads);
@@ -1558,9 +1509,12 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
     MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
     Gn.block(0, 0, n, n).diagonal().array() += dks(0, 0);
     for(Index i = 1; i <= p; i++) {
-        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() = A1 * Gn.block(0, (i - 1) * n, n, n);
-        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() = Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
-        dks.ULSat(i, 0, 0, m + 1) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
+        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
+            A1 * Gn.block(0, (i - 1) * n, n, n);
+        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
+            Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
+        dks.ULSat(i, 0, 0, m + 1) =
+            (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
         Gn.block(0, i * n, n, n).diagonal().array() += dks.ULSat(i, 0, 0, m + 1);
     }
     for(Index k = 1; k <= m; k++) {
@@ -1571,18 +1525,20 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
         tG.noalias() = A2 * Go.block(0, 0, n, n);
         MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
-            (tG - Go.block(0, 0, n, n)) * mu + A2 * go.col(0);
+            (tG + c * Go.block(0, 0, n, n)) * mu + A2 * go.col(0);
         Gn.block(0, 0, n, n) = tG;
-        dks.ULSat(0, k, 0, m + 1) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
+        dks.ULSat(0, k, 0, m + 1) =
+            (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
         Gn.block(0, 0, n, n).diagonal().array() += dks.ULSat(0, k, 0, m + 1);
         for(Index i = 1; i <= p; i++) {
             tG.noalias() = A1 * Gn.block(0, (i - 1) * n, n, n) +
                            A2 * Go.block(0, i * n, n, n);
             MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
-                (tG - Go.block(0, i * n, n, n)) * mu +
+                (tG + c * Go.block(0, i * n, n, n)) * mu +
                 A1 * gn.col(i - 1) + A2 * go.col(i);
             Gn.block(0, i * n, n, n) = tG;
-            dks.ULSat(i, k, 0, m + 1) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
+            dks.ULSat(i, k, 0, m + 1) =
+                (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
             Gn.block(0, i * n, n, n).diagonal().array() += dks.ULSat(i, k, 0, m + 1);
         }
 #ifdef _OPENMP
@@ -1594,17 +1550,20 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
             tG.noalias() = A2 * Go.block(0, j * n * (p + 1), n, n) +
                            A3 * Go.block(0, (j - 1) * n * (p + 1), n, n);
             MatrixXx::Map(gn.col(j * (p + 1)).data(), n, 1).noalias() =
-                (tG - Go.block(0, j * n * (p + 1), n, n) - Go.block(0, (j - 1) * n * (p + 1), n, n)) * mu +
+                (tG + c * (Go.block(0, j * n * (p + 1), n, n) +
+                           Go.block(0, (j - 1) * n * (p + 1), n, n))) * mu +
                 A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
             Gn.block(0, j * n * (p + 1), n, n) = tG;
-            dks.ULSat(0, k - j, j, m + 1) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
+            dks.ULSat(0, k - j, j, m + 1) =
+                (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
             Gn.block(0, j * n * (p + 1), n, n).diagonal().array() += dks.ULSat(0, k - j, j, m + 1);
             for(Index i = 1; i <= p; i++) {
-                tG.noalias() =      A1 * Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n) +
+                tG.noalias() = A1 * Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n) +
                                A2 * Go.block(0, j * n * (p + 1) + i * n, n, n) +
                                A3 * Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n);
                 MatrixXx::Map(gn.col(j * (p + 1) + i).data(), n, 1).noalias() =
-                    (tG - Go.block(0, j * n * (p + 1) + i * n, n, n) - Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n)) * mu +
+                    (tG + c * (Go.block(0, j * n * (p + 1) + i * n, n, n) +
+                               Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n))) * mu +
                     A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
                 Gn.block(0, j * n * (p + 1) + i * n, n, n) = tG;
                 dks.ULSat(i, k - j, j, m + 1) = (Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() + gn.col(j * (p + 1) + i).dot(mu)) / (2 * (k + i));
@@ -1616,18 +1575,20 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
 #endif
         tG.noalias() = A3 * Go.block(0, (k - 1) * n * (p + 1), n, n);
         MatrixXx::Map(gn.col(k * (p + 1)).data(), n, 1).noalias() =
-            (tG - Go.block(0, (k - 1) * n * (p + 1), n, n)) * mu + A3 * go.col((k - 1) * (p + 1));
+            (tG + c * Go.block(0, (k - 1) * n * (p + 1), n, n)) * mu + A3 * go.col((k - 1) * (p + 1));
         Gn.block(0, k * n * (p + 1), n, n) = tG;
-        dks.ULSat(0, 0, k, m + 1) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
+        dks.ULSat(0, 0, k, m + 1) =
+            (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
         Gn.block(0, k * n * (p + 1), n, n).diagonal().array() += dks.ULSat(0, 0, k, m + 1);
         for(Index i = 1; i <= p; i++) {
             tG.noalias() = A1 * Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n) +
                            A3 * Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n);
             MatrixXx::Map(gn.col(k * (p + 1) + i).data(), n, 1).noalias() =
-                (tG - Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)) * mu +
+                (tG + c * Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)) * mu +
                 A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
             Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
-            dks.ULSat(i, 0, k, m + 1) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
+            dks.ULSat(i, 0, k, m + 1) =
+                (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
             Gn.block(0, k * n * (p + 1) + i * n, n, n).diagonal().array() += dks.ULSat(i, 0, k, m + 1);
         }
         if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
@@ -1638,6 +1599,135 @@ htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
         }
     }
     return dks;
+}
+
+// // [[Rcpp::export]]
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+hxxx3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
+             const Eigen::ArrayBase<Derived>& A2,
+             const Eigen::ArrayBase<Derived>& A3,
+             const Eigen::ArrayBase<Derived>& mu,
+             const Eigen::Index m, const Eigen::Index p,
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
+             const typename Derived::Scalar thr_margin, int nthreads,
+             const typename Derived::Scalar c) {
+#ifdef _OPENMP
+    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
+    omp_set_num_threads(nthreads);
+#endif
+    typedef typename Derived::Scalar Scalar;
+    typedef Array<Scalar, Dynamic, 1> ArrayXx;
+    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
+    const Index n = A1.rows();
+    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 2) / 2);
+    dks.ULSat(0, 0, 0, m + 1) = 1;
+    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
+    ArrayXx tG(n);
+    ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
+    ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
+    ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
+    ArrayXXx gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
+    for(Index i = 1; i <= p; i++) {
+        Gn.col(i) = A1 * (dks.ULSat(i - 1, 0, 0, m + 1) + Gn.col(i - 1));
+        gn.col(i) = Gn.col(i) * mu + A1 * gn.col(i - 1);
+        dks.ULSat(i, 0, 0, m + 1) =
+            (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
+    }
+    for(Index k = 1; k <= m; k++) {
+        if(k % 500 == 0) {
+            Rcpp::checkUserInterrupt();
+        }
+        Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
+        go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
+        tG = A2 * (dks.ULSat(0, k - 1, 0, m + 1) + Go.col(0));
+        gn.col(0) = (tG + c * Go.col(0)
+                        + c * dks.ULSat(0, k - 1, 0, m + 1)) * mu +
+                    A2 * go.col(0);
+        Gn.col(0) = tG;
+        dks.ULSat(0, k, 0, m + 1) =
+            (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
+        for(Index i = 1; i <= p; i++) {
+            tG = A1 * (dks.ULSat(i - 1, k, 0, m + 1) + Gn.col(i - 1)) +
+                 A2 * (dks.ULSat(i, k - 1, 0, m + 1) + Go.col(i));
+            gn.col(i) = (tG + c * Go.col(i)
+                            + c * dks.ULSat(i, k - 1, 0, m + 1)) * mu +
+                        A1 * gn.col(i - 1) + A2 * go.col(i);
+            Gn.col(i) = tG;
+            dks.ULSat(i, k, 0, m + 1) =
+                (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
+        }
+#ifdef _OPENMP
+#pragma omp parallel private(tG)
+{
+#pragma omp for
+#endif
+        for(Index j = 1; j < k; j++) {
+            tG = A2 * (dks.ULSat(0, k - j - 1, j, m + 1) + Go.col(j * (p + 1))) +
+                 A3 * (dks.ULSat(0, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1)));
+            gn.col(j * (p + 1)) =
+                (tG + c * (Go.col(j * (p + 1)) + Go.col((j - 1) * (p + 1)))
+                    + c * (dks.ULSat(0, k - j - 1, j, m + 1) + dks.ULSat(0, k - j, j - 1, m + 1))) * mu +
+                A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
+            Gn.col(j * (p + 1)) = tG;
+            dks.ULSat(0, k - j, j, m + 1) =
+                (Gn.col(j * (p + 1)).sum() + (mu * gn.col(j * (p + 1))).sum()) / (2 * k);
+            for(Index i = 1; i <= p; i++) {
+                tG = A1 * (dks.ULSat(i - 1, k - j, j, m + 1) + Gn.col(j * (p + 1) + i - 1)) +
+                     A2 * (dks.ULSat(i, k - j - 1, j, m + 1) + Go.col(j * (p + 1) + i)) +
+                     A3 * (dks.ULSat(i, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1) + i));
+                gn.col(j * (p + 1) + i) =
+                    (tG + c * (Go.col(j * (p + 1) + i) + Go.col((j - 1) * (p + 1) + i))
+                        + c * (dks.ULSat(i, k - j - 1, j, m + 1) + dks.ULSat(i, k - j, j - 1, m + 1))) * mu +
+                    A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
+                Gn.col(j * (p + 1) + i) = tG;
+                dks.ULSat(i, k - j, j, m + 1) =
+                    (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
+            }
+        }
+#ifdef _OPENMP
+}
+#endif
+        tG = A3 * (dks.ULSat(0, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1)));
+        gn.col(k * (p + 1)) =
+            (tG + c * Go.col((k - 1) * (p + 1)) + c * dks.ULSat(0, 0, k - 1, m + 1)) * mu +
+            A3 * go.col((k - 1) * (p + 1));
+        Gn.col(k * (p + 1)) = tG;
+        dks.ULSat(0, 0, k, m + 1) =
+            (Gn.col(k * (p + 1)).sum() + (mu * gn.col(k * (p + 1))).sum()) / (2 * k);
+        for(Index i = 1; i <= p; i++) {
+            tG = A1 * (dks.ULSat(i - 1, 0, k, m + 1) + Gn.col(k * (p + 1) + i - 1)) +
+                 A3 * (dks.ULSat(i, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1) + i));
+            gn.col(k * (p + 1) + i) =
+                (tG + c * Go.col((k - 1) * (p + 1) + i)
+                    + c * dks.ULSat(i, 0, k - 1, m + 1)) * mu +
+                A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
+            Gn.col(k * (p + 1) + i) = tG;
+            dks.ULSat(i, 0, k, m + 1) =
+                (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
+        }
+        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
+            for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
+            Gn /= 1e10;
+            gn /= 1e10;
+            lscf.tail(m + 1 - k) -= LN1E10;
+        }
+    }
+    return dks;
+}
+
+
+// // [[Rcpp::export]]
+template <typename Derived>
+Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, Eigen::Dynamic>
+htil3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
+             const Eigen::DiagonalMatrix<typename Derived::Scalar, Eigen::Dynamic>& A2,
+             const Eigen::MatrixBase<Derived>& A3,
+             const Eigen::Matrix<typename Derived::Scalar, Eigen::Dynamic, 1> mu,
+             const Eigen::Index m, const Eigen::Index p,
+             Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
+             const typename Derived::Scalar thr_margin, int nthreads) {
+    return hxxx3_pjk_mE(A1, A2, A3, mu, m, p, lscf, thr_margin, nthreads, -1);
 }
 template ArrayXXd htil3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const DiagMatXd& A2,
@@ -1662,96 +1752,7 @@ htil3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
-#ifdef _OPENMP
-    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
-    omp_set_num_threads(nthreads);
-#endif
-    typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const Index n = A1.rows();
-    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 2) / 2);
-    dks.ULSat(0, 0, 0, m + 1) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
-    ArrayXx tG(n);
-    ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
-    ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
-    ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
-    ArrayXXx gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
-    for(Index i = 1; i <= p; i++) {
-        Gn.col(i) = A1 * (dks.ULSat(i - 1, 0, 0, m + 1) + Gn.col(i - 1));
-        gn.col(i) = Gn.col(i) * mu + A1 * gn.col(i - 1);
-        dks.ULSat(i, 0, 0, m + 1) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
-    }
-    for(Index k = 1; k <= m; k++) {
-        if(k % 500 == 0) {
-            Rcpp::checkUserInterrupt();
-        }
-        Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
-        go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
-        tG = A2 * (dks.ULSat(0, k - 1, 0, m + 1) + Go.col(0));
-        gn.col(0) = (tG - Go.col(0) - (dks.ULSat(0, k - 1, 0, m + 1))) * mu + A2 * go.col(0);
-        Gn.col(0) = tG;
-        dks.ULSat(0, k, 0, m + 1) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
-        for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks.ULSat(i - 1, k, 0, m + 1) + Gn.col(i - 1)) +
-                 A2 * (dks.ULSat(i, k - 1, 0, m + 1) + Go.col(i));
-            gn.col(i) = (tG - Go.col(i)
-                         - (dks.ULSat(i, k - 1, 0, m + 1))) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
-            Gn.col(i) = tG;
-            dks.ULSat(i, k, 0, m + 1) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
-        }
-#ifdef _OPENMP
-#pragma omp parallel private(tG)
-{
-#pragma omp for
-#endif
-        for(Index j = 1; j < k; j++) {
-            tG = A2 * (dks.ULSat(0, k - j - 1, j, m + 1) + Go.col(j * (p + 1))) +
-                 A3 * (dks.ULSat(0, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1)));
-            gn.col(j * (p + 1)) =
-                (tG - Go.col(j * (p + 1)) - Go.col((j - 1) * (p + 1)) - ((dks.ULSat(0, k - j - 1, j, m + 1) + dks.ULSat(0, k - j, j - 1, m + 1)))) * mu +
-                A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
-            Gn.col(j * (p + 1)) = tG;
-            dks.ULSat(0, k - j, j, m + 1) = (Gn.col(j * (p + 1)).sum() + (mu * gn.col(j * (p + 1))).sum()) / (2 * k);
-            for(Index i = 1; i <= p; i++) {
-                tG =      A1 * (dks.ULSat(i - 1, k - j, j, m + 1) + Gn.col(j * (p + 1) + i - 1)) +
-                     A2 * (dks.ULSat(i, k - j - 1, j, m + 1) + Go.col(j * (p + 1) + i)) +
-                     A3 * (dks.ULSat(i, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1) + i));
-                gn.col(j * (p + 1) + i) = (tG - Go.col(j * (p + 1) + i) - Go.col((j - 1) * (p + 1) + i)
-                             - ((dks.ULSat(i, k - j - 1, j, m + 1) + dks.ULSat(i, k - j, j - 1, m + 1)))) * mu +
-                            A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
-                Gn.col(j * (p + 1) + i) = tG;
-                dks.ULSat(i, k - j, j, m + 1) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
-            }
-        }
-#ifdef _OPENMP
-}
-#endif
-        tG = A3 * (dks.ULSat(0, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1)));
-        gn.col(k * (p + 1)) =
-            (tG - Go.col((k - 1) * (p + 1)) - (dks.ULSat(0, 0, k - 1, m + 1))) * mu +
-            A3 * go.col((k - 1) * (p + 1));
-        Gn.col(k * (p + 1)) = tG;
-        dks.ULSat(0, 0, k, m + 1) = (Gn.col(k * (p + 1)).sum() + (mu * gn.col(k * (p + 1))).sum()) / (2 * k);
-        for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks.ULSat(i - 1, 0, k, m + 1) + Gn.col(k * (p + 1) + i - 1)) +
-                 A3 * (dks.ULSat(i, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1) + i));
-            gn.col(k * (p + 1) + i) = (tG - Go.col((k - 1) * (p + 1) + i)
-                         - (dks.ULSat(i, 0, k - 1, m + 1))) * mu +
-                        A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
-            Gn.col(k * (p + 1) + i) = tG;
-            dks.ULSat(i, 0, k, m + 1) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
-        }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
-            Gn /= 1e10;
-            gn /= 1e10;
-            lscf.tail(m + 1 - k) -= LN1E10;
-        }
-    }
-    return dks;
+    return hxxx3_pjk_vE(A1, A2, A3, mu, m, p, lscf, thr_margin, nthreads, -1);
 }
 template ArrayXXd htil3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
@@ -1778,106 +1779,7 @@ hhat3_pjk_mE(const Eigen::MatrixBase<Derived>& A1,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
-#ifdef _OPENMP
-    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
-    omp_set_num_threads(nthreads);
-#endif
-    typedef typename Derived::Scalar Scalar;
-    typedef Matrix<Scalar, Dynamic, Dynamic> MatrixXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const Index n = A1.rows();
-    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 2) / 2);
-    dks.ULSat(0, 0, 0, m + 1) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
-    MatrixXx tG(n, n);
-    MatrixXx Go = MatrixXx::Zero(n, n * (p + 1) * m);
-    MatrixXx Gn = MatrixXx::Zero(n, n * (p + 1) * (m + 1));
-    MatrixXx go = MatrixXx::Zero(n, (p + 1) * m);
-    MatrixXx gn = MatrixXx::Zero(n, (p + 1) * (m + 1));
-    Gn.block(0, 0, n, n).diagonal().array() += dks(0, 0);
-    for(Index i = 1; i <= p; i++) {
-        MatrixXx::Map(Gn.block(0, i * n, n, n).data(), n, n).noalias() =
-            A1 * Gn.block(0, (i - 1) * n, n, n);
-        MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
-            Gn.block(0, i * n, n, n) * mu + A1 * gn.col(i - 1);
-        dks.ULSat(i, 0, 0, m + 1) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * i);
-        Gn.block(0, i * n, n, n).diagonal().array() += dks.ULSat(i, 0, 0, m + 1);
-    }
-    for(Index k = 1; k <= m; k++) {
-        if(k % 100 == 0) {
-            Rcpp::checkUserInterrupt();
-        }
-        Go.block(0, 0, n, k * n * (p + 1)) = Gn.block(0, 0, n, k * n * (p + 1));
-        go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
-        tG.noalias() = A2 * Go.block(0, 0, n, n);
-        MatrixXx::Map(gn.col(0).data(), n, 1).noalias() =
-            (tG + Go.block(0, 0, n, n)) * mu + A2 * go.col(0);
-        Gn.block(0, 0, n, n) = tG;
-        dks.ULSat(0, k, 0, m + 1) = (Gn.block(0, 0, n, n).trace() + gn.col(0).dot(mu)) / (2 * k);
-        Gn.block(0, 0, n, n).diagonal().array() += dks.ULSat(0, k, 0, m + 1);
-        for(Index i = 1; i <= p; i++) {
-            tG.noalias() = A1 * Gn.block(0, (i - 1) * n, n, n) +
-                           A2 * Go.block(0, i * n, n, n);
-            MatrixXx::Map(gn.col(i).data(), n, 1).noalias() =
-                (tG + Go.block(0, i * n, n, n)) * mu +
-                A1 * gn.col(i - 1) + A2 * go.col(i);
-            Gn.block(0, i * n, n, n) = tG;
-            dks.ULSat(i, k, 0, m + 1) = (Gn.block(0, i * n, n, n).trace() + gn.col(i).dot(mu)) / (2 * (k + i));
-            Gn.block(0, i * n, n, n).diagonal().array() += dks.ULSat(i, k, 0, m + 1);
-        }
-#ifdef _OPENMP
-#pragma omp parallel private(tG)
-{
-#pragma omp for
-#endif
-        for(Index j = 1; j < k; j++) {
-            tG.noalias() = A2 * Go.block(0, j * n * (p + 1), n, n) +
-                           A3 * Go.block(0, (j - 1) * n * (p + 1), n, n);
-            MatrixXx::Map(gn.col(j * (p + 1)).data(), n, 1).noalias() =
-                (tG + Go.block(0, j * n * (p + 1), n, n) + Go.block(0, (j - 1) * n * (p + 1), n, n)) * mu +
-                A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
-            Gn.block(0, j * n * (p + 1), n, n) = tG;
-            dks.ULSat(0, k - j, j, m + 1) = (Gn.block(0, j * n * (p + 1), n, n).trace() + gn.col(j * (p + 1)).dot(mu)) / (2 * k);
-            Gn.block(0, j * n * (p + 1), n, n).diagonal().array() += dks.ULSat(0, k - j, j, m + 1);
-            for(Index i = 1; i <= p; i++) {
-                tG.noalias() =      A1 * Gn.block(0, j * n * (p + 1) + (i - 1) * n, n, n) +
-                               A2 * Go.block(0, j * n * (p + 1) + i * n, n, n) +
-                               A3 * Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n);
-                MatrixXx::Map(gn.col(j * (p + 1) + i).data(), n, 1).noalias() =
-                    (tG + Go.block(0, j * n * (p + 1) + i * n, n, n) + Go.block(0, (j - 1) * n * (p + 1) + i * n, n, n)) * mu +
-                    A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
-                Gn.block(0, j * n * (p + 1) + i * n, n, n) = tG;
-                dks.ULSat(i, k - j, j, m + 1) = (Gn.block(0, j * n * (p + 1) + i * n, n, n).trace() + gn.col(j * (p + 1) + i).dot(mu)) / (2 * (k + i));
-                Gn.block(0, j * n * (p + 1) + i * n, n, n).diagonal().array() += dks.ULSat(i, k - j, j, m + 1);
-            }
-        }
-#ifdef _OPENMP
-}
-#endif
-        tG.noalias() = A3 * Go.block(0, (k - 1) * n * (p + 1), n, n);
-        MatrixXx::Map(gn.col(k * (p + 1)).data(), n, 1).noalias() =
-            (tG + Go.block(0, (k - 1) * n * (p + 1), n, n)) * mu + A3 * go.col((k - 1) * (p + 1));
-        Gn.block(0, k * n * (p + 1), n, n) = tG;
-        dks.ULSat(0, 0, k, m + 1) = (Gn.block(0, k * n * (p + 1), n, n).trace() + gn.col(k * (p + 1)).dot(mu)) / (2 * k);
-        Gn.block(0, k * n * (p + 1), n, n).diagonal().array() += dks.ULSat(0, 0, k, m + 1);
-        for(Index i = 1; i <= p; i++) {
-            tG.noalias() = A1 * Gn.block(0, k * n * (p + 1) + (i - 1) * n, n, n) +
-                           A3 * Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n);
-            MatrixXx::Map(gn.col(k * (p + 1) + i).data(), n, 1).noalias() =
-                (tG + Go.block(0, (k - 1) * n * (p + 1) + i * n, n, n)) * mu +
-                A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
-            Gn.block(0, k * n * (p + 1) + i * n, n, n) = tG;
-            dks.ULSat(i, 0, k, m + 1) = (Gn.block(0, k * n * (p + 1) + i * n, n, n).trace() + gn.col(k * (p + 1) + i).dot(mu)) / (2 * (k + i));
-            Gn.block(0, k * n * (p + 1) + i * n, n, n).diagonal().array() += dks.ULSat(i, 0, k, m + 1);
-        }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
-            Gn /= 1e10;
-            gn /= 1e10;
-            lscf.tail(m + 1 - k) -= LN1E10;
-        }
-    }
-    return dks;
+    return hxxx3_pjk_mE(A1, A2, A3, mu, m, p, lscf, thr_margin, nthreads, 1);
 }
 template ArrayXXd hhat3_pjk_mE(const MatrixBase<MatrixXd>& A1,
                                const DiagMatXd& A2,
@@ -1902,98 +1804,7 @@ hhat3_pjk_vE(const Eigen::ArrayBase<Derived>& A1,
              const Eigen::Index m, const Eigen::Index p,
              Eigen::Array<typename Derived::Scalar, Eigen::Dynamic, 1>& lscf,
              const typename Derived::Scalar thr_margin, int nthreads) {
-#ifdef _OPENMP
-    if(nthreads <= 0) nthreads = std::max(omp_get_num_procs() / 2, 1);
-    omp_set_num_threads(nthreads);
-#endif
-    typedef typename Derived::Scalar Scalar;
-    typedef Array<Scalar, Dynamic, 1> ArrayXx;
-    typedef Array<Scalar, Dynamic, Dynamic> ArrayXXx;
-    const Index n = A1.rows();
-    ArrayXXx dks = ArrayXXx::Zero(p + 1, (m + 1) * (m + 2) / 2);
-    dks.ULSat(0, 0, 0, m + 1) = 1;
-    Scalar thr = std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n);
-    ArrayXx tG(n);
-    ArrayXXx Go = ArrayXXx::Zero(n, (p + 1) * m);
-    ArrayXXx Gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
-    ArrayXXx go = ArrayXXx::Zero(n, (p + 1) * m);
-    ArrayXXx gn = ArrayXXx::Zero(n, (p + 1) * (m + 1));
-    for(Index i = 1; i <= p; i++) {
-        Gn.col(i) = A1 * (dks.ULSat(i - 1, 0, 0, m + 1) + Gn.col(i - 1));
-        gn.col(i) = Gn.col(i) * mu + A1 * gn.col(i - 1);
-        dks.ULSat(i, 0, 0, m + 1) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * i);
-    }
-    for(Index k = 1; k <= m; k++) {
-        if(k % 500 == 0) {
-            Rcpp::checkUserInterrupt();
-        }
-        Go.block(0, 0, n, k * (p + 1)) = Gn.block(0, 0, n, k * (p + 1));
-        go.block(0, 0, n, k * (p + 1)) = gn.block(0, 0, n, k * (p + 1));
-        tG = A2 * (dks.ULSat(0, k - 1, 0, m + 1) + Go.col(0));
-        gn.col(0) = (tG + Go.col(0) + (dks.ULSat(0, k - 1, 0, m + 1))) * mu + A2 * go.col(0);
-        Gn.col(0) = tG;
-        dks.ULSat(0, k, 0, m + 1) = (Gn.col(0).sum() + (mu * gn.col(0)).sum()) / (2 * k);
-        for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks.ULSat(i - 1, k, 0, m + 1) + Gn.col(i - 1)) +
-                 A2 * (dks.ULSat(i, k - 1, 0, m + 1) + Go.col(i));
-            gn.col(i) = (tG + Go.col(i)
-                         + (dks.ULSat(i, k - 1, 0, m + 1))) * mu +
-                        A1 * gn.col(i - 1) + A2 * go.col(i);
-            Gn.col(i) = tG;
-            dks.ULSat(i, k, 0, m + 1) = (Gn.col(i).sum() + (mu * gn.col(i)).sum()) / (2 * (k + i));
-        }
-#ifdef _OPENMP
-#pragma omp parallel private(tG)
-{
-#pragma omp for
-#endif
-        for(Index j = 1; j < k; j++) {
-            tG = A2 * (dks.ULSat(0, k - j - 1, j, m + 1) + Go.col(j * (p + 1))) + A3 * (dks.ULSat(0, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1)));
-            gn.col(j * (p + 1)) =
-                (tG + Go.col(j * (p + 1)) + Go.col((j - 1) * (p + 1)) +
-                 ((dks.ULSat(0, k - j - 1, j, m + 1) + dks.ULSat(0, k - j, j - 1, m + 1)))) * mu +
-                A2 * go.col(j * (p + 1)) + A3 * go.col((j - 1) * (p + 1));
-            Gn.col(j * (p + 1)) = tG;
-            dks.ULSat(0, k - j, j, m + 1) = (Gn.col(j * (p + 1)).sum() + (mu * gn.col(j * (p + 1))).sum()) / (2 * k);
-            for(Index i = 1; i <= p; i++) {
-                tG =      A1 * (dks.ULSat(i - 1, k - j, j, m + 1) + Gn.col(j * (p + 1) + i - 1)) +
-                     A2 * (dks.ULSat(i, k - j - 1, j, m + 1) + Go.col(j * (p + 1) + i)) +
-                     A3 * (dks.ULSat(i, k - j, j - 1, m + 1) + Go.col((j - 1) * (p + 1) + i));
-                gn.col(j * (p + 1) + i) =
-                    (tG + Go.col(j * (p + 1) + i) + Go.col((j - 1) * (p + 1) + i)
-                     + ((dks.ULSat(i, k - j - 1, j, m + 1) + dks.ULSat(i, k - j, j - 1, m + 1)))) * mu +
-                    A1 * gn.col(j * (p + 1) + i - 1) + A2 * go.col(j * (p + 1) + i) + A3 * go.col((j - 1) * (p + 1) + i);
-                Gn.col(j * (p + 1) + i) = tG;
-                dks.ULSat(i, k - j, j, m + 1) = (Gn.col(j * (p + 1) + i).sum() + (mu * gn.col(j * (p + 1) + i)).sum()) / (2 * (k + i));
-            }
-        }
-#ifdef _OPENMP
-}
-#endif
-        tG = A3 * (dks.ULSat(0, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1)));
-        gn.col(k * (p + 1)) =
-            (tG + Go.col((k - 1) * (p + 1)) + (dks.ULSat(0, 0, k - 1, m + 1))) * mu +
-            A3 * go.col((k - 1) * (p + 1));
-        Gn.col(k * (p + 1)) = tG;
-        dks.ULSat(0, 0, k, m + 1) = (Gn.col(k * (p + 1)).sum() + (mu * gn.col(k * (p + 1))).sum()) / (2 * k);
-        for(Index i = 1; i <= p; i++) {
-            tG = A1 * (dks.ULSat(i - 1, 0, k, m + 1) + Gn.col(k * (p + 1) + i - 1)) +
-                 A3 * (dks.ULSat(i, 0, k - 1, m + 1) + Go.col((k - 1) * (p + 1) + i));
-            gn.col(k * (p + 1) + i) =
-                (tG + Go.col((k - 1) * (p + 1) + i)
-                 + (dks.ULSat(i, 0, k - 1, m + 1))) * mu +
-                A1 * gn.col(k * (p + 1) + i - 1) + A3 * go.col((k - 1) * (p + 1) + i);
-            Gn.col(k * (p + 1) + i) = tG;
-            dks.ULSat(i, 0, k, m + 1) = (Gn.col(k * (p + 1) + i).sum() + (mu * gn.col(k * (p + 1) + i)).sum()) / (2 * (k + i));
-        }
-        if(Gn.maxCoeff() > thr || gn.maxCoeff() > thr) {
-            for(Index j = 0; j <= k; j++) dks.ULScol(k - j, j, m + 1) /= 1e10;
-            Gn /= 1e10;
-            gn /= 1e10;
-            lscf.tail(m + 1 - k) -= LN1E10;
-        }
-    }
-    return dks;
+    return hxxx3_pjk_vE(A1, A2, A3, mu, m, p, lscf, thr_margin, nthreads, 1);
 }
 template ArrayXXd hhat3_pjk_vE(const ArrayBase<ArrayXd>& A1,
                                const ArrayBase<ArrayXd>& A2,
