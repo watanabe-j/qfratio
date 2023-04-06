@@ -144,7 +144,7 @@ NULL
 #' @param A,B,D
 #'   Argument matrices passed as \code{Eigen::Matrix}.
 #'   Symmetry is assumed.
-#' @param LA,LB,LD
+#' @param LA,LB
 #'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
 #' @param UA
 #'   Matrix whose columns are eigenvectors of \eqn{\mathbf{A}}{A} corresponding
@@ -174,6 +174,8 @@ NULL
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling.  See
 #'   \dQuote{Scaling} in \code{\link{d1_i}}.
+#' @param tol_zero
+#'   Tolerance against which numerical zero is determined
 #' @param nit
 #'   \code{int} to specify the number of iteration or sample size
 #'

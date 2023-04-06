@@ -2,6 +2,7 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <unsupported/Eigen/SpecialFunctions>
 #include <cmath>
+#include <limits>
 
 // // These are to use gsl in ApIq_int_nmE
 // #include <RcppGSL.h>
@@ -23,133 +24,89 @@ using Eigen::Index;
 typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatXd;
 
 
-//' @describeIn qfrm_cpp
-//'   \code{qfm_Ap_int()}, central
-//'
-// [[Rcpp::export]]
-SEXP Ap_int_cmE(const Eigen::MatrixXd A, const double p = 1, 
-                const double thr_margin = 100) {
-    ArrayXd lscf = ArrayXd::Zero(p + 1);
-    double dp = d1_i_mE(A, p, lscf, thr_margin)(p);
-    double ans = exp(p * M_LN2 + lgamma(p + 1) - lscf(p)) * dp;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
 
 //' @describeIn qfrm_cpp
-//'   \code{qfm_Ap_int()}, noncentral
+//'   \code{qfm_Ap_int()}
 //'
 // [[Rcpp::export]]
-SEXP Ap_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
-                const double p = 1, const double thr_margin = 100) {
+SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
+              const double p = 1, const double thr_margin = 100,
+              const double tol_zero = 2.2e-14) {
     ArrayXd lscf = ArrayXd::Zero(p + 1);
-    double dp = dtil1_i_mE(A, mu, p, lscf, thr_margin)(p);
+    double dp;
+    if(is_zero_E(mu, tol_zero)) {
+        dp = d1_i_mE(A, p, lscf, thr_margin)(p);
+    } else {
+        dp = dtil1_i_mE(A, mu, p, lscf, thr_margin)(p);
+    }
     double ans = exp(p * M_LN2 + lgamma(p + 1) - lscf(p)) * dp;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfpm_ABpq_int()}, central and vector
+//'   \code{qfpm_ABpq_int()}
 //'
 // [[Rcpp::export]]
-SEXP ABpq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const double p = 1, const double q = 1, const double thr_margin = 100) {
+SEXP ABpq_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                const Eigen::ArrayXd mu,
+                const double p = 1, const double q = 1,
+                const double thr_margin = 100,
+                const double tol_zero = 2.2e-14) {
     ArrayXd lscf = ArrayXd::Zero(q + 1);
-    double dpq = d2_pj_vE(LA, LB, q, p, lscf, thr_margin)(p, q);
+    double dpq;
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
+    if(use_vec) {
+        ArrayXd LA = A.diagonal().array();
+        if(central) {
+            dpq = d2_pj_vE(LA, LB, q, p, lscf, thr_margin)(p, q);
+        } else {
+            dpq = dtil2_pq_vE(LA, LB, mu, p, q)(p, q);
+        }
+    } else {
+        DiagMatXd B = LB.matrix().asDiagonal();
+        if(central) {
+            dpq = d2_pj_mE(A, B, q, p, lscf, thr_margin)(p, q);
+        } else {
+            dpq = dtil2_pq_mE(A, B, mu, p, q)(p, q);
+        }
+    }
     double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(q)) * dpq;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABpq_int()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ABpq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const double p = 1, const double q = 1, const double thr_margin = 100) {
-    DiagMatXd B = LB.matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(q + 1);
-    double dpq = d2_pj_mE(A, B, q, p, lscf, thr_margin)(p, q);
-    double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) - lscf(q)) * dpq;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
 
 //' @describeIn qfrm_cpp
-//'   \code{qfpm_ABpq_int()}, noncentral and vector
+//'   \code{qfpm_ABDpqr_int()}
 //'
 // [[Rcpp::export]]
-SEXP ABpq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1) {
-    double dpq = dtil2_pq_vE(LA, LB, mu, p, q)(p, q);
-    double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1)) * dpq;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABpq_int()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ABpq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1) {
-    DiagMatXd B = LB.matrix().asDiagonal();
-    double dpq = dtil2_pq_mE(A, B, mu, p, q)(p, q);
-    double ans = exp((p + q) * M_LN2 + lgamma(p + 1) + lgamma(q + 1)) * dpq;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
-
-
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABDpqr_int()}, central and vector
-//'
-// [[Rcpp::export]]
-SEXP ABDpqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD,
-                    const double p = 1, const double q = 1, const double r = 1, 
-                    const double thr_margin = 100) {
+SEXP ABDpqr_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                  const Eigen::MatrixXd D, const Eigen::ArrayXd mu,
+                  const double p = 1, const double q = 1, const double r = 1,
+                  const double thr_margin = 100,
+                  const double tol_zero = 2.2e-14) {
     ArrayXd lscf = ArrayXd::Zero(q + r + 1);
-    double dpqr = d3_pjk_vE(LA, LB, LD, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
+    double dpqr;
+    bool use_vec = is_diag_E(A, tol_zero) && is_diag_E(D, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
+    if(use_vec) {
+        ArrayXd LA = A.diagonal().array();
+        ArrayXd LD = D.diagonal().array();
+        if(central) {
+            dpqr = d3_pjk_vE(LA, LB, LD, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
+        } else {
+            dpqr = dtil3_pqr_vE(LA, LB, LD, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
+        }
+    } else {
+        DiagMatXd B = LB.matrix().asDiagonal();
+        if(central) {
+            dpqr = d3_pjk_mE(A, B, D, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
+        } else {
+            dpqr = dtil3_pqr_mE(A, B, D, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
+        }
+    }
     double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABDpqr_int()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ABDpqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const double thr_margin = 100) {
-    DiagMatXd B = LB.matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(q + r + 1);
-    double dpqr = d3_pjk_mE(A, B, D, q + r, p, lscf, thr_margin, 1)(p, (2 * q + r + 3) * r / 2 + q);
-    double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1) - lscf(q + r)) * dpqr;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABDpqr_int()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ABDpqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1) {
-    double dpqr = dtil3_pqr_vE(LA, LB, LD, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
-    double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1)) * dpqr;
-    return Rcpp::List::create(Rcpp::Named("ans") = ans);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfpm_ABDpqr_int()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ABDpqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1) {
-    DiagMatXd B = LB.matrix().asDiagonal();
-    double dpqr = dtil3_pqr_mE(A, B, D, mu, p, q, r)(p, (q + 1) * (r + 1) - 1);
-    double ans = exp((p + q + r) * M_LN2 + lgamma(p + 1) + lgamma(q + 1) + lgamma(r + 1)) * dpqr;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
@@ -158,7 +115,7 @@ SEXP ABDpqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 //'   \code{qfrm_ApIq_int()}, central
 //'
 // [[Rcpp::export]]
-SEXP ApIq_int_cmE(const Eigen::MatrixXd A,
+SEXP ApIq_int_cEd(const Eigen::MatrixXd A,
                   const double p = 1, const double q = 1, 
                   const double thr_margin = 100) {
     const Index n = A.rows();
@@ -174,7 +131,7 @@ SEXP ApIq_int_cmE(const Eigen::MatrixXd A,
 //'   \code{qfrm_ApIq_int()}, noncentral
 //'
 // [[Rcpp::export]]
-SEXP ApIq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
+SEXP ApIq_int_nEd(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
                   const double p = 1, const double q = 1, 
                   const double thr_margin = 100) {
     const Index n = A.rows();
@@ -207,7 +164,7 @@ SEXP ApIq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
 //'   \code{qfrm_ApIq_npi()}, central
 //'
 // [[Rcpp::export]]
-SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
+SEXP ApIq_npi_cEd(const Eigen::ArrayXd LA,
                     const double bA,
                     const double p = 1, const double q = 1,
                     const Eigen::Index m = 100, bool error_bound = true,
@@ -247,7 +204,7 @@ SEXP ApIq_npi_cvE(const Eigen::ArrayXd LA,
 //'   \code{qfrm_ApIq_npi()}, noncentral
 //'
 // [[Rcpp::export]]
-SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA,
+SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const double bA,
                   const Eigen::VectorXd mu,
                   const double p = 1, const double q = 1, const Eigen::Index m = 100,
                   const double thr_margin = 100, int nthreads = 1) {
@@ -270,192 +227,93 @@ SEXP ApIq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::MatrixXd UA, const doubl
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_int()}, central and vector
+//'   \code{qfrm_ApBq_int()}
 //'
 // [[Rcpp::export]]
-SEXP ApBq_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                  const double bB,
-                  const double p = 1, const double q = 1,
-                  const Eigen::Index m = 100, bool error_bound = true, const double thr_margin = 100) {
+SEXP ApBq_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                const double bB, const Eigen::ArrayXd mu,
+                const double p = 1, const double q = 1,
+                const Eigen::Index m = 100, bool error_bound = true, 
+                const double thr_margin = 100,
+                const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
+    ArrayXd dks(m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
-    ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-
-    if(error_bound) {
-        bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
-        ArrayXd LAp = abs(LA);
-        double deldif2 = 0;
-        ArrayXd dkst(m + 1);
-        if(twosided) {
-            lscf.setZero();
-            dkst = d2_pj_vE(LAp, LBh, m, p, lscf, thr_margin).row(p);
+    ArrayXd LA(n);
+    MatrixXd UA(n, n);
+    ArrayXd LBh(n);
+    DiagMatXd Bh(n);
+    if(use_vec) {
+        LA = A.diagonal().array();
+        LBh = ArrayXd::Ones(n) - bB * LB;
+        if(central) {
+            dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
         } else {
-            dkst = dks;
+            dks = htil2_pj_vE(LA, LBh, mu, m, p, lscf, thr_margin).row(p);
         }
-        ArrayXd cumsum_dkst(m + 1);
-        dkst /= exp(lscf - lscf(m));
-        set_cumsum(dkst, cumsum_dkst);
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = d1_i_vE((LAp / LB / bB).eval(), p, lscfdp, thr_margin)(p);
-        double lBdet = log(LB * bB).sum();
-        ArrayXd lcoefe =
-            ArrayXd::LinSpaced(m + 1, q + 1, q + m + 1).lgamma() - lgamma(q) -
-            ArrayXd::LinSpaced(m + 1, n_ / 2 + p + 1, n_ / 2 + p + m + 1).lgamma() +
-            lgamma(n_ / 2 + p - q);
-        lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
-        ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         exp(lcoefe + log(cumsum_dkst) - lscf(m));
-
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
-            Rcpp::Named("twosided") = twosided);
     } else {
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq);
+        Eigen::SelfAdjointEigenSolver<MatrixXd> eigA(A);
+        LA = eigA.eigenvalues();
+        UA = eigA.eigenvectors();
+        Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        if(central) {
+            dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
+        } else {
+            dks = htil2_pj_mE(A, Bh, mu, m, p, lscf, thr_margin).row(p);
+        }
     }
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_int()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBq_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
-                  const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
-                  const double bB,
-                  const double p = 1, const double q = 1,
-                  const Eigen::Index m = 100, bool error_bound = true, const double thr_margin = 100) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
 
     if(error_bound) {
-        bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
+        bool twosided = !central || ((LA < 0).any() && ((int(p) % 1) == 1));
         ArrayXd LAp = abs(LA);
-        double deldif2 = 0;
+        ArrayXd mub = sqrt(2 / bB) * mu / LB.sqrt();
+        double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
         MatrixXd Ap(n, n);
         ArrayXd dkst(m + 1);
         if(twosided) {
-            Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
             lscf.setZero();
-            dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
+            if(use_vec) {
+                if(central) {
+                    dkst = d2_pj_vE(LAp, LBh, m, p, lscf, thr_margin).row(p);
+                } else {
+                    dkst = hhat2_pj_vE(LAp, LBh, mu, m, p, lscf, thr_margin).row(p);
+                }
+            } else {
+                Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
+                if(central) {
+                    dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
+                } else {
+                    dkst = hhat2_pj_mE(Ap, Bh, mu, m, p, lscf, thr_margin).row(p);
+                }
+            }
         } else {
             Ap = A;
             dkst = dks;
         }
+        double dp;
+        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
+        if(use_vec) {
+            if(central) {
+                dp = d1_i_vE((LAp / LB / bB).eval(), p, lscfdp, thr_margin)(p);
+            } else {
+                dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
+            }
+        } else {
+            DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
+            if(central) {
+                dp = d1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), p, lscfdp, thr_margin)(p);
+            } else {
+                dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
+            }
+        }
         ArrayXd cumsum_dkst(m + 1);
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
-        DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = d1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), p, lscfdp, thr_margin)(p);
-        double lBdet = log(LB * bB).sum();
-        ArrayXd lcoefe =
-            ArrayXd::LinSpaced(m + 1, q + 1, q + m + 1).lgamma() - lgamma(q) -
-            ArrayXd::LinSpaced(m + 1, n_ / 2 + p + 1, n_ / 2 + p + m + 1).lgamma() +
-            lgamma(n_ / 2 + p - q);
-        lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
-        ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         exp(lcoefe + log(cumsum_dkst) - lscf(m));
-
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
-            Rcpp::Named("twosided") = twosided);
-    } else {
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq);
-    }
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_int()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBq_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                  const double bB, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1,
-                  const Eigen::Index m = 100, bool error_bound = true, 
-                  const double thr_margin = 100) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil2_pj_vE(LA, LBh, mu, m, p, lscf, thr_margin).row(p);
-    ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-
-    if(error_bound) {
-        bool twosided = true;
-        ArrayXd LAp = abs(LA);
-        ArrayXd mub = sqrt(2 / bB) * mu / LB.sqrt();
-        double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
-        lscf.setZero();
-        ArrayXd dkst = hhat2_pj_vE(LAp, LBh, mu, m, p, lscf, thr_margin).row(p);
-        ArrayXd cumsum_dkst(m + 1);
-        dkst /= exp(lscf - lscf(m));
-        set_cumsum(dkst, cumsum_dkst);
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
-        double lBdet = log(LB * bB).sum();
-        ArrayXd lcoefe =
-            ArrayXd::LinSpaced(m + 1, q + 1, q + m + 1).lgamma() - lgamma(q) -
-            ArrayXd::LinSpaced(m + 1, n_ / 2 + p + 1, n_ / 2 + p + m + 1).lgamma() +
-            lgamma(n_ / 2 + p - q);
-        lcoefe += (p - q) * M_LN2 + q * log(bB) + lgamma(p + 1);
-        ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         exp(lcoefe + log(cumsum_dkst) - lscf(m));
-
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
-            Rcpp::Named("twosided") = twosided);
-    } else {
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq);
-    }
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_int()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
-                  const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
-                  const double bB, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1,
-                  const Eigen::Index m = 100, bool error_bound = true, 
-                  const double thr_margin = 100) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil2_pj_mE(A, Bh, mu, m, p, lscf, thr_margin).row(p);
-    ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q) * M_LN2 + q * log(bB)
-                             + lgamma(p + 1) + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2 + p)), lscf);
-
-    if(error_bound) {
-        bool twosided = true;
-        ArrayXd LAp = abs(LA);
-        ArrayXd mub = sqrt(2 / bB) * mu / LB.sqrt();
-        double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
-        MatrixXd Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
-        lscf.setZero();
-        ArrayXd dkst = hhat2_pj_mE(Ap, Bh, mu, m, p, lscf, thr_margin).row(p);
-        ArrayXd cumsum_dkst(m + 1);
-        dkst /= exp(lscf - lscf(m));
-        set_cumsum(dkst, cumsum_dkst);
-        DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         double lBdet = log(LB * bB).sum();
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, q + 1, q + m + 1).lgamma() - lgamma(q) -
@@ -478,88 +336,37 @@ SEXP ApBq_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central and vector
+//'   \code{qfrm_ApBq_npi()}, double
 //'
 // [[Rcpp::export]]
-SEXP ApBq_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                  const double bA, const double bB,
-                  const double p = 1, const double q = 1, const Eigen::Index m = 100, 
-                  const double thr_margin = 100, int nthreads = 1) {
+SEXP ApBq_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                 const double bA, const double bB, const Eigen::ArrayXd mu,
+                 const double p = 1, const double q = 1, const Eigen::Index m = 100,
+                 const double thr_margin = 100, int nthreads = 0,
+                 const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBq_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                  const double bA, const double bB,
-                  const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                  const double thr_margin = 100, int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBq_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                  const double bA, const double bB, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                  const double thr_margin = 100, int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfrm_ApBq_npi()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                  const double bA, const double bB, const Eigen::ArrayXd mu,
-                  const double p = 1, const double q = 1, const Eigen::Index m = 100,
-                  const double thr_margin = 100, int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXd dks((m + 1) * (m + 2) / 2);
+    if(use_vec) {
+        ArrayXd LAh = ArrayXd::Ones(n) - bA * A.diagonal().array();
+        ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+        if(central) {
+            dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
+        } else {
+            dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
+        }
+    } else {
+        MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
+        DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        if(central) {
+            dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
+        } else {
+            dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
+        }
+    }
     ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q) * M_LN2 - p * log(bA) + q * log(bB)
                               + lgamma(n_ / 2 + p - q) - lgamma(n_ / 2)), lscf);
     ArrayXd ansseq = sum_counterdiagE(ansmat);
@@ -572,19 +379,35 @@ SEXP ApBq_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, central and vector
+//'   \code{qfmrm_ApBIqr_int()}, central
 //'
 // [[Rcpp::export]]
-SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
+SEXP ApBIqr_int_cEd(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double bB,
                     const double p = 1, const double q = 1, const double r = 1,
                     const Eigen::Index m = 100, bool error_bound = true,
-                    const double thr_margin = 100) {
+                    const double thr_margin = 100,
+                    const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+    bool use_vec = is_diag_E(A, tol_zero);
+    ArrayXd dks(m + 1);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
+    ArrayXd LA(n);
+    MatrixXd UA(n, n);
+    ArrayXd LBh(n);
+    DiagMatXd Bh(n);
+    if(use_vec) {
+        LA = A.diagonal().array();
+        LBh = ArrayXd::Ones(n) - bB * LB;
+        dks = d2_pj_vE(LA, LBh, m, p, lscf, thr_margin).row(p);
+    } else {
+        Eigen::SelfAdjointEigenSolver<MatrixXd> eigA(A);
+        LA = eigA.eigenvalues();
+        UA = eigA.eigenvectors();
+        Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
+    }
     ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
 
@@ -595,16 +418,31 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
         double s = q;
         ArrayXd dkst(m + 1);
         ArrayXd cumsum_dkst(m + 1);
-        if(twosided) {
-            lscf.setZero();
-            dkst = d2_pj_vE(LAp, LBh, m, p, lscf, thr_margin).row(p);
+        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
+        double dp;
+        if(use_vec) {
+            if(twosided) {
+                lscf.setZero();
+                dkst = d2_pj_vE(LAp, LBh, m, p, lscf, thr_margin).row(p);
+            } else {
+                dkst = dks;
+            }
+            dp = d1_i_vE((LAp / LB / bB).eval(), p, lscfdp, thr_margin)(p);
         } else {
-            dkst = dks;
+            MatrixXd Ap(n, n);
+            if(twosided) {
+                Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
+                lscf.setZero();
+                dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
+            } else {
+                Ap = A;
+                dkst = dks;
+            }
+            DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
+            dp = d1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), p, lscfdp, thr_margin)(p);
         }
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = d1_i_vE((LAp / LB / bB).eval(), p, lscfdp, thr_margin)(p);
         double lBdet = log(LB * bB).sum();
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -
@@ -625,136 +463,37 @@ SEXP ApBIqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, central and matrix
+//'   \code{qfmrm_ApBIqr_int()}, noncentral, double
 //'
 // [[Rcpp::export]]
-SEXP ApBIqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
-                    const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
-                    const double bB,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, bool error_bound = true,
-                    const double thr_margin = 100) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_pj_mE(A, Bh, m, p, lscf, thr_margin).row(p);
-    ArrayXd ansseq = hgs_1dE(dks, q, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-              + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-
-    if(error_bound) {
-        bool twosided = (LA < 0).any() && ((int(p) % 1) == 1);
-        ArrayXd LAp = abs(LA);
-        double deldif2 = 0;
-        double s = q;
-        ArrayXd dkst(m + 1);
-        ArrayXd cumsum_dkst(m + 1);
-        MatrixXd Ap(n, n);
-        if(twosided) {
-            Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
-            lscf.setZero();
-            dkst = d2_pj_mE(Ap, Bh, m, p, lscf, thr_margin).row(p);
-        } else {
-            Ap = A;
-            dkst = dks;
-        }
-        dkst /= exp(lscf - lscf(m));
-        set_cumsum(dkst, cumsum_dkst);
-        DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = d1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), p, lscfdp, thr_margin)(p);
-        double lBdet = log(LB * bB).sum();
-        ArrayXd lcoefe =
-            ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -
-            ArrayXd::LinSpaced(m + 1, n_ / 2 + p + 1, n_ / 2 + p + m + 1).lgamma() +
-            lgamma(n_ / 2 + p - q - r);
-        lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
-        ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         exp(lcoefe + log(cumsum_dkst) - lscf(m));
-
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
-            Rcpp::Named("twosided") = twosided);
-    } else {
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq);
-    }
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBIqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const double bB, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, bool error_bound = true, 
-                    const double thr_margin = 100, int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd zeromat = ArrayXd::Zero(n);
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    // dks.resize(m + 1, m + 1);
-    ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
-                              + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-
-    if(error_bound) {
-        bool twosided = true;
-        ArrayXd LAp = abs(LA);
-        ArrayXd mub = sqrt(3 / bB) * mu / LB.sqrt();
-        double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
-        double s = std::max(q, r);
-        lscf.setZero();
-        ArrayXd dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
-        // dkstm.resize(m + 1, m + 1);
-        ArrayXd dkst = sum_counterdiagE(dkstm);
-        ArrayXd cumsum_dkst(m + 1);
-        dkst /= exp(lscf - lscf(m));
-        set_cumsum(dkst, cumsum_dkst);
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
-        double lBdet = log(LB * bB).sum();
-        ArrayXd lcoefe =
-            ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -
-            ArrayXd::LinSpaced(m + 1, n_ / 2 + p + 1, n_ / 2 + p + m + 1).lgamma() +
-            lgamma(n_ / 2 + p - q - r);
-        lcoefe += (p - q - r) * M_LN2 + q * log(bB) + lgamma(p + 1);
-        ArrayXd errseq = exp(lcoefe + (deldif2 + log(dp) - lscfdp(p) - lBdet / 2)) -
-                         exp(lcoefe + log(cumsum_dkst) - lscf(m));
-
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq")     = ansseq,
-            Rcpp::Named("errseq")     = errseq,
-            Rcpp::Named("twosided")   = twosided,
-            Rcpp::Named("diminished") = diminished);
-    } else {
-        return Rcpp::List::create(
-            Rcpp::Named("ansseq")     = ansseq,
-            Rcpp::Named("diminished") = diminished);
-    }
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_int()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
-                    const Eigen::MatrixXd UA, const Eigen::ArrayXd LB,
+SEXP ApBIqr_int_nEd(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                     const double bB, const Eigen::ArrayXd mu,
                     const double p = 1, const double q = 1, const double r = 1,
                     const Eigen::Index m = 100, bool error_bound = true,
-                    const double thr_margin = 100, int nthreads = 0) {
+                    const double thr_margin = 100, int nthreads = 0,
+                    const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd zeromat = MatrixXd::Zero(n, n);
+    bool use_vec = is_diag_E(A, tol_zero);
+    ArrayXd dks((m + 1) * (m + 2) / 2);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil3_pjk_mE(A, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    ArrayXd LA(n);
+    MatrixXd UA(n, n);
+    ArrayXd LBh(n);
+    DiagMatXd Bh(n);
+    if(use_vec) {
+        LA = A.diagonal().array();
+        LBh = ArrayXd::Ones(n) - bB * LB;
+        ArrayXd zeromat = ArrayXd::Zero(n);
+        dks = htil3_pjk_vE(LA, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    } else {
+        Eigen::SelfAdjointEigenSolver<MatrixXd> eigA(A);
+        LA = eigA.eigenvalues();
+        UA = eigA.eigenvectors();
+        Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXd zeromat = MatrixXd::Zero(n, n);
+        dks = htil3_pjk_mE(A, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    }
     // dks.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2 + q * log(bB)
                               + lgamma(p + 1) + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
@@ -768,17 +507,26 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
         ArrayXd mub = sqrt(3 / bB) * mu / LB.sqrt();
         double deldif2 = (mub.matrix().squaredNorm() - mu.matrix().squaredNorm()) / 2;
         double s = std::max(q, r);
-        MatrixXd Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
         lscf.setZero();
-        ArrayXd dkstm = hhat3_pjk_mE(Ap, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+        ArrayXd dkstm((m + 1) * (m + 2) / 2);
+        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
+        double dp;
+        if(use_vec) {
+            ArrayXd zeromat = ArrayXd::Zero(n);
+            dkstm = hhat3_pjk_vE(LAp, LBh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+            dp = dtil1_i_vE((LAp / LB / bB).eval(), mub, p, lscfdp, thr_margin)(p);
+        } else {
+            MatrixXd zeromat = MatrixXd::Zero(n, n);
+            MatrixXd Ap = UA * LAp.matrix().asDiagonal() * UA.transpose();
+            dkstm = hhat3_pjk_mE(Ap, Bh, zeromat, mu, m, p, lscf, thr_margin, nthreads).row(p);
+            DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
+            dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
+        }
         // dkstm.resize(m + 1, m + 1);
         ArrayXd dkst = sum_counterdiagE(dkstm);
         ArrayXd cumsum_dkst(m + 1);
         dkst /= exp(lscf - lscf(m));
         set_cumsum(dkst, cumsum_dkst);
-        DiagMatXd Bisqr = LB.sqrt().matrix().asDiagonal().inverse();
-        ArrayXd lscfdp = ArrayXd::Zero(p + 1);
-        double dp = dtil1_i_mE((Bisqr * Ap * Bisqr / bB).eval(), mub, p, lscfdp, thr_margin)(p);
         double lBdet = log(LB * bB).sum();
         ArrayXd lcoefe =
             ArrayXd::LinSpaced(m + 1, s + 1, s + m + 1).lgamma() - lgamma(s) -
@@ -802,24 +550,50 @@ SEXP ApBIqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LA,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central and vector
+//'   \code{qfmrm_ApBIqr_npi()}, double
 //'
 // [[Rcpp::export]]
-SEXP ApBIqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const double bA, const double bB,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
+SEXP ApBIqr_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                   const double bA, const double bB, const Eigen::ArrayXd mu,
+                   const double p = 1, const double q = 1, const double r = 1,
+                   const Eigen::Index m = 100, const double thr_margin = 100,
+                   int nthreads = 0, const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd zeromat = ArrayXd::Zero(n);
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
+    ArrayXd dks;
+    ArrayXd ansseq(m + 1);
+    if(central) {
+        if(use_vec) {
+            ArrayXd LAh = ArrayXd::Ones(n) - bA * A.diagonal().array();
+            ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+            dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
+        } else {
+            MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
+            DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+            dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
+        }
+        ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+                                + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
+        ansseq = sum_counterdiagE(ansmat);
+    } else {
+        if(use_vec) {
+            ArrayXd LAh = ArrayXd::Ones(n) - bA * A.diagonal().array();
+            ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+            ArrayXd zeromat = ArrayXd::Zero(n);
+            dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
+        } else {
+            MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
+            DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXd zeromat = MatrixXd::Zero(n, n);
+            dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
+        }
+        ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
+                                + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
+        ansseq = sum_counterdiag3DE(ansmat);
+    }
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -827,174 +601,51 @@ SEXP ApBIqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
 }
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, central and matrix
+//'   \code{qfmrm_IpBDqr_gen()}, double
 //'
 // [[Rcpp::export]]
-SEXP ApBIqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const double bA, const double bB,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
+SEXP IpBDqr_gen_Ed(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
+                   const double bB, const double bD, const Eigen::ArrayXd mu,
+                   const double p = 1, const double q = 1, const double r = 1,
+                   const Eigen::Index m = 100, const double thr_margin = 100,
+                   int nthreads = 0, const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd zeromat = MatrixXd::Zero(n, n);
+    bool use_vec = is_diag_E(D, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, -p, q, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBIqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const double bA, const double bB, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd zeromat = ArrayXd::Zero(n);
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBIqr_npi()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBIqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const double bA, const double bB, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd zeromat = MatrixXd::Zero(n, n);
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 - p * log(bA) + q * log(bB)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central and vector
-//'
-// [[Rcpp::export]]
-SEXP IpBDqr_gen_cvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
-                    const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d2_ij_vE(LBh, LDh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP IpBDqr_gen_cmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
-                    const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
-    ArrayXd dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_2dE(dks, r, q, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP IpBDqr_gen_nvE(const Eigen::ArrayXd LB, const Eigen::ArrayXd LD,
-                    const double bB, const double bD, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    ArrayXd zeromat = ArrayXd::Zero(n);
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r)  - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_IpBDqr_gen()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP IpBDqr_gen_nmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
-                    const double bB, const double bD, const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    MatrixXd zeromat = MatrixXd::Zero(n, n);
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
+    ArrayXd dks;
+    ArrayXd ansseq(m + 1);
+    if(central) {
+        if(use_vec) {
+            ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+            ArrayXd LDh = ArrayXd::Ones(n) - bD * D.diagonal().array();
+            dks = d2_ij_vE(LDh, LBh, m, lscf, thr_margin, nthreads);
+        } else {
+            DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
+            // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
+            dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
+        }
+        ArrayXd ansmat = hgs_2dE(dks, r, q, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+                                + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
+        ansseq = sum_counterdiagE(ansmat);
+    } else {
+        if(use_vec) {
+            ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+            ArrayXd LDh = ArrayXd::Ones(n) - bD * D.diagonal().array();
+            ArrayXd zeromat = ArrayXd::Zero(n);
+            dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
+        } else {
+            DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
+            MatrixXd zeromat = MatrixXd::Zero(n, n);
+            dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
+        }
+        ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2 + q * log(bB) + r * log(bD)
+                                + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
+        ansseq = sum_counterdiag3DE(ansmat);
+    }
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
     return Rcpp::List::create(
         Rcpp::Named("ansseq")     = ansseq,
@@ -1003,106 +654,40 @@ SEXP IpBDqr_gen_nmE(const Eigen::ArrayXd LB, const Eigen::MatrixXd D,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central and vector
+//'   \code{qfmrm_ApBDqr_int()}, double
 //'
 // [[Rcpp::export]]
-SEXP ApBDqr_int_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD,
-                    const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
+SEXP ApBDqr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                   const Eigen::MatrixXd D,
+                   const double bB, const double bD,
+                   const Eigen::ArrayXd mu,
+                   const double p = 1, const double q = 1, const double r = 1,
+                   const Eigen::Index m = 100, const double thr_margin = 100,
+                   int nthreads = 0, const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
+    bool use_vec = is_diag_E(A, tol_zero) && is_diag_E(D, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
-    // dks.resize(m + 1, m + 1);
-    ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
-                              + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_int_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D,
-                    const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
-    // dks.resize(m + 1, m + 1);
-    ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
-                              + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_int_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD,
-                    const double bB, const double bD,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
-    // dks.resize(m + 1, m + 1);
-    ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
-                              + q * log(bB) + r * log(bD) + lgamma(p + 1)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2 + p)), lscf);
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
-    // ansseq /= exp(lscf);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_int()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D,
-                    const double bB, const double bD,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = htil3_pjk_mE(A, Bh, Dh, mu, m, p, lscf, thr_margin, nthreads).row(p);
+    ArrayXd dks((m + 1) * (m + 2) / 2);
+    if(use_vec) {
+        ArrayXd LA = A.diagonal().array();
+        ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+        ArrayXd LDh = ArrayXd::Ones(n) - bD * D.diagonal().array();
+        if(central) {
+            dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
+        } else {
+            dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
+        }
+    } else {
+        DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
+        if(central) {
+            dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
+        } else {
+            dks = htil3_pjk_mE(A, Bh, Dh, mu, m, p, lscf, thr_margin, nthreads).row(p);
+        }
+    }
     // dks.resize(m + 1, m + 1);
     ArrayXd ansmat = hgs_2dE(dks, q, r, n_ / 2 + p, ((p - q - r) * M_LN2
                               + q * log(bB) + r * log(bD) + lgamma(p + 1)
@@ -1117,104 +702,41 @@ SEXP ApBDqr_int_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central and vector
+//'   \code{qfmrm_ApBDqr_npi()}, double
 //'
 // [[Rcpp::export]]
-SEXP ApBDqr_npi_cvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD,
-                    const double bA, const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100, int nthreads = 0) {
+SEXP ApBDqr_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                   const Eigen::MatrixXd D,
+                   const double bA, const double bB, const double bD,
+                   const Eigen::ArrayXd mu,
+                   const double p = 1, const double q = 1, const double r = 1,
+                   const Eigen::Index m = 100, const double thr_margin = 100,
+                   int nthreads = 0, const double tol_zero = 2.2e-14) {
     const Index n = LB.size();
     const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
+    bool use_vec = is_diag_E(A, tol_zero) && is_diag_E(D, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
     ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
-                              - p * log(bA) + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, central and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_npi_cmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D,
-                    const double bA, const double bB, const double bD,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
-                              - p * log(bA) + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral and vector
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_npi_nvE(const Eigen::ArrayXd LA, const Eigen::ArrayXd LB,
-                    const Eigen::ArrayXd LD,
-                    const double bA, const double bB, const double bD,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 1) {
-    const Index n = LB.size();
-    const double n_ = n;
-    ArrayXd LAh = ArrayXd::Ones(n) - bA * LA;
-    ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
-    ArrayXd LDh = ArrayXd::Ones(n) - bD * LD;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
-    ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
-                              - p * log(bA) + q * log(bB) + r * log(bD)
-                              + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);
-    ArrayXd ansseq = sum_counterdiag3DE(ansmat);
-    bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
-    return Rcpp::List::create(
-        Rcpp::Named("ansseq")     = ansseq,
-        Rcpp::Named("diminished") = diminished);
-}
-
-//' @describeIn qfrm_cpp
-//'   \code{qfmrm_ApBDqr_npi()}, noncentral and matrix
-//'
-// [[Rcpp::export]]
-SEXP ApBDqr_npi_nmE(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
-                    const Eigen::MatrixXd D,
-                    const double bA, const double bB, const double bD,
-                    const Eigen::ArrayXd mu,
-                    const double p = 1, const double q = 1, const double r = 1,
-                    const Eigen::Index m = 100, const double thr_margin = 100,
-                    int nthreads = 0) {
-    const Index n = LB.size();
-    const double n_ = n;
-    MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
-    DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
-    ArrayXd lscf = ArrayXd::Zero(m + 1);
-    ArrayXd dks = h3_ijk_mE(Ah, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
+    ArrayXd dks((m + 1) * (m + 2) * (m + 3) / 6);
+    if(use_vec) {
+        ArrayXd LAh = ArrayXd::Ones(n) - bA * A.diagonal().array();
+        ArrayXd LBh = ArrayXd::Ones(n) - bB * LB;
+        ArrayXd LDh = ArrayXd::Ones(n) - bD * D.diagonal().array();
+        if(central) {
+            dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
+        } else {
+            dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
+        }
+    } else {
+        MatrixXd Ah = MatrixXd::Identity(n, n) - bA * A;
+        DiagMatXd Bh = (ArrayXd::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXd Dh = MatrixXd::Identity(n, n) - bD * D;
+        if(central) {
+            dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
+        } else {
+            dks = h3_ijk_mE(Ah, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
+        }
+    }
     ArrayXd ansmat = hgs_3dE(dks, -p, q, r, n_ / 2, ((p - q - r) * M_LN2
                               - p * log(bA) + q * log(bB) + r * log(bD)
                               + lgamma(n_ / 2 + p - q - r) - lgamma(n_ / 2)), lscf);

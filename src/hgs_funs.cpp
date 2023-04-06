@@ -33,6 +33,23 @@ void set_cumsum(const Eigen::DenseBase<Derived>& Data, Eigen::DenseBase<Derived>
 template void set_cumsum<ArrayXd>(const Eigen::DenseBase<ArrayXd>& Data, Eigen::DenseBase<ArrayXd>& Out);
 template void set_cumsum<ArrayXl>(const Eigen::DenseBase<ArrayXl>& Data, Eigen::DenseBase<ArrayXl>& Out);
 
+template <typename Derived>
+bool is_zero_E(const Eigen::ArrayBase<Derived>& X, const typename Derived::Scalar tol) {
+    return (X.abs() <= tol).all();
+}
+template bool is_zero_E<ArrayXd>(const Eigen::ArrayBase<ArrayXd>& X, const double tol);
+template bool is_zero_E<ArrayXl>(const Eigen::ArrayBase<ArrayXl>& X, const long double tol);
+
+template <typename Derived>
+bool is_diag_E(const Eigen::MatrixBase<Derived>& X, const typename Derived::Scalar tol) {
+    Matrix<typename Derived::Scalar, Dynamic, Dynamic> Xa = X;
+    Xa.diagonal().setZero();
+    return is_zero_E(Xa.array(), tol);
+}
+template bool is_diag_E(const Eigen::MatrixBase<MatrixXd>& X, const double tol);
+template bool is_diag_E(const Eigen::MatrixBase<MatrixXl>& X, const long double tol);
+
+
 // // Eigen function to calculate a series of log (of absolute value of)
 // // rising factorial (a)_k from parameter a and length n (k = 0, 1, ... n - 1).
 // // When a is a negative integer, the result will be NaN from the (a+1)-th term

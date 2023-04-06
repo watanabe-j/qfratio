@@ -12,6 +12,12 @@ Eigen::Array<long double, Eigen::Dynamic, 1> get_lrf(const long double a, const 
 template <typename Derived>
 void set_cumsum(const Eigen::DenseBase<Derived>& Data, Eigen::DenseBase<Derived>& Out);
 
+template <typename Derived>
+bool is_zero_E(const Eigen::ArrayBase<Derived>& X, const typename Derived::Scalar tol);
+
+template <typename Derived>
+bool is_diag_E(const Eigen::MatrixBase<Derived>& X, const typename Derived::Scalar tol);
+
 template <typename T>
 Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const Eigen::Index n);
 
