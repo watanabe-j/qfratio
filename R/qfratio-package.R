@@ -155,7 +155,7 @@ NULL
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}.
 #'   Passed as \code{Eigen::Matrix}.
-#' @param p,q,r
+#' @param p_,q_,r_
 #'   Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
 #'   \eqn{\mathbf{D}}{D}.
 #'   Passed as \code{double} or \code{long double}.

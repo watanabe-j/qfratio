@@ -47,26 +47,26 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
 // [[Rcpp::export]]
 Eigen::ArrayXd rqfpE(const int nit,
                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
-                     const double p, const double q, const double r,
+                     const double p_, const double q_, const double r_,
                      const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
     MatrixXd X = rmvnE(nit, mu, Sigma);
     ArrayXd qfAp(nit);
     ArrayXd qfBq(nit);
     ArrayXd qfDr(nit);
-    if(p == 0) {
+    if(p_ == 0) {
         qfAp.setOnes();
     } else {
-        qfAp = (X * A * X.transpose()).diagonal().array().pow(p);
+        qfAp = (X * A * X.transpose()).diagonal().array().pow(p_);
     }
-    if(q == 0) {
+    if(q_ == 0) {
         qfBq.setOnes();
     } else {
-        qfBq = (X * B * X.transpose()).diagonal().array().pow(q);
+        qfBq = (X * B * X.transpose()).diagonal().array().pow(q_);
     }
-    if(r == 0) {
+    if(r_ == 0) {
         qfDr.setOnes();
     } else {
-        qfDr = (X * D * X.transpose()).diagonal().array().pow(r);
+        qfDr = (X * D * X.transpose()).diagonal().array().pow(r_);
     }
     ArrayXd ans = qfAp * qfBq * qfDr;
     return ans;
