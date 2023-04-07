@@ -78,10 +78,10 @@ template bool is_diag_E(const Eigen::MatrixBase<MatrixXl>& X, const long double 
 Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n) {
     ArrayXd ans(n);
     if((a < 0) && (double(int(a)) == a)) { // If a is negative integer
-        ArrayXd data = ArrayXd::LinSpaced(n, -a + 1, -a - n + 2);
-        data(0) = 1;
-        data = data.log();
-        set_cumsum(data, ans);
+        ArrayXd Data = ArrayXd::LinSpaced(n, -a + 1, -a - n + 2);
+        Data(0) = 1;
+        Data = Data.log();
+        set_cumsum(Data, ans);
     } else {
         ans = ArrayXd::LinSpaced(n, a, a + n - 1).lgamma();
         ans -= lgamma(a);
@@ -92,10 +92,10 @@ Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n) {
 Eigen::Array<long double, Eigen::Dynamic, 1> get_lrf(const long double a, const Eigen::Index n) {
     ArrayXl ans(n);
     if((a < 0) && ((long double)(int(a)) == a)) { // If a is negative integer
-        ArrayXl data = ArrayXl::LinSpaced(n, -a + 1, -a - n + 2);
-        data(0) = 1;
-        data = data.log();
-        set_cumsum(data, ans);
+        ArrayXl Data = ArrayXl::LinSpaced(n, -a + 1, -a - n + 2);
+        Data(0) = 1;
+        Data = Data.log();
+        set_cumsum(Data, ans);
     } else {
         for(Index i = 0; i < n; i++) ans[i] = std::lgammal(a + i) - std::lgammal(a);
     }
