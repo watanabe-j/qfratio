@@ -18,8 +18,8 @@ bool is_zero_E(const Eigen::ArrayBase<Derived>& X, const typename Derived::Scala
 template <typename Derived>
 bool is_diag_E(const Eigen::MatrixBase<Derived>& X, const typename Derived::Scalar tol);
 
-template <typename T>
-Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const Eigen::Index n);
+// template <typename T>
+// Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const Eigen::Index n);
 
 template <typename T>
 Eigen::Array<T, Eigen::Dynamic, 1> get_sign_rfp1(const T a, const Eigen::Index n);

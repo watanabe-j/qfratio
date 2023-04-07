@@ -115,8 +115,8 @@ Eigen::Array<T, Eigen::Dynamic, 1>  get_sign_rf(const T a, const Eigen::Index n)
     std::partial_sum(Signs.data(), Signs.data() + n, ans.data(), std::multiplies<T>());
     return ans;
 }
-template ArrayXd get_sign_rf(const double a, const Index n);
-template ArrayXl get_sign_rf(const long double a, const Index n);
+// template ArrayXd get_sign_rf(const double a, const Index n);
+// template ArrayXl get_sign_rf(const long double a, const Index n);
 
 // Eigen function template to obtain the signs of a series of rising factorial (a+1)_k
 // And template instantiations for double and long double
