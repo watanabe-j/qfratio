@@ -73,21 +73,21 @@ SEXP ApBq_npi_El(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic
     ArrayXl dks((m + 1) * (m + 2) / 2);
     if(use_vec) {
         ArrayXl LAh = ArrayXl::Ones(n) - bA * A.diagonal().array();
-    ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
+        ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
         if(central) {
             dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
         } else {
             dks = h2_ij_vE(LAh, LBh, mu, m, lscf, thr_margin, nthreads);
-}
+        }
     } else {
-    MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
+        DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
         if(central) {
             dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
         } else {
             dks = h2_ij_mE(Ah, Bh, mu, m, lscf, thr_margin, nthreads);
-}
-}
+        }
+    }
     ArrayXl ansmat = hgs_2dE(dks, -p_, q_, n_ / 2, ((p_ - q_) * M_LN2 - p_ * log(bA) + q_ * log(bB)
                               + lgammal(n_ / 2 + p_ - q_) - lgammal(n_ / 2)), lscf);
     ArrayXl ansseq = sum_counterdiagE(ansmat);
@@ -213,27 +213,27 @@ SEXP ApBIqr_npi_El(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
             ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
             dks = d2_ij_vE(LAh, LBh, m, lscf, thr_margin, nthreads);
         } else {
-    MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
+            DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
             dks = d2_ij_mE(Ah, Bh, m, lscf, thr_margin, nthreads);
         }
-    ArrayXl ansmat = hgs_2dE(dks, -p_, q_, n_ / 2, ((p_ - q_ - r_) * M_LN2 - p_ * log(bA) + q_ * log(bB)
-                              + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
+        ArrayXl ansmat = hgs_2dE(dks, -p_, q_, n_ / 2, ((p_ - q_ - r_) * M_LN2 - p_ * log(bA) + q_ * log(bB)
+                                  + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
         ansseq = sum_counterdiagE(ansmat);
     } else {
         if(use_vec) {
             ArrayXl LAh = ArrayXl::Ones(n) - bA * A.diagonal().array();
-    ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
-    ArrayXl zeromat = ArrayXl::Zero(n);
+            ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
+            ArrayXl zeromat = ArrayXl::Zero(n);
             dks = h3_ijk_vE(LAh, LBh, zeromat, mu, m, lscf, thr_margin, nthreads);
         } else {
-    MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXl zeromat = MatrixXl::Zero(n, n);
+            MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
+            DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXl zeromat = MatrixXl::Zero(n, n);
             dks = h3_ijk_mE(Ah, Bh, zeromat, mu, m, lscf, thr_margin, nthreads);
         }
-    ArrayXl ansmat = hgs_3dE(dks, -p_, q_, r_, n_ / 2, ((p_ - q_ - r_) * M_LN2 - p_ * log(bA) + q_ * log(bB)
-                              + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
+        ArrayXl ansmat = hgs_3dE(dks, -p_, q_, r_, n_ / 2, ((p_ - q_ - r_) * M_LN2 - p_ * log(bA) + q_ * log(bB)
+                                  + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
         ansseq = sum_counterdiag3DE(ansmat);
     }
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -267,28 +267,28 @@ SEXP IpBDqr_gen_El(const Eigen::Array<long double, Eigen::Dynamic, 1> LB,
             ArrayXl LDh = ArrayXl::Ones(n) - bD * D.diagonal().array();
             dks = d2_ij_vE(LDh, LBh, m, lscf, thr_margin, nthreads);
         } else {
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
-    // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
+            DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
+            // Here, DiagMat Bh is the 2nd par; r & q should be used accordingly in hgs_2dE
             dks = d2_ij_mE(Dh, Bh, m, lscf, thr_margin, nthreads);
         }
-    ArrayXl ansmat = hgs_2dE(dks, r_, q_, n_ / 2, ((p_ - q_ - r_) * M_LN2 + q_ * log(bB) + r_ * log(bD)
-                              + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
+        ArrayXl ansmat = hgs_2dE(dks, r_, q_, n_ / 2, ((p_ - q_ - r_) * M_LN2 + q_ * log(bB) + r_ * log(bD)
+                                  + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
         ansseq = sum_counterdiagE(ansmat);
     } else {
         if(use_vec) {
-    ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
+            ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
             ArrayXl LDh = ArrayXl::Ones(n) - bD * D.diagonal().array();
-    ArrayXl zeromat = ArrayXl::Zero(n);
+            ArrayXl zeromat = ArrayXl::Zero(n);
             dks = h3_ijk_vE(zeromat, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
         } else {
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
-    MatrixXl zeromat = MatrixXl::Zero(n, n);
+            DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+            MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
+            MatrixXl zeromat = MatrixXl::Zero(n, n);
             dks = h3_ijk_mE(zeromat, Bh, Dh, mu, m, lscf, thr_margin, nthreads);
         }
-    ArrayXl ansmat = hgs_3dE(dks, -p_, q_, r_, n_ / 2, ((p_ - q_ - r_) * M_LN2 + q_ * log(bB) + r_ * log(bD)
-                              + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
+        ArrayXl ansmat = hgs_3dE(dks, -p_, q_, r_, n_ / 2, ((p_ - q_ - r_) * M_LN2 + q_ * log(bB) + r_ * log(bD)
+                                  + lgammal(n_ / 2 + p_ - q_ - r_) - lgammal(n_ / 2)), lscf);
         ansseq = sum_counterdiag3DE(ansmat);
     }
     bool diminished = (lscf < 0).any() && dks.cwiseEqual(0).any();
@@ -318,16 +318,16 @@ SEXP ApBDqr_int_El(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
     ArrayXl dks((m + 1) * (m + 2) / 2);
     if(use_vec) {
         ArrayXl LA = A.diagonal().array();
-    ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
+        ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
         ArrayXl LDh = ArrayXl::Ones(n) - bD * D.diagonal().array();
         if(central) {
             dks = d3_pjk_vE(LA, LBh, LDh, m, p, lscf, thr_margin, nthreads).row(p);
         } else {
             dks = htil3_pjk_vE(LA, LBh, LDh, mu, m, p, lscf, thr_margin, nthreads).row(p);
-}
+        }
     } else {
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
+        DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
         if(central) {
             dks = d3_pjk_mE(A, Bh, Dh, m, p, lscf, thr_margin, nthreads).row(p);
         } else {
@@ -366,17 +366,17 @@ SEXP ApBDqr_npi_El(const Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynam
     ArrayXl dks((m + 1) * (m + 2) * (m + 3) / 6);
     if(use_vec) {
         ArrayXl LAh = ArrayXl::Ones(n) - bA * A.diagonal().array();
-    ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
+        ArrayXl LBh = ArrayXl::Ones(n) - bB * LB;
         ArrayXl LDh = ArrayXl::Ones(n) - bD * D.diagonal().array();
         if(central) {
             dks = d3_ijk_vE(LAh, LBh, LDh, m, lscf, thr_margin, nthreads);
         } else {
             dks = h3_ijk_vE(LAh, LBh, LDh, mu, m, lscf, thr_margin, nthreads);
-}
+        }
     } else {
-    MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
-    DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
-    MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
+        MatrixXl Ah = MatrixXl::Identity(n, n) - bA * A;
+        DiagMatXl Bh = (ArrayXl::Ones(n) - bB * LB).matrix().asDiagonal();
+        MatrixXl Dh = MatrixXl::Identity(n, n) - bD * D;
         if(central) {
             dks = d3_ijk_mE(Ah, Bh, Dh, m, lscf, thr_margin, nthreads);
         } else {
