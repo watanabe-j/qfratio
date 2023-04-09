@@ -39,7 +39,7 @@ SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
     } else {
         dp = dtil1_i_mE(A, mu, p, lscf, thr_margin)(p);
     }
-    double ans = exp(p * M_LN2 + lgamma(p_ + 1) - lscf(p)) * dp;
+    double ans = exp(p_ * M_LN2 + lgamma(p_ + 1) - lscf(p)) * dp;
     return Rcpp::List::create(Rcpp::Named("ans") = ans);
 }
 
