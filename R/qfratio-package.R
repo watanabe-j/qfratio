@@ -175,6 +175,9 @@ NULL
 #'   Tolerance against which numerical zero is determined
 #' @param nit
 #'   \code{int} to specify the number of iteration or sample size
+#' @param D1,D2
+#'   Positive and (positivized) negative eigenvalues of
+#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - qB} passed as \code{Eigen::Array}
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):

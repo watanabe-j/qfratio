@@ -2,6 +2,13 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @describeIn qfrm_cpp
+#'   \code{pqfm_A1B1()}
+#'
+A1B1_E <- function(D1, D2, m, thr_margin = 100) {
+    .Call(`_qfratio_A1B1_E`, D1, D2, m, thr_margin)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{qfm_Ap_int()}
 #'
 Ap_int_E <- function(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14) {

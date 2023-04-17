@@ -11,6 +11,20 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// A1B1_E
+SEXP A1B1_E(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2, const Eigen::Index m, const double thr_margin);
+RcppExport SEXP _qfratio_A1B1_E(SEXP D1SEXP, SEXP D2SEXP, SEXP mSEXP, SEXP thr_marginSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type D1(D1SEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type D2(D2SEXP);
+    Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
+    rcpp_result_gen = Rcpp::wrap(A1B1_E(D1, D2, m, thr_margin));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ap_int_E
 SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p_, const double thr_margin, const double tol_zero);
 RcppExport SEXP _qfratio_Ap_int_E(SEXP ASEXP, SEXP muSEXP, SEXP p_SEXP, SEXP thr_marginSEXP, SEXP tol_zeroSEXP) {
@@ -625,6 +639,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_qfratio_A1B1_E", (DL_FUNC) &_qfratio_A1B1_E, 4},
     {"_qfratio_Ap_int_E", (DL_FUNC) &_qfratio_Ap_int_E, 5},
     {"_qfratio_ABpq_int_E", (DL_FUNC) &_qfratio_ABpq_int_E, 7},
     {"_qfratio_ABDpqr_int_E", (DL_FUNC) &_qfratio_ABDpqr_int_E, 9},
