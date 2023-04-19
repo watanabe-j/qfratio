@@ -56,6 +56,8 @@ d1_i_vE(const Eigen::ArrayBase<Derived>& L, const Eigen::Index m,
 }
 template ArrayXd d1_i_vE(const ArrayBase<ArrayXd>& L, const Index m,
                          ArrayXd &lscf, const double thr_margin);
+template ArrayXl d1_i_vE(const ArrayBase<ArrayXl>& L, const Index m,
+                         ArrayXl &lscf, const long double thr_margin);
 
 // // [[Rcpp::export]]
 template <typename Derived>

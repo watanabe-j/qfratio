@@ -9,9 +9,12 @@ pqfr_A1B1(
   A,
   B,
   m = 100L,
+  mu = rep.int(0, n),
   Sigma = diag(n),
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
+  cpp_method = c("double", "long_double", "coef_wise"),
+  nthreads = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -26,25 +29,33 @@ pqfr_A1B1(
 \item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
 in Hillier et al. (2009, 2014).}
 
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
+
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
 \eqn{\mathbf{x}}{x}}
 
-\item{check_convergence}{Specifies how numerical convergence is checked (see \dQuote{Details} in
-\code{\link{qfrm}}).
-Options:
-\itemize{
-\item{\code{"relative"}: }{default; magnitude of the last term of
-the series relative to the sum is compared with \code{tol_conv}}
-\item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
-default by setting \code{tol_conv = .Machine$double.eps}
-(unless a smaller value is specified by the user)}
-\item{\code{"absolute"}: }{absolute magnitude of the last term is
-compared with \code{tol_conv}}
-\item{\code{"none"} or \code{FALSE}: }{skips convergence check}
-}}
+\item{check_convergence}{Specifies how numerical convergence is checked (see
+\code{\link{qfrm}})}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
+
+\item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
+overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}}).  Options:
+\itemize{
+\item{\code{"double"}: }{default; fastest but prone to underflow in
+some conditions}
+\item{\code{"long_double"}: }{same algorithm but using the
+\code{long double} variable type; robust but slow and
+memory-inefficient}
+\item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
+experimental and may not work properly for this function}
+}}
+
+\item{nthreads}{Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
+functions.  \code{0} or any negative value is special and means one-half of
+the number of processors detected.  See \dQuote{Multithreading} in
+\code{\link{qfrm}}.}
 
 \item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
@@ -60,25 +71,79 @@ eigenvalues smaller than this are considered zero.}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
 }
+\value{
+List containing the following elements:
+\itemize{
+\item{\code{$p}: }{\eqn{p}-value on the lower tail (\code{sum(terms)})}
+\item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+}
+}
 \description{
 \sQuote{Exact} distribution function of the ratio of quadratic forms in
 normal variables,
 \eqn{\frac{ (\mathbf{x^\mathit{T} A x}) }{ (\mathbf{x^\mathit{T} B x}) }
      }{ (x^T A x) / (x^T B x) }, where
-\eqn{\mathbf{x} \sim N_n(\bm{0}_n, \mathbf{\Sigma})}{x ~ N_n(0_n, \Sigma)},
-evaluated as a partial sum of infinite series including top-order zonal
-polynomials (Forchini 2002).
+\eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)},
+based on Forchini (2002, 2005).
 }
 \details{
+This function is \strong{experimental}.
+
 \code{quantile} should be of length one, because the cumulative distribution
 is a complicated function of it and there is no practical way for
 vectorization.
+
+Evaluates the (cumulative) distribution function as a partial sum of
+infinite series involving top-order zonal or invariant polynomials.  The
+expression for the central case is from Forchini (2002), and that for
+the noncentral case is from Forchini (2005) (with apparent errors
+corrected).  As in other functions of this package, this is evaluated with
+the recursive algorithm for \eqn{d} in Hillier et al. (2009, 2014).
+
+The distribution function has points of nonanalyticity at the relative
+eigenvalues of the argument matrices (Forchini 2002), and the series
+expression tends to be \emph{very slow} to converge around them.  In this case,
+use a large \code{m}, or seek for alternative ways of evaluation.
+
+As a distribution function, the returned value is a \eqn{p}-value on the
+lower tail; \eqn{P \left\{ \frac{ (\mathbf{x^\mathit{T} A x}) }{
+                            (\mathbf{x^\mathit{T} B x}) } \le q \right\}
+}{P\{(x^T A x) / (x^T B x) <= q\}}.  The reciprocal (like
+\code{lower.tail = FALSE} in regular probability distribution functions)
+is not supported.
+}
+\examples{
+## Some symmetric matrices and parameters
+nv <- 4
+A <- diag(nv:1)
+B <- diag(sqrt(1:nv))
+mu <- 0.2 * nv:1
+Sigma <- matrix(0.5, nv, nv)
+diag(Sigma) <- 1
+
+## P{ (x^T A x) / (x^T x) <= 2.5} where x ~ N(0, I)
+pqfr_A1B1(2.5, A)$p
+
+## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(0, I)
+pqfr_A1B1(1.5, A, B)$p
+
+## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, I)
+pqfr_A1B1(1.5, A, B, mu = mu)$p
+
+## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, Sigma)
+pqfr_A1B1(1.5, A, B, mu = mu, Sigma = Sigma)$p
+
 }
 \references{
 Forchini, G. (2002) The exact cumulative distribution function of
 a ratio of quadratic forms in normal variables, with application to
 the AR(1) model. \emph{Econometric Theory}, \strong{18}, 823--852.
 \doi{10.1017/S0266466602184015}.
+
+Forchini, G. (2005) The distribution of a ratio of quadratic forms in
+noncentral normal variables.
+\emph{Communications in Statistics---Theory and Methods}, \strong{34}, 999--1008.
+\doi{10.1081/STA-200056855}.
 
 Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 for top-order invariant polynomials with applications.

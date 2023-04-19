@@ -178,6 +178,9 @@ NULL
 #' @param D1,D2
 #'   Positive and (positivized) negative eigenvalues of
 #'   \eqn{\mathbf{A} - q \mathbf{B}}{A - qB} passed as \code{Eigen::Array}
+#' @param mu1,mu2
+#'   Parts of mean vector \eqn{\bm{\mu}}{\mu} corresponding to
+#'   \code{D1} and \code{D2}, respectively
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):
