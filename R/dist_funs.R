@@ -1,5 +1,5 @@
-##### pqfr_A1B1 #####
-#' Distribution Function of Ratio of Quadratic Forms
+##### pqfr #####
+#' Distribution function of ratio of quadratic forms
 #'
 #' \sQuote{Exact} distribution function of the ratio of quadratic forms in
 #' normal variables,
@@ -8,11 +8,15 @@
 #' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)},
 #' based on Forchini (2002, 2005).
 #'
-#' This function is **experimental**.
+#' This functionality is **experimental**.
 #'
-#' \code{quantile} should be of length one, because the cumulative distribution
-#' is a complicated function of it and there is no practical way for
-#' vectorization.
+#' The user is supposed to use the exported function \code{pqfr()},
+#' which is (pseudo-)vectorized with respect to \code{quantile} using
+#' \code{\link[base]{sapply}()}.  The actual calculation is done by the
+#' *internal* function \code{pqfr_A1B1()} which only accommodates
+#' a length-one \code{quantile}.  \code{pqfr_A1B1()} skips most checks
+#' on argument structures and does not accommodate \code{Sigma} to
+#' reduce execution time.
 #'
 #' Evaluates the (cumulative) distribution function as a partial sum of
 #' infinite series involving top-order zonal or invariant polynomials.  The
@@ -26,20 +30,19 @@
 #' expression tends to be *very slow* to converge around them.  In this case,
 #' use a large \code{m}, or seek for alternative ways of evaluation.
 #'
-#' As a distribution function, the returned value is a \eqn{p}-value on the
-#' lower tail; \eqn{P \left\{ \frac{ (\mathbf{x^\mathit{T} A x}) }{
-#'                             (\mathbf{x^\mathit{T} B x}) } \le q \right\}
-#' }{P\{(x^T A x) / (x^T B x) <= q\}}.  The reciprocal (like
-#' \code{lower.tail = FALSE} in regular probability distribution functions)
-#' is not supported.
-#'
 #' @inheritParams qfrm
 #'
 #' @param quantile
-#'   Quantile \eqn{q}; numeric of length one
+#'   Numeric vector of quantiles \eqn{q}
+#' @param A,B
+#'   Argument matrices.  Should be square.  Will be automatically symmetrized
+#'   in \code{pqfr()}.
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
 #'   \eqn{\mathbf{x}}{x}
+#' @param lower.tail,log.p
+#'   Logical; as in regular probability distribution functions.  But these are
+#'   for convenience only, and not meant for accuracy.
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see
 #'   \code{\link{qfrm}})
@@ -60,13 +63,19 @@
 #'   functions.  \code{0} or any negative value is special and means one-half of
 #'   the number of processors detected.  See \dQuote{Multithreading} in
 #'   \code{\link{qfrm}}.
+#' @param ...
+#'   Additional arguments in \code{pqfr()} to be passed to \code{pqfr_A1B1()}
 #'
 #' @return
-#' List containing the following elements:
+#' \code{pqfr()} gives the distribution function or \eqn{p}-values
+#' corresponding to \code{quantile}.
+#'
+#' \code{pqfr_A1B1()} returns a list containing the following elements:
 #' \itemize{
-#'   \item{\code{$p}: }{\eqn{p}-value on the lower tail (\code{sum(terms)})}
+#'   \item{\code{$p}: }{lower \eqn{p}-value (\code{sum(terms)})}
 #'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'  }
+#' Only \code{$p} is passed to \code{pqfr()}.
 #'
 #' @references
 #' Forchini, G. (2002) The exact cumulative distribution function of
@@ -89,6 +98,8 @@
 #'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
 #'   \doi{10.1017/S0266466613000364}.
 #'
+#' @name pqfr
+#'
 #' @export
 #'
 #' @examples
@@ -101,34 +112,22 @@
 #' diag(Sigma) <- 1
 #'
 #' ## P{ (x^T A x) / (x^T x) <= 2.5} where x ~ N(0, I)
-#' pqfr_A1B1(2.5, A)$p
+#' pqfr(2.5, A)
 #'
 #' ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(0, I)
-#' pqfr_A1B1(1.5, A, B)$p
+#' pqfr(1.5, A, B)
 #'
 #' ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, I)
-#' pqfr_A1B1(1.5, A, B, mu = mu)$p
+#' pqfr(1.5, A, B, mu = mu)
 #'
 #' ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, Sigma)
-#' pqfr_A1B1(1.5, A, B, mu = mu, Sigma = Sigma)$p
+#' pqfr(1.5, A, B, mu = mu, Sigma = Sigma)
 #'
-pqfr_A1B1 <- function(quantile, A, B, m = 100L,
-                      mu = rep.int(0, n),
-                      Sigma = diag(n),
-                      check_convergence = c("relative", "strict_relative",
-                                            "absolute", "none"),
-                      use_cpp = TRUE,
-                      cpp_method = c("double", "long_double", "coef_wise"),
-                      nthreads = 1,
-                      tol_conv = .Machine$double.eps ^ (1/4),
-                      tol_zero = .Machine$double.eps * 100,
-                      tol_sing = .Machine$double.eps * 100,
-                      thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
-    check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
-    cpp_method <- match.arg(cpp_method)
+pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+                 lower.tail = TRUE, log.p = FALSE,
+                 tol_zero = .Machine$double.eps * 100,
+                 tol_sing = .Machine$double.eps * 100,
+                 ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -165,23 +164,65 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                      iseq(crossprod(iK, KtBK %*% iK), B))
             if(!okay) {
                 stop("For singular Sigma, certain condition must be met ",
-                     "for A, B, mu.\n  ",
-                     "Function for situations not satisfying this has not ",
-                     "developed.\n  See documentation for details")
+                     "for A, B, mu.\n  See documentation for details")
             }
         }
-        return(pqfr_A1B1(quantile, KtAK, KtBK, m = m, mu = iKmu,
-                         check_convergence = check_convergence,
-                         use_cpp = use_cpp, cpp_method = cpp_method,
-                         nthreads = nthreads,
-                         tol_conv = tol_conv, tol_zero = tol_zero,
-                         tol_sing = tol_sing, thr_margin = thr_margin))
+        return(pqfr(quantile, KtAK, KtBK, m = m, mu = iKmu,
+                    lower.tail = lower.tail, log.p = log.p,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
+    LB <- eigen(B, symmetric = TRUE)$values
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
-        "quantile must be a length-one numeric" =
-            is.numeric(quantile) && (length(quantile) == 1)
+        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "quantile must be numeric" = is.numeric(quantile)
+    )
+    ans <- sapply(quantile, 
+                  function(q) pqfr_A1B1(q, A, B, m, mu = mu, 
+                                        tol_zero = tol_zero,
+                                        tol_sing = tol_sing, ...)$p)
+    if(!lower.tail) ans <- 1 - ans
+    if(log.p) ans <- log(ans)
+    attributes(ans) <- attributes(quantile)
+    return(ans)
+}
+
+##### pqfr_A1B1 #####
+#' Positive integer moment of ratio of quadratic forms
+#'
+#' \code{pqfr_A1B1()}: internal function used within \code{pqfr()}.
+#'
+#' @rdname pqfr
+#'
+pqfr_A1B1 <- function(quantile, A, B, m = 100L,
+                      mu = rep.int(0, n),
+                      check_convergence = c("relative", "strict_relative",
+                                            "absolute", "none"),
+                      use_cpp = TRUE,
+                      cpp_method = c("double", "long_double", "coef_wise"),
+                      nthreads = 1,
+                      tol_conv = .Machine$double.eps ^ (1/4),
+                      tol_zero = .Machine$double.eps * 100,
+                      tol_sing = .Machine$double.eps * 100,
+                      thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
+    if(!missing(cpp_method)) use_cpp <- TRUE
+    cpp_method <- match.arg(cpp_method)
+    ## If A or B is missing, let it be an identity matrix
+    if(missing(A)) {
+        if(missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        A <- diag(n)
+    } else {
+        n <- dim(A)[1L]
+        if(missing(B)) B <- diag(n)
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "In pqfr_A1B1, quantile must be length-one" = (length(quantile) == 1)
     )
     diminished <- FALSE
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
