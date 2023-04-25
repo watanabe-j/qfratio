@@ -13,6 +13,7 @@
 #include "hgs_funs.h"
 #include "dk_funs_cwise.h"
 
+using Eigen::exp;
 using Eigen::log;
 using Eigen::abs;
 using Eigen::ArrayXd;
@@ -409,15 +410,14 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     ArrayXd Aldenj = get_lgm(n2_ / 2, m + 1);
     if(cent_mu1) {
         if(n1_is_1) {
-            // exp is redundant with log below, but applied for consistency
-            dk1(0) = 1 / exp(Aldeni(0));
+            // In this case dk1 = 0 except 0th; take log for later
+            dk1 = -INFINITY;
+            dk1(0) = 0;
         } else {
             lscf1 = ArrayXd::Zero(m + 1);
             dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
             dk1 = log(dk1);
-            // For consistency with !cent_mu1 below, denominator applied early
-            dk1 -= Aldeni + lscf1;
-            dk1 = exp(dk1);
+            dk1 -= lscf1;
         }
     } else {
         VectorXd mu1d = D1d.sqrt() * mu1;
@@ -427,34 +427,31 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
             lscf1 = ArrayXd::Zero(m + 1);
             dk1 = d1_i_mE(mu1mat, m, lscf1, thr_margin);
             dk1 = log(dk1);
-            // For consistency with !n1_is_1 below, denominator applied early
-            dk1 -= seqlrf_1_2 + Aldeni + lscf1;
-            dk1 = exp(dk1);
+            dk1 -= seqlrf_1_2 + lscf1;
         } else {
             lscf1 = ArrayXd::Zero(size_out);
             DiagMatXd D1hmat = D1h.matrix().asDiagonal();
-            ArrayXd dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
+            ArrayXd dkm1 = d2_ij_mEc(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
             dkm1 = log(dkm1);
-            // Scale-back required before summing, so denominator applied early
             for(Index k = 0; k <= m; k++) {
-                dkm1.ULTcol(k, m + 1) -=
-                    seqlrf_1_2.head(m + 1 - k) + Aldeni.tail(m + 1 - k);
+                dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
             }
             dkm1 -= lscf1;
             dkm1 = exp(dkm1);
             dk1 = sum_counterdiagE(dkm1);
-            diminished = diminished || ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any());
+            dk1 = log(dk1);
+            diminished = diminished || (((lscf1 < 0) && dkm1.cwiseEqual(0)).any());
         }
     }
     if(cent_mu2) {
         if(n2_is_1) {
-            dk2(0) = 1 / exp(Aldenj(0));
+            dk2 = log(dk2);
+            dk2(0) = 0;
         } else {
             lscf2 = ArrayXd::Zero(m + 1);
             dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
             dk2 = log(dk2);
-            dk2 -= Aldenj + lscf2;
-            dk2 = exp(dk2);
+            dk2 -= lscf2;
         }
     } else {
         VectorXd mu2d = D2d.sqrt() * mu2;
@@ -464,35 +461,33 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
             lscf2 = ArrayXd::Zero(m + 1);
             dk2 = d1_i_mE(mu2mat, m, lscf2, thr_margin);
             dk2 = log(dk2);
-            dk2 -= seqlrf_1_2 + Aldenj + lscf2;
-            dk2 = exp(dk2);
+            dk2 -= seqlrf_1_2 + lscf2;
         } else {
             lscf2 = ArrayXd::Zero(size_out);
             DiagMatXd D2hmat = D2h.matrix().asDiagonal();
-            ArrayXd dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
+            ArrayXd dkm2 = d2_ij_mEc(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
             dkm2 = log(dkm2);
             for(Index k = 0; k <= m; k++) {
-                dkm2.ULTcol(k, m + 1) -=
-                    seqlrf_1_2.head(m + 1 - k) + Aldenj.tail(m + 1 - k);
+                dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
             }
             dkm2 -= lscf2;
             dkm2 = exp(dkm2);
             dk2 = sum_counterdiagE(dkm2);
-            diminished = diminished || ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
+            dk2 = log(dk2);
+            diminished = diminished || (((lscf2 < 0) && dkm2.cwiseEqual(0)).any());
         }
     }
     if((n1_is_1 && cent_mu1) || (n2_is_1 && cent_mu2)) {
         ArrayXd a1s = ArrayXd::LinSpaced(m + 1, (n1_ + n2_) / 2, (n1_ + n2_) / 2 + m_);
         ArrayXd bs(m + 1);
 
-        // Only situation
         if(n1_is_1 && cent_mu1) {
-            ansseq += log(dk2) + get_lgm((n1_ + n2_) / 2, m + 1);
-            ansseq -= Aldeni(0); // Or log(dk1(0))
+            ansseq += dk2 - Aldenj + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldeni(0); // Or dk1(0)
             ansseq -= (mu2.matrix().squaredNorm()) / 2;
             bs = ArrayXd::Constant(m + 1, n1_ / 2 + 1);
         } else if(n2_is_1 && cent_mu2) {
-            ansseq += log(dk1) + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += dk1 - Aldeni + get_lgm((n1_ + n2_) / 2, m + 1);
             ansseq -= Aldenj(0);
             ansseq -= (mu1.matrix().squaredNorm()) / 2;
             bs = ArrayXd::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
@@ -516,7 +511,9 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         ArrayXd ansmat = ArrayXd::Zero(size_out);
         for(Index k = 0; k <= m; k++) {
             double k_ = k;
-            ansmat.ULTcol(k, m + 1) += log(dk1.head(m + 1 - k)) + log(dk2(k));
+            ansmat.ULTcol(k, m + 1) +=
+                dk1.head(m + 1 - k) - Aldeni.head(m + 1 - k) +
+                dk2(k) - Aldenj(k);
             double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
             for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
         }
