@@ -76,7 +76,7 @@ some conditions}
 \code{long double} variable type; robust but slow and
 memory-inefficient}
 \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-experimental and may not work properly for this function}
+experimental but supposedly robust}
 }}
 
 \item{nthreads}{Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}

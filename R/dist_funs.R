@@ -56,7 +56,7 @@
 #'           \code{long double} variable type; robust but slow and
 #'           memory-inefficient}
 #'     \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-#'           experimental and may not work properly for this function}
+#'           experimental but supposedly robust}
 #'    }
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
@@ -238,13 +238,13 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     mu2 <- mu[Ds < -tol_sing]
     if(use_cpp) {
         if(cpp_method == "coef_wise") {
-            cppres <- A1B1_Ec(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_Ec(D1, D2, mu1, mu2, m,
                               thr_margin, nthreads, tol_zero)
         } else if(cpp_method == "long_double") {
-            cppres <- A1B1_El(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_El(D1, D2, mu1, mu2, m,
                               thr_margin, nthreads, tol_zero)
         } else {
-            cppres <- A1B1_Ed(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_Ed(D1, D2, mu1, mu2, m,
                               thr_margin, nthreads, tol_zero)
         }
         ansseq <- cppres$ansseq
@@ -299,6 +299,14 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                     paste0(".\n  Consider using cpp_method = ",
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
+    }
+    nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
+    if(any(nans_ansseq)) {
+        warning("NaNs detected at k = ", which(nans_ansseq)[1L],
+                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                "\n  Result truncated before first NaN")
+        ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
+        attr(ansseq, "truncated") <- TRUE
     }
     if(check_convergence != "none") {
         if(check_convergence == "strict_relative") {

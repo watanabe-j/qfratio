@@ -71,6 +71,8 @@ d1_i_mE(const Eigen::MatrixBase<Derived>& A, const Eigen::Index m,
 }
 template ArrayXd d1_i_mE(const MatrixBase<MatrixXd>& A, const Index m,
                          ArrayXd& lscf, const double thr_margin);
+template ArrayXl d1_i_mE(const MatrixBase<MatrixXl>& A, const Index m,
+                         ArrayXl& lscf, const long double thr_margin);
 
 // // [[Rcpp::export]]
 template <typename Derived>

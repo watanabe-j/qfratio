@@ -43,7 +43,7 @@ ArrayXl get_lgm(const long double a, const Eigen::Index n) {
 //'   \code{pqfm_A1B1()}, double
 //'
 // [[Rcpp::export]]
-SEXP A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
+SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
              const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2,
              const Eigen::Index m, const double thr_margin = 100,
              int nthreads = 0, const double tol_zero = 2.2e-14) {
@@ -52,8 +52,10 @@ SEXP A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     double n1_ = n1;
     double n2_ = n2;
     double m_ = m;
-    bool central = is_zero_E(mu1, tol_zero) && is_zero_E(mu2, tol_zero);
-    Index size_out = (m + 1) * (m + 2) / 2;
+    bool n1_is_1 = (n1 == 1);
+    bool n2_is_1 = (n2 == 1);
+    bool cent_mu1 = is_zero_E(mu1, tol_zero);
+    bool cent_mu2 = is_zero_E(mu2, tol_zero);
     ArrayXd D1i = D1.cwiseInverse();
     ArrayXd D2i = D2.cwiseInverse();
     double sumtrDi = D1i.sum() + D2i.sum();
@@ -65,74 +67,136 @@ SEXP A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     ArrayXd D2h = ArrayXd::Constant(n2, trD2d) - D2d;
     ArrayXd lscf1 = ArrayXd::Zero(m + 1);
     ArrayXd lscf2 = ArrayXd::Zero(m + 1);
-    ArrayXd dk1(m + 1);
-    ArrayXd dk2(m + 1);
-    ArrayXd ansmat = ArrayXd::Zero(size_out);
+    ArrayXd dk1 = ArrayXd::Zero(m + 1);
+    ArrayXd dk2 = ArrayXd::Zero(m + 1);
+    ArrayXd ansseq = ArrayXd::Zero(m + 1);
     bool diminished = false;
     ArrayXd Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXd Aldenj = get_lgm(n2_ / 2, m + 1);
-    if(central) {
-        dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
-        dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
+    if(cent_mu1) {
+        if(n1_is_1) {
+            dk1(0) = 1;
+        } else {
+            dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
+        }
     } else {
         VectorXd mu1d = D1d.sqrt() * mu1;
-        VectorXd mu2d = D2d.sqrt() * mu2;
         MatrixXd mu1mat = mu1d * mu1d.transpose() / 2;
-        MatrixXd mu2mat = mu2d * mu2d.transpose() / 2;
-        DiagMatXd D1hmat = D1h.matrix().asDiagonal();
-        DiagMatXd D2hmat = D2h.matrix().asDiagonal();
-        ArrayXd dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
-        ArrayXd dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
-        dkm1 = log(dkm1);
-        dkm2 = log(dkm2);
         ArrayXd seqlrf_1_2 = get_lrf(0.5, m + 1);
-        for(Index k = 0; k <= m; k++) {
-            dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
-            dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+        if(n1_is_1) {
+            dk1 = d1_i_mE(mu1mat, m, lscf1, thr_margin);
+            dk1 = log(dk1);
+            dk1 -= seqlrf_1_2;
+            dk1 = exp(dk1);
+        } else {
+            DiagMatXd D1hmat = D1h.matrix().asDiagonal();
+            ArrayXd dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
+            dkm1 = log(dkm1);
+            for(Index k = 0; k <= m; k++) {
+                dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+            }
+            dkm1 = exp(dkm1);
+            dk1 = sum_counterdiagE(dkm1);
+            diminished = diminished || ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any());
         }
-        dkm1 = exp(dkm1);
-        dkm2 = exp(dkm2);
-        dk1 = sum_counterdiagE(dkm1);
-        dk2 = sum_counterdiagE(dkm2);
-        diminished = ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any()) ||
-                     ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
     }
-    for(Index k = 0; k <= m; k++) {
-        double k_ = k;
-        ansmat.ULTcol(k, m + 1) +=
-            log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
-            log(dk2(k)) - Aldenj(k) - lscf2(k);
-        double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
+    if(cent_mu2) {
+        if(n2_is_1) {
+            dk2(0) = 1;
+        } else {
+            dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
+        }
+    } else {
+        VectorXd mu2d = D2d.sqrt() * mu2;
+        MatrixXd mu2mat = mu2d * mu2d.transpose() / 2;
+        ArrayXd seqlrf_1_2 = get_lrf(0.5, m + 1);
+        if(n2_is_1) {
+            dk2 = d1_i_mE(mu2mat, m, lscf2, thr_margin);
+            dk2 = log(dk2);
+            dk2 -= seqlrf_1_2;
+            dk2 = exp(dk2);
+        } else {
+            DiagMatXd D2hmat = D2h.matrix().asDiagonal();
+            ArrayXd dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
+            dkm2 = log(dkm2);
+            for(Index k = 0; k <= m; k++) {
+                dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+            }
+            dkm2 = exp(dkm2);
+            dk2 = sum_counterdiagE(dkm2);
+            diminished = diminished || ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
+        }
     }
-    ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
-    ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
-    ansmat = exp(ansmat);
+    if((n1_is_1 && cent_mu1) || (n2_is_1 && cent_mu2)) {
+        ArrayXd a1s = ArrayXd::LinSpaced(m + 1, (n1_ + n2_) / 2, (n1_ + n2_) / 2 + m_);
+        ArrayXd bs(m + 1);
 
-    ArrayXd ls = ArrayXd::LinSpaced(m + 1, 0, m_);
-    ArrayXd a1s(size_out);
-    ArrayXd bs(size_out);
-    for(Index k = 0; k <= m; k++) {
-        double k_ = k;
-        a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
-        bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
+        if(n1_is_1 && cent_mu1) {
+            ansseq += log(dk2) - Aldenj - lscf2 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldeni(0) + lscf1(0);
+            ansseq -= (mu2.matrix().squaredNorm()) / 2;
+            bs = ArrayXd::Constant(m + 1, n1_ / 2 + 1);
+        } else if(n2_is_1 && cent_mu2) {
+            ansseq += log(dk1) - Aldeni - lscf1 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldenj(0) + lscf2(0);
+            ansseq -= (mu1.matrix().squaredNorm()) / 2;
+            bs = ArrayXd::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
+        }
+        ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansseq = exp(ansseq);
+
+        // // Using the C++ library GSL with RcppGSL
+        // ArrayXd hgres(m + 1);
+        // for(Index i = 0; i < m + 1; i++) {
+        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
+
+        ansseq *= hgres;
+    } else {
+        Index size_out = (m + 1) * (m + 2) / 2;
+        ArrayXd ansmat = ArrayXd::Zero(size_out);
+        for(Index k = 0; k <= m; k++) {
+            double k_ = k;
+            ansmat.ULTcol(k, m + 1) +=
+                log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
+                log(dk2(k)) - Aldenj(k) - lscf2(k);
+            double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
+            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
+        }
+        ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
+        ansmat = exp(ansmat);
+
+        ArrayXd ls = ArrayXd::LinSpaced(m + 1, 0, m_);
+        ArrayXd a1s(size_out);
+        ArrayXd bs(size_out);
+        for(Index k = 0; k <= m; k++) {
+            double k_ = k;
+            a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
+            bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
+        }
+
+        // // Using the C++ library GSL with RcppGSL; this is
+        // // not quite portable as the library need to be installed separately.
+        // ArrayXd hgres(size_out);
+        // for(Index i = 0; i < size_out; i++) {
+        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
+
+        ansmat *= hgres;
+
+        ansseq = sum_counterdiagE(ansmat);
     }
-
-    // // Using the C++ library GSL with RcppGSL; this is
-    // // not quite portable as the library need to be installed separately.
-    // ArrayXd hgres(size_out);
-    // for(Index i = 0; i < size_out; i++) {
-    //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-    // }
-
-    // Calling gsl::hyperg_2F1 from R
-    Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-    Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-    Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
-
-    ansmat *= hgres;
-
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
     return Rcpp::List::create(
         Rcpp::Named("ansseq") = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -143,7 +207,7 @@ SEXP A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
 //'   \code{pqfm_A1B1()}, long double
 //'
 // [[Rcpp::export]]
-SEXP A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
+SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
              const Eigen::Array<long double, Eigen::Dynamic, 1> D2,
              const Eigen::Array<long double, Eigen::Dynamic, 1> mu1,
              const Eigen::Array<long double, Eigen::Dynamic, 1> mu2,
@@ -154,8 +218,10 @@ SEXP A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
     long double n1_ = n1;
     long double n2_ = n2;
     long double m_ = m;
-    bool central = is_zero_E(mu1, tol_zero) && is_zero_E(mu2, tol_zero);
-    Index size_out = (m + 1) * (m + 2) / 2;
+    bool n1_is_1 = (n1 == 1);
+    bool n2_is_1 = (n2 == 1);
+    bool cent_mu1 = is_zero_E(mu1, tol_zero);
+    bool cent_mu2 = is_zero_E(mu2, tol_zero);
     ArrayXl D1i = D1.cwiseInverse();
     ArrayXl D2i = D2.cwiseInverse();
     long double sumtrDi = D1i.sum() + D2i.sum();
@@ -167,75 +233,138 @@ SEXP A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
     ArrayXl D2h = ArrayXl::Constant(n2, trD2d) - D2d;
     ArrayXl lscf1 = ArrayXl::Zero(m + 1);
     ArrayXl lscf2 = ArrayXl::Zero(m + 1);
-    ArrayXl dk1(m + 1);
-    ArrayXl dk2(m + 1);
-    ArrayXl ansmat = ArrayXl::Zero(size_out);
+    ArrayXl dk1 = ArrayXl::Zero(m + 1);
+    ArrayXl dk2 = ArrayXl::Zero(m + 1);
+    ArrayXl ansseq = ArrayXl::Zero(m + 1);
     bool diminished = false;
     ArrayXl Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXl Aldenj = get_lgm(n2_ / 2, m + 1);
-    if(central) {
-        dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
-        dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
+    if(cent_mu1) {
+        if(n1_is_1) {
+            dk1(0) = 1;
+        } else {
+            dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
+        }
     } else {
         VectorXl mu1d = D1d.sqrt() * mu1;
-        VectorXl mu2d = D2d.sqrt() * mu2;
         MatrixXl mu1mat = mu1d * mu1d.transpose() / 2;
-        MatrixXl mu2mat = mu2d * mu2d.transpose() / 2;
-        DiagMatXl D1hmat = D1h.matrix().asDiagonal();
-        DiagMatXl D2hmat = D2h.matrix().asDiagonal();
-        ArrayXl dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
-        ArrayXl dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
-        dkm1 = log(dkm1);
-        dkm2 = log(dkm2);
         ArrayXl seqlrf_1_2 = get_lrf((long double)(0.5), m + 1);
-        for(Index k = 0; k <= m; k++) {
-            dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
-            dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+        if(n1_is_1) {
+            dk1 = d1_i_mE(mu1mat, m, lscf1, thr_margin);
+            dk1 = log(dk1);
+            dk1 -= seqlrf_1_2;
+            dk1 = exp(dk1);
+        } else {
+            DiagMatXl D1hmat = D1h.matrix().asDiagonal();
+            ArrayXl dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
+            dkm1 = log(dkm1);
+            for(Index k = 0; k <= m; k++) {
+                dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+            }
+            dkm1 = exp(dkm1);
+            dk1 = sum_counterdiagE(dkm1);
+            diminished = diminished || ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any());
         }
-        dkm1 = exp(dkm1);
-        dkm2 = exp(dkm2);
-        dk1 = sum_counterdiagE(dkm1);
-        dk2 = sum_counterdiagE(dkm2);
-        diminished = ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any()) ||
-                     ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
     }
-    for(Index k = 0; k <= m; k++) {
-        long double k_ = k;
-        ansmat.ULTcol(k, m + 1) +=
-            log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
-            log(dk2(k)) - Aldenj(k) - lscf2(k);
-        long double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
+    if(cent_mu2) {
+        if(n2_is_1) {
+            dk2(0) = 1;
+        } else {
+            dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
+        }
+    } else {
+        VectorXl mu2d = D2d.sqrt() * mu2;
+        MatrixXl mu2mat = mu2d * mu2d.transpose() / 2;
+        ArrayXl seqlrf_1_2 = get_lrf((long double)(0.5), m + 1);
+        if(n2_is_1) {
+            dk2 = d1_i_mE(mu2mat, m, lscf2, thr_margin);
+            dk2 = log(dk2);
+            dk2 -= seqlrf_1_2;
+            dk2 = exp(dk2);
+        } else {
+            DiagMatXl D2hmat = D2h.matrix().asDiagonal();
+            ArrayXl dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
+            dkm2 = log(dkm2);
+            for(Index k = 0; k <= m; k++) {
+                dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+            }
+            dkm2 = exp(dkm2);
+            dk2 = sum_counterdiagE(dkm2);
+            diminished = diminished || ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
+        }
     }
-    ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
-    ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
-    ansmat = exp(ansmat);
+    if((n1_is_1 && cent_mu1) || (n2_is_1 && cent_mu2)) {
+        ArrayXl a1s = ArrayXl::LinSpaced(m + 1, (n1_ + n2_) / 2, (n1_ + n2_) / 2 + m_);
+        ArrayXl bs(m + 1);
 
-    ArrayXl ls = ArrayXl::LinSpaced(m + 1, 0, m_);
-    ArrayXl a1s(size_out);
-    ArrayXl bs(size_out);
-    for(Index k = 0; k <= m; k++) {
-        long double k_ = k;
-        a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
-        bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
+        if(n1_is_1 && cent_mu1) {
+            ansseq += log(dk2) - Aldenj - lscf2 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldeni(0) + lscf1(0);
+            ansseq -= (mu2.matrix().squaredNorm()) / 2;
+            bs = ArrayXl::Constant(m + 1, n1_ / 2 + 1);
+        } else if(n2_is_1 && cent_mu2) {
+            ansseq += log(dk1) - Aldeni - lscf1 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldenj(0) + lscf2(0);
+            ansseq -= (mu1.matrix().squaredNorm()) / 2;
+            bs = ArrayXl::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
+        }
+        ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansseq = exp(ansseq);
+
+        // // Using the C++ library GSL with RcppGSL
+        // ArrayXl hgres(size_out);
+        // for(Index i = 0; i < size_out; i++) {
+        //     hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgresd(hgv.begin(), m + 1);
+        ArrayXl hgres = hgresd.cast<long double>();
+
+        ansseq *= hgres;
+    } else {
+        Index size_out = (m + 1) * (m + 2) / 2;
+        ArrayXl ansmat = ArrayXl::Zero(size_out);
+        for(Index k = 0; k <= m; k++) {
+            long double k_ = k;
+            ansmat.ULTcol(k, m + 1) +=
+                log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
+                log(dk2(k)) - Aldenj(k) - lscf2(k);
+            long double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
+            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
+        }
+        ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
+        ansmat = exp(ansmat);
+
+        ArrayXl ls = ArrayXl::LinSpaced(m + 1, 0, m_);
+        ArrayXl a1s(size_out);
+        ArrayXl bs(size_out);
+        for(Index k = 0; k <= m; k++) {
+            long double k_ = k;
+            a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
+            bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
+        }
+
+        // // Using the C++ library GSL with RcppGSL; this is
+        // // not quite portable as the library need to be installed separately.
+        // ArrayXl hgres(size_out);
+        // for(Index i = 0; i < size_out; i++) {
+        //     hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgresd(hgv.begin(), size_out);
+        ArrayXl hgres = hgresd.cast<long double>();
+
+        ansmat *= hgres;
+
+        ansseq = sum_counterdiagE(ansmat);
     }
-
-    // // Using the C++ library GSL with RcppGSL; this is
-    // // not quite portable as the library need to be installed separately.
-    // ArrayXl hgres(size_out);
-    // for(Index i = 0; i < size_out; i++) {
-    //     hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
-    // }
-
-    // Calling gsl::hyperg_2F1 from R
-    Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-    Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-    Eigen::Map<ArrayXd> hgresd(hgv.begin(), size_out);
-    ArrayXl hgres = hgresd.cast<long double>();
-
-    ansmat *= hgres;
-
-    ArrayXl ansseq = sum_counterdiagE(ansmat);
     return Rcpp::List::create(
         Rcpp::Named("ansseq") = ansseq,
         Rcpp::Named("diminished") = diminished);
@@ -247,7 +376,7 @@ SEXP A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
 //'   \code{pqfm_A1B1()}, coefficient-wise scaling
 //'
 // [[Rcpp::export]]
-SEXP A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
+SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
              const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2,
              const Eigen::Index m, const double thr_margin = 100,
              int nthreads = 0, const double tol_zero = 2.2e-14) {
@@ -256,8 +385,10 @@ SEXP A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     double n1_ = n1;
     double n2_ = n2;
     double m_ = m;
-    bool central = is_zero_E(mu1, tol_zero) && is_zero_E(mu2, tol_zero);
-    Index size_out = (m + 1) * (m + 2) / 2;
+    bool n1_is_1 = (n1 == 1);
+    bool n2_is_1 = (n2 == 1);
+    bool cent_mu1 = is_zero_E(mu1, tol_zero);
+    bool cent_mu2 = is_zero_E(mu2, tol_zero);
     ArrayXd D1i = D1.cwiseInverse();
     ArrayXd D2i = D2.cwiseInverse();
     double sumtrDi = D1i.sum() + D2i.sum();
@@ -269,88 +400,155 @@ SEXP A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     ArrayXd D2h = ArrayXd::Constant(n2, trD2d) - D2d;
     ArrayXd lscf1;
     ArrayXd lscf2;
-    ArrayXd dk1(m + 1);
-    ArrayXd dk2(m + 1);
-    ArrayXd ansmat = ArrayXd::Zero(size_out);
+    ArrayXd dk1 = ArrayXd::Zero(m + 1);
+    ArrayXd dk2 = ArrayXd::Zero(m + 1);
+    ArrayXd ansseq = ArrayXd::Zero(m + 1);
+    Index size_out = (m + 1) * (m + 2) / 2;
     bool diminished = false;
     ArrayXd Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXd Aldenj = get_lgm(n2_ / 2, m + 1);
-    if(central) {
-        lscf1 = ArrayXd::Zero(m + 1);
-        lscf2 = ArrayXd::Zero(m + 1);
-        dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
-        dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
-        for(Index k = 0; k <= m; k++) {
-            double k_ = k;
-            ansmat.ULTcol(k, m + 1) +=
-                log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
-                log(dk2(k)) - Aldenj(k) - lscf2(k);
-            double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
+    if(cent_mu1) {
+        if(n1_is_1) {
+            // exp is redundant with log below, but applied for consistency
+            dk1(0) = 1 / exp(Aldeni(0));
+        } else {
+            lscf1 = ArrayXd::Zero(m + 1);
+            dk1 = d1_i_vE(D1h, m, lscf1, thr_margin);
+            dk1 = log(dk1);
+            // For consistency with !cent_mu1 below, denominator applied early
+            dk1 -= Aldeni + lscf1;
+            dk1 = exp(dk1);
         }
     } else {
-        lscf1 = ArrayXd::Zero(size_out);
-        lscf2 = ArrayXd::Zero(size_out);
         VectorXd mu1d = D1d.sqrt() * mu1;
-        VectorXd mu2d = D2d.sqrt() * mu2;
         MatrixXd mu1mat = mu1d * mu1d.transpose() / 2;
-        MatrixXd mu2mat = mu2d * mu2d.transpose() / 2;
-        DiagMatXd D1hmat = D1h.matrix().asDiagonal();
-        DiagMatXd D2hmat = D2h.matrix().asDiagonal();
-        ArrayXd dkm1 = d2_ij_mEc(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
-        ArrayXd dkm2 = d2_ij_mEc(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
-        dkm1 = log(dkm1);
-        dkm2 = log(dkm2);
         ArrayXd seqlrf_1_2 = get_lrf(0.5, m + 1);
-        for(Index k = 0; k <= m; k++) {
-            dkm1.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
-            dkm2.ULTcol(k, m + 1) -= seqlrf_1_2.head(m + 1 - k);
+        if(n1_is_1) {
+            lscf1 = ArrayXd::Zero(m + 1);
+            dk1 = d1_i_mE(mu1mat, m, lscf1, thr_margin);
+            dk1 = log(dk1);
+            // For consistency with !n1_is_1 below, denominator applied early
+            dk1 -= seqlrf_1_2 + Aldeni + lscf1;
+            dk1 = exp(dk1);
+        } else {
+            lscf1 = ArrayXd::Zero(size_out);
+            DiagMatXd D1hmat = D1h.matrix().asDiagonal();
+            ArrayXd dkm1 = d2_ij_mE(mu1mat, D1hmat, m, lscf1, thr_margin, nthreads);
+            dkm1 = log(dkm1);
+            // Scale-back required before summing, so denominator applied early
+            for(Index k = 0; k <= m; k++) {
+                dkm1.ULTcol(k, m + 1) -=
+                    seqlrf_1_2.head(m + 1 - k) + Aldeni.tail(m + 1 - k);
+            }
+            dkm1 -= lscf1;
+            dkm1 = exp(dkm1);
+            dk1 = sum_counterdiagE(dkm1);
+            diminished = diminished || ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any());
         }
-        dkm1 -= lscf1;
-        dkm2 -= lscf2;
-        dkm1 = exp(dkm1);
-        dkm2 = exp(dkm2);
-        dk1 = sum_counterdiagE(dkm1);
-        dk2 = sum_counterdiagE(dkm2);
-        diminished = ((lscf1 < 0).any() && dkm1.cwiseEqual(0).any()) ||
-                     ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
+    }
+    if(cent_mu2) {
+        if(n2_is_1) {
+            dk2(0) = 1 / exp(Aldenj(0));
+        } else {
+            lscf2 = ArrayXd::Zero(m + 1);
+            dk2 = d1_i_vE(D2h, m, lscf2, thr_margin);
+            dk2 = log(dk2);
+            dk2 -= Aldenj + lscf2;
+            dk2 = exp(dk2);
+        }
+    } else {
+        VectorXd mu2d = D2d.sqrt() * mu2;
+        MatrixXd mu2mat = mu2d * mu2d.transpose() / 2;
+        ArrayXd seqlrf_1_2 = get_lrf(0.5, m + 1);
+        if(n2_is_1) {
+            lscf2 = ArrayXd::Zero(m + 1);
+            dk2 = d1_i_mE(mu2mat, m, lscf2, thr_margin);
+            dk2 = log(dk2);
+            dk2 -= seqlrf_1_2 + Aldenj + lscf2;
+            dk2 = exp(dk2);
+        } else {
+            lscf2 = ArrayXd::Zero(size_out);
+            DiagMatXd D2hmat = D2h.matrix().asDiagonal();
+            ArrayXd dkm2 = d2_ij_mE(mu2mat, D2hmat, m, lscf2, thr_margin, nthreads);
+            dkm2 = log(dkm2);
+            for(Index k = 0; k <= m; k++) {
+                dkm2.ULTcol(k, m + 1) -=
+                    seqlrf_1_2.head(m + 1 - k) + Aldenj.tail(m + 1 - k);
+            }
+            dkm2 -= lscf2;
+            dkm2 = exp(dkm2);
+            dk2 = sum_counterdiagE(dkm2);
+            diminished = diminished || ((lscf2 < 0).any() && dkm2.cwiseEqual(0).any());
+        }
+    }
+    if((n1_is_1 && cent_mu1) || (n2_is_1 && cent_mu2)) {
+        ArrayXd a1s = ArrayXd::LinSpaced(m + 1, (n1_ + n2_) / 2, (n1_ + n2_) / 2 + m_);
+        ArrayXd bs(m + 1);
+
+        // Only situation
+        if(n1_is_1 && cent_mu1) {
+            ansseq += log(dk2) + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldeni(0); // Or log(dk1(0))
+            ansseq -= (mu2.matrix().squaredNorm()) / 2;
+            bs = ArrayXd::Constant(m + 1, n1_ / 2 + 1);
+        } else if(n2_is_1 && cent_mu2) {
+            ansseq += log(dk1) + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq -= Aldenj(0);
+            ansseq -= (mu1.matrix().squaredNorm()) / 2;
+            bs = ArrayXd::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
+        }
+        ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansseq = exp(ansseq);
+
+        // // Using the C++ library GSL with RcppGSL
+        // ArrayXd hgres(m + 1);
+        // for(Index i = 0; i < m + 1; i++) {
+        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
+
+        ansseq *= hgres;
+    } else {
+        ArrayXd ansmat = ArrayXd::Zero(size_out);
         for(Index k = 0; k <= m; k++) {
             double k_ = k;
-            ansmat.ULTcol(k, m + 1) +=
-                log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) +
-                log(dk2(k)) - Aldenj(k);
+            ansmat.ULTcol(k, m + 1) += log(dk1.head(m + 1 - k)) + log(dk2(k));
             double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
             for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
         }
+        ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
+        ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
+        ansmat = exp(ansmat);
+
+        ArrayXd ls = ArrayXd::LinSpaced(m + 1, 0, m_);
+        ArrayXd a1s(size_out);
+        ArrayXd bs(size_out);
+        for(Index k = 0; k <= m; k++) {
+            double k_ = k;
+            a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
+            bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
+        }
+
+        // // Using the C++ library GSL with RcppGSL; this is
+        // // not quite portable as the library need to be installed separately.
+        // ArrayXd hgres(size_out);
+        // for(Index i = 0; i < size_out; i++) {
+        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        // }
+
+        // Calling gsl::hyperg_2F1 from R
+        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
+
+        ansmat *= hgres;
+
+        ansseq = sum_counterdiagE(ansmat);
     }
-    ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
-    ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
-    ansmat = exp(ansmat);
-
-    ArrayXd ls = ArrayXd::LinSpaced(m + 1, 0, m_);
-    ArrayXd a1s(size_out);
-    ArrayXd bs(size_out);
-    for(Index k = 0; k <= m; k++) {
-        double k_ = k;
-        a1s.ULTcol(k, m + 1) = ls.head(m + 1 - k) + k_ + (n1_ + n2_) / 2;
-        bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
-    }
-
-    // // Using the C++ library GSL with RcppGSL; this is
-    // // not quite portable as the library need to be installed separately.
-    // ArrayXd hgres(size_out);
-    // for(Index i = 0; i < size_out; i++) {
-    //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-    // }
-
-    // Calling gsl::hyperg_2F1 from R
-    Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-    Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-    Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
-
-    ansmat *= hgres;
-
-    ArrayXd ansseq = sum_counterdiagE(ansmat);
     return Rcpp::List::create(
         Rcpp::Named("ansseq") = ansseq,
         Rcpp::Named("diminished") = diminished);
