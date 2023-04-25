@@ -72,6 +72,7 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     ArrayXd dk2 = ArrayXd::Zero(m + 1);
     ArrayXd ansseq = ArrayXd::Zero(m + 1);
     bool diminished = false;
+    ArrayXd Alnum = get_lgm((n1_ + n2_) / 2, m + 1);
     ArrayXd Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXd Aldenj = get_lgm(n2_ / 2, m + 1);
     if(cent_mu1) {
@@ -133,12 +134,12 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         ArrayXd bs(m + 1);
 
         if(n1_is_1 && cent_mu1) {
-            ansseq += log(dk2) - Aldenj - lscf2 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += log(dk2) - Aldenj - lscf2 + Alnum;
             ansseq -= Aldeni(0) + lscf1(0);
             ansseq -= (mu2.matrix().squaredNorm()) / 2;
             bs = ArrayXd::Constant(m + 1, n1_ / 2 + 1);
         } else if(n2_is_1 && cent_mu2) {
-            ansseq += log(dk1) - Aldeni - lscf1 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += log(dk1) - Aldeni - lscf1 + Alnum;
             ansseq -= Aldenj(0) + lscf2(0);
             ansseq -= (mu1.matrix().squaredNorm()) / 2;
             bs = ArrayXd::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
@@ -162,12 +163,9 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         Index size_out = (m + 1) * (m + 2) / 2;
         ArrayXd ansmat = ArrayXd::Zero(size_out);
         for(Index k = 0; k <= m; k++) {
-            double k_ = k;
-            ansmat.ULTcol(k, m + 1) +=
+            ansmat.ULTcol(k, m + 1) += Alnum.tail(m + 1 - k) +
                 log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
                 log(dk2(k)) - Aldenj(k) - lscf2(k);
-            double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
         }
         ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
@@ -238,6 +236,7 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
     ArrayXl dk2 = ArrayXl::Zero(m + 1);
     ArrayXl ansseq = ArrayXl::Zero(m + 1);
     bool diminished = false;
+    ArrayXl Alnum = get_lgm((n1_ + n2_) / 2, m + 1);
     ArrayXl Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXl Aldenj = get_lgm(n2_ / 2, m + 1);
     if(cent_mu1) {
@@ -299,12 +298,12 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
         ArrayXl bs(m + 1);
 
         if(n1_is_1 && cent_mu1) {
-            ansseq += log(dk2) - Aldenj - lscf2 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += log(dk2) - Aldenj - lscf2 + Alnum;
             ansseq -= Aldeni(0) + lscf1(0);
             ansseq -= (mu2.matrix().squaredNorm()) / 2;
             bs = ArrayXl::Constant(m + 1, n1_ / 2 + 1);
         } else if(n2_is_1 && cent_mu2) {
-            ansseq += log(dk1) - Aldeni - lscf1 + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += log(dk1) - Aldeni - lscf1 + Alnum;
             ansseq -= Aldenj(0) + lscf2(0);
             ansseq -= (mu1.matrix().squaredNorm()) / 2;
             bs = ArrayXl::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
@@ -329,12 +328,9 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
         Index size_out = (m + 1) * (m + 2) / 2;
         ArrayXl ansmat = ArrayXl::Zero(size_out);
         for(Index k = 0; k <= m; k++) {
-            long double k_ = k;
-            ansmat.ULTcol(k, m + 1) +=
+            ansmat.ULTcol(k, m + 1) += Alnum.tail(m + 1 - k) +
                 log(dk1.head(m + 1 - k)) - Aldeni.head(m + 1 - k) - lscf1.head(m + 1 - k) +
                 log(dk2(k)) - Aldenj(k) - lscf2(k);
-            long double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
         }
         ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
@@ -406,6 +402,7 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     ArrayXd ansseq = ArrayXd::Zero(m + 1);
     Index size_out = (m + 1) * (m + 2) / 2;
     bool diminished = false;
+    ArrayXd Alnum = get_lgm((n1_ + n2_) / 2, m + 1);
     ArrayXd Aldeni = get_lgm(n1_ / 2 + 1, m + 1);
     ArrayXd Aldenj = get_lgm(n2_ / 2, m + 1);
     if(cent_mu1) {
@@ -482,12 +479,12 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         ArrayXd bs(m + 1);
 
         if(n1_is_1 && cent_mu1) {
-            ansseq += dk2 - Aldenj + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += dk2 - Aldenj + Alnum;
             ansseq -= Aldeni(0); // Or dk1(0)
             ansseq -= (mu2.matrix().squaredNorm()) / 2;
             bs = ArrayXd::Constant(m + 1, n1_ / 2 + 1);
         } else if(n2_is_1 && cent_mu2) {
-            ansseq += dk1 - Aldeni + get_lgm((n1_ + n2_) / 2, m + 1);
+            ansseq += dk1 - Aldeni + Alnum;
             ansseq -= Aldenj(0);
             ansseq -= (mu1.matrix().squaredNorm()) / 2;
             bs = ArrayXd::LinSpaced(m + 1, n1_ / 2 + 1, n1_ / 2 + 1 + m_);
@@ -510,12 +507,9 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     } else {
         ArrayXd ansmat = ArrayXd::Zero(size_out);
         for(Index k = 0; k <= m; k++) {
-            double k_ = k;
-            ansmat.ULTcol(k, m + 1) +=
+            ansmat.ULTcol(k, m + 1) += Alnum.tail(m + 1 - k) +
                 dk1.head(m + 1 - k) - Aldeni.head(m + 1 - k) +
                 dk2(k) - Aldenj(k);
-            double lnum = std::lgamma((n1_ + n2_) / 2 + k_);
-            for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) += lnum;
         }
         ansmat += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansmat -= (mu1.matrix().squaredNorm() + mu2.matrix().squaredNorm()) / 2;
