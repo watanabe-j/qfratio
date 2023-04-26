@@ -172,18 +172,16 @@ hgs_2dE(const Eigen::ArrayBase<Derived>& dks,
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     ArrayXx Alnumi = get_lrf(a1, m + 1);
     ArrayXx Alnumj = get_lrf(a2, m + 1);
+    ArrayXx Alden = get_lrf(b, m + 1);
     ArrayXx ansmat = ArrayXx::Zero((m + 1) * (m + 2) / 2);
     ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
     ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
     for(Index k = 0; k <= m; k++) {
-        ansmat.ULTcol(k, m + 1) += Alnumi.head(m + 1 - k) + Alnumj(k);
-        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
-        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) -= lden;
+        ansmat.ULTcol(k, m + 1) +=
+            Alnumi.head(m + 1 - k) - Alden.tail(m + 1 - k) -
+            lscf.tail(m + 1 - k) + Alnumj(k);
     }
     ansmat += log(abs(dks)) + lconst;
-    for(Index k = 0; k <= m; k++) {
-        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) -= lscf(k);
-    }
     ansmat = exp(ansmat);
     for(Index k = 0; k <= m; k++) {
         ansmat.ULTcol(k, m + 1) *= Asgnsi.head(m + 1 - k) * Asgnsj(k);
@@ -216,13 +214,13 @@ hgs_2dEc(const Eigen::ArrayBase<Derived>& dks,
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     ArrayXx Alnumi = get_lrf(a1, m + 1);
     ArrayXx Alnumj = get_lrf(a2, m + 1);
+    ArrayXx Alden = get_lrf(b, m + 1);
     ArrayXx ansmat = ArrayXx::Zero((m + 1) * (m + 2) / 2);
     ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
     ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
     for(Index k = 0; k <= m; k++) {
-        ansmat.ULTcol(k, m + 1) += Alnumi.head(m + 1 - k) + Alnumj(k);
-        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
-        for(Index i = 0; i <= k; i++) ansmat.ULTat(i, k - i, m + 1) -= lden;
+        ansmat.ULTcol(k, m + 1) +=
+            Alnumi.head(m + 1 - k) - Alden.tail(m + 1 - k) + Alnumj(k);
     }
     ansmat += log(abs(dks)) + lconst;
     ansmat -= lscf;
@@ -255,28 +253,20 @@ hgs_3dE(const Eigen::ArrayBase<Derived>& dks, const typename Derived::Scalar a1,
     ArrayXx Alnumi = get_lrf(a1, m + 1);
     ArrayXx Alnumj = get_lrf(a2, m + 1);
     ArrayXx Alnumk = get_lrf(a3, m + 1);
+    ArrayXx Alden = get_lrf(b, m + 1);
     ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
     ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
     ArrayXx Asgnsk = get_sign_rf(a3, m + 1);
     ArrayXx ansmat = ArrayXx::Zero((m + 1) * (m + 2) * (m + 3) / 6);
     for(Index k = 0; k <= m; k++) {
         ansmat.ULCslice(k, m + 1) += Alnumk(k);
-        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index j = 0; j <= k; j++) {
-            ansmat.ULCcol(j, k - j, m + 1) += Alnumi.head(m + 1 - k) + Alnumj(j);
-            for(Index i = 0; i <= k - j; i++) {
-                ansmat.ULCat(i, j, k - i - j, m + 1) -= lden;
-            }
+            ansmat.ULCcol(j, k - j, m + 1) +=
+                Alnumi.head(m + 1 - k) - Alden.tail(m + 1 - k) -
+                lscf.tail(m + 1 - k) + Alnumj(j);
         }
     }
     ansmat += log(abs(dks)) + lconst;
-    for(Index k = 0; k <= m; k++) {
-        for(Index i = 0; i <= k; i++) {
-            for(Index j = 0; j <= k - i; j++) {
-                ansmat.ULCat(i, j, k - i - j, m + 1) -= lscf(k);
-            }
-        }
-    }
     ansmat = exp(ansmat);
     for(Index k = 0; k <= m; k++) {
         ansmat.ULCslice(k, m + 1) *= Asgnsk(k);
@@ -313,18 +303,16 @@ hgs_3dEc(const Eigen::ArrayBase<Derived>& dks,
     ArrayXx Alnumi = get_lrf(a1, m + 1);
     ArrayXx Alnumj = get_lrf(a2, m + 1);
     ArrayXx Alnumk = get_lrf(a3, m + 1);
+    ArrayXx Alden = get_lrf(b, m + 1);
     ArrayXx Asgnsi = get_sign_rf(a1, m + 1);
     ArrayXx Asgnsj = get_sign_rf(a2, m + 1);
     ArrayXx Asgnsk = get_sign_rf(a3, m + 1);
     ArrayXx ansmat = ArrayXx::Zero((m + 1) * (m + 2) * (m + 3) / 6);
     for(Index k = 0; k <= m; k++) {
         ansmat.ULCslice(k, m + 1) += Alnumk(k);
-        Scalar lden = std::lgamma(b + k) - std::lgamma(b);
         for(Index j = 0; j <= k; j++) {
-            ansmat.ULCcol(j, k - j, m + 1) += Alnumi.head(m + 1 - k) + Alnumj(j);
-            for(Index i = 0; i <= k - j; i++) {
-                ansmat.ULCat(i, j, k - i - j, m + 1) -= lden;
-            }
+            ansmat.ULCcol(j, k - j, m + 1) +=
+                Alnumi.head(m + 1 - k) - Alden.tail(m + 1 - k) + Alnumj(j);
         }
     }
     ansmat += log(abs(dks)) + lconst;
