@@ -1,34 +1,30 @@
 ##### pqfr #####
-#' Distribution function of ratio of quadratic forms
-#'
-#' \sQuote{Exact} distribution function of the ratio of quadratic forms in
-#' normal variables,
-#' \eqn{\frac{ (\mathbf{x^\mathit{T} A x}) }{ (\mathbf{x^\mathit{T} B x}) }
-#'      }{ (x^T A x) / (x^T B x) }, where
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)},
-#' based on Forchini (2002, 2005).
+#' Probability distribution of ratio of quadratic forms
 #'
 #' This functionality is **experimental**.
 #'
-#' The user is supposed to use the exported function \code{pqfr()},
-#' which is (pseudo-)vectorized with respect to \code{quantile} using
-#' \code{\link[base]{sapply}()}.  The actual calculation is done by the
-#' *internal* function \code{pqfr_A1B1()} which only accommodates
-#' a length-one \code{quantile}.  \code{pqfr_A1B1()} skips most checks
-#' on argument structures and does not accommodate \code{Sigma} to
-#' reduce execution time.
+#' The user is supposed to use the exported functions \code{dqfr()} and
+#' \code{pqfr()}, which are (pseudo-)vectorized with respect to \code{quantile}
+#' using \code{\link[base]{sapply}()}.  The actual calculations are done by the
+#' *internal* functions \code{dqfr_A1I1()} and \code{pqfr_A1B1()} which only
+#' accommodates a length-one \code{quantile}.  The internal functions skip
+#' most checks on argument structures and do not accommodate \code{Sigma}
+#' (where applicable) to reduce execution time.
 #'
-#' Evaluates the (cumulative) distribution function as a partial sum of
-#' infinite series involving top-order zonal or invariant polynomials.  The
-#' expression for the central case is from Forchini (2002), and that for
-#' the noncentral case is from Forchini (2005) (with apparent errors
-#' corrected).  As in other functions of this package, this is evaluated with
-#' the recursive algorithm for \eqn{d} in Hillier et al. (2009, 2014).
+#' Evaluate the probability density or (cumulative) distribution function
+#' as a partial sum of infinite series involving top-order zonal or
+#' invariant polynomials.  The density is from Hillier
+#' (2001, corollary 2), the distribution function for the central case is
+#' from Forchini (2002), and that for the noncentral case is from Forchini
+#' (2005) (with apparent errors corrected).  As in other functions of
+#' this package, these are evaluated with the recursive algorithm for
+#' \eqn{d} in Hillier et al. (2009, 2014).
 #'
-#' The distribution function has points of nonanalyticity at the relative
-#' eigenvalues of the argument matrices (Forchini 2002), and the series
-#' expression tends to be *very slow* to converge around them.  In this case,
-#' use a large \code{m}, or seek for alternative ways of evaluation.
+#' The density is undefined at the eigenvalues of \eqn{\mathbf{A}}{A}
+#' (Hillier 2001) and the distribution function has points of nonanalyticity
+#' at the relative eigenvalues of the argument matrices (Forchini 2002).  Around
+#' these points, the expression tends to be *very slow* to converge.  In
+#' this case, use a large \code{m}, or seek alternative ways of evaluation.
 #'
 #' @inheritParams qfrm
 #'
@@ -37,10 +33,12 @@
 #' @param A,B
 #'   Argument matrices.  Should be square.  Will be automatically symmetrized
 #'   in \code{pqfr()}.
+#' @param LA
+#'   Eigenvalues of \eqn{\mathbf{A}}{|}
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
 #'   \eqn{\mathbf{x}}{x}
-#' @param lower.tail,log.p
+#' @param log,lower.tail,log.p
 #'   Logical; as in regular probability distribution functions.  But these are
 #'   for convenience only, and not meant for accuracy.
 #' @param check_convergence
@@ -64,18 +62,20 @@
 #'   the number of processors detected.  See \dQuote{Multithreading} in
 #'   \code{\link{qfrm}}.
 #' @param ...
-#'   Additional arguments in \code{pqfr()} to be passed to \code{pqfr_A1B1()}
+#'   Additional arguments passed to internal functions
 #'
 #' @return
-#' \code{pqfr()} gives the distribution function or \eqn{p}-values
-#' corresponding to \code{quantile}.
+#' \code{dqfr()} gives the density, and \code{pqfr()} gives the
+#' distribution function or \eqn{p}-values corresponding to \code{quantile}.
 #'
-#' \code{pqfr_A1B1()} returns a list containing the following elements:
+#' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
+#' the following elements:
 #' \itemize{
-#'   \item{\code{$p}: }{lower \eqn{p}-value (\code{sum(terms)})}
+#'   \item{\code{$d} or \code{$p}: }{probability density or
+#'         lower \eqn{p}-value, respectively (\code{sum(terms)})}
 #'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'  }
-#' Only \code{$p} is passed to \code{pqfr()}.
+#' Only \code{$d} or \code{$p} is passed to the external functions.
 #'
 #' @references
 #' Forchini, G. (2002) The exact cumulative distribution function of
@@ -87,6 +87,11 @@
 #'   noncentral normal variables.
 #'   *Communications in Statistics---Theory and Methods*, **34**, 999--1008.
 #'   \doi{10.1081/STA-200056855}.
+#'
+#' Hillier, G. (2001) The density of quadratic form in a vector uniformly
+#'   distributed on the \eqn{n}-sphere.
+#'   *Econometric Theory*, **17**, 1--28.
+#'   \doi{10.1017/S026646660117101X}.
 #'
 #' Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
 #'   for top-order invariant polynomials with applications.
@@ -100,8 +105,6 @@
 #'
 #' @name pqfr
 #'
-#' @export
-#'
 #' @examples
 #' ## Some symmetric matrices and parameters
 #' nv <- 4
@@ -110,6 +113,9 @@
 #' mu <- 0.2 * nv:1
 #' Sigma <- matrix(0.5, nv, nv)
 #' diag(Sigma) <- 1
+#'
+#' ## f(2.5) for (x^T A x) / (x^T x) where x ~ N(0, I)
+#' dqfr(2.5, A)
 #'
 #' ## P{ (x^T A x) / (x^T x) <= 2.5} where x ~ N(0, I)
 #' pqfr(2.5, A)
@@ -122,6 +128,28 @@
 #'
 #' ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, Sigma)
 #' pqfr(1.5, A, B, mu = mu, Sigma = Sigma)
+#'
+#' ## These are (pseudo-)vectorized
+#' qs <- 0:nv + 0.5
+#' dqfr(qs, A)
+#' pqfr(qs, A, B, mu = mu, Sigma = Sigma)
+#'
+NULL
+
+##### pqfr #####
+#' Probability distribution of ratio of quadratic forms
+#'
+#' \code{pqfr()}: \sQuote{Exact} distribution function of the ratio of
+#' quadratic forms,
+#' \eqn{\frac{ (\mathbf{x^\mathit{T} A x}) }{ (\mathbf{x^\mathit{T} B x}) }
+#'      }{ (x^T A x) / (x^T B x) }, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)},
+#' based on Forchini (2002, 2005).
+#'
+#' @rdname pqfr
+#' @order 2
+#'
+#' @export
 #'
 pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
@@ -189,11 +217,12 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
 }
 
 ##### pqfr_A1B1 #####
-#' Positive integer moment of ratio of quadratic forms
+#' Probability distribution of ratio of quadratic forms
 #'
 #' \code{pqfr_A1B1()}: internal function used within \code{pqfr()}.
 #'
 #' @rdname pqfr
+#' @order 4
 #'
 pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                       mu = rep.int(0, n),
@@ -326,4 +355,140 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
         }
     }
     list(p = sum(ansseq), terms = ansseq)
+}
+
+
+##### dqfr #####
+#' Probability distribution of ratio of quadratic forms
+#'
+#' \code{dqfr()}: \sQuote{Exact} density of the ratio of quadratic forms,
+#' \eqn{\frac{ (\mathbf{x^\mathit{T} A x}) }{ (\mathbf{x^\mathit{T} x}) }
+#'      }{ (x^T A x) / (x^T x) }, where
+#' \eqn{\mathbf{x} \sim N_n(\mathbf{0}_n, \mathbf{I}_n)}{x ~ N_n(0_n, I_n)},
+#' based on Hillier (2001).
+#'
+#' @rdname pqfr
+#' @order 1
+#'
+#' @export
+#'
+dqfr <- function(quantile, A, m = 100L, log = FALSE, ...) {
+    n <- dim(A)[1L]
+    A <- (A + t(A)) / 2
+    ## Check basic requirements for arguments
+    stopifnot(
+        "A must be a square matrix" = all(c(dim(A)) == n),
+        "quantile must be numeric" = is.numeric(quantile),
+        "dqfr() does not accommodate B, mu, or Sigma" =
+            !("B" %in% ...names()) && !("mu" %in% ...names()) &&
+            !("Sigma" %in% ...names())
+    )
+    LA <- eigen(A, symmetric = TRUE)$values
+    ans <- sapply(quantile,
+                  function(q) dqfr_A1I1(q, LA, m, ...)$d)
+    if(log) ans <- log(ans)
+    attributes(ans) <- attributes(quantile)
+    return(ans)
+}
+
+##### dqfr_A1I1 #####
+#' Probability distribution of ratio of quadratic forms
+#'
+#' \code{dqfr_A1I1()}: internal function used within \code{dqfr()}.
+#'
+#' @rdname pqfr
+#' @order 3
+#'
+dqfr_A1I1 <- function(quantile, LA, m = 100L,
+                      check_convergence = c("relative", "strict_relative",
+                                            "absolute", "none"),
+                    #   use_cpp = TRUE,
+                      tol_conv = .Machine$double.eps ^ (1/4),
+                      thr_margin = 100) {
+    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if(isFALSE(check_convergence)) check_convergence <- "none"
+    check_convergence <- match.arg(check_convergence)
+    # if(!missing(cpp_method)) use_cpp <- TRUE
+    n <- length(LA)
+    ## Check basic requirements for arguments
+    stopifnot(
+        "In dqfr_A1I1, quantile must be length-one" = (length(quantile) == 1)
+    )
+    L1 <- max(LA)
+    Ln <- min(LA)
+    if(quantile >= L1 || quantile <= Ln) {
+        return(list(d = 0, terms = rep.int(0, m + 1)))
+    }
+    seqpsi <- seq.int(2L, pmax(2L, n - 1L))
+    psi <- (LA[seqpsi] - Ln) / (L1 - LA[seqpsi])
+    f <- (quantile - Ln) / (L1 - quantile)
+    ind_r1 <- psi > f
+    r <- sum(ind_r1)
+    if((r == 0) || (r == n - 2)) {
+        if(r == 0) {
+            D <- psi / f
+        } else {
+            D <- f / psi
+        }
+        dks <- d1_i(D, m, thr_margin)
+        lscf <- attr(dks, "logscale")
+        ansseq <- hgs_1d(dks, 1/2, (n - 1) / 2, -lscf)
+    } else {
+        D1 <- f / psi[ind_r1]
+        D2 <- psi[!ind_r1] / f
+        dk1 <- d1_i(D1, m, thr_margin)
+        dk2 <- d1_i(D2, m, thr_margin)
+        lscf1 <- attr(dk1, "logscale")
+        lscf2 <- attr(dk2, "logscale")
+        alpha <- (r - 1) / 2
+        beta <- (n - r - 3) / 2
+        ansmat <- outer(log(dk1), log(dk2), "+")
+        ## c_r(j,k) in Hillier (2001, lemma 2) is
+        ## (-1)^(j - k) * gamma(alpha + 1) * gamma(beta + 1) /
+        ##   (gamma(alpha + 1 + j - k) * gamma(beta + 1 - j + k)), unless
+        ## any of the arguments in the denominator are negative integer or zero
+        ordmat <- outer(seq.int(0, m), seq.int(0, m), "-") # j - k
+        ansmat <- ansmat + lgamma(alpha + 1) + lgamma(beta + 1) -
+                  lgamma(alpha + 1 + ordmat) - lgamma(beta + 1 - ordmat)
+        ansmat <- ansmat - lscf1
+        ansmat <- t(t(ansmat) - lscf2)
+        ansmat <- exp(ansmat)
+        sgnmat <- suppressWarnings(sign(gamma(alpha + 1 + ordmat) *
+                                        gamma(beta + 1 - ordmat)))
+        sgnmat[is.nan(sgnmat)] <- 0
+        ansmat <- ansmat * sgnmat
+        ansseq <- sum_counterdiag(ansmat)
+        ansseq <- ansseq * rep_len(c(1, -1), m + 1L)
+    }
+    ansseq <- ansseq *
+              exp(-lbeta((r + 1) / 2, (n - r - 1) / 2) -
+                  sum(log(psi[seq_len(r)])) / 2 + sum(log(1 + psi)) / 2 +
+                  log(f) * (r - 1) / 2 - log(1 + f) * n / 2)
+    ansseq <- ansseq * (L1 - Ln) / (L1 - quantile)^2
+    nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
+    if(any(nans_ansseq)) {
+        warning("NaNs detected at k = ", which(nans_ansseq)[1L],
+                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                "\n  Result truncated before first NaN")
+        ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
+        attr(ansseq, "truncated") <- TRUE
+    }
+    if(check_convergence != "none") {
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term is >",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the series",
+                    ",\n  suggesting non-convergence. Consider using larger m")
+        }
+    }
+    list(d = sum(ansseq), terms = ansseq)
 }

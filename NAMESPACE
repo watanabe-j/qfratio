@@ -3,6 +3,7 @@
 S3method(plot,qfrm)
 S3method(print,qfpm)
 S3method(print,qfrm)
+export(dqfr)
 export(pqfr)
 export(qfm_Ap_int)
 export(qfmrm)
