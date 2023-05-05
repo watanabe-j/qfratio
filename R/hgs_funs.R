@@ -25,6 +25,15 @@
 #'
 NULL
 
+# Internal function to calculate sequence of log rising factorial
+.lrfseq <- function(a, m) {
+    if(a <= 0 && (a %% 1) == 0) {
+        return(cumsum(suppressWarnings(log(c(1, pmax(-a - 0:(m - 1), 0))))))
+    } else {
+        return(lgamma(a + 0:m) - lgamma(a))
+    }
+}
+
 #' Calculate 1D hypergeometric series
 #'
 #' \code{hgs_1d()} calculates the hypergeometric series
@@ -34,12 +43,8 @@ NULL
 #'
 hgs_1d <- function(dks, a1, b, lconst = 0) {
     m <- length(dks) - 1
-    if(a1 < 0 && (a1 %% 1) == 0) {
-        lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
-    } else {
-        lnum_i <- lgamma(a1 + 0:m) - lgamma(a1)
-    }
-    lden_i <- lgamma(b + 0:m) - lgamma(b)
+    lnum_i <- .lrfseq(a1, m)
+    lden_i <- .lrfseq(b, m)
     lcoefm <- lnum_i - lden_i
     ansseq <- exp(lcoefm + log(abs(dks)) + lconst)
     ## Signs for (a1)_i, where i = 0:m is along the rows
@@ -57,16 +62,8 @@ hgs_1d <- function(dks, a1, b, lconst = 0) {
 #'
 hgs_2d <- function(dks, a1, a2, b, lconst = 0) {
     m <- ncol(dks) - 1
-    if(a1 < 0 && (a1 %% 1) == 0) {
-        lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
-    } else {
-        lnum_i <- lgamma(a1 + 0:m) - lgamma(a1)
-    }
-    if(a2 < 0 && (a2 %% 1) == 0) {
-        lnum_j <- cumsum(suppressWarnings(log(c(1, -a2 - 0:(m - 1)))))
-    } else {
-        lnum_j <- lgamma(a2 + 0:m) - lgamma(a2)
-    }
+    lnum_i <- .lrfseq(a1, m)
+    lnum_j <- .lrfseq(a2, m)
     lden_ij <- lgamma(b + outer(0:m, 0:m, "+")) - lgamma(b)
     lcoefm <- (outer(lnum_i, lnum_j, "+") - lden_ij)
     ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
@@ -86,21 +83,9 @@ hgs_2d <- function(dks, a1, a2, b, lconst = 0) {
 #'
 hgs_3d <- function(dks, a1, a2, a3, b, lconst = 0) {
     m <- dim(dks)[1] - 1
-    if(a1 < 0 && (a1 %% 1) == 0) {
-        lnum_i <- cumsum(suppressWarnings(log(c(1, -a1 - 0:(m - 1)))))
-    } else {
-        lnum_i <- lgamma(a1 + 0:m) - lgamma(a1)
-    }
-    if(a2 < 0 && (a2 %% 1) == 0) {
-        lnum_j <- cumsum(suppressWarnings(log(c(1, -a2 - 0:(m - 1)))))
-    } else {
-        lnum_j <- lgamma(a2 + 0:m) - lgamma(a2)
-    }
-    if(a3 < 0 && (a3 %% 1) == 0) {
-        lnum_k <- cumsum(suppressWarnings(log(c(1, -a3 - 0:(m - 1)))))
-    } else {
-        lnum_k <- lgamma(a3 + 0:m) - lgamma(a3)
-    }
+    lnum_i <- .lrfseq(a1, m)
+    lnum_j <- .lrfseq(a2, m)
+    lnum_k <- .lrfseq(a3, m)
     lden_ijk <- lgamma(b + outer(outer(0:m, 0:m, "+"), 0:m, "+")) -
                 lgamma(b)
     lcoefm <- (outer(outer(lnum_i, lnum_j, "+"), lnum_k, "+") - lden_ijk)
