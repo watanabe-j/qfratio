@@ -415,24 +415,35 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
         "In dqfr_A1I1, quantile must be length-one" = (length(quantile) == 1)
     )
     L1 <- max(LA)
-    Ln <- min(LA)
-    if(quantile >= L1 || quantile <= Ln) {
+    Ls <- min(LA)
+    if(quantile >= L1 || quantile <= Ls) {
         return(list(d = 0, terms = rep.int(0, m + 1)))
     }
-    seqpsi <- seq.int(2L, pmax(2L, n - 1L))
-    psi <- (LA[seqpsi] - Ln) / (L1 - LA[seqpsi])
-    f <- (quantile - Ln) / (L1 - quantile)
+    f <- (quantile - Ls) / (L1 - quantile)
+    n1 <- sum(LA == L1)
+    ns <- sum(LA == Ls)
+    if(n1 + ns == n) {
+        ## When LA has only two distinct elements, the series vanishes and
+        ## the distribution of f reduces to a beta prime distribution
+        ans <- f ^ (n1 / 2 - 1) / (1 + f) ^ (n / 2) / beta(n1 / 2, (n - n1) / 2)
+        ans <- ans * (L1 - Ls) / (L1 - quantile) ^ 2
+        return(list(d = ans, terms = c(ans, rep.int(0, m))))
+    }
+    ind_psi <- which(LA != L1 & LA != Ls)
+    psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
     ind_r1 <- psi > f
-    r <- sum(ind_r1)
-    if((r == 0) || (r == n - 2)) {
-        if(r == 0) {
+    pr <- sum(ind_r1) + n1
+    if((pr == n1) || (pr == n - ns)) {
+        if(pr == n1) {
             D <- psi / f
+            nt <- n1
         } else {
             D <- f / psi
+            nt <- ns
         }
         dks <- d1_i(D, m, thr_margin)
         lscf <- attr(dks, "logscale")
-        ansseq <- hgs_1d(dks, 1/2, (n - 1) / 2, -lscf)
+        ansseq <- hgs_1d(dks, (2 - nt) / 2, (n - nt) / 2, -lscf)
     } else {
         D1 <- f / psi[ind_r1]
         D2 <- psi[!ind_r1] / f
@@ -440,8 +451,8 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
         dk2 <- d1_i(D2, m, thr_margin)
         lscf1 <- attr(dk1, "logscale")
         lscf2 <- attr(dk2, "logscale")
-        alpha <- (r - 1) / 2
-        beta <- (n - r - 3) / 2
+        alpha <- pr / 2 - 1
+        beta <- (n - pr) / 2 - 1
         ansmat <- outer(log(dk1), log(dk2), "+")
         ## c_r(j,k) in Hillier (2001, lemma 2) is
         ## (-1)^(j - k) * gamma(alpha + 1) * gamma(beta + 1) /
@@ -460,11 +471,10 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
         ansseq <- sum_counterdiag(ansmat)
         ansseq <- ansseq * rep_len(c(1, -1), m + 1L)
     }
-    ansseq <- ansseq *
-              exp(-lbeta((r + 1) / 2, (n - r - 1) / 2) -
-                  sum(log(psi[seq_len(r)])) / 2 + sum(log(1 + psi)) / 2 +
-                  log(f) * (r - 1) / 2 - log(1 + f) * n / 2)
-    ansseq <- ansseq * (L1 - Ln) / (L1 - quantile)^2
+    ansseq <- ansseq * exp(-lbeta(pr / 2, (n - pr) / 2) +
+                           (-sum(log(psi[ind_r1])) + sum(log(1 + psi)) +
+                            (pr - 2) * log(f) - n * log(1 + f)) / 2)
+    ansseq <- ansseq * (L1 - Ls) / (L1 - quantile) ^ 2
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
     if(any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
