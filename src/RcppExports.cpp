@@ -65,6 +65,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// d_A1I1_Ed
+SEXP d_A1I1_Ed(const double quantile, const double f, const double L1, const double Ls, const Eigen::ArrayXd psi, const double n_, const double n1_, const double ns_, const Eigen::Index m, const double thr_margin);
+RcppExport SEXP _qfratio_d_A1I1_Ed(SEXP quantileSEXP, SEXP fSEXP, SEXP L1SEXP, SEXP LsSEXP, SEXP psiSEXP, SEXP n_SEXP, SEXP n1_SEXP, SEXP ns_SEXP, SEXP mSEXP, SEXP thr_marginSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type quantile(quantileSEXP);
+    Rcpp::traits::input_parameter< const double >::type f(fSEXP);
+    Rcpp::traits::input_parameter< const double >::type L1(L1SEXP);
+    Rcpp::traits::input_parameter< const double >::type Ls(LsSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type psi(psiSEXP);
+    Rcpp::traits::input_parameter< const double >::type n_(n_SEXP);
+    Rcpp::traits::input_parameter< const double >::type n1_(n1_SEXP);
+    Rcpp::traits::input_parameter< const double >::type ns_(ns_SEXP);
+    Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
+    rcpp_result_gen = Rcpp::wrap(d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ap_int_E
 SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p_, const double thr_margin, const double tol_zero);
 RcppExport SEXP _qfratio_Ap_int_E(SEXP ASEXP, SEXP muSEXP, SEXP p_SEXP, SEXP thr_marginSEXP, SEXP tol_zeroSEXP) {
@@ -682,6 +702,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_p_A1B1_Ed", (DL_FUNC) &_qfratio_p_A1B1_Ed, 8},
     {"_qfratio_p_A1B1_El", (DL_FUNC) &_qfratio_p_A1B1_El, 8},
     {"_qfratio_p_A1B1_Ec", (DL_FUNC) &_qfratio_p_A1B1_Ec, 8},
+    {"_qfratio_d_A1I1_Ed", (DL_FUNC) &_qfratio_d_A1I1_Ed, 10},
     {"_qfratio_Ap_int_E", (DL_FUNC) &_qfratio_Ap_int_E, 5},
     {"_qfratio_ABpq_int_E", (DL_FUNC) &_qfratio_ABpq_int_E, 7},
     {"_qfratio_ABDpqr_int_E", (DL_FUNC) &_qfratio_ABDpqr_int_E, 9},

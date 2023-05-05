@@ -16,6 +16,7 @@
 using Eigen::exp;
 using Eigen::log;
 using Eigen::abs;
+using Eigen::ArrayXi;
 using Eigen::ArrayXd;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -543,4 +544,93 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
     return Rcpp::List::create(
         Rcpp::Named("ansseq") = ansseq,
         Rcpp::Named("diminished") = diminished);
+}
+
+
+Eigen::ArrayXd get_subset(Eigen::ArrayXd X,
+                          Eigen::ArrayXi cond) {
+    Index n = X.size();
+    Index outsize = cond.sum();
+    ArrayXd out(outsize);
+    for(Index i = 0, j = 0; i < n; i++) {
+        if(cond(i)) {
+            out(j) = X(i);
+            j++;
+        }
+    }
+    return out;
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{dqfm_A1I1()}
+//'
+// [[Rcpp::export]]
+SEXP d_A1I1_Ed(const double quantile, const double f,
+               const double L1, const double Ls, const Eigen::ArrayXd psi,
+               const double n_, const double n1_, const double ns_,
+               const Eigen::Index m, const double thr_margin = 100) {
+    ArrayXd ansseq(m);
+    ArrayXi ind_r1 = (psi > f).cast<int>();
+    ArrayXd psi_r1 = get_subset(psi, ind_r1);
+    ArrayXd psi_r2 = get_subset(psi, 1 - ind_r1);
+    double pr = ind_r1.sum() + n1_;
+    if((pr == n1_) || (pr == n_ - ns_)) {
+        ArrayXd D;
+        double nt_;
+        ArrayXd lscf = ArrayXd::Zero(m + 1);
+        if(pr == n1_) {
+            D = psi / f;
+            nt_ = n1_;
+        } else {
+            D = f / psi;
+            nt_ = ns_;
+        }
+        ArrayXd dks = d1_i_vE(D, m, lscf, thr_margin);
+        ansseq = hgs_1dE(dks, (2 - nt_) / 2, (n_ - nt_) / 2, 0, lscf);
+    } else {
+        Index size_out = (m + 1) * (m + 2) / 2;
+        ArrayXd D1 = f / psi_r1;
+        ArrayXd D2 = psi_r2 / f;
+        ArrayXd lscf1 = ArrayXd::Zero(m + 1);
+        ArrayXd lscf2 = ArrayXd::Zero(m + 1);
+        ArrayXd dk1 = d1_i_vE(D1, m, lscf1, thr_margin);
+        ArrayXd dk2 = d1_i_vE(D2, m, lscf2, thr_margin);
+        dk1 = dk1.log();
+        dk2 = dk2.log();
+        double alpha = pr / 2 - 1;
+        double beta = (n_ - pr) / 2 - 1;
+        ArrayXd j_minus_k = ArrayXd::LinSpaced(2 * m + 1, -m, m);
+        ArrayXd ordmat(size_out);
+        for(Index k = 0; k <= m; k++) {
+            ordmat.ULTcol(k, m + 1) = j_minus_k.segment(m - k, m + 1 - k);
+        }
+        ArrayXd ansmat = ArrayXd::Zero(size_out);
+        for(Index k = 0; k <= m; k++) {
+            ansmat.ULTcol(k, m + 1) += dk1.head(m + 1 - k) - lscf1.head(m + 1 - k) +
+                                       dk2(k) - lscf2(k);
+        }
+        ansmat -= (alpha + 1 + ordmat).lgamma() + (beta + 1 - ordmat).lgamma() -
+                  std::lgamma(alpha + 1) - std::lgamma(beta + 1);
+        ansmat = ansmat.exp();
+        ArrayXi ord_mod2 = (ordmat - (2 * (ordmat / 2).floor())).cast<int>();
+        ansmat = ((ordmat > 0) && (ordmat <= beta) && (ord_mod2 == 1)).select(-ansmat, ansmat);
+        ansmat = ((ordmat < 0) && (ordmat >= -alpha) && (ord_mod2 == 1)).select(-ansmat, ansmat);
+        if(is_int_like(beta)) {
+            ansmat = (ordmat > beta).select(0, ansmat);
+        } else if(int(std::floor(beta)) % 2 == 0) {
+            ansmat = (ordmat > beta).select(-ansmat, ansmat);
+        }
+        if(is_int_like(alpha)) {
+            ansmat = (ordmat < -alpha).select(0, ansmat);
+        } else if(int(std::floor(alpha)) % 2 == 0) {
+            ansmat = (ordmat < -alpha).select(-ansmat, ansmat);
+        }
+        ansseq = sum_counterdiagE(ansmat);
+    }
+    ansseq *= exp(std::lgamma(n_ / 2) - std::lgamma(pr / 2) - std::lgamma((n_ - pr) / 2) +
+                  (-psi_r1.log().sum() + (1 + psi).log().sum() +
+                   (pr - 2) * log(f) - n_ * log(1 + f)) / 2);
+    ansseq *= (L1 - Ls) / std::pow(L1 - quantile, 2);
+    return Rcpp::List::create(
+        Rcpp::Named("ansseq") = ansseq);
 }

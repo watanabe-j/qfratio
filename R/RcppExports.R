@@ -23,6 +23,13 @@ p_A1B1_Ec <- function(D1, D2, mu1, mu2, m, thr_margin = 100, nthreads = 0L, tol_
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{dqfm_A1I1()}
+#'
+d_A1I1_Ed <- function(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100) {
+    .Call(`_qfratio_d_A1I1_Ed`, quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{qfm_Ap_int()}
 #'
 Ap_int_E <- function(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14) {

@@ -181,6 +181,19 @@ NULL
 #' @param mu1,mu2
 #'   Parts of mean vector \eqn{\bm{\mu}}{\mu} corresponding to
 #'   \code{D1} and \code{D2}, respectively
+#' @param quantile,f
+#'   Scalar of quantile \eqn{q} and corresponding \eqn{f},
+#'   passed as \code{double}
+#' @param psi
+#'   Vector of transformed eigenvalues \eqn{\psi_i},
+#'   passed as \code{Eigen::Array}
+#' @param L1,Ls
+#'   Largest and smallest eigenvalues of \eqn{\mathbf{A}}{A},
+#'   \eqn{\lambda_1} and \eqn{\lambda_s}, passed as \code{double}
+#' @param n_,n1_,ns_
+#'   Number of eigenvalues \eqn{n} and degrees of multiplicity of
+#'   largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
+#'   passed as \code{double}
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):

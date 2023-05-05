@@ -4,6 +4,7 @@
 \alias{p_A1B1_Ed}
 \alias{p_A1B1_El}
 \alias{p_A1B1_Ec}
+\alias{d_A1I1_Ed}
 \alias{Ap_int_E}
 \alias{ABpq_int_E}
 \alias{ABDpqr_int_E}
@@ -69,6 +70,8 @@ p_A1B1_Ec(
   nthreads = 0L,
   tol_zero = 2.2e-14
 )
+
+d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -456,6 +459,19 @@ functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined}
 
+\item{quantile, f}{Scalar of quantile \eqn{q} and corresponding \eqn{f},
+passed as \code{double}}
+
+\item{L1, Ls}{Largest and smallest eigenvalues of \eqn{\mathbf{A}}{A},
+\eqn{\lambda_1} and \eqn{\lambda_s}, passed as \code{double}}
+
+\item{psi}{Vector of transformed eigenvalues \eqn{\psi_i},
+passed as \code{Eigen::Array}}
+
+\item{n_, n1_, ns_}{Number of eigenvalues \eqn{n} and degrees of multiplicity of
+largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
+passed as \code{double}}
+
 \item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
 Symmetry is assumed.}
 
@@ -512,6 +528,8 @@ which may not be particularly efficient.
 \item \code{p_A1B1_El()}: \code{pqfm_A1B1()}, long double
 
 \item \code{p_A1B1_Ec()}: \code{pqfm_A1B1()}, coefficient-wise scaling
+
+\item \code{d_A1I1_Ed()}: \code{dqfm_A1I1()}
 
 \item \code{Ap_int_E()}: \code{qfm_Ap_int()}
 

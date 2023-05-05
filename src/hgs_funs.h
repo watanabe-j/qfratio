@@ -4,6 +4,8 @@
 #include <RcppEigen.h>
 // [[Rcpp::depends(RcppEigen)]]
 
+template<typename T> bool is_int_like(T a);
+
 // template <typename T>
 // Eigen::Array<T, Eigen::Dynamic, 1> get_lrf(const T a, const Eigen::Index n);
 Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n);

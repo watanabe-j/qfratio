@@ -402,13 +402,12 @@ dqfr <- function(quantile, A, m = 100L, log = FALSE, ...) {
 dqfr_A1I1 <- function(quantile, LA, m = 100L,
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
-                    #   use_cpp = TRUE,
+                      use_cpp = TRUE,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    # if(!missing(cpp_method)) use_cpp <- TRUE
     n <- length(LA)
     ## Check basic requirements for arguments
     stopifnot(
@@ -431,50 +430,55 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
     }
     ind_psi <- which(LA != L1 & LA != Ls)
     psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
-    ind_r1 <- psi > f
-    pr <- sum(ind_r1) + n1
-    if((pr == n1) || (pr == n - ns)) {
-        if(pr == n1) {
-            D <- psi / f
-            nt <- n1
-        } else {
-            D <- f / psi
-            nt <- ns
-        }
-        dks <- d1_i(D, m, thr_margin)
-        lscf <- attr(dks, "logscale")
-        ansseq <- hgs_1d(dks, (2 - nt) / 2, (n - nt) / 2, -lscf)
+    if(use_cpp) {
+        cppres <- d_A1I1_Ed(quantile, f, L1, Ls, psi, n, n1, ns, m, thr_margin)
+        ansseq <- cppres$ansseq
     } else {
-        D1 <- f / psi[ind_r1]
-        D2 <- psi[!ind_r1] / f
-        dk1 <- d1_i(D1, m, thr_margin)
-        dk2 <- d1_i(D2, m, thr_margin)
-        lscf1 <- attr(dk1, "logscale")
-        lscf2 <- attr(dk2, "logscale")
-        alpha <- pr / 2 - 1
-        beta <- (n - pr) / 2 - 1
-        ansmat <- outer(log(dk1), log(dk2), "+")
-        ## c_r(j,k) in Hillier (2001, lemma 2) is
-        ## (-1)^(j - k) * gamma(alpha + 1) * gamma(beta + 1) /
-        ##   (gamma(alpha + 1 + j - k) * gamma(beta + 1 - j + k)), unless
-        ## any of the arguments in the denominator are negative integer or zero
-        ordmat <- outer(seq.int(0, m), seq.int(0, m), "-") # j - k
-        ansmat <- ansmat + lgamma(alpha + 1) + lgamma(beta + 1) -
-                  lgamma(alpha + 1 + ordmat) - lgamma(beta + 1 - ordmat)
-        ansmat <- ansmat - lscf1
-        ansmat <- t(t(ansmat) - lscf2)
-        ansmat <- exp(ansmat)
-        sgnmat <- suppressWarnings(sign(gamma(alpha + 1 + ordmat) *
-                                        gamma(beta + 1 - ordmat)))
-        sgnmat[is.nan(sgnmat)] <- 0
-        ansmat <- ansmat * sgnmat
-        ansseq <- sum_counterdiag(ansmat)
-        ansseq <- ansseq * rep_len(c(1, -1), m + 1L)
+        ind_r1 <- psi > f
+        pr <- sum(ind_r1) + n1
+        if((pr == n1) || (pr == n - ns)) {
+            if(pr == n1) {
+                D <- psi / f
+                nt <- n1
+            } else {
+                D <- f / psi
+                nt <- ns
+            }
+            dks <- d1_i(D, m, thr_margin)
+            lscf <- attr(dks, "logscale")
+            ansseq <- hgs_1d(dks, (2 - nt) / 2, (n - nt) / 2, -lscf)
+        } else {
+            D1 <- f / psi[ind_r1]
+            D2 <- psi[!ind_r1] / f
+            dk1 <- d1_i(D1, m, thr_margin)
+            dk2 <- d1_i(D2, m, thr_margin)
+            lscf1 <- attr(dk1, "logscale")
+            lscf2 <- attr(dk2, "logscale")
+            alpha <- pr / 2 - 1
+            beta <- (n - pr) / 2 - 1
+            ansmat <- outer(log(dk1), log(dk2), "+")
+            ## c_r(j,k) in Hillier (2001, lemma 2) is
+            ## (-1)^(j - k) * gamma(alpha + 1) * gamma(beta + 1) /
+            ##   (gamma(alpha + 1 + j - k) * gamma(beta + 1 - j + k)), unless
+            ## any of the arguments in the denominator are negative integer or zero
+            ordmat <- outer(seq.int(0, m), seq.int(0, m), "-") # j - k
+            ansmat <- ansmat + lgamma(alpha + 1) + lgamma(beta + 1) -
+                      lgamma(alpha + 1 + ordmat) - lgamma(beta + 1 - ordmat)
+            ansmat <- ansmat - lscf1
+            ansmat <- t(t(ansmat) - lscf2)
+            ansmat <- exp(ansmat)
+            sgnmat <- suppressWarnings(sign(gamma(alpha + 1 + ordmat) *
+                                            gamma(beta + 1 - ordmat)))
+            sgnmat[is.nan(sgnmat)] <- 0
+            ansmat <- ansmat * sgnmat
+            ansseq <- sum_counterdiag(ansmat)
+            ansseq <- ansseq * rep_len(c(1, -1), m + 1L)
+        }
+        ansseq <- ansseq * exp(-lbeta(pr / 2, (n - pr) / 2) +
+                               (-sum(log(psi[ind_r1])) + sum(log(1 + psi)) +
+                                (pr - 2) * log(f) - n * log(1 + f)) / 2)
+        ansseq <- ansseq * (L1 - Ls) / (L1 - quantile) ^ 2
     }
-    ansseq <- ansseq * exp(-lbeta(pr / 2, (n - pr) / 2) +
-                           (-sum(log(psi[ind_r1])) + sum(log(1 + psi)) +
-                            (pr - 2) * log(f) - n * log(1 + f)) / 2)
-    ansseq <- ansseq * (L1 - Ls) / (L1 - quantile) ^ 2
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
     if(any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],

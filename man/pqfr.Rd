@@ -28,6 +28,7 @@ dqfr_A1I1(
   LA,
   m = 100L,
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
+  use_cpp = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
   thr_margin = 100
 )
@@ -79,15 +80,15 @@ eigenvalues smaller than this are considered zero.}
 \item{check_convergence}{Specifies how numerical convergence is checked (see
 \code{\link{qfrm}})}
 
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
+functions via \code{Rcpp}.  \code{TRUE} by default.}
+
 \item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
-
-\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
-functions via \code{Rcpp}.  \code{TRUE} by default.}
 
 \item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}}).  Options:
