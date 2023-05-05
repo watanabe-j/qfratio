@@ -77,8 +77,9 @@ template bool is_diag_E(const Eigen::MatrixBase<MatrixXl>& X, const long double 
 // lgamma for a long double Array.
 Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n) {
     ArrayXd ans(n);
-    if((a < 0) && (double(int(a)) == a)) { // If a is negative integer
+    if((a <= 0) && (double(int(a)) == a)) { // If a is negative integer
         ArrayXd Data = ArrayXd::LinSpaced(n, -a + 1, -a - n + 2);
+        Data = Data.max(0);
         Data(0) = 1;
         Data = Data.log();
         set_cumsum(Data, ans);
@@ -91,8 +92,9 @@ Eigen::ArrayXd get_lrf(const double a, const Eigen::Index n) {
 
 Eigen::Array<long double, Eigen::Dynamic, 1> get_lrf(const long double a, const Eigen::Index n) {
     ArrayXl ans(n);
-    if((a < 0) && ((long double)(int(a)) == a)) { // If a is negative integer
+    if((a <= 0) && ((long double)(int(a)) == a)) { // If a is negative integer
         ArrayXl Data = ArrayXl::LinSpaced(n, -a + 1, -a - n + 2);
+        Data = Data.max(0);
         Data(0) = 1;
         Data = Data.log();
         set_cumsum(Data, ans);
