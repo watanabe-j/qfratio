@@ -447,10 +447,10 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   in normal variables. *Journal of Multivariate Analysis*, **31**, 244--257.
 #'   \doi{10.1016/0047-259X(89)90065-1}.
 #'
-#' Watanabe, J. (2022). Exact expressions and numerical evaluation of average
+#' Watanabe, J. (2023) Exact expressions and numerical evaluation of average
 #'   evolvability measures for characterizing and comparing **G** matrices.
-#'   *bioRxiv* preprint, 2022.11.02.514929.
-#'   \doi{10.1101/2022.11.02.514929}.
+#'   *Journal of Mathematical Biology*, **86**, 95.
+#'   \doi{10.1007/s00285-023-01930-8}.
 #'
 #' @seealso \code{\link{qfrm}} for simple ratio
 #'

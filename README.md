@@ -23,7 +23,7 @@ ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
 evolutionary quantitative genetics ([Watanabe,
-2022](#ref-Watanabe2022cevo)).
+2023](#ref-Watanabe2023cevo)).
 
 ## Installation
 
@@ -230,12 +230,12 @@ doi:[10.1111/j.1467-842X.1993.tb01335.x](https://doi.org/10.1111/j.1467-842X.199
 
 </div>
 
-<div id="ref-Watanabe2022cevo" class="csl-entry">
+<div id="ref-Watanabe2023cevo" class="csl-entry">
 
-Watanabe, J. (2022) Exact expressions and numerical evaluation of
+Watanabe, J. (2023) Exact expressions and numerical evaluation of
 average evolvability measures for characterizing and comparing **G**
-matrices. *bioRxiv*, 2022.11.02.514929.
-doi:[10.1101/2022.11.02.514929](https://doi.org/10.1101/2022.11.02.514929).
+matrices. *Journal of Mathematical Biology*, **86**, 95.
+doi:[10.1007/s00285-023-01930-8](https://doi.org/10.1007/s00285-023-01930-8).
 
 </div>
 

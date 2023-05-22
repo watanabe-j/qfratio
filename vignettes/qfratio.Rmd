@@ -100,7 +100,7 @@ econometric literature [@MathaiProvost1992; @HillierEtAl2009; @HillierEtAl2014].
 In evolutionary biology, the quantities known as evolvability measures have
 the same general form, and evaluation of their expectation (average or mean
 evolvability measures) can be of practical interest
-[@HansenHoule2008; @MeloEtAl2016; @Watanabe2022cevo].
+[@HansenHoule2008; @MeloEtAl2016; @Watanabe2023cevo].
 
 The package is for evaluating the moments of the above quantity assuming the
 multivariate normality of $\mathbf{x}$, that is,
@@ -190,7 +190,7 @@ For the multiple ratio, the existence conditions are more difficult to define.
 When the null space of $\mathbf{B}$ is a subspace of that of $\mathbf{D}$ (or vice versa),
 the existence problem reduces to that of the simple ratio, and the above
 conditions apply by inserting the rank of $\mathbf{B}$ and $q + r$ into $l$ and $q$
-above [@Watanabe2022cevo].
+above [@Watanabe2023cevo].
 However, when both $\mathbf{B}$ and $\mathbf{D}$ are singular and neither of their ranges
 is a subspace of each other, no general existence conditions seem to be known
 in the literature.
@@ -219,7 +219,7 @@ $n \times n$ matrix that satisfies $\mathbf{K} \mathbf{K}^T = \boldsymbol{\Sigma
 When $\boldsymbol{\Sigma}$ is singular, certain conditions need to be met by
 the argument matrices, $\boldsymbol{\Sigma}$, and $\boldsymbol{\mu}$ for this transformation,
 and hence the following expressions, to be valid
-[@Watanabe2022cevo, appendix C].
+[@Watanabe2023cevo, appendix C].
 
 For the simple ratio with an arbitrary (positive real) $p$, when the moment
 exists, the expression is
@@ -272,7 +272,7 @@ For the multiple ratio, the expression for an arbitrary $p$ is
 \end{aligned}
 \tag{3}
 \end{equation}
-and for a positive-integral $p$ [@Watanabe2022cevo, eq. (B38)],
+and for a positive-integral $p$ [@Watanabe2023cevo, eq. (B28)],
 \begin{equation}
 \begin{aligned}
   \qfrE \! \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q (\mathbf{x}^T \mathbf{D} \mathbf{x})^r} \right)
