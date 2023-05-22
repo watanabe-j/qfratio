@@ -58,10 +58,10 @@
 #'   *Australian Journal of Statistics*, **35**, 271--282.
 #'   \doi{10.1111/j.1467-842X.1993.tb01335.x}.
 #'
-#' Watanabe, J. (2022) Exact expressions and numerical evaluation of average
+#' Watanabe, J. (2023) Exact expressions and numerical evaluation of average
 #'   evolvability measures for characterizing and comparing **G** matrices.
-#'   *bioRxiv* preprint, 2022.11.02.514929.
-#'   \doi{10.1101/2022.11.02.514929}.
+#'   *Journal of Mathematical Biology*, **86**, 95.
+#'   \doi{10.1007/s00285-023-01930-8}.
 #'
 #' @seealso
 #'   \code{\link{qfrm}}: Moment of simple ratio of quadratic forms

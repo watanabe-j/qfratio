@@ -16,14 +16,15 @@ bibentry(
     bibtype = "Article",
     title   = "Exact expressions and numerical evaluation of average evolvability measures for characterizing and comparing G matrices",
     author  = c(person("Junya Watanabe")),
-    journal = "bioRxiv",
-    year    = "2022",
-    pages   = "2022.11.02.514929",
-    doi     = "10.1101/2022.11.02.514929",
-    url     = "https://doi.org/10.1101/2022.11.02.514929",
+    journal = "Journal of Mathematical Biology",
+    year    = "2023",
+    volume  = "86",
+    pages   = "95",
+    doi     = "10.1007/s00285-023-01930-8",
+    url     = "https://doi.org/10.1007/s00285-023-01930-8",
     textVersion =
-    paste("Watanabe, J. (2022) Exact expressions and numerical evaluation of",
+    paste("Watanabe, J. (2023) Exact expressions and numerical evaluation of",
           "average evolvability measures for characterizing and comparing",
-          "G matrices. bioRxiv preprint, 2022.11.02.514929.",
-          "doi:10.1101/2022.11.02.514929.")
+          "G matrices. Journal of Mathematical Biology, 86, 95.",
+          "doi:10.1007/s00285-023-01930-8.")
 )

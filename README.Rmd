@@ -44,7 +44,7 @@ and has different functionalities, including evaluation of moments of
 multiple ratios of a particular form and scaling to avoid numerical overflow.
 This has originally been developed for a biological application,
 specifically for evaluating average evolvability measures in
-evolutionary quantitative genetics [@Watanabe2022cevo].
+evolutionary quantitative genetics [@Watanabe2023cevo].
 
 
 
