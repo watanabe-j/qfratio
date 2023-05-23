@@ -253,7 +253,7 @@ singular and neither of their null spaces is a subspace of the other), it
 seems difficult to define general moment existence conditions.  A sufficient
 condition can be obtained by applying the same proposition with a new
 denominator matrix whose null space is union of those of \eqn{\mathbf{B}}{B}
-and \eqn{\mathbf{D}}{D} (Watanabe, 2022).  A warning is thrown if that
+and \eqn{\mathbf{D}}{D} (Watanabe, 2023).  A warning is thrown if that
 condition is not met in this case.
 
 Most of these functions, excepting \code{qfmrm_ApBIqr_int()} with zero
