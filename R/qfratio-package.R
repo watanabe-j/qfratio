@@ -5,7 +5,7 @@
 #' forms in normal variables, specifically using recursive algorithms developed
 #' by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
 #' Hillier et al., 2009).  It was originally developed as a supplement to
-#' Watanabe (2022) for evaluating average evolvability measures in evolutionary
+#' Watanabe (2023) for evaluating average evolvability measures in evolutionary
 #' quantitative genetics, but can be used for a broader class of moments.
 #'
 #' The primary front-end functions of this package are
