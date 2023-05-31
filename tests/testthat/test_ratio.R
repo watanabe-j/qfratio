@@ -129,7 +129,7 @@ test_that("Existence conditions: qfrm, nonsingular", {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, I,  p, q, m = m))
-                    if(requireNamespace("gsl", quietly = TRUE)) expect_silent(qfrm(A1, I,  p, q, m = m, mu = mu))
+                    expect_silent(qfrm(A1, I,  p, q, m = m, mu = mu))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }

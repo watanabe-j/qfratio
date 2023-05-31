@@ -3,10 +3,10 @@
 #include <unsupported/Eigen/SpecialFunctions>
 #include <cmath>
 
-// // These are to use gsl in ApIq_int_nmE
-// #include <RcppGSL.h>
-// // [[Rcpp::depends(RcppGSL)]]
-// #include <gsl/gsl_sf_hyperg.h>
+// These are to use gsl in ApIq_int_nmE
+#include <RcppGSL.h>
+// [[Rcpp::depends(RcppGSL)]]
+#include <gsl/gsl_sf_hyperg.h>
 
 #include "dk_funs.h"
 #include "hgs_funs.h"
@@ -147,17 +147,17 @@ SEXP ApIq_int_nE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
     ArrayXd ls = ArrayXd::LinSpaced(p + 1, 0, p_);
     double nsqnorm2 = -mu.matrix().squaredNorm() / 2;
 
-    // Calling gsl::hyperg_1F1 from R. This is slow
-    Rcpp::Function hyperg_1F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_1F1"];
-    Rcpp::NumericVector hgv = hyperg_1F1(q_, n_ / 2 + p_ + ls, nsqnorm2);
-    Eigen::Map<ArrayXd> hgres(hgv.begin(), p + 1);
+    // // Calling gsl::hyperg_1F1 from R. This is slow
+    // Rcpp::Function hyperg_1F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_1F1"];
+    // Rcpp::NumericVector hgv = hyperg_1F1(q_, n_ / 2 + p_ + ls, nsqnorm2);
+    // Eigen::Map<ArrayXd> hgres(hgv.begin(), p + 1);
 
-    // // Using the C++ library GSL with RcppGSL; this is ideal but
-    // // not quite portable as the library need to be installed separately.
-    // ArrayXd hgres(p + 1);
-    // for(Index i = 0; i <= p; i++) {
-    //     hgres(i) = gsl_sf_hyperg_1F1(q, n_ / 2 + p + ls(i), nsqnorm2);
-    // }
+    // Using the C++ library GSL with RcppGSL; this is ideal but
+    // the library need to be installed separately
+    ArrayXd hgres(p + 1);
+    for(Index i = 0; i <= p; i++) {
+        hgres(i) = gsl_sf_hyperg_1F1(q_, n_ / 2 + p_ + ls(i), nsqnorm2);
+    }
 
     ArrayXd ansseq =
         exp((p_ - q_) * M_LN2 + lgamma(p_ + 1)

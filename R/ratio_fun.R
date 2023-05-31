@@ -1016,7 +1016,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 ## The use_cpp part for the noncentral case is suboptimal as it calls
 ## gsl::hyperg_1F1 from R.  The original C++ function could be called from
 ## the GSL library, but this requires "LinkingTo: RcppGSL" and separate
-## installation of the library itself (hence is not portable).
+## installation of the library itself.
 ## To turn this on, do the following:
 ## - DESCRIPTION: LinkingTo: RcppGSL (and SystemRequirements: GNU GSL?)
 ## - src/ratio_funs.cpp: Turn on preprocessor directives (around lines 7-9) and

@@ -4,10 +4,10 @@
 #include <unsupported/Eigen/SpecialFunctions>
 #include <cmath>
 
-// // These are to use gsl
-// #include <RcppGSL.h>
-// // [[Rcpp::depends(RcppGSL)]]
-// #include <gsl/gsl_sf_hyperg.h>
+// These are to use gsl
+#include <RcppGSL.h>
+// [[Rcpp::depends(RcppGSL)]]
+#include <gsl/gsl_sf_hyperg.h>
 
 #include "dk_funs.h"
 #include "hgs_funs.h"
@@ -148,16 +148,16 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansseq = exp(ansseq);
 
-        // // Using the C++ library GSL with RcppGSL
-        // ArrayXd hgres(m + 1);
-        // for(Index i = 0; i < m + 1; i++) {
-        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXd hgres(m + 1);
+        for(Index i = 0; i < m + 1; i++) {
+            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
 
         ansseq *= hgres;
     } else {
@@ -181,17 +181,16 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
             bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
         }
 
-        // // Using the C++ library GSL with RcppGSL; this is
-        // // not quite portable as the library need to be installed separately.
-        // ArrayXd hgres(size_out);
-        // for(Index i = 0; i < size_out; i++) {
-        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXd hgres(size_out);
+        for(Index i = 0; i < size_out; i++) {
+            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
 
         ansmat *= hgres;
 
@@ -312,17 +311,17 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
         ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansseq = exp(ansseq);
 
-        // // Using the C++ library GSL with RcppGSL
-        // ArrayXl hgres(size_out);
-        // for(Index i = 0; i < size_out; i++) {
-        //     hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXl hgres(m + 1);
+        for(Index i = 0; i < m + 1; i++) {
+            hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgresd(hgv.begin(), m + 1);
-        ArrayXl hgres = hgresd.cast<long double>();
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgresd(hgv.begin(), m + 1);
+        // ArrayXl hgres = hgresd.cast<long double>();
 
         ansseq *= hgres;
     } else {
@@ -346,18 +345,17 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
             bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
         }
 
-        // // Using the C++ library GSL with RcppGSL; this is
-        // // not quite portable as the library need to be installed separately.
-        // ArrayXl hgres(size_out);
-        // for(Index i = 0; i < size_out; i++) {
-        //     hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXl hgres(size_out);
+        for(Index i = 0; i < size_out; i++) {
+            hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgresd(hgv.begin(), size_out);
-        ArrayXl hgres = hgresd.cast<long double>();
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgresd(hgv.begin(), size_out);
+        // ArrayXl hgres = hgresd.cast<long double>();
 
         ansmat *= hgres;
 
@@ -493,16 +491,16 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
         ansseq += (log(D1d).sum() + log(D2d).sum()) / 2;
         ansseq = exp(ansseq);
 
-        // // Using the C++ library GSL with RcppGSL
-        // ArrayXd hgres(m + 1);
-        // for(Index i = 0; i < m + 1; i++) {
-        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXd hgres(m + 1);
+        for(Index i = 0; i < m + 1; i++) {
+            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgres(hgv.begin(), m + 1);
 
         ansseq *= hgres;
     } else {
@@ -525,17 +523,16 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
             bs.ULTcol(k, m + 1) = ls.head(m + 1 - k) + n1_ / 2 + 1;
         }
 
-        // // Using the C++ library GSL with RcppGSL; this is
-        // // not quite portable as the library need to be installed separately.
-        // ArrayXd hgres(size_out);
-        // for(Index i = 0; i < size_out; i++) {
-        //     hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
-        // }
+        // Using the C++ library GSL with RcppGSL
+        ArrayXd hgres(size_out);
+        for(Index i = 0; i < size_out; i++) {
+            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+        }
 
-        // Calling gsl::hyperg_2F1 from R
-        Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
-        Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
-        Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
+        // // Calling gsl::hyperg_2F1 from R
+        // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
+        // Rcpp::NumericVector hgv = hyperg_2F1(a1s, 1, bs, trD1d);
+        // Eigen::Map<ArrayXd> hgres(hgv.begin(), size_out);
 
         ansmat *= hgres;
 
