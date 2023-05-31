@@ -216,6 +216,12 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  tol_sing = .Machine$double.eps * 100,
                  ...) {
     method <- match.arg(method)
+    if(!(method == "forchini" ||
+         requireNamespace("CompQuadForm", quietly = TRUE))) {
+        message("method was set to \"forchini\" as package 'CompQuadForm' ",
+                "is unavailable")
+        method <- "forchini"
+    }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -309,14 +315,14 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                       tol_zero = .Machine$double.eps * 100,
                       tol_sing = .Machine$double.eps * 100,
                       thr_margin = 100) {
-    if(!requireNamespace("gsl", quietly = TRUE)) {
-        stop("Package 'gsl' is required to use this function")
-    }
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
+    if(!use_cpp && !requireNamespace("gsl", quietly = TRUE)) {
+        stop("Package 'gsl' is required when \"use_cpp = FALSE\"")
+    }
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -445,9 +451,6 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        tol_zero = .Machine$double.eps * 100, ...) {
-    if(!requireNamespace("CompQuadForm", quietly = TRUE)) {
-        stop("Package 'CompQuadForm' is required to use this function")
-    }
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -481,9 +484,6 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         tol_zero = .Machine$double.eps * 100, ...) {
-    if(!requireNamespace("CompQuadForm", quietly = TRUE)) {
-        stop("Package 'CompQuadForm' is required to use this function")
-    }
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
