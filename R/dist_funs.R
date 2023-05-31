@@ -309,6 +309,9 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                       tol_zero = .Machine$double.eps * 100,
                       tol_sing = .Machine$double.eps * 100,
                       thr_margin = 100) {
+    if(!requireNamespace("gsl", quietly = TRUE)) {
+        stop("Package 'gsl' is required to use this function")
+    }
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
