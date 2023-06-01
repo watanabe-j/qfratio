@@ -1033,13 +1033,13 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n}
 #' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 #' a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
-#' (Hillier et al. 2014: theorem 4).  This is doen via \code{gsl::hyperg_1F1()}
-#' if the package \pkg{gsl} is installed (which this package
-#' \code{Suggests}).  Otherwise, the function uses the ordinary infinite
-#' series expression (Hillier et al. 2009), which is less accurate and slow,
-#' and throws a message.  (In this case, the calculation is handled without
-#' \proglang{C++} codes.)  It is recommended to install that package if
-#' an accurate estimate is desired for that case.
+#' (Hillier et al. 2014: theorem 4).  When \code{use_cpp = FALSE}, this is
+#' handled with \code{gsl::hyperg_1F1()} if the package \pkg{gsl} is installed
+#' (which this package \code{Suggests}).  Otherwise, the function uses
+#' the ordinary infinite series expression (Hillier et al. 2009),
+#' which is less accurate and slow, and throws a message.  When
+#' \code{use_cpp = TRUE}, this is handled by the \proglang{C} function
+#' \code{gsl_sf_hyperg_1F1()} via \pkg{RcppGSL}.
 #'
 # #' @importFrom gsl hyperg_1F1
 #'
@@ -1069,13 +1069,6 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     A <- (A + t(A)) / 2
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     exact <- TRUE
-    if(!(central || requireNamespace("gsl", quietly = TRUE))) {
-        if(!missing(use_cpp) && use_cpp) {
-            message("use_cpp is ignored when 'gsl' is ",
-                    "unavailable and mu is nonzero")
-        }
-        use_cpp <- FALSE
-    }
     if(use_cpp) {
         if(central) {
             cppres <- ApIq_int_cE(A, p, q)
@@ -1111,8 +1104,9 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 ## which is less accurate (by truncation) and slower
                 mess_str <-
                     paste0("  When using qfrm_ApIq_int() with nonzero mu, ",
-                           "consider installing\n  package 'gsl', ",
-                           "with which an exact result is available.\n  See ",
+                           "consider setting\n  \"use_cpp = TRUE\" or ",
+                           "installing package 'gsl', with which\n  ",
+                           "an exact result is available.  See ",
                            "documentation for details")
                 if(requireNamespace("rlang", quietly = TRUE)) {
                     rlang::inform(mess_str, .frequency = "once",

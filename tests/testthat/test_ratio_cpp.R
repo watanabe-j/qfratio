@@ -23,8 +23,10 @@ test_that("Expect equal from R and Cpp methods: qfrm", {
                 if(nv / 2 + p <= q) next
                 expect_equal(qfrm(A1, I,  p, q, m = m, use_cpp = FALSE),
                              qfrm(A1, I,  p, q, m = m, use_cpp = TRUE, nthreads = 1), tolerance = tol)
-                expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = FALSE)),
-                             suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1)), tolerance = tol)
+                if(requireNamespace("gsl", quietly = TRUE)) {
+                    expect_equal(suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = FALSE)),
+                                 suppressMessages(qfrm(A1, I,  p, q, m = m, mu = mu, use_cpp = TRUE, nthreads = 1)), tolerance = tol)
+                }
                 expect_equal(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = FALSE),
                              qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE, use_cpp = TRUE, nthreads = 1), tolerance = tol)
                 expect_equal(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE, use_cpp = FALSE),

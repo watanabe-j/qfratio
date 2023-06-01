@@ -19,7 +19,6 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
 
 // Eigen function to obtain multivariate normal variables
 // with specified mean vector and covariance
-// This uses Rcpp::rnorm(), which may not be particularly efficient
 // // [[Rcpp::export]]
 Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
                       const Eigen::MatrixXd& Sigma) {
@@ -34,6 +33,7 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
     // // Matrix square root using eigendecomposition
     // MatrixXd cSigma = matsqrtE(Sigma);
 
+    // Rcpp::RNGScope scope; // Unnecessary when used via Rcpp attributes only
     Rcpp::NumericVector x = Rcpp::rnorm(N * nv, 0, 1);
     Eigen::Map<MatrixXd> X(x.begin(), N, nv);
     X *= cSigma;

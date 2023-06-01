@@ -512,14 +512,8 @@ functions when \code{use_cpp = TRUE}.  Direct access by the user is \strong{not}
 assumed.  All parameters are assumed to be appropriately structured.
 }
 \details{
-At present, \code{ApIq_int_nmE()} calls the \R function
-\code{gsl::hyperg_1F1()}, so will not be much faster than
-the \R equivalent.  Ideally, the \proglang{C++} library \code{GSL}
-(or the like) should be used with \pkg{RcppGSL}, but this is not done
-to ensure portability.
-
-\code{rqfpE} uses \code{Rcpp::rnorm()},
-which may not be particularly efficient.
+\code{ApIq_int_nmE()} calls the \proglang{C} function
+\code{gsl_sf_hyperg_1F1()} from \proglang{GSL} via \pkg{RcppGSL}.
 }
 \section{Functions}{
 \itemize{

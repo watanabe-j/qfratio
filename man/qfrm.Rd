@@ -318,13 +318,13 @@ An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n}
 (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
 a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
-(Hillier et al. 2014: theorem 4).  This is doen via \code{gsl::hyperg_1F1()}
-if the package \pkg{gsl} is installed (which this package
-\code{Suggests}).  Otherwise, the function uses the ordinary infinite
-series expression (Hillier et al. 2009), which is less accurate and slow,
-and throws a message.  (In this case, the calculation is handled without
-\proglang{C++} codes.)  It is recommended to install that package if
-an accurate estimate is desired for that case.
+(Hillier et al. 2014: theorem 4).  When \code{use_cpp = FALSE}, this is
+handled with \code{gsl::hyperg_1F1()} if the package \pkg{gsl} is installed
+(which this package \code{Suggests}).  Otherwise, the function uses
+the ordinary infinite series expression (Hillier et al. 2009),
+which is less accurate and slow, and throws a message.  When
+\code{use_cpp = TRUE}, this is handled by the \proglang{C} function
+\code{gsl_sf_hyperg_1F1()} via \pkg{RcppGSL}.
 }
 }
 \examples{
