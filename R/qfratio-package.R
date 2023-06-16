@@ -140,12 +140,19 @@ NULL
 #'   Symmetry is assumed.
 #' @param LA,LB
 #'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
+#' @param L
+#'   Eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}
+#' @param H
+#'   \eqn{\mathbf{B}}{B} rotated by the eigenvectors of
+#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}
 #' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 #'   and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.
 #' @param mu
 #'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
-#'   passed as \code{Eigen::Array}
+#'   passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
+#'   assumed to be rotated by the eigenvectors of
+#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}.
 #'   Passed as \code{Eigen::Matrix}.
@@ -188,6 +195,8 @@ NULL
 #'   Number of eigenvalues \eqn{n} and degrees of multiplicity of
 #'   largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
 #'   passed as \code{double}
+#' @param epsrel,epsabs,limit
+#'   Optional arguments passed to \code{gsl_integration_qagi()}
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):

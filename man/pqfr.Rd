@@ -4,12 +4,25 @@
 \alias{dqfr}
 \alias{pqfr}
 \alias{dqfr_A1I1}
+\alias{dqfr_broda}
 \alias{pqfr_A1B1}
 \alias{pqfr_imhof}
 \alias{pqfr_davies}
 \title{Probability distribution of ratio of quadratic forms}
 \usage{
-dqfr(quantile, A, m = 100L, log = FALSE, ...)
+dqfr(
+  quantile,
+  A,
+  B,
+  m = 100L,
+  mu = rep.int(0, n),
+  Sigma = diag(n),
+  log = FALSE,
+  method = c("broda", "hillier"),
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = .Machine$double.eps * 100,
+  ...
+)
 
 pqfr(
   quantile,
@@ -34,6 +47,18 @@ dqfr_A1I1(
   use_cpp = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
   thr_margin = 100
+)
+
+dqfr_broda(
+  quantile,
+  A,
+  B,
+  mu = rep.int(0, n),
+  use_cpp = TRUE,
+  tol_sing = .Machine$double.eps * 100,
+  epsrel = 1e-06,
+  epsabs = epsrel,
+  limit = 10000
 )
 
 pqfr_A1B1(
@@ -80,18 +105,16 @@ definite.  Will be automatically symmetrized in \code{dqfr()} and
 \item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
 in Hillier et al. (2009, 2014).}
 
-\item{log, lower.tail, log.p}{Logical; as in regular probability distribution functions.  But these are
-for convenience only, and not meant for accuracy.}
-
-\item{...}{Additional arguments passed to internal functions}
-
 \item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
 \eqn{\mathbf{x}}{x}}
 
-\item{method}{Method to specify an internal function in \code{pqfr()}
-(see \dQuote{Details}).  Options:
+\item{log, lower.tail, log.p}{Logical; as in regular probability distribution functions.  But these are
+for convenience only, and not meant for accuracy.}
+
+\item{method}{Method to specify an internal function (see \dQuote{Details}).  In
+\code{pqfr()}, options are:
 \itemize{
 \item{\code{"imhof"}: }{default; uses \code{pqfr_imhof()}, numerical
 inversion of Imhof (1961)}
@@ -99,6 +122,13 @@ inversion of Imhof (1961)}
 of Davies (1973, 1980)}
 \item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
+}
+In \code{dqfr()}, options are:
+\itemize{
+\item{\code{"broda"}: }{default; uses \code{dqfr_broda()}, numerical
+inversion of Broda & Paolella (2009)}
+\item{\code{"hillier"}: }{uses \code{dqfr_A1I1()}, series expression
+of Hillier (2001)}
 }}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
@@ -107,6 +137,8 @@ the identity matrix, etc.}
 
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
+
+\item{...}{Additional arguments passed to internal functions}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{|}}
 
@@ -122,6 +154,9 @@ with \code{check_convergence}.}
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+
+\item{epsrel, epsabs, limit}{Optional arguments passed to the numerical integration algorithm
+(see \dQuote{Details})}
 
 \item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}}).  Options:
@@ -160,21 +195,29 @@ be useful for debugging purposes.  Note that
 \code{$Qq} there is the \emph{upper} \eqn{p}-value.  When
 \code{lower.tail = TRUE}, \code{pqfr()} takes its complement to return
 the lower \eqn{p}-value.
+
+\code{dqfr_broda()} return a list containing:
+\itemize{
+\item{\code{$d}: }{probability density}
+\item{\code{$abserr}: }{absolute error of numerical integration, as in
+code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
+}
 }
 \description{
 \code{dqfr()}: \sQuote{Exact} density of the ratio of quadratic forms,
-\eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} x} }
-     }{ (x^T A x) / (x^T x) }, where
-\eqn{\mathbf{x} \sim N_n(\mathbf{0}_n, \mathbf{I}_n)}{x ~ N_n(0_n, I_n)}.
-
-\code{pqfr()}: \sQuote{Exact} distribution function of the ratio of
-quadratic forms,
 \eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
      }{ (x^T A x) / (x^T B x) }, where
 \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 
+\code{pqfr()}: \sQuote{Exact} distribution function of the same.
+
 \code{dqfr_A1I1()}: internal function used within \code{dqfr()},
-based on Hillier (2001).
+based on Hillier (2001).  Only accommodates the simple case where
+\eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
+\eqn{\bm{\mu} = \mathbf{0}_n}{\mu = 0_n}.
+
+\code{dqfr_broda()}: internal function used within \code{dqfr()},
+based on Broda & Paolella (2009).
 
 \code{pqfr_A1B1()}: internal function used within \code{pqfr()},
 based on Forchini (2002, 2005).
@@ -190,12 +233,12 @@ This functionality is \strong{experimental}.
 \details{
 The user is supposed to use the exported functions \code{dqfr()} and
 \code{pqfr()}, which are (pseudo-)vectorized with respect to \code{quantile}
-using \code{\link[base]{sapply}()}.  The actual calculations are done by the
-\emph{internal} functions \code{dqfr_A1I1()}, \code{pqfr_A1B1()},
-\code{pqfr_imhof()}, and \code{pqfr_davies()} which only
+using \code{\link[base]{sapply}()}.  The actual calculations are done by one
+of the \emph{internal} functions \code{dqfr_A1I1()}, \code{dqfr_broda()},
+\code{pqfr_A1B1()}, \code{pqfr_imhof()}, and \code{pqfr_davies()} which only
 accommodate a length-one \code{quantile}.  The internal functions skip
 most checks on argument structures and do not accommodate \code{Sigma}
-(where applicable) to reduce execution time.
+to reduce execution time.
 
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 and (cumulative) distribution function, respectively,
@@ -226,12 +269,23 @@ of Forchini (2002, 2005) as well.)  Optional arguments for
 can be passed via \code{...}, except for \code{sigma} in the latter,
 which is not applicable.
 
-The density is undefined at the eigenvalues of \eqn{\mathbf{A}}{A}
-(Hillier 2001) and the distribution function has points of nonanalyticity
-at the relative eigenvalues of the argument matrices (Forchini 2002).  Around
-these points, the series expression tends to be \emph{very slow} to converge.  In
-this case, use a large \code{m}, avoid using \code{method = "forchini"} in
-\code{pqfr()}, or seek alternative ways of evaluation.
+\code{dqfr_broda()} evaluates the probability density by numerical inversion
+of the characteristic function using Geary's formula based on
+Broda & Paolella (2009).  It conducts the numerical integration using
+either \code{gsl_integration_qagi()} (when \code{use_cpp = TRUE}) or
+\code{\link[stats]{integrate}()} (when \code{use_cpp = FALSE}).  The
+optional arguments, \code{epsrel}, \code{epsabs}, \code{limits} can specify
+parameters in these algorithms.  (When \code{use_cpp = FALSE},
+\code{epsrel} and \code{epsabs} are passed as \code{rel.tol} and
+\code{abs.tol}, respectively), and \code{limit} is ignored.)
+
+The density is undefined, and the distribution function has points of
+nonanalyticity, at the eigenvalues of
+\eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (Hillier 2001;
+Forchini 2002).  Around these points, the series expression tends to be
+\emph{very slow} to converge.  In this case, use a large \code{m} or
+avoid using the series expression (i.e., use
+\code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
 }
 \examples{
 ## Some symmetric matrices and parameters
@@ -259,11 +313,16 @@ pqfr(1.5, A, B, mu = mu, Sigma = Sigma)
 
 ## These are (pseudo-)vectorized
 qs <- 0:nv + 0.5
-dqfr(qs, A)
+dqfr(qs, A, B, mu = mu, Sigma = Sigma)
 pqfr(qs, A, B, mu = mu, Sigma = Sigma)
 
 }
 \references{
+Broda, S. and Paolella, M. S. (2009) Evaluating the density of ratios of
+noncentral quadratic forms in normal variables.
+\emph{Computational Statistics and Data Analysis}, \strong{53}, 1264--1270.
+\doi{10.1016/j.csda.2008.10.035}
+
 Davis, R. B. (1973) Numerical inversion of a characteristic function.
 \emph{Biometrika}, \strong{60}, 415--417.
 \doi{10.1093/biomet/60.2.415}.

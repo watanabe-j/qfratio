@@ -8,6 +8,7 @@
 #include <RcppGSL.h>
 // [[Rcpp::depends(RcppGSL)]]
 #include <gsl/gsl_sf_hyperg.h>
+#include <gsl/gsl_integration.h>
 
 #include "dk_funs.h"
 #include "hgs_funs.h"
@@ -630,4 +631,57 @@ SEXP d_A1I1_Ed(const double quantile, const double f,
     ansseq *= (L1 - Ls) / std::pow(L1 - quantile, 2);
     return Rcpp::List::create(
         Rcpp::Named("ansseq") = ansseq);
+}
+
+struct broda_params {
+    Eigen::ArrayXd L;
+    Eigen::MatrixXd H;
+    Eigen::ArrayXd mu;
+};
+
+double broda_fun(double u, void *p){
+    struct broda_params *params = (struct broda_params *)p;
+    const ArrayXd L = (params->L);
+    const MatrixXd H = (params->H);
+    const ArrayXd mu = (params->mu);
+    double out;
+    ArrayXd a = L * u;
+    ArrayXd b = a.pow(2);
+    ArrayXd c = 1 + b;
+    ArrayXd theta = mu.pow(2);
+    double beta = (a.atan() + theta * a / c).sum() / 2;
+    double gamma = std::exp((theta * b / c).sum() / 2 + c.log().sum() / 4);
+    ArrayXd Finv = (1 + a.pow(2)).inverse();
+    VectorXd Finvmu = Finv * mu;
+    double rho = (H * Finv.matrix().asDiagonal()).trace() +
+                 Finvmu.transpose() *
+                 (H - a.matrix().asDiagonal() * H * a.matrix().asDiagonal()) *
+                 Finvmu;
+    double delta = (H * (L * Finv).matrix().asDiagonal()).trace() +
+                   2 * Finvmu.transpose() * H * L.matrix().asDiagonal() * Finvmu;
+    out = (rho * std::cos(beta) - u * delta * std::sin(beta)) / gamma / 2;
+    return out;
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{dqfm_broda()}
+//'
+// [[Rcpp::export]]
+SEXP d_broda_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
+                const Eigen::ArrayXd mu,
+                double epsabs, double epsrel, int limit) {
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
+    double result, error;
+    struct broda_params params;
+    params.L = L;
+    params.H = H;
+    params.mu = mu;
+    gsl_function F;
+    F.function = &broda_fun;
+    F.params = &params;
+    gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w, &result, &error);
+    gsl_integration_workspace_free(w);
+    return Rcpp::List::create(
+        Rcpp::Named("value") = result,
+        Rcpp::Named("abs.error") = error);
 }

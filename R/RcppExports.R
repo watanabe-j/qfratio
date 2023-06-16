@@ -30,6 +30,13 @@ d_A1I1_Ed <- function(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 10
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{dqfm_broda()}
+#'
+d_broda_Ed <- function(L, H, mu, epsabs, epsrel, limit) {
+    .Call(`_qfratio_d_broda_Ed`, L, H, mu, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{qfm_Ap_int()}
 #'
 Ap_int_E <- function(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14) {

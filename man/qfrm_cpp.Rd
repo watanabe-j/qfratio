@@ -5,6 +5,7 @@
 \alias{p_A1B1_El}
 \alias{p_A1B1_Ec}
 \alias{d_A1I1_Ed}
+\alias{d_broda_Ed}
 \alias{Ap_int_E}
 \alias{ABpq_int_E}
 \alias{ABDpqr_int_E}
@@ -72,6 +73,8 @@ p_A1B1_Ec(
 )
 
 d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
+
+d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -472,11 +475,20 @@ passed as \code{Eigen::Array}}
 largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
 passed as \code{double}}
 
-\item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
-Symmetry is assumed.}
+\item{L}{Eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
+
+\item{H}{\eqn{\mathbf{B}}{B} rotated by the eigenvectors of
+\eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
 
 \item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
-passed as \code{Eigen::Array}}
+passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
+assumed to be rotated by the eigenvectors of
+\eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
+
+\item{epsrel, epsabs, limit}{Optional arguments passed to \code{gsl_integration_qagi()}}
+
+\item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
+Symmetry is assumed.}
 
 \item{p_, q_, r_}{Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
 \eqn{\mathbf{D}}{D}.
@@ -524,6 +536,8 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{p_A1B1_Ec()}: \code{pqfm_A1B1()}, coefficient-wise scaling
 
 \item \code{d_A1I1_Ed()}: \code{dqfm_A1I1()}
+
+\item \code{d_broda_Ed()}: \code{dqfm_broda()}
 
 \item \code{Ap_int_E()}: \code{qfm_Ap_int()}
 

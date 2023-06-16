@@ -5,12 +5,12 @@
 #'
 #' The user is supposed to use the exported functions \code{dqfr()} and
 #' \code{pqfr()}, which are (pseudo-)vectorized with respect to \code{quantile}
-#' using \code{\link[base]{sapply}()}.  The actual calculations are done by the
-#' *internal* functions \code{dqfr_A1I1()}, \code{pqfr_A1B1()},
-#' \code{pqfr_imhof()}, and \code{pqfr_davies()} which only
+#' using \code{\link[base]{sapply}()}.  The actual calculations are done by one
+#' of the *internal* functions \code{dqfr_A1I1()}, \code{dqfr_broda()},
+#' \code{pqfr_A1B1()}, \code{pqfr_imhof()}, and \code{pqfr_davies()} which only
 #' accommodate a length-one \code{quantile}.  The internal functions skip
 #' most checks on argument structures and do not accommodate \code{Sigma}
-#' (where applicable) to reduce execution time.
+#' to reduce execution time.
 #'
 #' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 #' and (cumulative) distribution function, respectively,
@@ -41,12 +41,23 @@
 #' can be passed via \code{...}, except for \code{sigma} in the latter,
 #' which is not applicable.
 #'
-#' The density is undefined at the eigenvalues of \eqn{\mathbf{A}}{A}
-#' (Hillier 2001) and the distribution function has points of nonanalyticity
-#' at the relative eigenvalues of the argument matrices (Forchini 2002).  Around
-#' these points, the series expression tends to be *very slow* to converge.  In
-#' this case, use a large \code{m}, avoid using \code{method = "forchini"} in
-#' \code{pqfr()}, or seek alternative ways of evaluation.
+#' \code{dqfr_broda()} evaluates the probability density by numerical inversion
+#' of the characteristic function using Geary's formula based on
+#' Broda & Paolella (2009).  It conducts the numerical integration using
+#' either \code{gsl_integration_qagi()} (when \code{use_cpp = TRUE}) or
+#' \code{\link[stats]{integrate}()} (when \code{use_cpp = FALSE}).  The
+#' optional arguments, \code{epsrel}, \code{epsabs}, \code{limits} can specify
+#' parameters in these algorithms.  (When \code{use_cpp = FALSE},
+#' \code{epsrel} and \code{epsabs} are passed as \code{rel.tol} and
+#' \code{abs.tol}, respectively), and \code{limit} is ignored.)
+#'
+#' The density is undefined, and the distribution function has points of
+#' nonanalyticity, at the eigenvalues of
+#' \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (Hillier 2001;
+#' Forchini 2002).  Around these points, the series expression tends to be
+#' *very slow* to converge.  In this case, use a large \code{m} or
+#' avoid using the series expression (i.e., use
+#' \code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
 #'
 #' @inheritParams qfrm
 #'
@@ -65,8 +76,8 @@
 #'   Logical; as in regular probability distribution functions.  But these are
 #'   for convenience only, and not meant for accuracy.
 #' @param method
-#'   Method to specify an internal function in \code{pqfr()}
-#'   (see \dQuote{Details}).  Options:
+#'   Method to specify an internal function (see \dQuote{Details}).  In
+#'   \code{pqfr()}, options are:
 #'   \itemize{
 #'     \item{\code{"imhof"}: }{default; uses \code{pqfr_imhof()}, numerical
 #'           inversion of Imhof (1961)}
@@ -74,7 +85,14 @@
 #'           of Davies (1973, 1980)}
 #'     \item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
 #'           of Forchini (2002, 2005)}
-#'    }
+#'   }
+#'   In \code{dqfr()}, options are:
+#'   \itemize{
+#'     \item{\code{"broda"}: }{default; uses \code{dqfr_broda()}, numerical
+#'           inversion of Broda & Paolella (2009)}
+#'     \item{\code{"hillier"}: }{uses \code{dqfr_A1I1()}, series expression
+#'           of Hillier (2001)}
+#'   }
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see
 #'   \code{\link{qfrm}})
@@ -95,6 +113,9 @@
 #'   functions.  \code{0} or any negative value is special and means one-half of
 #'   the number of processors detected.  See \dQuote{Multithreading} in
 #'   \code{\link{qfrm}}.
+#' @param epsrel,epsabs,limit
+#'   Optional arguments passed to the numerical integration algorithm
+#'   (see \dQuote{Details})
 #' @param ...
 #'   Additional arguments passed to internal functions
 #'
@@ -119,7 +140,19 @@
 #' \code{lower.tail = TRUE}, \code{pqfr()} takes its complement to return
 #' the lower \eqn{p}-value.
 #'
+#' \code{dqfr_broda()} return a list containing:
+#' \itemize{
+#'   \item{\code{$d}: }{probability density}
+#'   \item{\code{$abserr}: }{absolute error of numerical integration, as in
+#'                           code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
+#'  }
+#'
 #' @references
+#' Broda, S. and Paolella, M. S. (2009) Evaluating the density of ratios of
+#'   noncentral quadratic forms in normal variables.
+#'   *Computational Statistics and Data Analysis*, **53**, 1264--1270.
+#'   \doi{10.1016/j.csda.2008.10.035}
+#'
 #' Davis, R. B. (1973) Numerical inversion of a characteristic function.
 #'   *Biometrika*, **60**, 415--417.
 #'   \doi{10.1093/biomet/60.2.415}.
@@ -190,7 +223,7 @@
 #'
 #' ## These are (pseudo-)vectorized
 #' qs <- 0:nv + 0.5
-#' dqfr(qs, A)
+#' dqfr(qs, A, B, mu = mu, Sigma = Sigma)
 #' pqfr(qs, A, B, mu = mu, Sigma = Sigma)
 #'
 NULL
@@ -198,11 +231,7 @@ NULL
 ##### pqfr #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{pqfr()}: \sQuote{Exact} distribution function of the ratio of
-#' quadratic forms,
-#' \eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
-#'      }{ (x^T A x) / (x^T B x) }, where
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
+#' \code{pqfr()}: \sQuote{Exact} distribution function of the same.
 #'
 #' @rdname pqfr
 #' @order 2
@@ -302,7 +331,7 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
 #' based on Forchini (2002, 2005).
 #'
 #' @rdname pqfr
-#' @order 4
+#' @order 5
 #'
 pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                       mu = rep.int(0, n),
@@ -447,7 +476,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 #' based on Imhof (1961).
 #'
 #' @rdname pqfr
-#' @order 5
+#' @order 6
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        tol_zero = .Machine$double.eps * 100, ...) {
@@ -480,7 +509,7 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 #' based on Davies (1973, 1980).
 #'
 #' @rdname pqfr
-#' @order 6
+#' @order 7
 #'
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         tol_zero = .Machine$double.eps * 100, ...) {
@@ -511,29 +540,83 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 #' Probability distribution of ratio of quadratic forms
 #'
 #' \code{dqfr()}: \sQuote{Exact} density of the ratio of quadratic forms,
-#' \eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} x} }
-#'      }{ (x^T A x) / (x^T x) }, where
-#' \eqn{\mathbf{x} \sim N_n(\mathbf{0}_n, \mathbf{I}_n)}{x ~ N_n(0_n, I_n)}.
+#' \eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
+#'      }{ (x^T A x) / (x^T B x) }, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 #'
 #' @rdname pqfr
 #' @order 1
 #'
 #' @export
 #'
-dqfr <- function(quantile, A, m = 100L, log = FALSE, ...) {
-    n <- dim(A)[1L]
-    A <- (A + t(A)) / 2
+dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+                 log = FALSE, method = c("broda", "hillier"),
+                 tol_zero = .Machine$double.eps * 100,
+                 tol_sing = .Machine$double.eps * 100, ...) {
+    method <- match.arg(method)
+    ## If A or B is missing, let it be an identity matrix
+    ## If they are given, symmetrize
+    if(missing(A)) {
+        if(missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    zeros <- rep.int(0, n)
+    ## If Sigma is given, transform A, B, and mu, and
+    ## call this function recursively with new arguments
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+        KiKS <- KiK(Sigma, tol_sing)
+        K <- KiKS$K
+        iK <- KiKS$iK
+        KtAK <- t(K) %*% A %*% K
+        KtBK <- t(K) %*% B %*% K
+        iKmu <- iK %*% mu
+        ## If Sigma is singular, check conditions for A, B, mu, and Sigma
+        if(ncol(K) != n) {
+            okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero)) ||
+                    (iseq(crossprod(iK, KtAK %*% iK), A) &&
+                     iseq(crossprod(iK, KtBK %*% iK), B))
+            if(!okay) {
+                stop("For singular Sigma, certain condition must be met ",
+                     "for A, B, mu.\n  See documentation for details")
+            }
+        }
+        return(dqfr(quantile, KtAK, KtBK, m = m, mu = iKmu,
+                    log = log, method = method,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+    }
+    LB <- eigen(B, symmetric = TRUE)$values
     ## Check basic requirements for arguments
     stopifnot(
-        "A must be a square matrix" = all(c(dim(A)) == n),
-        "quantile must be numeric" = is.numeric(quantile),
-        "dqfr() does not accommodate B, mu, or Sigma" =
-            !("B" %in% ...names()) && !("mu" %in% ...names()) &&
-            !("Sigma" %in% ...names())
+        "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
+        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "quantile must be numeric" = is.numeric(quantile)
     )
-    LA <- eigen(A, symmetric = TRUE)$values
-    ans <- sapply(quantile,
-                  function(q) dqfr_A1I1(q, LA, m, ...)$d)
+    if(method == "broda") {
+        ans <- sapply(quantile,
+                      function(q) dqfr_broda(q, A, B, mu,
+                                             tol_sing = tol_sing, ...)$d)
+    } else {
+        if(!iseq(B, In, tol_zero) || !iseq(mu, zeros, tol_zero)) {
+            stop("dqfr() does not accommodate B, mu, or Sigma ",
+                 "with method = \"hillier\"")
+        }
+        LA <- eigen(A, symmetric = TRUE)$values
+        ans <- sapply(quantile,
+                      function(q) dqfr_A1I1(q, LA, m, ...)$d)
+    }
     if(log) ans <- log(ans)
     attributes(ans) <- attributes(quantile)
     return(ans)
@@ -543,7 +626,9 @@ dqfr <- function(quantile, A, m = 100L, log = FALSE, ...) {
 #' Probability distribution of ratio of quadratic forms
 #'
 #' \code{dqfr_A1I1()}: internal function used within \code{dqfr()},
-#' based on Hillier (2001).
+#' based on Hillier (2001).  Only accommodates the simple case where
+#' \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
+#' \eqn{\bm{\mu} = \mathbf{0}_n}{\mu = 0_n}.
 #'
 #' @rdname pqfr
 #' @order 3
@@ -654,4 +739,69 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
         }
     }
     list(d = sum(ansseq), terms = ansseq)
+}
+
+##### dqfr_broda #####
+#' Probability distribution of ratio of quadratic forms
+#'
+#' \code{dqfr_broda()}: internal function used within \code{dqfr()},
+#' based on Broda & Paolella (2009).
+#'
+#' @rdname pqfr
+#' @order 4
+#'
+dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
+                       use_cpp = TRUE,
+                       tol_sing = .Machine$double.eps * 100,
+                       epsrel = 1e-6,
+                       epsabs = epsrel, limit = 1e4) {
+    integ_fun <- function(u, L, H, mu) {
+        a <- L * u
+        b <- a ^ 2
+        c <- 1 + b
+        theta <- mu ^ 2
+        beta <- sum(atan(a) + theta * a / c) / 2
+        gamma <- exp(sum(theta * b / c) / 2 + sum(log(c)) / 4)
+        Finv <- 1 / (1 + a^2)
+        Finvmu <- Finv * mu
+        rho <- tr(Finv * H) +
+               c(crossprod(Finvmu, crossprod(H - t(t(H) * a) * a, Finvmu)))
+        delta <- tr(L * Finv * H) +
+                 2 * c(crossprod(Finvmu, crossprod(L * H, Finvmu)))
+        (rho * cos(beta) - u * delta * sin(beta)) / gamma / 2
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if(missing(A)) {
+        if(missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        A <- diag(n)
+    } else {
+        n <- dim(A)[1L]
+        if(missing(B)) B <- diag(n)
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "In dqfr_broda, quantile must be length-one" = (length(quantile) == 1)
+    )
+    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+    L <- eigA_qB$values
+    if(all(L < -tol_sing) || all(L > tol_sing)) {
+        return(list(d = 0, abserr = 0))
+    }
+    U <- eigA_qB$vectors
+    mu <- c(crossprod(U, c(mu)))
+    H <- crossprod(crossprod(B, U), U)
+    if(use_cpp) {
+        cppres <- d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
+        value <- cppres$value / pi
+        abserr <- cppres$abs.error / pi
+
+    } else {
+        ans <- stats::integrate(function(x)
+                                    sapply(x, function(u) integ_fun(u, L, H, mu)),
+                                0, Inf, rel.tol = epsrel, abs.tol = epsabs)
+        value <- ans$value / pi
+        abserr <- ans$abs.error / pi
+    }
+    list(d = value, abserr = abserr)
 }
