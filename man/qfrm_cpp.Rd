@@ -7,6 +7,7 @@
 \alias{d_A1I1_Ed}
 \alias{d_broda_Ed}
 \alias{d_butler_Ed}
+\alias{p_butler_Ed}
 \alias{Ap_int_E}
 \alias{ABpq_int_E}
 \alias{ABDpqr_int_E}
@@ -78,6 +79,8 @@ d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
 d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
 
 d_butler_Ed(L, H, mu, order_spa, epsabs, epsrel, maxiter)
+
+p_butler_Ed(L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -546,6 +549,8 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{d_broda_Ed()}: \code{dqfm_broda()}
 
 \item \code{d_butler_Ed()}: \code{dqfm_butler()}
+
+\item \code{p_butler_Ed()}: \code{pqfm_butler()}
 
 \item \code{Ap_int_E()}: \code{qfm_Ap_int()}
 

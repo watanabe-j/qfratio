@@ -119,6 +119,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// p_butler_Ed
+SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa, double tol_zero, double epsabs, double epsrel, int maxiter);
+RcppExport SEXP _qfratio_p_butler_Ed(SEXP LSEXP, SEXP muSEXP, SEXP order_spaSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP maxiterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type L(LSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< int >::type order_spa(order_spaSEXP);
+    Rcpp::traits::input_parameter< double >::type tol_zero(tol_zeroSEXP);
+    Rcpp::traits::input_parameter< double >::type epsabs(epsabsSEXP);
+    Rcpp::traits::input_parameter< double >::type epsrel(epsrelSEXP);
+    Rcpp::traits::input_parameter< int >::type maxiter(maxiterSEXP);
+    rcpp_result_gen = Rcpp::wrap(p_butler_Ed(L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ap_int_E
 SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p_, const double thr_margin, const double tol_zero);
 RcppExport SEXP _qfratio_Ap_int_E(SEXP ASEXP, SEXP muSEXP, SEXP p_SEXP, SEXP thr_marginSEXP, SEXP tol_zeroSEXP) {
@@ -739,6 +756,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_d_A1I1_Ed", (DL_FUNC) &_qfratio_d_A1I1_Ed, 10},
     {"_qfratio_d_broda_Ed", (DL_FUNC) &_qfratio_d_broda_Ed, 6},
     {"_qfratio_d_butler_Ed", (DL_FUNC) &_qfratio_d_butler_Ed, 7},
+    {"_qfratio_p_butler_Ed", (DL_FUNC) &_qfratio_p_butler_Ed, 7},
     {"_qfratio_Ap_int_E", (DL_FUNC) &_qfratio_Ap_int_E, 5},
     {"_qfratio_ABpq_int_E", (DL_FUNC) &_qfratio_ABpq_int_E, 7},
     {"_qfratio_ABDpqr_int_E", (DL_FUNC) &_qfratio_ABDpqr_int_E, 9},

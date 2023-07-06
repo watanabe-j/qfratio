@@ -726,9 +726,15 @@ double Kp1_gslfun(double s, void *p) {
 //     *dy = Kder_fun(Xii, L, theta, 2.0);
 // }
 
-double Mx_fun(double s, const Eigen::ArrayXd& L, 
+double Kx_fun(double s, const Eigen::ArrayXd& L,
               const ArrayXd& theta, const Eigen::ArrayXd& Xii) {
     double out = (Xii.log() / 2.0 + s * L * theta * Xii).sum();
+    return out;
+}
+
+double Mx_fun(double s, const Eigen::ArrayXd& L,
+              const ArrayXd& theta, const Eigen::ArrayXd& Xii) {
+    double out = Kx_fun(s, L, theta, Xii);
     return std::exp(out);
 }
 
@@ -757,18 +763,11 @@ double Jp2_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
     return out;
 }
 
-//' @describeIn qfrm_cpp
-//'   \code{dqfm_butler()}
-//'
-// [[Rcpp::export]]
-SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
-                 const Eigen::ArrayXd mu, int order_spa,
-                 double epsabs, double epsrel, int maxiter) {
-    double value;
-    double s;
+int butler_spa_root_find(double& s,
+                         const Eigen::ArrayXd& L, const Eigen::ArrayXd& theta,
+                         double epsabs, double epsrel, int maxiter) {
     double s_lo = 0.5 / L.minCoeff() + epsabs;
     double s_hi = 0.5 / L.maxCoeff() - epsabs;
-    const ArrayXd theta = mu.pow(2.0);
     struct mgf_params params;
     params.L = L;
     params.theta = theta;
@@ -801,17 +800,31 @@ SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
         // s0 = s;
         // status = gsl_root_fdfsolver_iterate(solver);
         // s = gsl_root_fdfsolver_root(solver);
-        // status = gsl_root_test_delta(s, s0, epsabs, epsrel);
+        // status = gsl_rvoidoot_test_delta(s, s0, epsabs, epsrel);
     }
     s = gsl_root_fsolver_root(solver);
     gsl_root_fsolver_free(solver);
     // gsl_root_fdfsolver_free(solver);
+    return status;
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{dqfm_butler()}
+//'
+// [[Rcpp::export]]
+SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
+                 const Eigen::ArrayXd mu, int order_spa,
+                 double epsabs, double epsrel, int maxiter) {
+    const ArrayXd theta = mu.pow(2.0);
+    double s;
+    int status;
+    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter);
     ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
     VectorXd Xiimu = Xii_s * mu;
     double J_s = J_fun(Xii_s, L, H, Xiimu);
     double Kp2_s = Kder_fun(Xii_s, L, theta, 2.0);
     double Mx_s = Mx_fun(s, L, theta, Xii_s);
-    value = Mx_s * J_s / sqrt(2 * M_PI * Kp2_s);
+    double value = Mx_s * J_s / sqrt(2 * M_PI * Kp2_s);
     if(order_spa > 1) {
         double Kp3_s = Kder_fun(Xii_s, L, theta, 3.0);
         double Kp4_s = Kder_fun(Xii_s, L, theta, 4.0);
@@ -820,9 +833,48 @@ SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
         double k3h = Kp3_s / std::pow(Kp2_s, 1.5);
         double k4h = Kp4_s / std::pow(Kp2_s, 2.0);
         double cf = (k4h / 8.0 - 5.0 / 24.0 * std::pow(k3h, 2.0) +
-                     Jp1_s * k3h / 2.0 / J_s / std::pow(Kp2_s, 0.5) -
+                     Jp1_s * k3h / 2.0 / J_s / std::sqrt(Kp2_s) -
                      Jp2_s / 2.0 / J_s / Kp2_s);
         value *= 1.0 + cf;
+    }
+    return Rcpp::List::create(
+        Rcpp::Named("value") = value,
+        Rcpp::Named("status") = status);
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{pqfm_butler()}
+//'
+// [[Rcpp::export]]
+SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa,
+                 double tol_zero, double epsabs, double epsrel, int maxiter) {
+    const ArrayXd theta = mu.pow(2.0);
+    double value;
+    double s;
+    int status;
+    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter);
+    if(std::abs(s) < tol_zero) {
+        ArrayXd Xii_0 = ArrayXd::Ones(L.size());
+        double Kp2_0 = Kder_fun(Xii_0, L, theta, 2);
+        double Kp3_0 = Kder_fun(Xii_0, L, theta, 3);
+        value = 0.5 + Kp3_0 / std::sqrt(72.0 * M_PI) / std::pow(Kp2_0, 1.5);
+    } else {
+        ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
+        double K_s = Kx_fun(s, L, theta, Xii_s);
+        double Kp2_s = Kder_fun(Xii_s, L, theta, 2.0);
+        double w = std::copysign(std::sqrt(-2.0 * K_s), s);
+        double u = s * std::sqrt(Kp2_s);
+        double cf = 1.0 / w - 1.0 / u;
+        if(order_spa > 1) {
+            double Kp3_s = Kder_fun(Xii_s, L, theta, 3.0);
+            double Kp4_s = Kder_fun(Xii_s, L, theta, 4.0);
+            double k3h = Kp3_s / std::pow(Kp2_s, 1.5);
+            double k4h = Kp4_s / std::pow(Kp2_s, 2.0);
+            cf -= ((k4h / 8.0 - 5.0 / 24.0 * std::pow(k3h, 2.0)) / u -
+                   std::pow(u, -3.0) - k3h / 2 / std::pow(u, 2.0) +
+                   std::pow(w, -3.0));
+        }
+        value = R::pnorm(w, 0.0, 1.0, 1, 0) + R::dnorm(w, 0.0, 1.0, 0) * cf;
     }
     return Rcpp::List::create(
         Rcpp::Named("value") = value,

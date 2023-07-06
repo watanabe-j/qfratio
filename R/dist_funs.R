@@ -48,9 +48,10 @@
 #' \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs)} is
 #' used, and \code{limit} is ignored.
 #'
-#' \code{dqfr_butler()} evaluates saddlepoint approximations of the density
-#' based on Butler & Paolella (2007, 2008).  This is fast but not exact.  It
-#' conducts numerical root-finding for the saddlepoint by the Brent method
+#' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
+#' approximations of the density and distribution function, respectively,
+#' based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
+#' conduct numerical root-finding for the saddlepoint by the Brent method
 #' (\code{gsl_root_fsolver_brent}), with the stopping rule specified by
 #' \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 #' iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
@@ -96,6 +97,8 @@
 #'           of Davies (1973, 1980)}
 #'     \item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
 #'           of Forchini (2002, 2005)}
+#'     \item{\code{"butler"}: }{uses \code{pqfr_butler()}, saddlepoint
+#'           approximation of Butler & Paolella (2007, 2008)}
 #'   }
 #'   In \code{dqfr()}, options are:
 #'   \itemize{
@@ -167,7 +170,8 @@
 #'                           code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
 #'  }
 #'
-#' \code{dqfr_butler()} returns a list containing \code{$d} only.
+#' \code{dqfr_butler()} and \code{pqfr_butler()} return a list containing
+#' \code{$d} and \code{$p} only, respectively.
 #'
 #' @references
 #' Broda, S. and Paolella, M. S. (2009) Evaluating the density of ratios of
@@ -178,6 +182,7 @@
 #' Butler, R. W. and Paolella, M. S. (2007) Uniform saddlepoint approximations
 #'   for ratios of quadratic forms. Technical Reports, Department of Statistical
 #'   Science, Southern Methodist University, no. **351**.
+#'   \[Available on *arXiv* as a preprint.\]
 #'   \doi{10.48550/arXiv.0803.2132}
 #'
 #' Butler, R. W. and Paolella, M. S. (2008) Uniform saddlepoint approximations
@@ -271,7 +276,7 @@ NULL
 #'
 pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
-                 method = c("imhof", "davies", "forchini"),
+                 method = c("imhof", "davies", "forchini", "butler"),
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100,
                  ...) {
@@ -332,11 +337,17 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         "B must be nonnegative definite" = all(LB >= -tol_sing),
         "quantile must be numeric" = is.numeric(quantile)
     )
-    if(method == "forchini") {
-        ans <- sapply(quantile,
-                      function(q) pqfr_A1B1(q, A, B, m, mu = mu,
-                                            tol_zero = tol_zero,
-                                            tol_sing = tol_sing, ...)$p)
+    if(method == "forchini" || method == "butler") {
+        if(method == "forchini") {
+            ans <- sapply(quantile,
+                          function(q) pqfr_A1B1(q, A, B, m, mu = mu,
+                                                tol_zero = tol_zero,
+                                                tol_sing = tol_sing, ...)$p)
+        } else {
+            ans <- sapply(quantile,
+                          function(q) pqfr_butler(q, A, B, mu = mu,
+                                                  tol_zero = tol_zero, ...)$p)
+        }
         if(!lower.tail) ans <- 1 - ans
     } else {
         if(method == "davies") {
@@ -358,7 +369,7 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
 ##### pqfr_A1B1 #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{pqfr_A1B1()}: internal function used within \code{pqfr()},
+#' \code{pqfr_A1B1()}: internal for \code{pqfr()},
 #' exact series expression of Forchini (2002, 2005).
 #'
 #' @rdname pqfr
@@ -503,7 +514,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 ##### pqfr_imhof #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{pqfr_imhof()}: internal function used within \code{pqfr()},
+#' \code{pqfr_imhof()}: internal for \code{pqfr()},
 #' exact numerical inversion algorithm of Imhof (1961).
 #'
 #' @rdname pqfr
@@ -536,7 +547,7 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 ##### pqfr_davies #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{pqfr_davies()}: internal function used within \code{pqfr()},
+#' \code{pqfr_davies()}: internal for \code{pqfr()},
 #' exact numerical inversion algorithm of Davies (1973, 1980).
 #'
 #' @rdname pqfr
@@ -564,6 +575,94 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
     if(all(lambda >= -tol_zero)) return(list(trace = rep.int(0, 7), ifault = 0, Qq = 1))
     CompQuadForm::davies(0, lambda = lambda, h = rep.int(1, n),
                          delta = delta2, sigma = 0, ...)
+}
+
+##### pqfr_butler #####
+#' Probability distribution of ratio of quadratic forms
+#'
+#' \code{pqfr_butler()}: internal for \code{pqfr()},
+#' saddlepoint approximation of Butler & Paolella (2007, 2008).
+#'
+#' @rdname pqfr
+#' @order 9
+#'
+pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
+                        order_spa = 2, use_cpp = TRUE,
+                        tol_zero = .Machine$double.eps * 100,
+                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
+                        maxiter = 5000) {
+    Kder <- function(Xii, L, theta, j = 1) {
+        tmp <- (L * Xii) ^ j * (1 + j * theta * Xii)
+        2 ^ (j - 1) * factorial(j - 1) * sum(tmp)
+    }
+    Kp1 <- function(s, L, theta) {
+        Xii <- 1 / (1 - 2 * s * L)
+        Kder(Xii, L, theta, 1)
+    }
+    Kx <- function(s, L, theta, Xii = 1 / (1 - 2 * s * L)) {
+        sum(log(Xii) / 2 + s * L * theta * Xii)
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if(missing(A)) {
+        if(missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        A <- diag(n)
+    } else {
+        n <- dim(A)[1L]
+        if(missing(B)) B <- diag(n)
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "In pqfr_butler, quantile must be length-one" = (length(quantile) == 1)
+    )
+    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+    L <- eigA_qB$values
+    if(all(L >  tol_zero)) return(list(p = 0))
+    if(all(L < -tol_zero)) return(list(p = 1))
+    U <- eigA_qB$vectors
+    mu <- c(crossprod(U, c(mu)))
+    if(use_cpp) {
+        cppres <- p_butler_Ed(L, mu, order_spa,
+                              tol_zero, epsabs, epsrel, maxiter)
+        value <- cppres$value
+        if(cppres$status < 0) {
+            warning("saddlepoint root not reached after maxiter (",
+                    maxiter, ") iterations")
+        }
+        if(cppres$status > 0) {
+            warning("Inf/NaN encountered in saddlepoint root search;\n  ",
+                    "ensure assumptions are met and check for sensitivity")
+        }
+    } else {
+        theta <- mu ^ 2
+        root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
+                                   L = L, theta = theta,
+                                   extendInt = "upX", tol = epsabs,
+                                   maxiter = maxiter)
+        s <- root_res$root
+        if(abs(s) < tol_zero) {
+            Xii_0 <- rep.int(1, n)
+            Kp2_0 <- Kder(Xii_0, L, theta, 2)
+            Kp3_0 <- Kder(Xii_0, L, theta, 3)
+            value <- 1 / 2 + Kp3_0 / sqrt(72 * pi) / Kp2_0^(3/2)
+        } else {
+            Xii_s <- 1 / (1 - 2 * s * L)
+            w <- sign(s) * sqrt(-2 * Kx(s, L, theta, Xii_s))
+            Kp2_s <- Kder(Xii_s, L, theta, 2)
+            u <- s * sqrt(Kp2_s)
+            cf <- 1 / w - 1 / u
+            if(order_spa > 1) {
+                Kp3_s <- Kder(Xii_s, L, theta, 3)
+                Kp4_s <- Kder(Xii_s, L, theta, 4)
+                k3h <- Kp3_s / Kp2_s^1.5
+                k4h <- Kp4_s / Kp2_s^2
+                cf <- cf - ((k4h / 8 - 5 / 24 * k3h^2) / u -
+                            u^(-3) - k3h / 2 * u^(-2) + w^(-3))
+            }
+            value <- stats::pnorm(w) + stats::dnorm(w) * cf
+        }
+    }
+    list(p = value)
 }
 
 
@@ -680,7 +779,7 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
 ##### dqfr_A1I1 #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{dqfr_A1I1()}: internal function used within \code{dqfr()},
+#' \code{dqfr_A1I1()}: internal for \code{dqfr()},
 #' exact series expression of Hillier (2001).  Only accommodates
 #' the simple case where \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 #' \eqn{\bm{\mu} = \mathbf{0}_n}{\mu = 0_n}.
@@ -799,8 +898,8 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
 ##### dqfr_broda #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{dqfr_broda()}: internal function used within \code{dqfr()},
-#' exact inversion algorithm of Broda & Paolella (2009).
+#' \code{dqfr_broda()}: internal for \code{dqfr()},
+#' exact numerical inversion algorithm of Broda & Paolella (2009).
 #'
 #' @rdname pqfr
 #' @order 4
@@ -863,7 +962,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
 ##### dqfr_butler #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{dqfr_butler()}: internal function used within \code{dqfr()},
+#' \code{dqfr_butler()}: internal for \code{dqfr()},
 #' saddlepoint approximation of Butler & Paolella (2007, 2008).
 #'
 #' @rdname pqfr
@@ -872,8 +971,8 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
-                        epsabs = .Machine$double.eps ^ (1/4), epsrel = 0,
-                        maxiter = 1000) {
+                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
+                        maxiter = 5000) {
     Kder <- function(Xii, L, theta, j = 1) {
         tmp <- (L * Xii) ^ j * (1 + j * theta * Xii)
         2 ^ (j - 1) * factorial(j - 1) * sum(tmp)

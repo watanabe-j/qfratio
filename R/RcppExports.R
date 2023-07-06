@@ -44,6 +44,13 @@ d_butler_Ed <- function(L, H, mu, order_spa, epsabs, epsrel, maxiter) {
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{pqfm_butler()}
+#'
+p_butler_Ed <- function(L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter) {
+    .Call(`_qfratio_p_butler_Ed`, L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{qfm_Ap_int()}
 #'
 Ap_int_E <- function(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14) {

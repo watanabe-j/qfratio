@@ -9,6 +9,7 @@
 \alias{pqfr_A1B1}
 \alias{pqfr_imhof}
 \alias{pqfr_davies}
+\alias{pqfr_butler}
 \title{Probability distribution of ratio of quadratic forms}
 \usage{
 dqfr(
@@ -35,7 +36,7 @@ pqfr(
   Sigma = diag(n),
   lower.tail = TRUE,
   log.p = FALSE,
-  method = c("imhof", "davies", "forchini"),
+  method = c("imhof", "davies", "forchini", "butler"),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -71,9 +72,9 @@ dqfr_butler(
   order_spa = 2,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
-  epsabs = .Machine$double.eps^(1/4),
+  epsabs = .Machine$double.eps^(1/2),
   epsrel = 0,
-  maxiter = 1000
+  maxiter = 5000
 )
 
 pqfr_A1B1(
@@ -109,6 +110,19 @@ pqfr_davies(
   tol_zero = .Machine$double.eps * 100,
   ...
 )
+
+pqfr_butler(
+  quantile,
+  A,
+  B,
+  mu = rep.int(0, n),
+  order_spa = 2,
+  use_cpp = TRUE,
+  tol_zero = .Machine$double.eps * 100,
+  epsabs = .Machine$double.eps^(1/2),
+  epsrel = 0,
+  maxiter = 5000
+)
 }
 \arguments{
 \item{quantile}{Numeric vector of quantiles \eqn{q}}
@@ -137,6 +151,8 @@ inversion of Imhof (1961)}
 of Davies (1973, 1980)}
 \item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
+\item{\code{"butler"}: }{uses \code{pqfr_butler()}, saddlepoint
+approximation of Butler & Paolella (2007, 2008)}
 }
 In \code{dqfr()}, options are:
 \itemize{
@@ -227,7 +243,8 @@ the lower \eqn{p}-value.
 code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
 }
 
-\code{dqfr_butler()} returns a list containing \code{$d} only.
+\code{dqfr_butler()} and \code{pqfr_butler()} return a list containing
+\code{$d} and \code{$p} only, respectively.
 }
 \description{
 \code{dqfr()}: Density of the ratio of quadratic forms,
@@ -237,25 +254,28 @@ code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
 
 \code{pqfr()}: Distribution function of the same.
 
-\code{dqfr_A1I1()}: internal function used within \code{dqfr()},
+\code{dqfr_A1I1()}: internal for \code{dqfr()},
 exact series expression of Hillier (2001).  Only accommodates
 the simple case where \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 \eqn{\bm{\mu} = \mathbf{0}_n}{\mu = 0_n}.
 
-\code{dqfr_broda()}: internal function used within \code{dqfr()},
-exact inversion algorithm of Broda & Paolella (2009).
+\code{dqfr_broda()}: internal for \code{dqfr()},
+exact numerical inversion algorithm of Broda & Paolella (2009).
 
-\code{dqfr_butler()}: internal function used within \code{dqfr()},
+\code{dqfr_butler()}: internal for \code{dqfr()},
 saddlepoint approximation of Butler & Paolella (2007, 2008).
 
-\code{pqfr_A1B1()}: internal function used within \code{pqfr()},
+\code{pqfr_A1B1()}: internal for \code{pqfr()},
 exact series expression of Forchini (2002, 2005).
 
-\code{pqfr_imhof()}: internal function used within \code{pqfr()},
+\code{pqfr_imhof()}: internal for \code{pqfr()},
 exact numerical inversion algorithm of Imhof (1961).
 
-\code{pqfr_davies()}: internal function used within \code{pqfr()},
+\code{pqfr_davies()}: internal for \code{pqfr()},
 exact numerical inversion algorithm of Davies (1973, 1980).
+
+\code{pqfr_butler()}: internal for \code{pqfr()},
+saddlepoint approximation of Butler & Paolella (2007, 2008).
 
 This functionality is \strong{experimental}.
 }
@@ -305,9 +325,10 @@ Broda & Paolella (2009).  It conducts numerical integration by
 \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs)} is
 used, and \code{limit} is ignored.
 
-\code{dqfr_butler()} evaluates saddlepoint approximations of the density
-based on Butler & Paolella (2007, 2008).  This is fast but not exact.  It
-conducts numerical root-finding for the saddlepoint by the Brent method
+\code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
+approximations of the density and distribution function, respectively,
+based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
+conduct numerical root-finding for the saddlepoint by the Brent method
 (\code{gsl_root_fsolver_brent}), with the stopping rule specified by
 \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
@@ -366,6 +387,7 @@ noncentral quadratic forms in normal variables.
 Butler, R. W. and Paolella, M. S. (2007) Uniform saddlepoint approximations
 for ratios of quadratic forms. Technical Reports, Department of Statistical
 Science, Southern Methodist University, no. \strong{351}.
+[Available on \emph{arXiv} as a preprint.]
 \doi{10.48550/arXiv.0803.2132}
 
 Butler, R. W. and Paolella, M. S. (2008) Uniform saddlepoint approximations
