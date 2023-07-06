@@ -56,9 +56,9 @@ dqfr_broda(
   B,
   mu = rep.int(0, n),
   use_cpp = TRUE,
-  tol_sing = .Machine$double.eps * 100,
-  epsrel = 1e-06,
+  tol_zero = .Machine$double.eps * 100,
   epsabs = epsrel,
+  epsrel = 1e-06,
   limit = 10000
 )
 
@@ -295,23 +295,20 @@ which is not applicable.
 
 \code{dqfr_broda()} evaluates the probability density by numerical inversion
 of the characteristic function using Geary's formula based on
-Broda & Paolella (2009).  It conducts the numerical integration using
-either \code{gsl_integration_qagi()} (when \code{use_cpp = TRUE}) or
-\code{\link[stats]{integrate}()} (when \code{use_cpp = FALSE}).  The
-optional arguments, \code{epsrel}, \code{epsabs}, \code{limits} can specify
-parameters in these algorithms.  (When \code{use_cpp = FALSE},
-\code{epsrel} and \code{epsabs} are passed as \code{rel.tol} and
-\code{abs.tol}, respectively), and \code{limit} is ignored.)
+Broda & Paolella (2009).  It conducts numerical integration by
+\code{gsl_integration_qagi(..., epsabs, epsrel, limit)}.  When
+\code{use_cpp = FALSE},
+\code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs)} is
+used, and \code{limit} is ignored.
 
 \code{dqfr_butler()} evaluates saddlepoint approximations of the density
 based on Butler & Paolella (2007, 2008).  This is fast but not exact.  It
 conducts numerical root-finding for the saddlepoint by the Brent method
-(\code{gsl_root_fsolver_brent} when \code{use_cpp = TRUE}, or
-\code{\link[stats]{uniroot}()} when \code{use_cpp = FALSE}).  The
-optional arguments, \code{epsabs}, \code{epsrel}, \code{maxiter} can specify
-parameters in these algorithms; the former two are passed to
-\code{gsl_root_test_delta()}.  (When \code{use_cpp = FALSE},
-\code{epsabs} is passed as \code{tol}, and \code{epsrel} is ignored.)
+(\code{gsl_root_fsolver_brent}), with the stopping rule specified by
+\code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
+iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
+\code{\link[stats]{uniroot}(..., tol = epsabs, maxiter = maxiter)} is used,
+and \code{epsrel} is ignored.
 
 The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
