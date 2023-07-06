@@ -9,6 +9,7 @@
 // [[Rcpp::depends(RcppGSL)]]
 #include <gsl/gsl_sf_hyperg.h>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_roots.h>
 
 #include "dk_funs.h"
 #include "hgs_funs.h"
@@ -684,4 +685,146 @@ SEXP d_broda_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
     return Rcpp::List::create(
         Rcpp::Named("value") = result,
         Rcpp::Named("abs.error") = error);
+}
+
+double Kder_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
+                const ArrayXd& theta, double j) {
+    double out = ((L * Xii).pow(j) * (1.0 + j * theta * Xii)).sum();
+    out *= std::pow(2.0, j - 1.0) * std::tgamma(j);
+    return out;
+}
+
+struct mgf_params {
+    Eigen::ArrayXd L;
+    Eigen::ArrayXd theta;
+};
+
+double Kp1_gslfun(double s, void *p) {
+    struct mgf_params *params = (struct mgf_params *)p;
+    const ArrayXd L = (params->L);
+    const ArrayXd theta = (params->theta);
+    ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
+    double out = Kder_fun(Xii, L, theta, 1.0);
+    return out;
+}
+
+// double Kp2_gslfun(double s, void *p) {
+//     struct mgf_params *params = (struct mgf_params *)p;
+//     const ArrayXd L = (params->L);
+//     const ArrayXd theta = (params->theta);
+//     ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
+//     double out = Kder_fun(Xii, L, theta, 2.0);
+//     return out;
+// }
+
+// void Kp1_Kp2_gslfun(double s, void *p, double *y, double *dy) {
+//     struct mgf_params *params = (struct mgf_params *)p;
+//     const ArrayXd L = (params->L);
+//     const ArrayXd theta = (params->theta);
+//     ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
+//     *y = Kder_fun(Xii, L, theta, 1.0);
+//     *dy = Kder_fun(Xii, L, theta, 2.0);
+// }
+
+double Mx_fun(double s, const Eigen::ArrayXd& L, 
+              const ArrayXd& theta, const Eigen::ArrayXd& Xii) {
+    double out = (Xii.log() / 2.0 + s * L * theta * Xii).sum();
+    return std::exp(out);
+}
+
+double J_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
+             const MatrixXd& H, const VectorXd& Xiimu) {
+    double out;
+    out = (Xii * H.diagonal().array()).sum() + Xiimu.transpose() * H * Xiimu;
+    return out;
+}
+
+double Jp1_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
+               const MatrixXd& H, const VectorXd& Xiimu) {
+    double out;
+    out = 2.0 * (Xii.pow(2.0) * L * H.diagonal().array()).sum() +
+          4.0 * Xiimu.transpose() * (L * Xii).matrix().asDiagonal() * H * Xiimu;
+    return out;
+}
+
+double Jp2_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
+               const MatrixXd& H, const VectorXd& Xiimu) {
+    ArrayXd XiiL = Xii * L;
+    double out;
+    out =  8.0 * (XiiL.pow(2.0) * Xii * H.diagonal().array()).sum() +
+          16.0 * Xiimu.transpose() * XiiL.pow(2.0).matrix().asDiagonal() * H * Xiimu +
+           8.0 * Xiimu.transpose() * XiiL.matrix().asDiagonal() * H * XiiL.matrix().asDiagonal() * Xiimu;
+    return out;
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{dqfm_butler()}
+//'
+// [[Rcpp::export]]
+SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
+                 const Eigen::ArrayXd mu, int order_spa,
+                 double epsabs, double epsrel, int maxiter) {
+    double value;
+    double s;
+    double s_lo = 0.5 / L.minCoeff() + epsabs;
+    double s_hi = 0.5 / L.maxCoeff() - epsabs;
+    const ArrayXd theta = mu.pow(2.0);
+    struct mgf_params params;
+    params.L = L;
+    params.theta = theta;
+    // root finding with Brent method
+    const gsl_root_fsolver_type *T = gsl_root_fsolver_brent;
+    gsl_root_fsolver *solver = gsl_root_fsolver_alloc(T);
+    gsl_function F;
+    F.function = &Kp1_gslfun;
+    F.params = &params;
+    gsl_root_fsolver_set(solver, &F, s_lo, s_hi);
+    // // Alternative: Newton-Raphson method; sometimes fails with zero derivative
+    // const gsl_root_fdfsolver_type *T = gsl_root_fdfsolver_newton;
+    // gsl_root_fdfsolver *solver = gsl_root_fdfsolver_alloc(T);
+    // gsl_function_fdf FDF;
+    // FDF.f = &Kp1_gslfun;
+    // FDF.df = &Kp2_gslfun;
+    // FDF.fdf = &Kp1_Kp2_gslfun;
+    // FDF.params = &params;
+    // s = (s_lo + s_hi) / 2.0;
+    // double s0;
+    // gsl_root_fdfsolver_set(solver, &FDF, s);
+    int status = GSL_CONTINUE;
+    int iter = 0;
+    while(status == GSL_CONTINUE && iter < maxiter) {
+        iter++;
+        status = gsl_root_fsolver_iterate(solver);
+        s_lo = gsl_root_fsolver_x_lower(solver);
+        s_hi = gsl_root_fsolver_x_upper(solver);
+        status = gsl_root_test_delta(s_hi, s_lo, epsabs, epsrel);
+        // s0 = s;
+        // status = gsl_root_fdfsolver_iterate(solver);
+        // s = gsl_root_fdfsolver_root(solver);
+        // status = gsl_root_test_delta(s, s0, epsabs, epsrel);
+    }
+    s = gsl_root_fsolver_root(solver);
+    gsl_root_fsolver_free(solver);
+    // gsl_root_fdfsolver_free(solver);
+    ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
+    VectorXd Xiimu = Xii_s * mu;
+    double J_s = J_fun(Xii_s, L, H, Xiimu);
+    double Kp2_s = Kder_fun(Xii_s, L, theta, 2.0);
+    double Mx_s = Mx_fun(s, L, theta, Xii_s);
+    value = Mx_s * J_s / sqrt(2 * M_PI * Kp2_s);
+    if(order_spa > 1) {
+        double Kp3_s = Kder_fun(Xii_s, L, theta, 3.0);
+        double Kp4_s = Kder_fun(Xii_s, L, theta, 4.0);
+        double Jp1_s = Jp1_fun(Xii_s, L, H, Xiimu);
+        double Jp2_s = Jp2_fun(Xii_s, L, H, Xiimu);
+        double k3h = Kp3_s / std::pow(Kp2_s, 1.5);
+        double k4h = Kp4_s / std::pow(Kp2_s, 2.0);
+        double cf = (k4h / 8.0 - 5.0 / 24.0 * std::pow(k3h, 2.0) +
+                     Jp1_s * k3h / 2.0 / J_s / std::pow(Kp2_s, 0.5) -
+                     Jp2_s / 2.0 / J_s / Kp2_s);
+        value *= 1.0 + cf;
+    }
+    return Rcpp::List::create(
+        Rcpp::Named("value") = value,
+        Rcpp::Named("status") = status);
 }

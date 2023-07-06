@@ -6,6 +6,7 @@
 \alias{p_A1B1_Ec}
 \alias{d_A1I1_Ed}
 \alias{d_broda_Ed}
+\alias{d_butler_Ed}
 \alias{Ap_int_E}
 \alias{ABpq_int_E}
 \alias{ABDpqr_int_E}
@@ -75,6 +76,8 @@ p_A1B1_Ec(
 d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
 
 d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
+
+d_butler_Ed(L, H, mu, order_spa, epsabs, epsrel, maxiter)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -485,7 +488,10 @@ passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
 assumed to be rotated by the eigenvectors of
 \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
 
-\item{epsrel, epsabs, limit}{Optional arguments passed to \code{gsl_integration_qagi()}}
+\item{epsrel, epsabs, limit, maxiter}{Optional arguments passed to \code{gsl_integration_qagi()} or
+\code{gsl_root_test_delta()}}
+
+\item{order_spa}{\code{int} to specify order of saddlepoint approximation}
 
 \item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
 Symmetry is assumed.}
@@ -538,6 +544,8 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{d_A1I1_Ed()}: \code{dqfm_A1I1()}
 
 \item \code{d_broda_Ed()}: \code{dqfm_broda()}
+
+\item \code{d_butler_Ed()}: \code{dqfm_butler()}
 
 \item \code{Ap_int_E()}: \code{qfm_Ap_int()}
 

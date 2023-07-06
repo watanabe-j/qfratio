@@ -195,8 +195,11 @@ NULL
 #'   Number of eigenvalues \eqn{n} and degrees of multiplicity of
 #'   largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
 #'   passed as \code{double}
-#' @param epsrel,epsabs,limit
-#'   Optional arguments passed to \code{gsl_integration_qagi()}
+#' @param order_spa
+#'   \code{int} to specify order of saddlepoint approximation
+#' @param epsrel,epsabs,limit,maxiter
+#'   Optional arguments passed to \code{gsl_integration_qagi()} or
+#'   \code{gsl_root_test_delta()}
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):
