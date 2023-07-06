@@ -55,7 +55,12 @@
 #' \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 #' iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
 #' \code{\link[stats]{uniroot}(..., tol = epsabs, maxiter = maxiter)} is used,
-#' and \code{epsrel} is ignored.
+#' and \code{epsrel} is ignored.  The saddlepoint approximation density does
+#' not integrate to unity, but can be normalized by
+#' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}, in which a
+#' result from \code{\link[stats]{integrate}()} is used as a normalization
+#' factor.  Note that this is usually slower than
+#' \code{dqfr(..., method = "broda")} for a small number of quantiles.
 #'
 #' The density is undefined, and the distribution function has points of
 #' nonanalyticity, at the eigenvalues of
@@ -105,6 +110,9 @@
 #'   Numeric to determine order of saddlepoint approximation.  More accurate
 #'   second-order approximation is used for any \code{order > 1} (default);
 #'   otherwise, (very slightly) faster first-order approximation is used.
+#' @param normalize_spa
+#'   If \code{TRUE} and \code{method == "butler"}, result is normalized so that
+#'   the density integrates to unity (see \dQuote{Details})
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see
 #'   \code{\link{qfrm}})
@@ -574,6 +582,7 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
+                 normalize_spa = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
     method <- match.arg(method)
@@ -620,7 +629,8 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                     log = log, method = method,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
-    LB <- eigen(B, symmetric = TRUE)$values
+    eigB <- eigen(B, symmetric = TRUE)
+    LB <- eigB$values
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -635,6 +645,24 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         ans <- sapply(quantile,
                       function(q) dqfr_butler(q, A, B, mu,
                                               tol_zero = tol_zero, ...)$d)
+        if(normalize_spa) {
+            if(any(LB < tol_sing)) {
+                LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+                l_intg <- if(min(LA) > -tol_sing) 0 else -Inf
+                u_intg <- if(max(LA) <  tol_sing) 0 else  Inf
+            } else {
+                Ad <- with(eigB, crossprod(crossprod(A, vectors), vectors))
+                BiA <- t(Ad / sqrt(LB)) / sqrt(LB)
+                LBiA <- eigen(BiA, symmetric = TRUE, only.values = TRUE)$values
+                l_intg <- min(LBiA)
+                u_intg <- max(LBiA)
+            }
+            intg_res <- stats::integrate(
+                dqfr, l_intg, u_intg, A = A, B = B, mu = mu, log = FALSE,
+                method = "butler", normalize_spa = FALSE, tol_zero = tol_zero,
+                tol_sing = tol_sing, ...)
+            ans <- ans / intg_res$value
+        }
     } else {
         if(!iseq(B, In, tol_zero) || !iseq(mu, zeros, tol_zero)) {
             stop("dqfr() does not accommodate B, mu, or Sigma ",

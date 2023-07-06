@@ -20,6 +20,7 @@ dqfr(
   Sigma = diag(n),
   log = FALSE,
   method = c("broda", "hillier", "butler"),
+  normalize_spa = FALSE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -146,6 +147,9 @@ of Hillier (2001)}
 \item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }}
+
+\item{normalize_spa}{If \code{TRUE} and \code{method == "butler"}, result is normalized so that
+the density integrates to unity (see \dQuote{Details})}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
@@ -308,7 +312,12 @@ conducts numerical root-finding for the saddlepoint by the Brent method
 \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
 \code{\link[stats]{uniroot}(..., tol = epsabs, maxiter = maxiter)} is used,
-and \code{epsrel} is ignored.
+and \code{epsrel} is ignored.  The saddlepoint approximation density does
+not integrate to unity, but can be normalized by
+\code{dqfr(..., method = "butler", normalize_spa = TRUE)}, in which a
+result from \code{\link[stats]{integrate}()} is used as a normalization
+factor.  Note that this is usually slower than
+\code{dqfr(..., method = "broda")} for a small number of quantiles.
 
 The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
