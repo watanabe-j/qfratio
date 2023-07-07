@@ -669,10 +669,12 @@ double broda_fun(double u, void *p){
 //'
 // [[Rcpp::export]]
 SEXP d_broda_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
-                const Eigen::ArrayXd mu,
+                const Eigen::ArrayXd mu, bool stop_on_error,
                 double epsabs, double epsrel, int limit) {
+    gsl_set_error_handler_off();
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
     double result, error;
+    int status;
     struct broda_params params;
     params.L = L;
     params.H = H;
@@ -680,8 +682,18 @@ SEXP d_broda_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
     gsl_function F;
     F.function = &broda_fun;
     F.params = &params;
-    gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w, &result, &error);
+    status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                   &result, &error);
     gsl_integration_workspace_free(w);
+    if(status) {
+        std::string errmsg = "error detected in gsl_integration_qagiu():\n  ";
+        errmsg += gsl_strerror(status);
+        if(stop_on_error) {
+            Rcpp::stop(errmsg);
+        } else {
+            Rcpp::warning(errmsg);
+        }
+    }
     return Rcpp::List::create(
         Rcpp::Named("value") = result,
         Rcpp::Named("abs.error") = error);
@@ -765,7 +777,9 @@ double Jp2_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
 
 int butler_spa_root_find(double& s,
                          const Eigen::ArrayXd& L, const Eigen::ArrayXd& theta,
-                         double epsabs, double epsrel, int maxiter) {
+                         double epsabs, double epsrel, int maxiter,
+                         bool stop_on_error) {
+    gsl_set_error_handler_off();
     double s_lo = 0.5 / L.minCoeff() + epsabs;
     double s_hi = 0.5 / L.maxCoeff() - epsabs;
     struct mgf_params params;
@@ -789,23 +803,41 @@ int butler_spa_root_find(double& s,
     // s = (s_lo + s_hi) / 2.0;
     // double s0;
     // gsl_root_fdfsolver_set(solver, &FDF, s);
-    int status;
+    int status_solver, status_stop;
     int iter = 0;
     do {
         iter++;
-        status = gsl_root_fsolver_iterate(solver);
+        status_solver = gsl_root_fsolver_iterate(solver);
         s_lo = gsl_root_fsolver_x_lower(solver);
         s_hi = gsl_root_fsolver_x_upper(solver);
-        status = gsl_root_test_delta(s_hi, s_lo, epsabs, epsrel);
+        status_stop = gsl_root_test_delta(s_hi, s_lo, epsabs, epsrel);
         // s0 = s;
-        // status = gsl_root_fdfsolver_iterate(solver);
+        // status_solver = gsl_root_fdfsolver_iterate(solver);
         // s = gsl_root_fdfsolver_root(solver);
-        // status = gsl_rvoidoot_test_delta(s, s0, epsabs, epsrel);
-    } while(status == GSL_CONTINUE && iter < maxiter);
+        // status_stop = gsl_root_test_delta(s, s0, epsabs, epsrel);
+    } while(status_solver == GSL_SUCCESS && status_stop == GSL_CONTINUE && iter < maxiter);
     s = gsl_root_fsolver_root(solver);
     gsl_root_fsolver_free(solver);
     // gsl_root_fdfsolver_free(solver);
-    return status;
+    if(status_solver) {
+        std::string errmsg_solver = "error detected in gsl_root_fsolver_iterate:\n  ";
+        errmsg_solver += gsl_strerror(status_solver);
+        if(stop_on_error) {
+            Rcpp::stop(errmsg_solver);
+        } else {
+            Rcpp::warning(errmsg_solver);
+        }
+    }
+    if(status_stop) {
+        std::string errmsg_stop = "error detected in gsl_root_test_delta():\n  ";
+        errmsg_stop += gsl_strerror(status_stop);
+        if(stop_on_error) {
+            Rcpp::stop(errmsg_stop);
+        } else {
+            Rcpp::warning(errmsg_stop);
+        }
+    }
+    return status_solver;
 }
 
 //' @describeIn qfrm_cpp
@@ -813,12 +845,12 @@ int butler_spa_root_find(double& s,
 //'
 // [[Rcpp::export]]
 SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
-                 const Eigen::ArrayXd mu, int order_spa,
+                 const Eigen::ArrayXd mu, int order_spa, bool stop_on_error,
                  double epsabs, double epsrel, int maxiter) {
     const ArrayXd theta = mu.pow(2.0);
     double s;
     int status;
-    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter);
+    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
     ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
     VectorXd Xiimu = Xii_s * mu;
     double J_s = J_fun(Xii_s, L, H, Xiimu);
@@ -838,8 +870,7 @@ SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
         value *= 1.0 + cf;
     }
     return Rcpp::List::create(
-        Rcpp::Named("value") = value,
-        Rcpp::Named("status") = status);
+        Rcpp::Named("value") = value);
 }
 
 //' @describeIn qfrm_cpp
@@ -847,12 +878,13 @@ SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
 //'
 // [[Rcpp::export]]
 SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa,
-                 double tol_zero, double epsabs, double epsrel, int maxiter) {
+                 bool stop_on_error, double tol_zero,
+                 double epsabs, double epsrel, int maxiter) {
     const ArrayXd theta = mu.pow(2.0);
     double value;
     double s;
     int status;
-    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter);
+    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
     if(std::abs(s) < tol_zero) {
         ArrayXd Xii_0 = ArrayXd::Ones(L.size());
         double Kp2_0 = Kder_fun(Xii_0, L, theta, 2);
@@ -877,6 +909,5 @@ SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa,
         value = R::pnorm(w, 0.0, 1.0, 1, 0) + R::dnorm(w, 0.0, 1.0, 0) * cf;
     }
     return Rcpp::List::create(
-        Rcpp::Named("value") = value,
-        Rcpp::Named("status") = status);
+        Rcpp::Named("value") = value);
 }

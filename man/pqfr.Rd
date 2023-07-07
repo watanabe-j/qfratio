@@ -59,6 +59,7 @@ dqfr_broda(
   A,
   B,
   mu = rep.int(0, n),
+  stop_on_error = TRUE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
   epsabs = epsrel,
@@ -72,6 +73,7 @@ dqfr_butler(
   B,
   mu = rep.int(0, n),
   order_spa = 2,
+  stop_on_error = FALSE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
   epsabs = .Machine$double.eps^(1/2),
@@ -119,6 +121,7 @@ pqfr_butler(
   B,
   mu = rep.int(0, n),
   order_spa = 2,
+  stop_on_error = FALSE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
   epsabs = .Machine$double.eps^(1/2),
@@ -195,6 +198,10 @@ with \code{check_convergence}.}
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+
+\item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
+non-convergence) in numerical integration or root finding.  If
+\code{FALSE}, further execution is attempted regardless.}
 
 \item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
 algorithm (see \dQuote{Details})}
@@ -327,8 +334,8 @@ of the characteristic function using Geary's formula based on
 Broda & Paolella (2009).  It conducts numerical integration by
 \code{gsl_integration_qagi(..., epsabs, epsrel, limit)}.  When
 \code{use_cpp = FALSE},
-\code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs)} is
-used, and \code{limit} is ignored.
+\code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs,
+stop.on.error = stop_on_error)} is used, and \code{limit} is ignored.
 
 \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
 approximations of the density and distribution function, respectively,
@@ -337,9 +344,9 @@ conduct numerical root-finding for the saddlepoint by the Brent method
 (\code{gsl_root_fsolver_brent}), with the stopping rule specified by
 \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
-\code{\link[stats]{uniroot}(..., tol = epsabs, maxiter = maxiter)} is used,
-and \code{epsrel} is ignored.  The saddlepoint approximation density does
-not integrate to unity, but can be normalized by
+\code{\link[stats]{uniroot}(..., check.conv = stop_on_error, tol = epsabs,
+maxiter = maxiter)} is used, and \code{epsrel} is ignored.  The saddlepoint
+approximation density does not integrate to unity, but can be normalized by
 \code{dqfr(..., method = "butler", normalize_spa = TRUE)}, in which a
 result from \code{\link[stats]{integrate}()} is used as a normalization
 factor.  Note that this is usually slower than

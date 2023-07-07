@@ -32,22 +32,22 @@ d_A1I1_Ed <- function(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 10
 #' @describeIn qfrm_cpp
 #'   \code{dqfm_broda()}
 #'
-d_broda_Ed <- function(L, H, mu, epsabs, epsrel, limit) {
-    .Call(`_qfratio_d_broda_Ed`, L, H, mu, epsabs, epsrel, limit)
+d_broda_Ed <- function(L, H, mu, stop_on_error, epsabs, epsrel, limit) {
+    .Call(`_qfratio_d_broda_Ed`, L, H, mu, stop_on_error, epsabs, epsrel, limit)
 }
 
 #' @describeIn qfrm_cpp
 #'   \code{dqfm_butler()}
 #'
-d_butler_Ed <- function(L, H, mu, order_spa, epsabs, epsrel, maxiter) {
-    .Call(`_qfratio_d_butler_Ed`, L, H, mu, order_spa, epsabs, epsrel, maxiter)
+d_butler_Ed <- function(L, H, mu, order_spa, stop_on_error, epsabs, epsrel, maxiter) {
+    .Call(`_qfratio_d_butler_Ed`, L, H, mu, order_spa, stop_on_error, epsabs, epsrel, maxiter)
 }
 
 #' @describeIn qfrm_cpp
 #'   \code{pqfm_butler()}
 #'
-p_butler_Ed <- function(L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter) {
-    .Call(`_qfratio_p_butler_Ed`, L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter)
+p_butler_Ed <- function(L, mu, order_spa, stop_on_error, tol_zero, epsabs, epsrel, maxiter) {
+    .Call(`_qfratio_p_butler_Ed`, L, mu, order_spa, stop_on_error, tol_zero, epsabs, epsrel, maxiter)
 }
 
 #' @describeIn qfrm_cpp

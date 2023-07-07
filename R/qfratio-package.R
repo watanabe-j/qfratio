@@ -197,6 +197,9 @@ NULL
 #'   passed as \code{double}
 #' @param order_spa
 #'   \code{int} to specify order of saddlepoint approximation
+#' @param stop_on_error
+#'   \code{bool} to specify whether execution is stopped upon error in
+#'   numerical integration or root finding
 #' @param epsrel,epsabs,limit,maxiter
 #'   Optional arguments passed to \code{gsl_integration_qagi()} or
 #'   \code{gsl_root_test_delta()}

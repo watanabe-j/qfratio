@@ -76,11 +76,11 @@ p_A1B1_Ec(
 
 d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
 
-d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
+d_broda_Ed(L, H, mu, stop_on_error, epsabs, epsrel, limit)
 
-d_butler_Ed(L, H, mu, order_spa, epsabs, epsrel, maxiter)
+d_butler_Ed(L, H, mu, order_spa, stop_on_error, epsabs, epsrel, maxiter)
 
-p_butler_Ed(L, mu, order_spa, tol_zero, epsabs, epsrel, maxiter)
+p_butler_Ed(L, mu, order_spa, stop_on_error, tol_zero, epsabs, epsrel, maxiter)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -490,6 +490,9 @@ passed as \code{double}}
 passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
 assumed to be rotated by the eigenvectors of
 \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
+
+\item{stop_on_error}{\code{bool} to specify whether execution is stopped upon error in
+numerical integration or root finding}
 
 \item{epsrel, epsabs, limit, maxiter}{Optional arguments passed to \code{gsl_integration_qagi()} or
 \code{gsl_root_test_delta()}}

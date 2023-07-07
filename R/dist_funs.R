@@ -45,8 +45,8 @@
 #' Broda & Paolella (2009).  It conducts numerical integration by
 #' \code{gsl_integration_qagi(..., epsabs, epsrel, limit)}.  When
 #' \code{use_cpp = FALSE},
-#' \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs)} is
-#' used, and \code{limit} is ignored.
+#' \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs,
+#' stop.on.error = stop_on_error)} is used, and \code{limit} is ignored.
 #'
 #' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
 #' approximations of the density and distribution function, respectively,
@@ -55,9 +55,9 @@
 #' (\code{gsl_root_fsolver_brent}), with the stopping rule specified by
 #' \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
 #' iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
-#' \code{\link[stats]{uniroot}(..., tol = epsabs, maxiter = maxiter)} is used,
-#' and \code{epsrel} is ignored.  The saddlepoint approximation density does
-#' not integrate to unity, but can be normalized by
+#' \code{\link[stats]{uniroot}(..., check.conv = stop_on_error, tol = epsabs,
+#' maxiter = maxiter)} is used, and \code{epsrel} is ignored.  The saddlepoint
+#' approximation density does not integrate to unity, but can be normalized by
 #' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}, in which a
 #' result from \code{\link[stats]{integrate}()} is used as a normalization
 #' factor.  Note that this is usually slower than
@@ -134,6 +134,10 @@
 #' @param normalize_spa
 #'   If \code{TRUE} and \code{method == "butler"}, result is normalized so that
 #'   the density integrates to unity (see \dQuote{Details})
+#' @param stop_on_error
+#'   If \code{TRUE}, execution is stopped upon an error (including
+#'   non-convergence) in numerical integration or root finding.  If
+#'   \code{FALSE}, further execution is attempted regardless.
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see
 #'   \code{\link{qfrm}})
@@ -616,7 +620,7 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 #' @order 9
 #'
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
-                        order_spa = 2, use_cpp = TRUE,
+                        order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
                         epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
                         maxiter = 5000) {
@@ -651,22 +655,14 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     U <- eigA_qB$vectors
     mu <- c(crossprod(U, c(mu)))
     if(use_cpp) {
-        cppres <- p_butler_Ed(L, mu, order_spa,
+        cppres <- p_butler_Ed(L, mu, order_spa, stop_on_error,
                               tol_zero, epsabs, epsrel, maxiter)
         value <- cppres$value
-        if(cppres$status < 0) {
-            warning("saddlepoint root not reached after maxiter (",
-                    maxiter, ") iterations")
-        }
-        if(cppres$status > 0) {
-            warning("Inf/NaN encountered in saddlepoint root search;\n  ",
-                    "ensure assumptions are met and check for sensitivity")
-        }
     } else {
         theta <- mu ^ 2
         root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
-                                   L = L, theta = theta,
-                                   extendInt = "upX", tol = epsabs,
+                                   L = L, theta = theta, extendInt = "upX",
+                                   check.conv = stop_on_error, tol = epsabs,
                                    maxiter = maxiter)
         s <- root_res$root
         if(abs(s) < tol_zero) {
@@ -940,7 +936,7 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
 #' @order 4
 #'
 dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
-                       use_cpp = TRUE,
+                       stop_on_error = TRUE, use_cpp = TRUE,
                        tol_zero = .Machine$double.eps * 100,
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     integ_fun <- function(u, L, H, mu) {
@@ -980,14 +976,15 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     mu <- c(crossprod(U, c(mu)))
     H <- crossprod(crossprod(B, U), U)
     if(use_cpp) {
-        cppres <- d_broda_Ed(L, H, mu, epsabs, epsrel, limit)
+        cppres <- d_broda_Ed(L, H, mu, stop_on_error, epsabs, epsrel, limit)
         value <- cppres$value / pi
         abserr <- cppres$abs.error / pi
 
     } else {
         ans <- stats::integrate(function(x)
                                     sapply(x, function(u) integ_fun(u, L, H, mu)),
-                                0, Inf, rel.tol = epsrel, abs.tol = epsabs)
+                                0, Inf, rel.tol = epsrel, abs.tol = epsabs,
+                                stop.on.error = stop_on_error)
         value <- ans$value / pi
         abserr <- ans$abs.error / pi
     }
@@ -1004,7 +1001,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
 #' @order 5
 #'
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
-                        order_spa = 2, use_cpp = TRUE,
+                        order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
                         epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
                         maxiter = 5000) {
@@ -1057,21 +1054,14 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     mu <- c(crossprod(U, c(mu)))
     H <- crossprod(crossprod(B, U), U)
     if(use_cpp) {
-        cppres <- d_butler_Ed(L, H, mu, order_spa, epsabs, epsrel, maxiter)
+        cppres <- d_butler_Ed(L, H, mu, order_spa, stop_on_error,
+                              epsabs, epsrel, maxiter)
         value <- cppres$value
-        if(cppres$status < 0) {
-            warning("saddlepoint root not reached after maxiter (",
-                    maxiter, ") iterations")
-        }
-        if(cppres$status > 0) {
-            warning("Inf/NaN encountered in saddlepoint root search;\n  ",
-                    "ensure assumptions are met and check for sensitivity")
-        }
     } else {
         theta <- mu ^ 2
         root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
-                                   L = L, theta = theta,
-                                   extendInt = "upX", tol = epsabs,
+                                   L = L, theta = theta, extendInt = "upX",
+                                   check.conv = stop_on_error, tol = epsabs,
                                    maxiter = maxiter)
         s <- root_res$root
         Xii_s <- 1 / (1 - 2 * s * L)
