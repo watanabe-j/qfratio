@@ -90,6 +90,7 @@ pqfr_A1B1(
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
+  stop_on_error = FALSE,
   nthreads = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
@@ -200,7 +201,8 @@ in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
 
 \item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
-non-convergence) in numerical integration or root finding.  If
+non-convergence) in evaluation of hypergeometric function,
+numerical integration, or root finding.  If
 \code{FALSE}, further execution is attempted regardless.}
 
 \item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
@@ -356,7 +358,8 @@ The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
 \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (Hillier 2001;
 Forchini 2002).  Around these points, the series expression tends to be
-\emph{very slow} to converge.  In this case, use a large \code{m} or
+\emph{very slow} to converge, and the evaluation of hypergeometric function
+involved may fail.  In this case,
 avoid using the series expression (i.e., use
 \code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
 

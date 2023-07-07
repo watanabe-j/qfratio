@@ -42,6 +42,36 @@ ArrayXl get_lgm(const long double a, const Eigen::Index n) {
     return ans;
 }
 
+void check_hgstatus(Eigen::ArrayXi& hgstatus, const bool stop_on_error) {
+    if(hgstatus.any()) {
+        std::string errmsg = "problem in gsl_sf_hyperg_2F1_e():";
+        bool eunimpl = hgstatus.cwiseEqual(24).any();
+        bool eovrflw = hgstatus.cwiseEqual(16).any();
+        bool emaxiter = hgstatus.cwiseEqual(11).any();
+        bool edom = hgstatus.cwiseEqual(1).any();
+        bool eother = !(eunimpl || eovrflw || emaxiter || edom);
+        if(eunimpl) {
+            errmsg += "\n  evaluation failed due to singularity";
+        }
+        if(eovrflw) {
+            errmsg += "\n  numerical overflow encountered";
+        }
+        if(emaxiter) {
+            errmsg += "\n  max iteration reached";
+        }
+        if(edom) {
+            errmsg += "\n  parameter outside acceptable domain";
+        }
+        if(eother) {
+            errmsg += "\n  unexpected kind of error";
+        }
+        if(stop_on_error) {
+            Rcpp::stop(errmsg);
+        } else {
+            Rcpp::warning(errmsg);
+        }
+    }
+}
 
 //' @describeIn qfrm_cpp
 //'   \code{pqfm_A1B1()}, double
@@ -49,7 +79,8 @@ ArrayXl get_lgm(const long double a, const Eigen::Index n) {
 // [[Rcpp::export]]
 SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
              const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2,
-             const Eigen::Index m, const double thr_margin = 100,
+             const Eigen::Index m, const bool stop_on_error,
+             const double thr_margin = 100,
              int nthreads = 0, const double tol_zero = 2.2e-14) {
     Index n1 = D1.size();
     Index n2 = D2.size();
@@ -152,9 +183,14 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXd hgres(m + 1);
+        ArrayXi hgstatus(m + 1);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < m + 1; i++) {
-            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = hgtmp.val;
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -185,9 +221,14 @@ SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXd hgres(size_out);
+        ArrayXi hgstatus(size_out);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < size_out; i++) {
-            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = hgtmp.val;
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -212,7 +253,8 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
              const Eigen::Array<long double, Eigen::Dynamic, 1> D2,
              const Eigen::Array<long double, Eigen::Dynamic, 1> mu1,
              const Eigen::Array<long double, Eigen::Dynamic, 1> mu2,
-             const Eigen::Index m, const long double thr_margin = 100,
+             const Eigen::Index m, const bool stop_on_error,
+             const long double thr_margin = 100,
              int nthreads = 0, const long double tol_zero = 2.2e-14) {
     Index n1 = D1.size();
     Index n2 = D2.size();
@@ -315,9 +357,14 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXl hgres(m + 1);
+        ArrayXi hgstatus(m + 1);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < m + 1; i++) {
-            hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = (long double)(hgtmp.val);
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -349,9 +396,14 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXl hgres(size_out);
+        ArrayXi hgstatus(size_out);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < size_out; i++) {
-            hgres(i) = (long double)(gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d));
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = (long double)(hgtmp.val);
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -376,7 +428,8 @@ SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1,
 // [[Rcpp::export]]
 SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
              const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2,
-             const Eigen::Index m, const double thr_margin = 100,
+             const Eigen::Index m, const bool stop_on_error,
+             const double thr_margin = 100,
              int nthreads = 0, const double tol_zero = 2.2e-14) {
     Index n1 = D1.size();
     Index n2 = D2.size();
@@ -495,9 +548,14 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXd hgres(m + 1);
+        ArrayXi hgstatus(m + 1);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < m + 1; i++) {
-            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = hgtmp.val;
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -527,9 +585,14 @@ SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2,
 
         // Using the C++ library GSL with RcppGSL
         ArrayXd hgres(size_out);
+        ArrayXi hgstatus(size_out);
+        gsl_sf_result hgtmp;
+        gsl_set_error_handler_off();
         for(Index i = 0; i < size_out; i++) {
-            hgres(i) = gsl_sf_hyperg_2F1(a1s(i), 1, bs(i), trD1d);
+            hgstatus(i) = gsl_sf_hyperg_2F1_e(a1s(i), 1, bs(i), trD1d, &hgtmp);
+            hgres(i) = hgtmp.val;
         }
+        check_hgstatus(hgstatus, stop_on_error);
 
         // // Calling gsl::hyperg_2F1 from R
         // Rcpp::Function hyperg_2F1 = Rcpp::Environment::namespace_env("gsl")["hyperg_2F1"];
@@ -686,7 +749,7 @@ SEXP d_broda_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
                                    &result, &error);
     gsl_integration_workspace_free(w);
     if(status) {
-        std::string errmsg = "error detected in gsl_integration_qagiu():\n  ";
+        std::string errmsg = "problem in gsl_integration_qagiu():\n  ";
         errmsg += gsl_strerror(status);
         if(stop_on_error) {
             Rcpp::stop(errmsg);
@@ -820,7 +883,7 @@ int butler_spa_root_find(double& s,
     gsl_root_fsolver_free(solver);
     // gsl_root_fdfsolver_free(solver);
     if(status_solver) {
-        std::string errmsg_solver = "error detected in gsl_root_fsolver_iterate:\n  ";
+        std::string errmsg_solver = "problem in gsl_root_fsolver_iterate:\n  ";
         errmsg_solver += gsl_strerror(status_solver);
         if(stop_on_error) {
             Rcpp::stop(errmsg_solver);
@@ -829,7 +892,7 @@ int butler_spa_root_find(double& s,
         }
     }
     if(status_stop) {
-        std::string errmsg_stop = "error detected in gsl_root_test_delta():\n  ";
+        std::string errmsg_stop = "problem in gsl_root_test_delta():\n  ";
         errmsg_stop += gsl_strerror(status_stop);
         if(stop_on_error) {
             Rcpp::stop(errmsg_stop);

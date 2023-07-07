@@ -4,22 +4,22 @@
 #' @describeIn qfrm_cpp
 #'   \code{pqfm_A1B1()}, double
 #'
-p_A1B1_Ed <- function(D1, D2, mu1, mu2, m, thr_margin = 100, nthreads = 0L, tol_zero = 2.2e-14) {
-    .Call(`_qfratio_p_A1B1_Ed`, D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero)
+p_A1B1_Ed <- function(D1, D2, mu1, mu2, m, stop_on_error, thr_margin = 100, nthreads = 0L, tol_zero = 2.2e-14) {
+    .Call(`_qfratio_p_A1B1_Ed`, D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero)
 }
 
 #' @describeIn qfrm_cpp
 #'   \code{pqfm_A1B1()}, long double
 #'
-p_A1B1_El <- function(D1, D2, mu1, mu2, m, thr_margin = 100L, nthreads = 0L, tol_zero = 2.2e-14) {
-    .Call(`_qfratio_p_A1B1_El`, D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero)
+p_A1B1_El <- function(D1, D2, mu1, mu2, m, stop_on_error, thr_margin = 100L, nthreads = 0L, tol_zero = 2.2e-14) {
+    .Call(`_qfratio_p_A1B1_El`, D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero)
 }
 
 #' @describeIn qfrm_cpp
 #'   \code{pqfm_A1B1()}, coefficient-wise scaling
 #'
-p_A1B1_Ec <- function(D1, D2, mu1, mu2, m, thr_margin = 100, nthreads = 0L, tol_zero = 2.2e-14) {
-    .Call(`_qfratio_p_A1B1_Ec`, D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero)
+p_A1B1_Ec <- function(D1, D2, mu1, mu2, m, stop_on_error, thr_margin = 100, nthreads = 0L, tol_zero = 2.2e-14) {
+    .Call(`_qfratio_p_A1B1_Ec`, D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero)
 }
 
 #' @describeIn qfrm_cpp

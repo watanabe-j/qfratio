@@ -67,7 +67,8 @@
 #' nonanalyticity, at the eigenvalues of
 #' \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (Hillier 2001;
 #' Forchini 2002).  Around these points, the series expression tends to be
-#' *very slow* to converge.  In this case, use a large \code{m} or
+#' *very slow* to converge, and the evaluation of hypergeometric function
+#' involved may fail.  In this case,
 #' avoid using the series expression (i.e., use
 #' \code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
 #'
@@ -136,7 +137,8 @@
 #'   the density integrates to unity (see \dQuote{Details})
 #' @param stop_on_error
 #'   If \code{TRUE}, execution is stopped upon an error (including
-#'   non-convergence) in numerical integration or root finding.  If
+#'   non-convergence) in evaluation of hypergeometric function,
+#'   numerical integration, or root finding.  If
 #'   \code{FALSE}, further execution is attempted regardless.
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see
@@ -414,7 +416,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                                             "absolute", "none"),
                       use_cpp = TRUE,
                       cpp_method = c("double", "long_double", "coef_wise"),
-                      nthreads = 1,
+                      stop_on_error = FALSE, nthreads = 1,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       tol_zero = .Machine$double.eps * 100,
                       tol_sing = .Machine$double.eps * 100,
@@ -454,13 +456,13 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     mu2 <- mu[Ds < -tol_sing]
     if(use_cpp) {
         if(cpp_method == "coef_wise") {
-            cppres <- p_A1B1_Ec(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_Ec(D1, D2, mu1, mu2, m, stop_on_error,
                               thr_margin, nthreads, tol_zero)
         } else if(cpp_method == "long_double") {
-            cppres <- p_A1B1_El(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_El(D1, D2, mu1, mu2, m, stop_on_error,
                               thr_margin, nthreads, tol_zero)
         } else {
-            cppres <- p_A1B1_Ed(D1, D2, mu1, mu2, m,
+            cppres <- p_A1B1_Ed(D1, D2, mu1, mu2, m, stop_on_error,
                               thr_margin, nthreads, tol_zero)
         }
         ansseq <- cppres$ansseq
@@ -503,8 +505,46 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
         ansmat <- t(t(ansmat) - lscf2)
         ansmat <- ansmat - (sum(mu1 ^ 2) + sum(mu2 ^ 2)) / 2
         ansmat <- exp(ansmat)
-        ansmat <- ansmat * gsl::hyperg_2F1(ordmat, 1, n1 / 2 + 1 + seq0m,
-                                           sum(D1d))
+        hgres <- gsl::hyperg_2F1(ordmat, 1, n1 / 2 + 1 + seq0m, sum(D1d), give = TRUE, strict = FALSE)
+        hgstatus <- hgres$status[ordmat <= m + 2]
+        if(any(hgstatus)) {
+            ermsg <- "problem in gsl::hyperg_2F1():"
+            eunimpl <- any(hgstatus == 24)
+            eovrflw <- any(hgstatus == 16)
+            emaxiter <- any(hgstatus == 11)
+            edom <- any(hgstatus == 1)
+            eother <- !(eunimpl || eovrflw || emaxiter || edom)
+            if(eunimpl) {
+                ermsg <- paste0(ermsg,
+                                "\n  evaluation failed due to singularity")
+            }
+            if(eovrflw) {
+                ermsg <- paste0(ermsg,
+                                "\n  numerical overflow encountered")
+            }
+            if(emaxiter) {
+                ermsg <- paste0(ermsg,
+                                "\n  max iteration reached")
+            }
+            if(edom) {
+                ermsg <- paste0(ermsg,
+                                "\n  parameter outside acceptable domain")
+            }
+            if(eother) {
+                ecode <- hgstatus[hgstatus != 0 & hgstatus != 24 &
+                                  hgstatus != 16 & hgstatus != 11 &
+                                  hgstatus != 1][1]
+                ermsg <- paste0(ermsg,
+                                "\n  unexpected kind of error with code ",
+                                ecode)
+            }
+            if(stop_on_error) {
+                stop(ermsg)
+            } else {
+                warning(ermsg)
+            }
+        }
+        ansmat <- ansmat * hgres$val
         ansseq <- sum_counterdiag(ansmat)
     }
     if(diminished) {

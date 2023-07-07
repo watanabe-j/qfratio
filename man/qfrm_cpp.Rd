@@ -47,6 +47,7 @@ p_A1B1_Ed(
   mu1,
   mu2,
   m,
+  stop_on_error,
   thr_margin = 100,
   nthreads = 0L,
   tol_zero = 2.2e-14
@@ -58,6 +59,7 @@ p_A1B1_El(
   mu1,
   mu2,
   m,
+  stop_on_error,
   thr_margin = 100L,
   nthreads = 0L,
   tol_zero = 2.2e-14
@@ -69,6 +71,7 @@ p_A1B1_Ec(
   mu1,
   mu2,
   m,
+  stop_on_error,
   thr_margin = 100,
   nthreads = 0L,
   tol_zero = 2.2e-14
@@ -460,6 +463,9 @@ rqfpE(nit, A, B, D, p_, q_, r_, mu, Sigma)
 expression is truncated.  Passed as \code{Eigen::Index}
 (aka \code{std::ptrdiff_t} or \code{long long int})}
 
+\item{stop_on_error}{\code{bool} to specify whether execution is stopped upon error in
+numerical integration or root finding}
+
 \item{thr_margin}{Optional argument to adjust the threshold for scaling.  See
 \dQuote{Scaling} in \code{\link{d1_i}}.}
 
@@ -490,9 +496,6 @@ passed as \code{double}}
 passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
 assumed to be rotated by the eigenvectors of
 \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
-
-\item{stop_on_error}{\code{bool} to specify whether execution is stopped upon error in
-numerical integration or root finding}
 
 \item{epsrel, epsabs, limit, maxiter}{Optional arguments passed to \code{gsl_integration_qagi()} or
 \code{gsl_root_test_delta()}}

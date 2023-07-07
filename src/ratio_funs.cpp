@@ -13,6 +13,7 @@
 
 using Eigen::log;
 using Eigen::abs;
+using Eigen::ArrayXi;
 using Eigen::ArrayXd;
 using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
@@ -155,8 +156,36 @@ SEXP ApIq_int_nE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
     // Using the C++ library GSL with RcppGSL; this is ideal but
     // the library need to be installed separately
     ArrayXd hgres(p + 1);
+    ArrayXi hgstatus(p + 1);
+    gsl_sf_result hgtmp;
+    gsl_set_error_handler_off();
     for(Index i = 0; i <= p; i++) {
-        hgres(i) = gsl_sf_hyperg_1F1(q_, n_ / 2 + p_ + ls(i), nsqnorm2);
+        hgstatus(i) = gsl_sf_hyperg_1F1_e(q_, n_ / 2 + p_ + ls(i), nsqnorm2, &hgtmp);
+        hgres(i) = hgtmp.val;
+    }
+    if(hgstatus.any()) {
+        std::string errmsg = "problem in gsl_sf_hyperg_1F1_e():";
+        bool eunimpl = hgstatus.cwiseEqual(24).any();
+        bool eovrflw = hgstatus.cwiseEqual(16).any();
+        bool emaxiter = hgstatus.cwiseEqual(11).any();
+        bool edom = hgstatus.cwiseEqual(1).any();
+        bool eother = !(eunimpl || eovrflw || emaxiter || edom);
+        if(eunimpl) {
+            errmsg += "\n  evaluation failed due to singularity";
+        }
+        if(eovrflw) {
+            errmsg += "\n  numerical overflow encountered";
+        }
+        if(emaxiter) {
+            errmsg += "\n  max iteration reached";
+        }
+        if(edom) {
+            errmsg += "\n  parameter outside acceptable domain";
+        }
+        if(eother) {
+            errmsg += "\n  unexpected kind of error";
+        }
+        Rcpp::warning(errmsg);
     }
 
     ArrayXd ansseq =

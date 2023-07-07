@@ -13,8 +13,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // p_A1B1_Ed
-SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2, const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2, const Eigen::Index m, const double thr_margin, int nthreads, const double tol_zero);
-RcppExport SEXP _qfratio_p_A1B1_Ed(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
+SEXP p_A1B1_Ed(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2, const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2, const Eigen::Index m, const bool stop_on_error, const double thr_margin, int nthreads, const double tol_zero);
+RcppExport SEXP _qfratio_p_A1B1_Ed(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP stop_on_errorSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,16 +23,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu1(mu1SEXP);
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu2(mu2SEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const bool >::type stop_on_error(stop_on_errorSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const double >::type tol_zero(tol_zeroSEXP);
-    rcpp_result_gen = Rcpp::wrap(p_A1B1_Ed(D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero));
+    rcpp_result_gen = Rcpp::wrap(p_A1B1_Ed(D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero));
     return rcpp_result_gen;
 END_RCPP
 }
 // p_A1B1_El
-SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1, const Eigen::Array<long double, Eigen::Dynamic, 1> D2, const Eigen::Array<long double, Eigen::Dynamic, 1> mu1, const Eigen::Array<long double, Eigen::Dynamic, 1> mu2, const Eigen::Index m, const long double thr_margin, int nthreads, const long double tol_zero);
-RcppExport SEXP _qfratio_p_A1B1_El(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
+SEXP p_A1B1_El(const Eigen::Array<long double, Eigen::Dynamic, 1> D1, const Eigen::Array<long double, Eigen::Dynamic, 1> D2, const Eigen::Array<long double, Eigen::Dynamic, 1> mu1, const Eigen::Array<long double, Eigen::Dynamic, 1> mu2, const Eigen::Index m, const bool stop_on_error, const long double thr_margin, int nthreads, const long double tol_zero);
+RcppExport SEXP _qfratio_p_A1B1_El(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP stop_on_errorSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -41,16 +42,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type mu1(mu1SEXP);
     Rcpp::traits::input_parameter< const Eigen::Array<long double, Eigen::Dynamic, 1> >::type mu2(mu2SEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const bool >::type stop_on_error(stop_on_errorSEXP);
     Rcpp::traits::input_parameter< const long double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const long double >::type tol_zero(tol_zeroSEXP);
-    rcpp_result_gen = Rcpp::wrap(p_A1B1_El(D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero));
+    rcpp_result_gen = Rcpp::wrap(p_A1B1_El(D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero));
     return rcpp_result_gen;
 END_RCPP
 }
 // p_A1B1_Ec
-SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2, const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2, const Eigen::Index m, const double thr_margin, int nthreads, const double tol_zero);
-RcppExport SEXP _qfratio_p_A1B1_Ec(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
+SEXP p_A1B1_Ec(const Eigen::ArrayXd D1, const Eigen::ArrayXd D2, const Eigen::ArrayXd mu1, const Eigen::ArrayXd mu2, const Eigen::Index m, const bool stop_on_error, const double thr_margin, int nthreads, const double tol_zero);
+RcppExport SEXP _qfratio_p_A1B1_Ec(SEXP D1SEXP, SEXP D2SEXP, SEXP mu1SEXP, SEXP mu2SEXP, SEXP mSEXP, SEXP stop_on_errorSEXP, SEXP thr_marginSEXP, SEXP nthreadsSEXP, SEXP tol_zeroSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,10 +61,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu1(mu1SEXP);
     Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu2(mu2SEXP);
     Rcpp::traits::input_parameter< const Eigen::Index >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const bool >::type stop_on_error(stop_on_errorSEXP);
     Rcpp::traits::input_parameter< const double >::type thr_margin(thr_marginSEXP);
     Rcpp::traits::input_parameter< int >::type nthreads(nthreadsSEXP);
     Rcpp::traits::input_parameter< const double >::type tol_zero(tol_zeroSEXP);
-    rcpp_result_gen = Rcpp::wrap(p_A1B1_Ec(D1, D2, mu1, mu2, m, thr_margin, nthreads, tol_zero));
+    rcpp_result_gen = Rcpp::wrap(p_A1B1_Ec(D1, D2, mu1, mu2, m, stop_on_error, thr_margin, nthreads, tol_zero));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -753,9 +756,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_qfratio_p_A1B1_Ed", (DL_FUNC) &_qfratio_p_A1B1_Ed, 8},
-    {"_qfratio_p_A1B1_El", (DL_FUNC) &_qfratio_p_A1B1_El, 8},
-    {"_qfratio_p_A1B1_Ec", (DL_FUNC) &_qfratio_p_A1B1_Ec, 8},
+    {"_qfratio_p_A1B1_Ed", (DL_FUNC) &_qfratio_p_A1B1_Ed, 9},
+    {"_qfratio_p_A1B1_El", (DL_FUNC) &_qfratio_p_A1B1_El, 9},
+    {"_qfratio_p_A1B1_Ec", (DL_FUNC) &_qfratio_p_A1B1_Ec, 9},
     {"_qfratio_d_A1I1_Ed", (DL_FUNC) &_qfratio_d_A1I1_Ed, 10},
     {"_qfratio_d_broda_Ed", (DL_FUNC) &_qfratio_d_broda_Ed, 7},
     {"_qfratio_d_butler_Ed", (DL_FUNC) &_qfratio_d_butler_Ed, 8},
