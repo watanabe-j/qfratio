@@ -824,7 +824,7 @@ SEXP d_butler_Ed(const Eigen::ArrayXd L, const Eigen::MatrixXd H,
     double J_s = J_fun(Xii_s, L, H, Xiimu);
     double Kp2_s = Kder_fun(Xii_s, L, theta, 2.0);
     double Mx_s = Mx_fun(s, L, theta, Xii_s);
-    double value = Mx_s * J_s / sqrt(2 * M_PI * Kp2_s);
+    double value = Mx_s * J_s / sqrt(M_2PI * Kp2_s);
     if(order_spa > 1) {
         double Kp3_s = Kder_fun(Xii_s, L, theta, 3.0);
         double Kp4_s = Kder_fun(Xii_s, L, theta, 4.0);
@@ -857,7 +857,7 @@ SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa,
         ArrayXd Xii_0 = ArrayXd::Ones(L.size());
         double Kp2_0 = Kder_fun(Xii_0, L, theta, 2);
         double Kp3_0 = Kder_fun(Xii_0, L, theta, 3);
-        value = 0.5 + Kp3_0 / std::sqrt(72.0 * M_PI) / std::pow(Kp2_0, 1.5);
+        value = 0.5 + Kp3_0 / 6.0 * M_1_SQRT_2PI / std::pow(Kp2_0, 1.5);
     } else {
         ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
         double K_s = Kx_fun(s, L, theta, Xii_s);
