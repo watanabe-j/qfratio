@@ -21,6 +21,7 @@ dqfr(
   Sigma = diag(n),
   log = FALSE,
   method = c("broda", "hillier", "butler"),
+  trim_values = TRUE,
   normalize_spa = FALSE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
@@ -37,6 +38,7 @@ pqfr(
   lower.tail = TRUE,
   log.p = FALSE,
   method = c("imhof", "davies", "forchini", "butler"),
+  trim_values = TRUE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -163,6 +165,9 @@ of Hillier (2001)}
 \item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }}
+
+\item{trim_values}{If \code{TRUE} (default), numerical values outside the mathematically
+permissible support are trimmed in (see \dQuote{Details})}
 
 \item{normalize_spa}{If \code{TRUE} and \code{method == "butler"}, result is normalized so that
 the density integrates to unity (see \dQuote{Details})}
@@ -347,6 +352,21 @@ Forchini 2002).  Around these points, the series expression tends to be
 \emph{very slow} to converge.  In this case, use a large \code{m} or
 avoid using the series expression (i.e., use
 \code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
+
+Algorithms based on numerical integration can yield spurious numerical
+results that are outside the mathematically permissible supports;
+\eqn{\[0, \infty)} and \eqn{\[0, 1\]} for the density and distribution
+functions, respectively.  By default (\code{trim_values = TRUE}),
+\code{dqfr()} and \code{pqfr()} trim those values into the permissible
+range by using \code{tol_zero} as a margin; e.g., negative p-values are
+replaced by ~\code{2.2e-14} (default \code{tol_zero}).  A warning is
+thrown if this happens, because it usually means that numerically accurate
+evaluation was impossible, at least with the given parameters.  Turn
+\code{trim_values = FALSE} to skip these trimming and warning, although
+\code{pqfr_imhof()} and \code{pqfr_davies()} can still throw a warning
+from \pkg{CompQuadForm} functions.  Note that, on the other hand,
+all these functions return exact \code{0} or \code{1}
+when \eqn{q} is outside the possible range of the statistic.
 }
 \examples{
 ## Some symmetric matrices and parameters

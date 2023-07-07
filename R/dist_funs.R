@@ -71,6 +71,21 @@
 #' avoid using the series expression (i.e., use
 #' \code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
 #'
+#' Algorithms based on numerical integration can yield spurious numerical
+#' results that are outside the mathematically permissible supports;
+#' \eqn{\[0, \infty)} and \eqn{\[0, 1\]} for the density and distribution
+#' functions, respectively.  By default (\code{trim_values = TRUE}),
+#' \code{dqfr()} and \code{pqfr()} trim those values into the permissible
+#' range by using \code{tol_zero} as a margin; e.g., negative p-values are
+#' replaced by ~\code{2.2e-14} (default \code{tol_zero}).  A warning is
+#' thrown if this happens, because it usually means that numerically accurate
+#' evaluation was impossible, at least with the given parameters.  Turn
+#' \code{trim_values = FALSE} to skip these trimming and warning, although
+#' \code{pqfr_imhof()} and \code{pqfr_davies()} can still throw a warning
+#' from \pkg{CompQuadForm} functions.  Note that, on the other hand,
+#' all these functions return exact \code{0} or \code{1}
+#' when \eqn{q} is outside the possible range of the statistic.
+#'
 #' @inheritParams qfrm
 #'
 #' @param quantile
@@ -109,6 +124,9 @@
 #'     \item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
 #'           approximation of Butler & Paolella (2007, 2008)}
 #'   }
+#' @param trim_values
+#'   If \code{TRUE} (default), numerical values outside the mathematically
+#'   permissible support are trimmed in (see \dQuote{Details})
 #' @param order_spa
 #'   Numeric to determine order of saddlepoint approximation.  More accurate
 #'   second-order approximation is used for any \code{order > 1} (default);
@@ -277,6 +295,7 @@ NULL
 pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
+                 trim_values = TRUE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100,
                  ...) {
@@ -360,6 +379,16 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                                                  tol_zero = tol_zero, ...)$Qq)
         }
         if(lower.tail) ans <- 1 - ans
+    }
+    if(trim_values) {
+        if(any(ans > 1)) {
+            ans <- pmin.int(ans, 1 - tol_zero)
+            warning("values > 1 trimmed down to 1 - tol_zero")
+        }
+        if(any(ans < 0)) {
+            ans <- pmax.int(ans, tol_zero)
+            warning("values < 0 trimmed up to tol_zero")
+        }
     }
     if(log.p) ans <- log(ans)
     attributes(ans) <- attributes(quantile)
@@ -681,7 +710,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
-                 normalize_spa = FALSE,
+                 trim_values = TRUE, normalize_spa = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
     method <- match.arg(method)
@@ -770,6 +799,12 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         LA <- eigen(A, symmetric = TRUE)$values
         ans <- sapply(quantile,
                       function(q) dqfr_A1I1(q, LA, m, ...)$d)
+    }
+    if(trim_values) {
+        if(any(ans < 0)) {
+            ans <- pmax.int(ans, tol_zero)
+            warning("values < 0 trimmed up to tol_zero")
+        }
     }
     if(log) ans <- log(ans)
     attributes(ans) <- attributes(quantile)
