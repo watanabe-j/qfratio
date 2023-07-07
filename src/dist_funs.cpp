@@ -789,9 +789,9 @@ int butler_spa_root_find(double& s,
     // s = (s_lo + s_hi) / 2.0;
     // double s0;
     // gsl_root_fdfsolver_set(solver, &FDF, s);
-    int status = GSL_CONTINUE;
+    int status;
     int iter = 0;
-    while(status == GSL_CONTINUE && iter < maxiter) {
+    do {
         iter++;
         status = gsl_root_fsolver_iterate(solver);
         s_lo = gsl_root_fsolver_x_lower(solver);
@@ -801,7 +801,7 @@ int butler_spa_root_find(double& s,
         // status = gsl_root_fdfsolver_iterate(solver);
         // s = gsl_root_fdfsolver_root(solver);
         // status = gsl_rvoidoot_test_delta(s, s0, epsabs, epsrel);
-    }
+    } while(status == GSL_CONTINUE && iter < maxiter);
     s = gsl_root_fsolver_root(solver);
     gsl_root_fsolver_free(solver);
     // gsl_root_fdfsolver_free(solver);
