@@ -59,6 +59,7 @@ dqfr_broda(
   A,
   B,
   mu = rep.int(0, n),
+  autoscale_args = 1,
   stop_on_error = TRUE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -103,6 +104,7 @@ pqfr_imhof(
   A,
   B,
   mu = rep.int(0, n),
+  autoscale_args = 1,
   tol_zero = .Machine$double.eps * 100,
   ...
 )
@@ -112,6 +114,7 @@ pqfr_davies(
   A,
   B,
   mu = rep.int(0, n),
+  autoscale_args = 1,
   tol_zero = .Machine$double.eps * 100,
   ...
 )
@@ -199,6 +202,10 @@ with \code{check_convergence}.}
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+
+\item{autoscale_args}{Numeric; if \code{> 0} (default), arguments are scaled to avoid failure in
+numerical integration (see \dQuote{Details}).  If \code{<= 0}, the scaling
+is skipped.}
 
 \item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
 non-convergence) in evaluation of hypergeometric function,
@@ -377,6 +384,15 @@ evaluation was impossible, at least with the given parameters.  Turn
 from \pkg{CompQuadForm} functions.  Note that, on the other hand,
 all these functions return exact \code{0} or \code{1}
 when \eqn{q} is outside the possible range of the statistic.
+
+Numerical integration algorithms can fail when the magnitude of
+eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B} is small,
+whence some temporary objects numerically underflow to \code{0} and the
+integrand function decreases too slowly (i.e., divergent-looking).  To avoid
+this, the eigenvalues are scaled so that the maximum eigenvalue equals
+the factor \code{autoscale_args}, which can be specified by the user
+(default \code{1}).  The scaling can be skipped by providing
+a nonpositive value, including \code{0}/\code{FALSE}.
 }
 \examples{
 ## Some symmetric matrices and parameters

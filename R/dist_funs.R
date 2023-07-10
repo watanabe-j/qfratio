@@ -87,6 +87,15 @@
 #' all these functions return exact \code{0} or \code{1}
 #' when \eqn{q} is outside the possible range of the statistic.
 #'
+#' Numerical integration algorithms can fail when the magnitude of
+#' eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B} is small,
+#' whence some temporary objects numerically underflow to \code{0} and the
+#' integrand function decreases too slowly (i.e., divergent-looking).  To avoid
+#' this, the eigenvalues are scaled so that the maximum eigenvalue equals
+#' the factor \code{autoscale_args}, which can be specified by the user
+#' (default \code{1}).  The scaling can be skipped by providing
+#' a nonpositive value, including \code{0}/\code{FALSE}.
+#'
 #' @inheritParams qfrm
 #'
 #' @param quantile
@@ -128,6 +137,10 @@
 #' @param trim_values
 #'   If \code{TRUE} (default), numerical values outside the mathematically
 #'   permissible support are trimmed in (see \dQuote{Details})
+#' @param autoscale_args
+#'   Numeric; if \code{> 0} (default), arguments are scaled to avoid failure in
+#'   numerical integration (see \dQuote{Details}).  If \code{<= 0}, the scaling
+#'   is skipped.
 #' @param order_spa
 #'   Numeric to determine order of saddlepoint approximation.  More accurate
 #'   second-order approximation is used for any \code{order > 1} (default);
@@ -594,6 +607,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 #' @order 7
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
+                       autoscale_args = 1,
                        tol_zero = .Machine$double.eps * 100, ...) {
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -609,11 +623,17 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
         "In pqfr_imhof, quantile must be length-one" = (length(quantile) == 1)
     )
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    lambda <- eigA_qB$values
+    L <- eigA_qB$values
     delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-    if(all(lambda <=  tol_zero)) return(list(Qq = 0, abserr = 0))
-    if(all(lambda >= -tol_zero)) return(list(Qq = 1, abserr = 0))
-    CompQuadForm::imhof(0, lambda = lambda, h = rep.int(1, n),
+    if(all(L <=  tol_zero)) return(list(Qq = 0, abserr = 0))
+    if(all(L >= -tol_zero)) return(list(Qq = 1, abserr = 0))
+    ## By default, L is scaled because small L yields small integrand
+    ## and hence makes numerical integration difficult
+    if(autoscale_args > 0) {
+        Labsmax <- max(abs(L)) / autoscale_args
+        L <- L / Labsmax
+    }
+    CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
                         delta = delta2, ...)
 }
 
@@ -627,6 +647,7 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 #' @order 8
 #'
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
+                        autoscale_args = 1,
                         tol_zero = .Machine$double.eps * 100, ...) {
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -642,11 +663,16 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
         "In pqfr_davies, quantile must be length-one" = (length(quantile) == 1)
     )
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    lambda <- eigA_qB$values
+    L <- eigA_qB$values
     delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-    if(all(lambda <=  tol_zero)) return(list(trace = rep.int(0, 7), ifault = 0, Qq = 0))
-    if(all(lambda >= -tol_zero)) return(list(trace = rep.int(0, 7), ifault = 0, Qq = 1))
-    CompQuadForm::davies(0, lambda = lambda, h = rep.int(1, n),
+    if(all(L <=  tol_zero)) return(list(trace = rep.int(0, 7), ifault = 0, Qq = 0))
+    if(all(L >= -tol_zero)) return(list(trace = rep.int(0, 7), ifault = 0, Qq = 1))
+    ## Scale L, although davies is more robust to small L than imhof
+    if(autoscale_args > 0) {
+        Labsmax <- max(abs(L)) / autoscale_args
+        L <- L / Labsmax
+    }
+    CompQuadForm::davies(0, lambda = L, h = rep.int(1, n),
                          delta = delta2, sigma = 0, ...)
 }
 
@@ -976,10 +1002,10 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
 #' @order 4
 #'
 dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
-                       stop_on_error = TRUE, use_cpp = TRUE,
-                       tol_zero = .Machine$double.eps * 100,
+                       autoscale_args = 1, stop_on_error = TRUE,
+                       use_cpp = TRUE, tol_zero = .Machine$double.eps * 100,
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
-    integ_fun <- function(u, L, H, mu) {
+    broda_fun <- function(u, L, H, mu) {
         a <- L * u
         b <- a ^ 2
         c <- 1 + b
@@ -1015,16 +1041,22 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     U <- eigA_qB$vectors
     mu <- c(crossprod(U, c(mu)))
     H <- crossprod(crossprod(B, U), U)
+    ## Arguments are scaled because small L yields small broda_fun
+    ## and hence makes numerical integration difficult
+    if(autoscale_args > 0) {
+        Labsmax <- max(abs(L)) / autoscale_args
+        L <- L / Labsmax
+        H <- H / Labsmax
+    }
     if(use_cpp) {
         cppres <- d_broda_Ed(L, H, mu, stop_on_error, epsabs, epsrel, limit)
         value <- cppres$value / pi
         abserr <- cppres$abs.error / pi
-
     } else {
-        ans <- stats::integrate(function(x)
-                                    sapply(x, function(u) integ_fun(u, L, H, mu)),
-                                0, Inf, rel.tol = epsrel, abs.tol = epsabs,
-                                stop.on.error = stop_on_error)
+        ans <- stats::integrate(
+            function(x) sapply(x, function(u) broda_fun(u, L, H, mu)),
+            0, Inf, rel.tol = epsrel, abs.tol = epsabs,
+            stop.on.error = stop_on_error)
         value <- ans$value / pi
         abserr <- ans$abs.error / pi
     }
