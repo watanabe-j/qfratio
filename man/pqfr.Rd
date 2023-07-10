@@ -106,7 +106,9 @@ pqfr_imhof(
   mu = rep.int(0, n),
   autoscale_args = 1,
   tol_zero = .Machine$double.eps * 100,
-  ...
+  epsabs = epsrel,
+  epsrel = 1e-06,
+  limit = 10000
 )
 
 pqfr_davies(
@@ -333,10 +335,9 @@ that, for nonnegative definite \eqn{\mathbf{B}}{B},
                         P\{x^T (A - q B) x > 0\}}, so that the distribution
 function of the ratio can be expressed in terms of that of the latter
 (indefinite) quadratic form.  (The same argument was used in the derivation
-of Forchini (2002, 2005) as well.)  Optional arguments for
-\code{\link[CompQuadForm]{imhof}()} and \code{\link[CompQuadForm]{davies}()}
-can be passed via \code{...}, except for \code{sigma} in the latter,
-which is not applicable.
+of Forchini (2002, 2005) as well.)  Additional arguments for
+\code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
+except for \code{sigma}, which is not applicable.
 
 \code{dqfr_broda()} evaluates the probability density by numerical inversion
 of the characteristic function using Geary's formula based on
@@ -345,6 +346,10 @@ Broda & Paolella (2009).  It conducts numerical integration by
 \code{use_cpp = FALSE},
 \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs,
 stop.on.error = stop_on_error)} is used, and \code{limit} is ignored.
+(To be strict, the user-specified \code{epsabs}, but not \code{epsrel},
+is multiplied by \code{pi} before passed to these functions,
+because the integration result and its error are subsequently
+dividied by \code{pi}.)
 
 \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
 approximations of the density and distribution function, respectively,

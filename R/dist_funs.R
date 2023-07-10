@@ -35,10 +35,9 @@
 #'                         P\{x^T (A - q B) x > 0\}}, so that the distribution
 #' function of the ratio can be expressed in terms of that of the latter
 #' (indefinite) quadratic form.  (The same argument was used in the derivation
-#' of Forchini (2002, 2005) as well.)  Optional arguments for
-#' \code{\link[CompQuadForm]{imhof}()} and \code{\link[CompQuadForm]{davies}()}
-#' can be passed via \code{...}, except for \code{sigma} in the latter,
-#' which is not applicable.
+#' of Forchini (2002, 2005) as well.)  Additional arguments for
+#' \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
+#' except for \code{sigma}, which is not applicable.
 #'
 #' \code{dqfr_broda()} evaluates the probability density by numerical inversion
 #' of the characteristic function using Geary's formula based on
@@ -47,6 +46,10 @@
 #' \code{use_cpp = FALSE},
 #' \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs,
 #' stop.on.error = stop_on_error)} is used, and \code{limit} is ignored.
+#' (To be strict, the user-specified \code{epsabs}, but not \code{epsrel},
+#' is multiplied by \code{pi} before passed to these functions,
+#' because the integration result and its error are subsequently
+#' dividied by \code{pi}.)
 #'
 #' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
 #' approximations of the density and distribution function, respectively,
@@ -608,7 +611,8 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1,
-                       tol_zero = .Machine$double.eps * 100, ...) {
+                       tol_zero = .Machine$double.eps * 100,
+                       epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -634,7 +638,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
         L <- L / Labsmax
     }
     CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
-                        delta = delta2, ...)
+                        delta = delta2, epsabs = pi * epsabs, epsrel = epsrel,
+                        limit = limit)
 }
 
 ##### pqfr_davies #####
@@ -1049,13 +1054,14 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
         H <- H / Labsmax
     }
     if(use_cpp) {
-        cppres <- d_broda_Ed(L, H, mu, stop_on_error, epsabs, epsrel, limit)
+        cppres <- d_broda_Ed(L, H, mu, stop_on_error,
+                             pi * epsabs, epsrel, limit)
         value <- cppres$value / pi
         abserr <- cppres$abs.error / pi
     } else {
         ans <- stats::integrate(
             function(x) sapply(x, function(u) broda_fun(u, L, H, mu)),
-            0, Inf, rel.tol = epsrel, abs.tol = epsabs,
+            0, Inf, rel.tol = epsrel, abs.tol = pi * epsabs,
             stop.on.error = stop_on_error)
         value <- ans$value / pi
         abserr <- ans$abs.error / pi
