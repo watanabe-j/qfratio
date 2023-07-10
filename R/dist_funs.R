@@ -151,6 +151,9 @@
 #' @param normalize_spa
 #'   If \code{TRUE} and \code{method == "butler"}, result is normalized so that
 #'   the density integrates to unity (see \dQuote{Details})
+#' @param return_abserr_attr
+#'   If \code{TRUE}, absolute error of numerical evaluation is returned
+#'   as an attribute \code{"abserr"} (see \dQuote{Value})
 #' @param stop_on_error
 #'   If \code{TRUE}, execution is stopped upon an error (including
 #'   non-convergence) in evaluation of hypergeometric function,
@@ -185,6 +188,14 @@
 #' @return
 #' \code{dqfr()} gives the density, and \code{pqfr()} gives the
 #' distribution function or \eqn{p}-values corresponding to \code{quantile}.
+#'
+#' When \code{return_abserr_attr = TRUE}, an absolute
+#' error bound of numerical evaluation is returned as an attribute; this
+#' feature is currently available with \code{dqfr(..., method = "broda")} and
+#' \code{pqfr(..., method = "imhof")} only.  This error bound is appropriately
+#' handled  when trimming happens with \code{trim_values} (above) or
+#' \code{log}/\code{log.p = TRUE} (the modified bound is symmetric and hence
+#' is conservative on one side).
 #'
 #' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
 #' the following elements:
@@ -317,7 +328,7 @@ NULL
 pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
-                 trim_values = TRUE,
+                 trim_values = TRUE, return_abserr_attr = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100,
                  ...) {
@@ -392,28 +403,56 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         if(!lower.tail) ans <- 1 - ans
     } else {
         if(method == "davies") {
-            ans <- sapply(quantile,
-                          function(q) pqfr_davies(q, A, B, mu = mu,
-                                                  tol_zero = tol_zero, ...)$Qq)
+            res <- sapply(quantile,
+                          function(q) 
+                              unlist(pqfr_davies(q, A, B, mu = mu,
+                                                 tol_zero = tol_zero, ...)))
         } else {
-            ans <- sapply(quantile,
-                          function(q) pqfr_imhof(q, A, B, mu = mu,
-                                                 tol_zero = tol_zero, ...)$Qq)
+            res <- sapply(quantile,
+                          function(q)
+                              unlist(pqfr_imhof(q, A, B, mu = mu,
+                                                tol_zero = tol_zero, ...)))
+            abserr <- res["abserr", ] / pi
         }
+        ans <- res["Qq", ]
         if(lower.tail) ans <- 1 - ans
     }
     if(trim_values) {
         if(any(ans > 1)) {
+            ## When this happens, true value is always on negative side,
+            ## so that abserr can be truncated
+            if(exists("abserr", inherits = FALSE)) {
+                abserr <- pmax.int(1 - tol_zero - ans + abserr, tol_zero)
+            }
             ans <- pmin.int(ans, 1 - tol_zero)
             warning("values > 1 trimmed down to 1 - tol_zero")
         }
         if(any(ans < 0)) {
+            ## When this happens, true value is always on positive side,
+            ## so that abserr can be truncated
+            if(exists("abserr", inherits = FALSE)) {
+                abserr <- pmax.int(ans + abserr - tol_zero, tol_zero)
+            }
             ans <- pmax.int(ans, tol_zero)
             warning("values < 0 trimmed up to tol_zero")
         }
     }
-    if(log.p) ans <- log(ans)
+    if(log.p) {
+        if(exists("abserr", inherits = FALSE)) {
+            abserr <- pmax.int(log(1 + abserr / ans), -log(1 - abserr / ans))
+        }
+        ans <- log(ans)
+    }
     attributes(ans) <- attributes(quantile)
+    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if(is.null(dim(quantile))) {
+            names(abserr) <- names(quantile)
+        } else {
+            dim(abserr) <- dim(quantile)
+            dimnames(abserr) <- dimnames(quantile)
+        }
+        attr(ans, "abserr") <- abserr
+    }
     return(ans)
 }
 
@@ -778,6 +817,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
+                 return_abserr_attr = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
     method <- match.arg(method)
@@ -833,9 +873,11 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         "quantile must be numeric" = is.numeric(quantile)
     )
     if(method == "broda") {
-        ans <- sapply(quantile,
-                      function(q) dqfr_broda(q, A, B, mu,
-                                             tol_zero = tol_zero, ...)$d)
+        res <- sapply(quantile,
+                      function(q) unlist(dqfr_broda(q, A, B, mu,
+                                                    tol_zero = tol_zero, ...)))
+        ans <- res["d", ]
+        abserr <- res["abserr", ]
     } else if(method == "butler") {
         ans <- sapply(quantile,
                       function(q) dqfr_butler(q, A, B, mu,
@@ -867,14 +909,34 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         ans <- sapply(quantile,
                       function(q) dqfr_A1I1(q, LA, m, ...)$d)
     }
+    ## Trim spurious negative density into [0, Inf)
     if(trim_values) {
         if(any(ans < 0)) {
+            ## When this happens, true value is always on positive side,
+            ## so that abserr can be truncated
+            if(exists("abserr", inherits = FALSE)) {
+                abserr <- pmax.int(ans + abserr - tol_zero, tol_zero)
+            }
             ans <- pmax.int(ans, tol_zero)
             warning("values < 0 trimmed up to tol_zero")
         }
     }
-    if(log) ans <- log(ans)
+    if(log) {
+        if(exists("abserr", inherits = FALSE)) {
+            abserr <- pmax.int(log(1 + abserr / ans), -log(1 - abserr / ans))
+        }
+        ans <- log(ans)
+    }
     attributes(ans) <- attributes(quantile)
+    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if(is.null(dim(quantile))) {
+            names(abserr) <- names(quantile)
+        } else {
+            dim(abserr) <- dim(quantile)
+            dimnames(abserr) <- dimnames(quantile)
+        }
+        attr(ans, "abserr") <- abserr
+    }
     return(ans)
 }
 

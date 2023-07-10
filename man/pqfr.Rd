@@ -23,6 +23,7 @@ dqfr(
   method = c("broda", "hillier", "butler"),
   trim_values = TRUE,
   normalize_spa = FALSE,
+  return_abserr_attr = FALSE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -39,6 +40,7 @@ pqfr(
   log.p = FALSE,
   method = c("imhof", "davies", "forchini", "butler"),
   trim_values = TRUE,
+  return_abserr_attr = FALSE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -181,6 +183,9 @@ permissible support are trimmed in (see \dQuote{Details})}
 \item{normalize_spa}{If \code{TRUE} and \code{method == "butler"}, result is normalized so that
 the density integrates to unity (see \dQuote{Details})}
 
+\item{return_abserr_attr}{If \code{TRUE}, absolute error of numerical evaluation is returned
+as an attribute \code{"abserr"} (see \dQuote{Value})}
+
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
@@ -241,6 +246,14 @@ the number of processors detected.  See \dQuote{Multithreading} in
 \value{
 \code{dqfr()} gives the density, and \code{pqfr()} gives the
 distribution function or \eqn{p}-values corresponding to \code{quantile}.
+
+When \code{return_abserr_attr = TRUE}, an absolute
+error bound of numerical evaluation is returned as an attribute; this
+feature is currently available with \code{dqfr(..., method = "broda")} and
+\code{pqfr(..., method = "imhof")} only.  This error bound is appropriately
+handled  when trimming happens with \code{trim_values} (above) or
+\code{log}/\code{log.p = TRUE} (the modified bound is symmetric and hence
+is conservative on one side).
 
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
 the following elements:
