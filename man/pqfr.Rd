@@ -91,9 +91,9 @@ pqfr_A1B1(
   m = 100L,
   mu = rep.int(0, n),
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
+  stop_on_error = FALSE,
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
-  stop_on_error = FALSE,
   nthreads = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
@@ -156,7 +156,16 @@ in Hillier et al. (2009, 2014).}
 for convenience only, and not meant for accuracy.}
 
 \item{method}{Method to specify an internal function (see \dQuote{Details}).  In
-\code{pqfr()}, options are:
+\code{dqfr()}, options are:
+\itemize{
+\item{\code{"broda"}: }{default; uses \code{dqfr_broda()}, numerical
+inversion of Broda & Paolella (2009)}
+\item{\code{"hillier"}: }{uses \code{dqfr_A1I1()}, series expression
+of Hillier (2001)}
+\item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
+approximation of Butler & Paolella (2007, 2008)}
+}
+In \code{pqfr()}, options are:
 \itemize{
 \item{\code{"imhof"}: }{default; uses \code{pqfr_imhof()}, numerical
 inversion of Imhof (1961)}
@@ -165,15 +174,6 @@ of Davies (1973, 1980)}
 \item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
 \item{\code{"butler"}: }{uses \code{pqfr_butler()}, saddlepoint
-approximation of Butler & Paolella (2007, 2008)}
-}
-In \code{dqfr()}, options are:
-\itemize{
-\item{\code{"broda"}: }{default; uses \code{dqfr_broda()}, numerical
-inversion of Broda & Paolella (2009)}
-\item{\code{"hillier"}: }{uses \code{dqfr_A1I1()}, series expression
-of Hillier (2001)}
-\item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }}
 
@@ -197,7 +197,7 @@ eigenvalues smaller than this are considered zero.}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{|}}
 
-\item{check_convergence}{Specifies how numerical convergence is checked (see
+\item{check_convergence}{Specifies how numerical convergence is checked for series expression (see
 \code{\link{qfrm}})}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
@@ -254,9 +254,9 @@ feature is currently available with \code{dqfr(..., method = "broda")} and
 truncated when trimming happens with \code{trim_values} (above).  When
 \code{log}/\code{log.p = TRUE}, \code{abserr} is transformed by
 \code{ifelse(abserr > ans, Inf, -log1p(-abserr/ans))}, where \code{ans}
-is the vector of evaluation result; this is the witdh of the wider (lower)
-of the two error intervals on the log scale and hence is conservative on
-the narrower (upper) side.
+is the vector of evaluation result; this transformed error bound is
+the witdh of the wider (lower) of the two error intervals on the log scale
+and hence is conservative on the narrower (upper) side.
 
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
 the following elements, of which only \code{$d} or \code{$p} is
@@ -345,13 +345,13 @@ respectively, from the package \pkg{CompQuadForm}.  This is from the fact
 that, for nonnegative definite \eqn{\mathbf{B}}{B},
 \eqn{ P \left\{
         \frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
-        > q \right\} =
+        \le q \right\} =
       P \left\{ \mathbf{x}^\mathit{T} (\mathbf{A} - q \mathbf{B}) \mathbf{x}
-        > 0 \right\} }{ P\{(x^T A x) / (x^T B x) > q\} =
-                        P\{x^T (A - q B) x > 0\}}, so that the distribution
+        \le 0 \right\} }{ P\{(x^T A x) / (x^T B x) \le q\} =
+                        P\{x^T (A - q B) x \le 0\}}, so that the distribution
 function of the ratio can be expressed in terms of that of the latter
-(indefinite) quadratic form.  (The same argument was used in the derivation
-of Forchini (2002, 2005) as well.)  Additional arguments for
+(indefinite) quadratic form.  (The same argument is used in almost all
+methods listed here.)  Additional arguments for
 \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
 except for \code{sigma}, which is not applicable.
 
@@ -384,16 +384,15 @@ factor.  Note that this is usually slower than
 
 The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
-\eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (Hillier 2001;
-Forchini 2002).  Around these points, the series expression tends to be
-\emph{very slow} to converge, and the evaluation of hypergeometric function
-involved may fail.  In this case,
-avoid using the series expression (i.e., use
-\code{method = "broda"}, \code{"imhof"}, or \code{"davies"} as applicable).
+\eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (assuming nonsingular
+\eqn{\mathbf{B}}{B}; Hillier 2001; Forchini 2002).  Around these points,
+convergence of the series expressions tends to be \emph{very slow}, and
+the evaluation of hypergeometric function involved may fail.  In this case,
+avoid using the series expression methods.
 
 Algorithms based on numerical integration can yield spurious numerical
 results that are outside the mathematically permissible supports;
-\eqn{\[0, \infty)} and \eqn{\[0, 1\]} for the density and distribution
+\eqn{[ 0, \infty )} and \eqn{[0, 1]} for the density and distribution
 functions, respectively.  By default (\code{trim_values = TRUE}),
 \code{dqfr()} and \code{pqfr()} trim those values into the permissible
 range by using \code{tol_zero} as a margin; e.g., negative p-values are
@@ -424,25 +423,37 @@ mu <- 0.2 * nv:1
 Sigma <- matrix(0.5, nv, nv)
 diag(Sigma) <- 1
 
-## f(2.5) for (x^T A x) / (x^T x) where x ~ N(0, I)
-dqfr(2.5, A)
-
-## P{ (x^T A x) / (x^T x) <= 2.5} where x ~ N(0, I)
-pqfr(2.5, A)
-
-## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(0, I)
-pqfr(1.5, A, B)
-
-## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, I)
-pqfr(1.5, A, B, mu = mu)
+## density and p-value for (x^T A x) / (x^T x) where x ~ N(0, I)
+dqfr(1.5, A)
+pqfr(1.5, A)
 
 ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, Sigma)
 pqfr(1.5, A, B, mu = mu, Sigma = Sigma)
 
 ## These are (pseudo-)vectorized
 qs <- 0:nv + 0.5
-dqfr(qs, A, B, mu = mu, Sigma = Sigma)
-pqfr(qs, A, B, mu = mu, Sigma = Sigma)
+dqfr(qs, A, B, mu = mu)
+pqfr(qs, A, B, mu = mu)
+
+## Various methods for density
+dqfr(qs, A, method = "broda")   # default
+dqfr(qs, A, method = "hillier") # series; B, mu, Sigma not permitted
+## Saddlepoint approximations (fast but inexact):
+dqfr(qs, A, method = "butler")  # 2nd order by default
+dqfr(qs, A, method = "butler", normalize_spa = TRUE) # normalized
+dqfr(qs, A, method = "butler", normalize_spa = TRUE,
+     order_spa = 1) # 1st order, normalized
+
+## Various methods for distribution function
+pqfr(qs, A, method = "imhof")    # default
+pqfr(qs, A, method = "davies")   # very similar
+pqfr(qs, A, method = "forchini") # series expression
+pqfr(qs, A, method = "butler")   # saddlepoint approximation (2nd order)
+pqfr(qs, A, method = "butler", order_spa = 1) # 1st order
+
+## To see error bounds
+dqfr(qs, A, return_abserr_attr = TRUE)
+pqfr(qs, A, return_abserr_attr = TRUE)
 
 }
 \references{
