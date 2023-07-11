@@ -192,19 +192,22 @@
 #' When \code{return_abserr_attr = TRUE}, an absolute
 #' error bound of numerical evaluation is returned as an attribute; this
 #' feature is currently available with \code{dqfr(..., method = "broda")} and
-#' \code{pqfr(..., method = "imhof")} only.  This error bound is appropriately
-#' handled  when trimming happens with \code{trim_values} (above) or
-#' \code{log}/\code{log.p = TRUE} (the modified bound is symmetric and hence
-#' is conservative on one side).
+#' \code{pqfr(..., method = "imhof")} only.  This error bound is automatically
+#' truncated when trimming happens with \code{trim_values} (above).  When
+#' \code{log}/\code{log.p = TRUE}, \code{abserr} is transformed by
+#' \code{ifelse(abserr > ans, Inf, -log1p(-abserr/ans))}, where \code{ans}
+#' is the vector of evaluation result; this is the witdh of the wider (lower)
+#' of the two error intervals on the log scale and hence is conservative on
+#' the narrower (upper) side.
 #'
 #' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
-#' the following elements:
+#' the following elements, of which only \code{$d} or \code{$p} is
+#' passed to the external functions:
 #' \itemize{
 #'   \item{\code{$d} or \code{$p}: }{probability density or
 #'         lower \eqn{p}-value, respectively (\code{sum(terms)})}
 #'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
 #'  }
-#' Only \code{$d} or \code{$p} is passed to the external functions.
 #'
 #' \code{pqfr_imhof()} and \code{pqfr_davies()} simply return the full output
 #' (a list) of \code{CompQuadForm::\link[CompQuadForm]{imhof}()} and
@@ -439,7 +442,7 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
     }
     if(log.p) {
         if(exists("abserr", inherits = FALSE)) {
-            abserr <- pmax.int(log(1 + abserr / ans), -log(1 - abserr / ans))
+            abserr <- ifelse(abserr > ans, Inf, -log1p(- abserr / ans))
         }
         ans <- log(ans)
     }
@@ -923,7 +926,7 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
     }
     if(log) {
         if(exists("abserr", inherits = FALSE)) {
-            abserr <- pmax.int(log(1 + abserr / ans), -log(1 - abserr / ans))
+            abserr <- ifelse(abserr > ans, Inf, -log1p(- abserr / ans))
         }
         ans <- log(ans)
     }
