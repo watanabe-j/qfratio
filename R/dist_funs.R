@@ -4,8 +4,8 @@
 #' This functionality is **experimental**.
 #'
 #' The user is supposed to use the exported functions \code{dqfr()} and
-#' \code{pqfr()}, which are (pseudo-)vectorized with respect to \code{quantile}
-#' using \code{\link[base]{sapply}()}.  The actual calculations are done by one
+#' \code{pqfr()}, which are (pseudo-)vectorized with respect to
+#' \code{quantile}.  The actual calculations are done by one
 #' of the internal functions, which only accommodate a length-one
 #' \code{quantile}.  The internal functions skip most checks on argument
 #' structures and do not accommodate \code{Sigma}
@@ -14,89 +14,54 @@
 #' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 #' and (cumulative) distribution function, respectively,
 #' as a partial sum of infinite series involving top-order zonal or
-#' invariant polynomials.  The density is from Hillier
-#' (2001, corollary 2), the distribution function for the central case is
-#' from Forchini (2002), and that for the noncentral case is from Forchini
-#' (2005) (with apparent errors corrected).  As in other functions of
-#' this package, these are evaluated with the recursive algorithm for
-#' \eqn{d} in Hillier et al. (2009, 2014).
+#' invariant polynomials (Hillier 2001; Forchini 2002, 2005).  As in other
+#' functions of this package, these are evaluated with the recursive algorithm
+#' \code{\link{d1_i}}.
 #'
 #' \code{pqfr_imhof()} and \code{pqfr_davies()} evaluate the distribution
 #' function by numerical inversion of the characteristic function based on
 #' Imhof (1961) or Davies (1973, 1980), calling
 #' \code{\link[CompQuadForm]{imhof}()} and \code{\link[CompQuadForm]{davies}()},
-#' respectively, from the package \pkg{CompQuadForm}.  This is from the fact
-#' that, for nonnegative definite \eqn{\mathbf{B}}{B},
-#' \eqn{ P \left\{
-#'         \frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
-#'         \le q \right\} =
-#'       P \left\{ \mathbf{x}^\mathit{T} (\mathbf{A} - q \mathbf{B}) \mathbf{x}
-#'         \le 0 \right\} }{ P\{(x^T A x) / (x^T B x) \le q\} =
-#'                         P\{x^T (A - q B) x \le 0\}}, so that the distribution
-#' function of the ratio can be expressed in terms of that of the latter
-#' (indefinite) quadratic form.  (The same argument is used in almost all
-#' methods listed here.)  Additional arguments for
+#' respectively, from the package \pkg{CompQuadForm}.  Additional arguments for
 #' \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
 #' except for \code{sigma}, which is not applicable.
 #'
 #' \code{dqfr_broda()} evaluates the probability density by numerical inversion
 #' of the characteristic function using Geary's formula based on
-#' Broda & Paolella (2009).  It conducts numerical integration by
-#' \code{gsl_integration_qagi(..., epsabs, epsrel, limit)}.  When
-#' \code{use_cpp = FALSE},
-#' \code{\link[stats]{integrate}(..., rel.tol = epsrel, abs.tol = epsabs,
-#' stop.on.error = stop_on_error)} is used, and \code{limit} is ignored.
-#' (To be strict, the user-specified \code{epsabs}, but not \code{epsrel},
-#' is multiplied by \code{pi} before passed to these functions,
-#' because the integration result and its error are subsequently
-#' dividied by \code{pi}.)
+#' Broda & Paolella (2009).  Parameters for numerical integration
+#' can be controlled via the arguments \code{epsabs}, \code{epsrel}, and
+#' \code{limit} (see vignette: \code{vignette("qfratio_distr")}).
 #'
 #' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
 #' approximations of the density and distribution function, respectively,
 #' based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
-#' conduct numerical root-finding for the saddlepoint by the Brent method
-#' (\code{gsl_root_fsolver_brent}), with the stopping rule specified by
-#' \code{gsl_root_test_delta(..., epsabs, epsrel)} and the maximum number of
-#' iteration by \code{maxiter}.  When \code{use_cpp = FALSE},
-#' \code{\link[stats]{uniroot}(..., check.conv = stop_on_error, tol = epsabs,
-#' maxiter = maxiter)} is used, and \code{epsrel} is ignored.  The saddlepoint
+#' conduct numerical root-finding for the saddlepoint by the Brent method,
+#' parameters for which can be controlled by the arguments
+#' \code{epsabs}, \code{epsrel}, and \code{maxiter}
+#' (see vignette: \code{vignette("qfratio_distr")}).  The saddlepoint
 #' approximation density does not integrate to unity, but can be normalized by
-#' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}, in which a
-#' result from \code{\link[stats]{integrate}()} is used as a normalization
-#' factor.  Note that this is usually slower than
-#' \code{dqfr(..., method = "broda")} for a small number of quantiles.
+#' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}.  Note that
+#' this is usually slower than \code{dqfr(..., method = "broda")} for
+#' a small number of quantiles.
 #'
 #' The density is undefined, and the distribution function has points of
 #' nonanalyticity, at the eigenvalues of
 #' \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (assuming nonsingular
-#' \eqn{\mathbf{B}}{B}; Hillier 2001; Forchini 2002).  Around these points,
-#' convergence of the series expressions tends to be *very slow*, and
-#' the evaluation of hypergeometric function involved may fail.  In this case,
-#' avoid using the series expression methods.
+#' \eqn{\mathbf{B}}{B}).  Around these points,
+#' the series expressions tends fail.  Avoid using the series expression
+#' methods for these cases.
 #'
-#' Algorithms based on numerical integration can yield spurious numerical
-#' results that are outside the mathematically permissible supports;
-#' \eqn{[ 0, \infty )} and \eqn{[0, 1]} for the density and distribution
-#' functions, respectively.  By default (\code{trim_values = TRUE}),
-#' \code{dqfr()} and \code{pqfr()} trim those values into the permissible
-#' range by using \code{tol_zero} as a margin; e.g., negative p-values are
-#' replaced by ~\code{2.2e-14} (default \code{tol_zero}).  A warning is
-#' thrown if this happens, because it usually means that numerically accurate
-#' evaluation was impossible, at least with the given parameters.  Turn
+#' Algorithms based on numerical integration can yield spurious results
+#' that are outside the mathematically permissible support; e.g.,
+#' \eqn{[0, 1]} for \code{pqfr()}.  By default, \code{dqfr()} and \code{pqfr()}
+#' trim those values into the permissible range with a warning; e.g.,
+#' negative p-values are
+#' replaced by ~\code{2.2e-14} (default \code{tol_zero}).  Turn
 #' \code{trim_values = FALSE} to skip these trimming and warning, although
 #' \code{pqfr_imhof()} and \code{pqfr_davies()} can still throw a warning
 #' from \pkg{CompQuadForm} functions.  Note that, on the other hand,
-#' all these functions return exact \code{0} or \code{1}
+#' all these functions try to return exact \code{0} or \code{1}
 #' when \eqn{q} is outside the possible range of the statistic.
-#'
-#' Numerical integration algorithms can fail when the magnitude of
-#' eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B} is small,
-#' whence some temporary objects numerically underflow to \code{0} and the
-#' integrand function decreases too slowly (i.e., divergent-looking).  To avoid
-#' this, the eigenvalues are scaled so that the maximum eigenvalue equals
-#' the factor \code{autoscale_args}, which can be specified by the user
-#' (default \code{1}).  The scaling can be skipped by providing
-#' a nonpositive value, including \code{0}/\code{FALSE}.
 #'
 #' @inheritParams qfrm
 #'
@@ -141,8 +106,8 @@
 #'   permissible support are trimmed in (see \dQuote{Details})
 #' @param autoscale_args
 #'   Numeric; if \code{> 0} (default), arguments are scaled to avoid failure in
-#'   numerical integration (see \dQuote{Details}).  If \code{<= 0}, the scaling
-#'   is skipped.
+#'   numerical integration (see \code{vignette("qfratio_distr")}).  If
+#'   \code{<= 0}, the scaling is skipped.
 #' @param order_spa
 #'   Numeric to determine order of saddlepoint approximation.  More accurate
 #'   second-order approximation is used for any \code{order > 1} (default);
@@ -163,24 +128,13 @@
 #'   \code{\link{qfrm}})
 #' @param cpp_method
 #'   Method used in \proglang{C++} calculations to avoid numerical
-#'   overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}}).  Options:
-#'   \itemize{
-#'     \item{\code{"double"}: }{default; fastest but prone to underflow in
-#'           some conditions}
-#'     \item{\code{"long_double"}: }{same algorithm but using the
-#'           \code{long double} variable type; robust but slow and
-#'           memory-inefficient}
-#'     \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
-#'           experimental but supposedly robust}
-#'    }
+#'   overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}})
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
-#'   functions.  \code{0} or any negative value is special and means one-half of
-#'   the number of processors detected.  See \dQuote{Multithreading} in
-#'   \code{\link{qfrm}}.
+#'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
 #' @param epsabs,epsrel,limit,maxiter
 #'   Optional arguments used in numerical integration or root-finding
-#'   algorithm (see \dQuote{Details})
+#'   algorithm (see vignette: \code{vignette{"qfratio_distr"}})
 #' @param ...
 #'   Additional arguments passed to internal functions
 #'
@@ -192,12 +146,9 @@
 #' error bound of numerical evaluation is returned as an attribute; this
 #' feature is currently available with \code{dqfr(..., method = "broda")} and
 #' \code{pqfr(..., method = "imhof")} only.  This error bound is automatically
-#' truncated when trimming happens with \code{trim_values} (above).  When
-#' \code{log}/\code{log.p = TRUE}, \code{abserr} is transformed by
-#' \code{ifelse(abserr > ans, Inf, -log1p(-abserr/ans))}, where \code{ans}
-#' is the vector of evaluation result; this transformed error bound is
-#' the witdh of the wider (lower) of the two error intervals on the log scale
-#' and hence is conservative on the narrower (upper) side.
+#' transformed when trimming happens with \code{trim_values} (above) or when
+#' \code{log}/\code{log.p = TRUE}.  See vignette for details
+#' (\code{vignette("qfratio_distr")}).
 #'
 #' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
 #' the following elements, of which only \code{$d} or \code{$p} is
@@ -267,22 +218,14 @@
 #'   *Econometric Theory*, **17**, 1--28.
 #'   \doi{10.1017/S026646660117101X}.
 #'
-#' Hillier, G., Kan, R. and Wang, X. (2009) Computationally efficient recursions
-#'   for top-order invariant polynomials with applications.
-#'   *Econometric Theory*, **25**, 211--242.
-#'   \doi{10.1017/S0266466608090075}.
-#'
-#' Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and
-#'   short recursions, with applications to the moments of quadratic forms
-#'   in noncentral normal vectors. *Econometric Theory*, **30**, 436--473.
-#'   \doi{10.1017/S0266466613000364}.
-#'
 #' Imhof, J. P. (1961) Computing the distribution of quadratic forms in normal
 #'   variables.
 #'   *Biometrika*, **48**, 419--426.
 #'   \doi{10.1093/biomet/48.3-4.419}.
 #'
 #' @seealso \code{\link{rqfr}}, a Monte Carlo random number generator
+#'
+#' \code{vignette("qfratio_distr")} for theoretical details
 #'
 #' @name pqfr
 #'
