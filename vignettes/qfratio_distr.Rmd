@@ -1,0 +1,1149 @@
+---
+title: "Probability Distribution Functions in Package qfratio"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{qfratio_distr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: bibliography.bib
+link-citations: TRUE
+csl: cran_style.csl
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
+
+```{r setup, include = FALSE}
+library(qfratio)
+require(stats)
+set.seed(764561)
+```
+
+$$
+\DeclareMathOperator{\qfrE}{E}
+\DeclareMathOperator{\qfrtr}{tr}
+\DeclareMathOperator{\qfrsgn}{sgn}
+\DeclareMathOperator{\qfrdiag}{diag}
+\newcommand{\qfrGmf}[1]{\Gamma \! \left( #1 \right)}
+\newcommand{\qfrBtf}[2]{B \! \left( #1 , #2 \right)}
+\newcommand{\qfrbrc}[1]{\left[ {#1} \right]}
+\newcommand{\qfrC}[2][\kappa]{ C_{#1} \! \left( #2 \right) }
+\newcommand{\qfrCid}[5]{ C^{#1, #2}_{#3} \! \left( #4, #5 \right) }
+\newcommand{\qfrCit}[7]{ C^{#1, #2, #3}_{#4} \! \left( #5, #6, #7 \right) }
+\newcommand{\qfrrf}[2][k]{\left( #2 \right)_{#1}}
+\newcommand{\qfrdk}[2][k]{ d_{#1} \! \left( #2 \right) }
+\newcommand{\qfrdij}[3][k]{ d_{#1} \! \left( #2, #3 \right) }
+\newcommand{\qfrdijk}[4][k]{ d_{#1} \! \left( #2, #3, #4 \right) }
+\newcommand{\qfrdijkl}[5][k]{ d_{#1} \! \left( #2, #3, #4, #5 \right) }
+\renewcommand{\det}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\qfrhgmf}[4]{{}_2 F_1 \left( #1 , #2 ; #3 ; #4 \right)}
+\newcommand{\qfrmvnorm}[3][n]{N_{#1} \! \left( #2 , #3 \right)}
+\newcommand{\qfrnchisq}[2]{\chi^2 \! \left( #1 , #2 \right)}
+$$
+
+
+As of version 1.1.0, `qfratio`
+([CRAN](https://CRAN.R-project.org/package=qfratio){target="_blank"};
+[GitHub](https://github.com/watanabe-j/qfratio){target="_blank"})
+has a functionality to evaluate probability density and distribution functions
+of a (simple) ratio of quadratic forms in normal variables.
+This document is to describe theoretical backgrounds and some implementation
+details of this functionality.
+See the main package vignette (`vignette("qfratio")`) for the evaluation of
+moments of ratios of quadratic forms.
+
+
+## Symbols used
+
+- $n$: number of variables
+- $C$: (top-order) zonal and invariant polynomials of matrix arguments
+  [@Muirhead1982; @Davis1980proc; @Chikuse1980msa; @Chikuse1987]
+- $Q, q$: ratio of quadratic forms as a random variable $Q$ and its realized value $q$
+- $F_Q(q), f_Q(q)$: (cumulative) distribution $F_Q$ and probability density
+  $f_Q$ functions of $Q$ at $q$
+- $\mathbf{x}$: $n$-variate normal random vector
+- $\qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$: $n$-variate normal
+  distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix
+  $\boldsymbol{\Sigma}$
+- $\qfrnchisq{h}{\delta^2}$: noncentral chi-square variable with
+  $h$ degrees of freedom and noncentrality parameter $\delta^2$
+- $\mathbf{A}, \mathbf{B}$: $n \times n$ argument matrices
+- $\mathbf{I}_n$: $n$-dimensional identity matrix
+- $\mathbf{0}_n$: $n$-variate vector of $0$'s
+- $\mathbf{0}_{n \times n}$: $n \times n$ matrix of $0$'s
+- $\qfrE \left( \cdot \right)$: expectation/mean
+- $\qfrGmf{\cdot}$: gamma function
+- $\qfrBtf{\cdot}{\cdot}$: beta function
+- $\qfrrf{x}$: Pochhammer symbol, that is,
+  $\qfrrf{x} = x (x + 1) \dots (x + k - 1)$ (with the convention $\qfrrf[0]{x} = 1$)
+- $\qfrhgmf{a}{b}{c}{x}$: (Gauss) hypergeometric function,
+  $\qfrhgmf{a}{b}{c}{x} = \sum_{k=0}^{\infty} \frac{ \qfrrf{a} \qfrrf{b} }{ \qfrrf{c} k! } x^k$
+- $\mathbf{A}^T$: matrix transposition
+- $\mathbf{A}^{-1}$: matrix inverse
+- $\det{\mathbf{A}}$: matrix determinant
+- $\qfrtr{\mathbf{A}}$: matrix trace
+- $\boldsymbol{\Lambda} = \qfrdiag \left( \lambda_1 , \dots \lambda_n \right)$:
+  matrix of eigenvalues of $\mathbf{A} - q \mathbf{B}$
+- $\mathbf{P}$: matrix of correponding eigenvectors of $\mathbf{A} - q \mathbf{B}$
+- $\boldsymbol{\Lambda}_1$, $-\boldsymbol{\Lambda}_2$: submatrices of
+  $\boldsymbol{\Lambda}$ that has positive and negative eigenvalues
+- $\boldsymbol{\nu}$: transformed mean vector,
+  $\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu}$,
+  with $i$th element denoted by $\nu_i$
+- $\mathbf{H}$: transformed $\mathbf{B}$, $\mathbf{H} = \mathbf{P}^T \mathbf{B} \mathbf{P}$,
+  with $(i, j)$th element denoted by $h_{ij}$
+
+Most symbols not listed here are largely restricted to individual sections.
+
+
+# Theory
+
+## Preliminaries
+
+Consider the (simple) ratio of quadratic forms in normal variables:
+\begin{equation}
+  Q = \frac{\mathbf{x}^T \mathbf{A} \mathbf{x}}
+  {\mathbf{x}^T \mathbf{B} \mathbf{x}},
+\end{equation}
+where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\mathbf{I}_n}$.
+The denominator matrix $\mathbf{B}$ is assumed to be nonnegative definite,
+whereas $\mathbf{A}$ can be any symmetric matrix.
+Unlike the moment-related functionalities of this package,
+the distribution-related functions only concern unit exponents ($p = q = 1$).
+
+A more general case where
+$\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$
+can be transformed into the above form when $\boldsymbol{\Sigma}$ is
+nonsingular:
+$\mathbf{x}_{\mathrm{new}} = \mathbf{K}^{-1} \mathbf{x}$,
+$\mathbf{A}_{\mathrm{new}} = \mathbf{K}^T \mathbf{A} \mathbf{K}$, etc., where $\mathbf{K}$ is an
+$n \times n$ matrix that satisfies $\mathbf{K} \mathbf{K}^T = \boldsymbol{\Sigma}$
+[@MathaiProvost1992, chapter 3].
+When $\boldsymbol{\Sigma}$ is singular, certain conditions need to be met by
+the argument matrices, $\boldsymbol{\Sigma}$, and $\boldsymbol{\mu}$ for this transformation,
+and hence the following expressions, to be valid
+[@Watanabe2023cevo, appendix C].
+
+Assuming $\mathbf{B}$ to be nonnegative definite, the distribution function
+of $Q$ is
+\begin{equation}
+  \begin{aligned}
+  F_Q(q)
+  = &
+  \Pr \left( \frac{\mathbf{x}^T \mathbf{A} \mathbf{x}}
+  {\mathbf{x}^T \mathbf{B} \mathbf{x}} \leq q \right) \\
+  = &
+  \Pr \left(
+    \mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x} \leq 0
+  \right) ,
+  \end{aligned}
+\end{equation}
+so that it can be expressed as the distribution function of the quadratic form
+$\mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x}$ at $0$.
+We are mostly concerned with such $q$ that makes $\mathbf{A} - q \mathbf{B}$
+indefinite, because otherwise (i.e., when it is positive or negative definite)
+$F_Q(q) = 0, 1$ and $f_Q(q) = 0$.
+
+
+## Series expression
+
+Explicit formulae for the distribution and density function of a ratio
+of quadratic forms have been worked out by @Hillier2001 and
+@Forchini2002[@Forchini2005].
+These typically involve infinite series of the top-order zonal and
+invariant polynomials of matrix arguments.
+The zonal polynomials are certain homogeneous polynomials of eigenvalues
+of a symmetric matrix which extend powers of scalars into symmetric matrices
+[e.g., @Muirhead1982].
+The invariant polynomials are further extension of the zonal polynomials
+to multiple matrix arguments
+[see @Chikuse1980msa; @Chikuse1987; @Davis1980proc].
+These polynomials are used to integrate out components of rotation
+from a function of random matrices.
+
+
+### Distribution function
+
+@Forchini2002[@Forchini2005] derived explicit expressions of $F_Q$
+using the top-order zonal and invariant polynomials.
+
+Let $\mathbf{P}$ be a matrix of eigenvectors of $\mathbf{A} - q \mathbf{B}$ such that
+\begin{equation}
+    \mathbf{P}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{P} =
+     \left( \begin{matrix}
+        \boldsymbol{\Lambda}_1(q) & \mathbf{0}_{n_1 \times n_2} & \mathbf{0}_{n_1 \times (n - n_1 - n_2)} \\
+        \mathbf{0}_{n_2 \times n_1} & - \boldsymbol{\Lambda}_2(q) & \mathbf{0}_{n_2 \times (n - n_1 - n_2)} \\
+        \mathbf{0}_{(n - n_1 - n_2) \times n_1} & \mathbf{0}_{(n - n_1 - n_2) \times n_2} & \mathbf{0}_{(n - n_1 - n_2) \times (n - n_1 - n_2)}
+    \end{matrix}\right),
+\end{equation}
+where $\boldsymbol{\Lambda}_1(q)$ and $- \boldsymbol{\Lambda}_2(q)$ are $n_1$- and
+$n_2$-dimensional diagonal matrices of positive and negative eigenvalues of
+$\mathbf{A} - q \mathbf{B}$, respectively.
+By denoting
+\begin{equation}
+  \begin{aligned}
+    &
+    \boldsymbol{\nu} =
+    \mathbf{P}^T \boldsymbol{\mu} =
+     \left( \begin{matrix}
+        \boldsymbol{\nu}_1 \\
+        \boldsymbol{\nu}_2 \\
+        \boldsymbol{\nu}_3
+    \end{matrix}\right) , \\
+    &
+    {\boldsymbol{\Lambda}_1^*}^{-1} = \left( \qfrtr \left( {\boldsymbol{\Lambda}_1}^{-1} \right) + \qfrtr \left( {\boldsymbol{\Lambda}_2}^{-1} \right) \right)^{-1} {\boldsymbol{\Lambda}_1}^{-1}, \\
+    &
+    {\boldsymbol{\Lambda}_2^*}^{-1} = \left( \qfrtr \left( {\boldsymbol{\Lambda}_1}^{-1} \right) + \qfrtr \left( {\boldsymbol{\Lambda}_2}^{-1} \right) \right)^{-1} {\boldsymbol{\Lambda}_2}^{-1},
+  \end{aligned}
+\end{equation}
+with the partition of $\boldsymbol{\nu}$ corresponding to that of
+the rows of $\mathbf{P}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{P}$ 
+above, the expression of @Forchini2005 is, after correcting some errors,
+\begin{equation}
+  \begin{aligned}
+    F_Q(q) = &
+    \frac{
+        \qfrGmf{ \frac{n_1 + n_2}{2} }
+        \exp \left[ - \frac{1}{2} \left( \boldsymbol{\nu}_1^T \boldsymbol{\nu}_1 + \boldsymbol{\nu}_2^T \boldsymbol{\nu}_2 \right)  \right]
+    }{ \qfrGmf{ \frac{n_1}{2} + 1 } \qfrGmf{ \frac{n_2}{2} } \det{\boldsymbol{\Lambda}_1^*}^{\frac{1}{2}} \det{\boldsymbol{\Lambda}_2^*}^{\frac{1}{2}} }  \\
+    & \cdot
+    \sum_{i_1 = 0}^{\infty} \sum_{j_1 = 0}^{\infty} \sum_{i_2 = 0}^{\infty} \sum_{j_2 = 0}^{\infty}
+    \frac{
+        \qfrrf[i_1 + j_1 + i_2 + j_2]{\frac{n_1 + n_2}{2}}
+        \qfrrf[i_1 + j_1]{\frac{1}{2}} \qfrrf[i_2 + j_2]{\frac{1}{2}}
+    }{
+        \qfrrf[i_1 + j_1]{\frac{n_1}{2} + 1}
+        \qfrrf[i_2 + j_2]{\frac{n_2}{2}}
+        \qfrrf[j_1]{\frac{1}{2}} \qfrrf[j_2]{\frac{1}{2}}
+        i_1! j_1! i_2! j_2!
+    }  \\
+    & \quad \cdot
+    \qfrCid{\qfrbrc{i_1}}{\qfrbrc{j_1}}{\qfrbrc{i_1 + j_1}}{ \qfrtr \left( {\boldsymbol{\Lambda}_1^*}^{-1} \right) \mathbf{I}_{n_1} - {\boldsymbol{\Lambda}_1^*}^{-1} }{ \frac{1}{2} {\boldsymbol{\Lambda}_1^*}^{-\frac{1}{2}} \boldsymbol{\nu}_1 \boldsymbol{\nu}_1^T {\boldsymbol{\Lambda}_1^*}^{-\frac{1}{2}} }  \\
+    & \quad \cdot
+    \qfrCid{\qfrbrc{i_2}}{\qfrbrc{j_2}}{\qfrbrc{i_2 + j_2}}{ \qfrtr \left( {\boldsymbol{\Lambda}_2^*}^{-1} \right) \mathbf{I}_{n_2} - {\boldsymbol{\Lambda}_2^*}^{-1} }{ \frac{1}{2} {\boldsymbol{\Lambda}_2^*}^{-\frac{1}{2}} \boldsymbol{\nu}_2 \boldsymbol{\nu}_2^T {\boldsymbol{\Lambda}_2^*}^{-\frac{1}{2}} }  \\
+    & \quad \cdot
+    {}_2 F_1 \left(i_1 + j_1 + i_2 + j_2 + \frac{n_1 + n_2}{2}, 1; i_1 + j_1 + \frac{n_1}{2} + 1; \qfrtr \left( {\boldsymbol{\Lambda}_1^*}^{-1} \right) \right)
+  \end{aligned}
+\end{equation}
+(see above for notations).
+
+In the central case ($\boldsymbol{\mu} = \mathbf{0}_n$), the above expression
+simplifies into [@Forchini2002]
+\begin{equation}
+  \begin{aligned}
+    F_Q(q) = &
+    \frac{
+        \qfrGmf{ \frac{n_1 + n_2}{2} }
+    }{ \qfrGmf{ \frac{n_1}{2} + 1 } \qfrGmf{ \frac{n_2}{2} } \det{\boldsymbol{\Lambda}_1^*}^{\frac{1}{2}} \det{\boldsymbol{\Lambda}_2^*}^{\frac{1}{2}} }  \\
+    & \cdot
+    \sum_{i_1 = 0}^{\infty} \sum_{i_2 = 0}^{\infty}
+    \frac{
+        \qfrrf[i_1 + i_2]{\frac{n_1 + n_2}{2}}
+        \qfrrf[i_1]{\frac{1}{2}} \qfrrf[i_2]{\frac{1}{2}}
+    }{
+        \qfrrf[i_1]{\frac{n_1}{2} + 1}
+        \qfrrf[i_2]{\frac{n_2}{2}}
+        i_1! i_2!
+    } \\
+    & \quad \cdot
+    \qfrC[\qfrbrc{i_1}]{ \qfrtr \left( {\boldsymbol{\Lambda}_1^*}^{-1} \right) \mathbf{I}_{n_1} - {\boldsymbol{\Lambda}_1^*}^{-1} }
+    \qfrC[\qfrbrc{i_2}]{ \qfrtr \left( {\boldsymbol{\Lambda}_2^*}^{-1} \right) \mathbf{I}_{n_2} - {\boldsymbol{\Lambda}_2^*}^{-1} } \\
+    & \quad \cdot
+    {}_2 F_1 \left(i_1 + i_2 + \frac{n_1 + n_2}{2}, 1; i_1 + \frac{n_1}{2} + 1; \qfrtr \left( {\boldsymbol{\Lambda}_1^*}^{-1} \right) \right)
+  \end{aligned}
+\end{equation}
+
+These expressions can be numerically evaluated by truncating the infinite series
+at certain higher-order terms ($i_1 + j_1 + i_2 + j_2 = m$, say), and by using
+a recursive algorithm to calculate
+\begin{equation}
+  \qfrdijk[k_1, \dots, k_s]{ \mathbf{A}_1 }{\dots}{ \mathbf{A}_s } =
+  \frac{ \qfrrf[k_1 + \dots + k_s]{\frac{1}{2}} }{ k_1 ! \dots k_s !}
+  \qfrCit{\qfrbrc{k_1}}{\dots}{\qfrbrc{k_s}}{\qfrbrc{k_1 + \dots + k_s}}{ \mathbf{A}_1 }{\dots}{ \mathbf{A}_s }
+\end{equation}
+by @HillierEtAl2009 and @HillierEtAl2014 (see also the main vignette `qfratio`).
+The present package implements this algorithm in
+`pqfr(..., method = "forchini")` (see below).
+
+The distribution function has points of nonanalyticity around the eigenvalues
+of $\mathbf{B}^{-1} \mathbf{A}$ (assuming $\mathbf{B}^{-1}$ is invertible)
+[@Forchini2002].
+Practically speaking, around these points, the series expression can be slow
+to converge and evaluation of the hypergeometric function can fail because
+the argument $\qfrtr \left( {\boldsymbol{\Lambda}_1^*}^{-1} \right)$ becomes
+very close to `1`.
+Otherwise, the series expression can be evaluated with high accuracy,
+although computational cost of the recursive calculations can be substantial
+in large problems.
+
+
+### Density function
+
+Apparently, an explicit expression for the probability density of $Q$ is
+available only for the simple condition when $\mathbf{B} = \mathbf{I}_n$ and
+$\boldsymbol{\mu} = \mathbf{0}_n$.
+In this case, the distribution of $Q$ does not depend on the norm of
+$\mathbf{x}$, so any spherically symmetric distribution of $\mathbf{x}$
+yields the same distribution [@Hillier2001].
+
+Let $\eta_1 , \dots , \eta_s$ be $s$ distinct eigenvalues of
+$\mathbf{A}$, and $n_1 , \dots , n_s$ be the corresponding degrees of
+multiplicity ($\sum_{i=1}^{s} n_i = n$).
+Consider the transformed variable $V = \frac{Q - \eta_s}{\eta_1 - Q}$
+and parameters $\psi_i = \frac{\eta_i - \eta_s}{\eta_1 - \eta_i}$
+for $i = 2, \dots s - 1$, assuming $s > 2$ (see below for
+the case when $s = 2$).
+The density of $V$ has different functional forms across its domain
+[from @Hillier2001, lemmas 3 and 4]:
+\begin{equation}
+  \begin{aligned}
+  f_V (v) = &
+    \left[ \qfrBtf{ \frac{p_r}{2} }{ \frac{n - p_r}{2} } \right]^{-1}
+    \left[ \prod_{i=2}^{r+1} \psi_i^{- \frac{n_1}{2}} \right]
+    \left[ \prod_{i=2}^{s-1} (1 + \psi_i)^{\frac{n_i}{2}} \right]
+    v^{\frac{p_r}{2} - 1} (1 + v)^{- \frac{n}{2}}
+    & \\ & \quad \cdot
+    \sum_{j=0}^{\infty} \sum_{k=0}^{\infty}
+    c_r (j, k)
+    \frac{ \qfrrf[j]{\frac{1}{2}} \qfrrf[k]{\frac{1}{2}} }{ j! k! }
+    \qfrC[\qfrbrc{j}]{v \mathbf{D}_{r}}
+    \qfrC[\qfrbrc{k}]{\left( v \mathbf{D}_{r+1} \right)^{-1}} ,
+    &
+    \psi_{r + 2} < v < \psi_{r + 1}, \atop r = 1, \dots , s - 2 , \\
+  f_V (v) = &
+    \left[ \qfrBtf{ \frac{n_s}{2} }{ \frac{n - n_s}{2} } \right]^{-1}
+    \left[ \prod_{i=2}^{s-1} \left( \frac{1 + \psi_i}{\psi_i} \right)^{\frac{n_i}{2}} \right]
+    v^{\frac{n - n_s}{2} - 1} (1 + v)^{- \frac{n}{2}}
+    & \\ & \quad \cdot
+    \sum_{k=0}^{\infty}
+    \frac{ \qfrrf{-\frac{n_s}{2} + 1} \qfrrf{\frac{1}{2}} }{ \qfrrf{\frac{n - n_s}{2} + 1} k! }
+    \qfrC[\qfrbrc{k}]{v \mathbf{D}} ,
+    & 0 < v < \psi_{s - 1} , \\
+  f_V (v) = &
+    \left[ \qfrBtf{ \frac{n_1}{2} }{ \frac{n - n_1}{2} } \right]^{-1}
+    \left[ \prod_{i=2}^{s-1} \left( 1 + \psi_i \right)^{\frac{n_i}{2}} \right]
+    v^{\frac{n_1}{2} - 1} (1 + v)^{- \frac{n}{2}}
+    & \\ & \quad \cdot
+    \sum_{k=0}^{\infty}
+    \frac{ \qfrrf{-\frac{n_1}{2} + 1} \qfrrf{\frac{1}{2}} }{ \qfrrf{\frac{n - n_1}{2} + 1} k! }
+    \qfrC[\qfrbrc{k}]{\left( v \mathbf{D} \right)^{-1}} ,
+    & \psi_{2} < v ,
+  \end{aligned}
+\end{equation}
+where $p_r = \sum_{i=1}^{r+1} n_i$,
+$\mathbf{D}_{r} = \qfrdiag \left( \psi_{2}^{-1} \mathbf{I}_{n_{2}} , \dots , \psi_{r+1}^{-1} \mathbf{I}_{n_{r+1}} \right)$,
+$\mathbf{D}_{r+1} = \qfrdiag \left( \psi_{r+2}^{-1} \mathbf{I}_{n_{r+2}} , \dots , \psi_{s-1}^{-1} \mathbf{I}_{n_{s-1}} \right)$,
+$\mathbf{D} = \qfrdiag \left( \psi_{2}^{-1} \mathbf{I}_{n_{2}} , \dots , \psi_{s-1}^{-1} \mathbf{I}_{n_{s-1}} \right)$,
+and $c_r (j, k)$ are the coefficients defined as
+\begin{equation}
+    c_r (j, k) =
+    \begin{cases}
+        1 , & j = k , \\
+        \qfrrf[k-j]{ - \frac{p_r}{2} + 1} \large{/} \qfrrf[k-j]{ \frac{n - p_r}{2} }  , & j < k , \\
+        \qfrrf[j-k]{ - \frac{n - p_r}{2} + 1} \large{/} \qfrrf[j-k]{ \frac{p_r}{2} }  , & j > k . \\
+    \end{cases}
+\end{equation}
+$c_r (j, k)$ can be $0$ when $p_r$ or $n - p_r$ is even, so that some terms
+in the above series disappear.
+Otherwise, it is possible to write
+\begin{equation}
+    c_r (j, k) =
+      (-1)^{j-k}
+      \frac{\qfrGmf{\frac{p_r}{2}} \qfrGmf{\frac{n - p_r}{2}}}{
+        \qfrGmf{\frac{p_r}{2} + j - k} \qfrGmf{\frac{n - p_r}{2} + k - j}
+      } , \quad \text{when denominator is defined} ,
+\end{equation}
+to simplify calculation.
+
+The density is undefined at $v = \psi_{i}$ ($q = \eta_i$) for any $i$.
+
+From one of the above expressions, $f_Q(q)$ can be obtained as
+\begin{equation}
+  \begin{aligned}
+    f_Q (q) = &
+    f_V (v) 
+    \cdot
+    \left| \frac{\mathrm{d} Q}{\mathrm{d} V} \right|
+    \nonumber \\
+    = &
+    f_V \left( \frac{q - \eta_s}{\eta_1 - q} \right)
+    \cdot
+    \frac{\eta_1 - \eta_s}{\left( \eta_1 - q \right)^2} .
+  \end{aligned}
+\end{equation}
+A notable special case is when $s = 2$ (i.e., there are only two distinct
+eigenvalues), in which case the above becomes
+\begin{equation}
+  \begin{aligned}
+    f_Q (q) = &
+    \left[ \qfrBtf{ \frac{n_1}{2} }{ \frac{n_s}{2} } \right]^{-1}
+    \frac{
+        \left( q - \eta_s \right)^{\frac{n_1}{2} - 1}
+        \left( \eta_1 - q \right)^{\frac{n_s}{2} - 1}
+    }{
+        \left( \eta_1 - \eta_s \right)^{\frac{n_1 + n_s}{2} - 1}
+    }.
+  \end{aligned}
+\end{equation}
+This is the density of the (scaled) beta distribution in the interval
+$\left[ \eta_s , \eta_1 \right]$ with the parameters
+$\frac{n_1}{2}$ and $\frac{n_s}{2}$.
+
+As for the above series expression of $F_Q$, these expressions can be
+evaluated by taking a partial sum of the series and using the recursive
+algorithm for $d$.
+`dqfr(..., method = "hillier")` implements this algorithm (see below).
+This is reasonably quick and accurate in small problems, but
+the computational cost can be substantial in large problems.
+
+
+## Numerical inversion
+
+A popular way to numerically evaluate the distribution function of
+quadratic forms is to use the inversion formula of the characteristic function
+[e.g., @StuartOrd1994, chapter 4].
+For the pesent purpose, a quadratic form is expressed as a weighted sum of
+independent chi-square variables:
+$\mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x} =
+\sum_{i=1}^{n} \lambda_i \chi ^2 \left( 1, \nu_i^2 \right)$, where
+$\lambda_i$ are $i$th eigenvalues of $\mathbf{A} - q \mathbf{B}$
+(diagonal elements of $\boldsymbol{\Lambda}_1$ and $-\boldsymbol{\Lambda}_2$
+above) and $\nu_i^2$ are noncentrality parameters, which are square of
+the $i$th elements of $\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu}$.
+
+### Distribution function
+
+The famous formula of @Imhof1961 is
+\begin{equation}
+    F_Q(q)
+    = \frac{1}{2} -
+    \frac{1}{\pi}
+    \int_{0}^{\infty} \frac{\sin \alpha (u)}{u \gamma (u)} \, \mathrm{d}u ,
+\end{equation}
+where
+\begin{equation}
+  \begin{aligned}
+    \alpha (u)
+      = &
+      \frac{1}{2} \sum_{i=1}^{n}
+      \left[
+        \arctan \left( u \lambda_i \right)
+        + \frac{\nu_i^2 u \lambda_i}{1 + u^2 \lambda_i^2}
+      \right] - \frac{1}{2} q u , \\
+    \gamma (u)
+      = &
+      \prod_{i=1}^{n} \left( 1 + u^2 \lambda_i^2 \right)^{\frac{1}{4}}
+      \exp \left[ \frac{1}{2}
+        \sum_{i=1}^{n} \frac{\nu_i^2 u^2 \lambda_i^2}{1 + u^2 \lambda_i^2}
+      \right] .
+  \end{aligned}
+\end{equation}
+
+The above integral can be evaluated by using a regular numerical evaluation
+algorithm.
+Alternatively, it can be evaluated by the method of @Davies1973[@Davies1980]
+which explicitly evaluates numerical errors involved.
+The package `CompQuadForm` impelemnts these methods in the function `imhof()`
+and `davies()`, respectively (strictly speaking, these are for $1 - F_Q$
+as per Imhof's original result).
+The present package utilizes those functions via
+`pqfr(..., method = "imhof")` and `pqfr(..., method = "davies")`, respectively
+(see below).
+The numerical inversion can be evaluated fairly quickly on modern computers,
+and the accuracy will be sufficient for most practical purposes with slight
+error in numerical integration.
+
+
+### Density function
+
+The density can be evaluated by numerical inversion of the characteristic
+function using Geary's formula [@Geary1944; @StuartOrd1994, section 11.10].
+@BrodaPaolella2009 demonstrated that
+\begin{equation}
+    f_Q(q)
+    = \frac{1}{\pi}
+    \int_{0}^{\infty}
+    \frac{\rho (u) \cos \beta (u) - u \delta (u) \sin \beta (u)}{2 \gamma (u)}
+    \, \mathrm{d}u ,
+\end{equation}
+where
+\begin{equation}
+  \begin{aligned}
+    \beta (u)
+      = &
+      \frac{1}{2} \sum_{i=1}^{n}
+      \left[
+        \arctan \left( u \lambda_i \right)
+        + \frac{\nu_i^2 u \lambda_i}{1 + u^2 \lambda_i^2}
+      \right] , \\
+    \gamma (u)
+      = &
+      \prod_{i=1}^{n} \left( 1 + u^2 \lambda_i^2 \right)^{\frac{1}{4}}
+      \exp \left[ \frac{1}{2}
+        \sum_{i=1}^{n} \frac{\nu_i^2 u^2 \lambda_i^2}{1 + u^2 \lambda_i^2}
+      \right] , \\
+    \rho (u)
+      = &
+      \sum_{i=1}^{n} \frac{h_{ii}}{1 + u^2 \lambda_i^2}
+      + \sum_{i=1}^{n} \sum_{j=1}^{n}
+      \frac{ \nu_i \nu_j h_{ij} \left( 1 - u^2 \lambda_ i \lambda_j \right) }{
+        \left( 1 + u^2 \lambda_i^2 \right) \left( 1 + u^2 \lambda_j^2 \right)}
+      \\
+      = &
+      \qfrtr \left( \mathbf{H} \mathbf{F}^{-1} \right)
+      +
+      \boldsymbol{\nu}^T \mathbf{F}^{-1}
+      \left(
+        \mathbf{H} - u^2 \boldsymbol{\Lambda} \mathbf{H} \boldsymbol{\Lambda}
+      \right)
+      \mathbf{F}^{-1} \boldsymbol{\nu} , \\
+    \delta (u)
+      = &
+      \sum_{i=1}^{n} \frac{ h_{ii} \lambda_i }{1 + u^2 \lambda_i^2}
+      + \sum_{i=1}^{n} \sum_{j=1}^{n}
+      \frac{ 2 \nu_i \nu_j h_{ij} \lambda_i }{
+        \left( 1 + u^2 \lambda_i^2 \right) \left( 1 + u^2 \lambda_j^2 \right)}
+      \\
+      = &
+      \qfrtr \left( \mathbf{H} \boldsymbol{\Lambda} \mathbf{F}^{-1} \right)
+      + 2
+      \boldsymbol{\nu}^T \mathbf{F}^{-1} \mathbf{H} \boldsymbol{\Lambda}
+      \mathbf{F}^{-1} \boldsymbol{\nu} , \\
+  \end{aligned}
+\end{equation}
+with $\boldsymbol{\Lambda} = \qfrdiag \left( \lambda_1 , \dots , \lambda_n \right)$
+and $\mathbf{P}$ being matrices of eigenvalues and eigenvectors, respectively, of
+$\mathbf{A} - q \mathbf{B}$,
+$\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu} = \left( \nu_i \right)$,
+$\mathbf{H} = \mathbf{P}^T \mathbf{B} \mathbf{P} = \left( h_{ij} \right)$,
+and $\mathbf{F} = \mathbf{I}_n + u^2 \boldsymbol{\Lambda}^2$.
+
+The above expression can be evaluated with a regular numerical integration
+algorithm, and is implemented in `dqfr(..., method = "broda")` (see below).
+
+
+## Saddlepoint approximation
+
+Saddlepoint approximation [@Butler2007; @Paolella2007, chapter 5] provides
+an alternative way to evaluate (or approximate) $F_Q$ and $f_Q$.
+As above, let
+$\boldsymbol{\Lambda} = \qfrdiag \left( \lambda_1 , \dots , \lambda_n \right)$
+and $\mathbf{P}$ be matrices of eigenvalues and eigenvectors, respectively, of
+$\mathbf{A} - q \mathbf{B}$,
+$\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu} = \left( \nu_i \right)$ and
+$\mathbf{H} = \mathbf{P}^T \mathbf{B} \mathbf{P} = \left( h_{ij} \right)$.
+
+### Distribution function
+
+Let $M_{X_q}(s)$ be the moment generating function of
+$X_q = \mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x}$,
+which is
+\begin{equation}
+  M_{X_q}(s)
+  =
+  \prod_{i=1}^{n} \left( 1 - 2 s \lambda_i^2 \right)^{-\frac{1}{2}}
+      \exp \left[ s
+        \sum_{i=1}^{n} \frac{\nu_i^2 \lambda_i}{1 - 2 s \lambda_i^2}
+      \right] .
+\end{equation}
+Also, let $K_{X_q}(s) =  \log M_{X_q}(s)$ be the corresponding
+cumulant generating function.
+
+The first-order saddlepoint approximation formula for the distribution function
+$F_Q$ is [@ButlerPaolella2007; @ButlerPaolella2008]:
+\begin{equation}
+  \widehat{\Pr{}}_1 (Q < q)
+  =
+  \begin{cases}
+    \Phi \left( \hat{w} \right) +
+      \phi \left( \hat{w} \right) \left[ \hat{w}^{-1} - \hat{u}^{-1} \right] ,
+      & \text{if } \qfrE \left( X_q \right) \neq 0 , \\
+    \frac{1}{2} + \frac{ K_{X_q}'''(0) }{ 6 \sqrt{2 \pi}  K_{X_q}''(0)^{3/2} } ,
+      & \text{if } \qfrE \left( X_q \right) = 0 , \\
+  \end{cases}
+\end{equation}
+where $\Phi \left( \cdot \right)$ and $\phi \left( \cdot \right)$ are
+the distribution and density functions, respectively, of the standard
+normal distribution, and
+\begin{equation}
+  \begin{aligned}
+  \hat{w} = & \qfrsgn \left(\hat{s}\right) \sqrt{-2 K_{X_q} (\hat{s})} , \\
+  \hat{u} = & \hat{s} \sqrt{K_{X_q}'' (\hat{s})} .
+  \end{aligned}
+\end{equation}
+In these expressions, $\hat{s}$ is the unique root of
+\begin{equation}
+  0 = K_{X_q}' \left( s \right) =
+  \sum_{i=1}^{n}
+    \left[
+       \frac{\lambda_i}{1 - 2 s \lambda_i^2} +
+       \frac{\nu_i^2 \lambda_i}{\left( 1 - 2 s \lambda_i^2 \right)^2}
+    \right] ,
+\end{equation}
+and is found numerically.
+It is easily confirmed that
+$\qfrE \left( X_q \right) =  K_{X_q}' (0) = \sum_{i=1}^{n} \lambda_i (1 + \nu_i^2)$,
+which is used to determine the above condition.
+Higher-order derivatives of $K_{X_q}$ are [see also @Paolella2007, chapter 10]
+\begin{equation}
+  \begin{aligned}
+  K_{X_q}'' \left( s \right)
+    = &
+    2 \sum_{i=1}^{n}
+      \frac{ \lambda_i^2 }{\left( 1 - 2 s \lambda_i \right)^2}
+      \left(1 + \frac{ 2 \nu_i^2 }{1 - 2 s \lambda_i} \right) , \\
+  K_{X_q}''' \left( s \right)
+    = &
+    8 \sum_{i=1}^{n}
+      \frac{ \lambda_i^3 }{\left( 1 - 2 s \lambda_i \right)^3}
+      \left(1 + \frac{ 3 \nu_i^2 }{1 - 2 s \lambda_i} \right) , \\
+  K_{X_q}^{(4)} \left( s \right)
+    = &
+    48 \sum_{i=1}^{n}
+      \frac{ \lambda_i^4 }{\left( 1 - 2 s \lambda_i \right)^4}
+      \left(1 + \frac{ 4 \nu_i^2 }{1 - 2 s \lambda_i} \right) .
+  \end{aligned}
+\end{equation}
+
+The more accurate second-order approximation is [@ButlerPaolella2007]
+\begin{equation}
+  \widehat{\Pr{}}_2 (Q < q)
+  =
+  \widehat{\Pr{}}_1 (Q < q) - \phi \left( \hat{w} \right)
+  \left[
+    \hat{u}^{-1}
+      \left( \frac{\hat{\kappa}_4}{8} - \frac{5}{24} \hat{\kappa}_3^2 \right)
+    - \hat{u}^{-3}
+    - \frac{ \hat{\kappa}_3^2 }{ 2 \hat{u}^2 }
+    + \hat{w}^{-3}
+  \right] ,
+  \quad \qfrE \left( X_q \right) \neq 0,
+\end{equation}
+where $\hat{\kappa}_j =
+K_{X_q}^{(j)} \left( \hat{s} \right) /  K_{X_q}'' \left( \hat{s} \right)^{j/2}$.
+
+Evaluation of saddlepoint approximation is fairly quick, with the only
+potential complexity arising from the numerical root-finding.
+Empirically, the accuracy of this approximation seems to improve for
+large problems.
+This is expected since the distribution of $X_q$ as a weighted sum
+approaches normality as $n$ increases.
+
+`pqfr(..., method = "butler")` implements this saddlepoint approximation.
+The second-order approximation is used by default (`order_spa = 2`) (see below).
+
+
+## Density function
+
+The corresponding first-order saddlepoint approximation for
+the density function $f_Q$ is [@ButlerPaolella2007; @ButlerPaolella2008]
+\begin{equation}
+  \hat{f_1}(s)
+  =
+  \frac{
+    J_q \left( \hat{s} \right)
+  }{
+    \sqrt{ 2 \pi K_{X_q}'' \left( \hat{s} \right) }
+  }
+  M_{X_q} \left( \hat{s} \right) ,
+\end{equation}
+where $\hat{s}$ is the same saddlepoint root used above, and
+\begin{equation}
+  J_q \left( s \right)
+    =
+    \qfrtr \left[
+     \boldsymbol{\Xi}^{-1} \mathbf{H}
+    \right]
+    + \boldsymbol{\nu}^T \boldsymbol{\Xi}^{-1}
+      \mathbf{H}
+      \boldsymbol{\Xi}^{-1} \boldsymbol{\nu}
+  ,
+\end{equation}
+using notations defined above and
+$\boldsymbol{\Xi} = \mathbf{I}_n - 2 s \boldsymbol{\Lambda}$.
+
+The second-order approximation is [@ButlerPaolella2007]
+\begin{equation}
+  \hat{f_2}(s)
+  =
+  \hat{f_1}(s) (1 + O) ,
+\end{equation}
+where
+\begin{equation}
+  O
+  =
+  \left(
+    \frac{\hat{\kappa}_4}{8} - \frac{5}{24} \hat{\kappa}_3^2
+  \right)
+  + \frac{
+      J_q' \left( \hat{s} \right) \hat{\kappa}_3
+    }{
+      2 J_q \left( \hat{s} \right) \sqrt{K_q'' \left( \hat{s} \right)}
+    }
+  - \frac{
+      J_q'' \left( \hat{s} \right)
+    }{
+      2 J_q \left( \hat{s} \right) K_q'' \left( \hat{s} \right)
+    }
+  ,
+\end{equation}
+with
+\begin{equation}
+  \begin{aligned}
+    J_q' \left( s \right)
+      = &
+      2 \qfrtr \left[
+        \boldsymbol{\Xi}^{-1} \boldsymbol{\Lambda} 
+        \boldsymbol{\Xi}^{-1} \mathbf{H}
+      \right]
+      + 4 \boldsymbol{\nu}^T \boldsymbol{\Xi}^{-1}
+        \boldsymbol{\Lambda} \boldsymbol{\Xi}^{-1}
+        \mathbf{H}
+        \boldsymbol{\Xi}^{-1} \boldsymbol{\nu}
+      \\
+      = &
+      2 \qfrtr \left[
+        \boldsymbol{\Xi}^{-2} \boldsymbol{\Lambda} \mathbf{H}
+      \right]
+      + 4 \boldsymbol{\nu}^T \boldsymbol{\Xi}^{-2}
+        \boldsymbol{\Lambda} \mathbf{H}
+        \boldsymbol{\Xi}^{-1} \boldsymbol{\nu}
+      , \\
+    J_q'' \left( s \right)
+      = &
+      8 \qfrtr \left[
+        \boldsymbol{\Xi}^{-3} \boldsymbol{\Lambda}^{2} \mathbf{H}
+      \right]
+      + 16 \boldsymbol{\nu}^T \boldsymbol{\Xi}^{-3}
+        \boldsymbol{\Lambda}^{2} \mathbf{H}
+        \boldsymbol{\Xi}^{-1} \boldsymbol{\nu}
+      \\ &
+      + 8 \boldsymbol{\nu}^T \boldsymbol{\Xi}^{-2}
+        \boldsymbol{\Lambda} \mathbf{H}
+        \boldsymbol{\Lambda}
+        \boldsymbol{\Xi}^{-2} \boldsymbol{\nu}
+    ,
+  \end{aligned}
+\end{equation}
+($\boldsymbol{\Xi}^{-1}$ and $\boldsymbol{\Lambda}$ commute since these are
+diagonal matrices).
+
+`dqfr(..., method = "butler")` implements this saddlepoint approximation
+in a very similar way to `pqfr(..., method = "butler")` (see below).
+
+
+
+# Implementation details
+
+## Exported functions
+
+The above expressions for the distribution and density functions
+are implemented in `pqfr()` and `dqfr()`, which are defined as:
+```{r definition_exported, eval = FALSE}
+pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+                 lower.tail = TRUE, log.p = FALSE,
+                 method = c("imhof", "davies", "forchini", "butler"),
+                 trim_values = TRUE, return_abserr_attr = FALSE,
+                 tol_zero = .Machine$double.eps * 100,
+                 tol_sing = .Machine$double.eps * 100, ...) { ... }
+dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+                 log = FALSE, method = c("broda", "hillier", "butler"),
+                 trim_values = TRUE, normalize_spa = FALSE,
+                 return_abserr_attr = FALSE,
+                 tol_zero = .Machine$double.eps * 100,
+                 tol_sing = .Machine$double.eps * 100, ...) { ... }
+```
+
+These functions are (pseudo-)vectorized with respect to `quantile`
+(a vector of $q$), using `sapply()`.
+They first check basic argument structures, and, if `Sigma` is specified,
+transform the arguments `A`, `B`, and `mu` and call themselves recursively
+with the new arguments.
+Log-transformed $p$-values or densities can be obtained by turning
+`log.p = TRUE` or `log = TRUE`, but these are just ad-hoc transformations
+of the results so are not supposed to provide as much numerical accuracy
+as in regular probability distribution functions.
+
+
+### Choosing a method
+
+The evaluation method is specified by the argument `method` in these
+functions (by default, both functions choose a numerical inversion method).
+According to the choice, the actual calculations are done in one of the
+*internal* functions described below.
+Direct use of the internal functions are *not* recommended.
+These internal functions only accept a length-one `quantile`.
+To reduce computational time, they do not check argument structures
+or accommodate `Sigma`.
+
+```{r example_methods, error = TRUE}
+## Choice from alternative methods
+A <- diag(1:3)
+pqfr(1.5, A, method = "imhof")    # default
+pqfr(1.5, A, method = "davies")   # similar
+pqfr(1.5, A, method = "forchini") # series
+pqfr(1.5, A, method = "butler")   # spa
+
+dqfr(1.5, A, method = "broda")    # default
+dqfr(1.5, A, method = "hillier")  # series
+dqfr(1.5, A, method = "butler")   # spa
+
+## Not recommended; for diagnostic use only
+qfratio:::pqfr_imhof(1.5, A)
+qfratio:::pqfr_A1B1(1.5, A, m = 9, check_convergence = FALSE)
+
+
+## This is okay
+x <- c(1.5, 2.5, 3.5)
+pqfr(x, A)
+
+## This is not
+qfratio:::pqfr_imhof(x, A)
+```
+
+
+### Use with `ks.test()`
+
+In principle, `pqfr()` is compatible with `stats:::ks.test()`,
+but care must be exercised as evaluation result may involve non-trivial error.
+It is recommended to inspect error bounds beforehand, using
+`pqfr(..., method = "imhof", return_abserr_attr = TRUE)`.
+In addition, the argument `B` is pre-occupied by the same-named argument
+in `ks.test()`, so it cannot be passed via `...`;
+this means that a typical syntax with non-default `B` should be something like
+`ks.test(x, function(q) pqfr(q, A, B, ...))` rather than
+`ks.test(x, pqfr, A = A, B = B, ...))`.
+For example,
+```{r ks_syntax_correct}
+## Small Monte Carlo sample
+A <- diag(1:3)
+B <- diag(sqrt(1:3))
+x <- rqfr(10, A, B)
+
+## Calculate p-values
+pseq <- pqfr(x, A, B, return_abserr_attr = TRUE)
+
+## Maximum error when evaluated at x;
+## looks small enough
+max(attr(pseq, "abserr"))
+
+## Correct syntax, expected outcome
+## \(q) syntax could also be used in recent versions
+ks.test(x, function(q) pqfr(q, A, B))
+```
+rather than
+```{r ks_syntax_wrong}
+## Incorrect; no error/warning because
+## B is passed to ks.test rather than to pqfr
+ks.test(x, pqfr, A = A, B = B)
+```
+
+
+## Series expressions
+```{r definition_internal_series, eval = FALSE}
+pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
+                      check_convergence = c("relative", "strict_relative",
+                                            "absolute", "none"),
+                      stop_on_error = FALSE, use_cpp = TRUE,
+                      cpp_method = c("double", "long_double", "coef_wise"),
+                      nthreads = 1,
+                      tol_conv = .Machine$double.eps ^ (1/4),
+                      tol_zero = .Machine$double.eps * 100,
+                      tol_sing = .Machine$double.eps * 100,
+                      thr_margin = 100) { ... }
+dqfr_A1I1 <- function(quantile, LA, m = 100L,
+                      check_convergence = c("relative", "strict_relative",
+                                            "absolute", "none"),
+                      use_cpp = TRUE,
+                      tol_conv = .Machine$double.eps ^ (1/4),
+                      thr_margin = 100) { ... }
+```
+
+These functions evaluate the above series expressions as partial sums
+of the infinite series, using the recursive algorithm to calculate $d$
+(`d1_i()` or `d2_ij_m()`), as in the moment-related functions of this package
+(see the vignette for moments `vignette("qfratio")`).
+Most of the arguments are common with those functions.
+
+```{r example_series_1, error = TRUE}
+A <- diag(1:3)
+pqfr(1.5, A, method = "forchini")
+dqfr(1.5, A, method = "hillier")
+
+B <- diag(sqrt(1:3))
+pqfr(1.5, A, B, method = "forchini")
+## dqfr method does not accommodate with B, mu, or Sigma
+dqfr(1.5, A, B, method = "hillier")
+```
+
+
+As stated above, the density is undefined, and the distribution function
+has points of nonanalyticity, at the eigenvalues of
+$\mathbf{B}^{-1} \mathbf{A}$ (assuming nonsingular $\mathbf{B}$;
+Hillier 2001; Forchini 2002).
+Around these points, convergence of the series expressions tends to be
+*very slow*, and the evaluation of hypergeometric function involved in the
+distribution function may fail.
+In this case, avoid using the series expression methods.
+```{r example_series_2, error = TRUE}
+A <- diag(1:3)
+
+## p-value just below 2, an eigenvalue of A
+## Typically throws two warnings:
+##   Maximum iteration in hypergeometric function
+##   and non-convergence of series
+pqfr(1.9999, A, method = "forchini")
+
+## More realistic value; expected from symmetry
+pqfr(1.9999, A, method = "imhof")
+```
+
+
+## Numerical inversion
+```{r definition_internal_inversion, eval = FALSE}
+pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
+                       autoscale_args = 1,
+                       tol_zero = .Machine$double.eps * 100,
+                       epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
+pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
+                        autoscale_args = 1,
+                        tol_zero = .Machine$double.eps * 100, ...) { ... }
+dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
+                       autoscale_args = 1, stop_on_error = TRUE,
+                       use_cpp = TRUE, tol_zero = .Machine$double.eps * 100,
+                       epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
+```
+
+`pqfr_imhof()` and `pqfr_davies()` calculate appropriate parameters from
+the arguments and pass them to `imhof()` and `davies()` from the `CompQuadForm`
+package.
+`dqfr_broda()` conducts numerical integration by
+`gsl_integration_qagi(..., epsabs, epsrel, limit)` when `use_cpp = TRUE`
+(default).
+The arguments `epsabs`, `epsrel`, and `limit` determine the permissible bounds
+of absolute and relative errors, and the maximum number of integration
+intervals, respectively.
+When `use_cpp = FALSE`, it uses the `R` function
+`stats::integrate(..., rel.tol = epsrel, abs.tol = epsabs, stop.on.error = stop_on_error)`,
+instead, and `limit` is ignored.
+To be strict, the user-specified `epsabs`, but not `epsrel`, is multiplied by
+`pi` before passed to these functions, because the integration result and
+its error are subsequently dividied by `pi`.
+
+
+### `autoscale_args`
+
+Numerical integration involved in these functions typically fail when
+the magnitude of eigenvalues is small, whence some temporary objects
+numerically underflow to `0` and the integrand function decreases too slowly
+(i.e., divergent-looking).
+To avoid this failure, these functions internally scales the eigenvalues
+by default, so that the maximum absolute eigenvalue is equal to the argument
+`autoscale_args` (default `1`).
+
+```{r example_inversion_scale, error = TRUE}
+A <- diag(1:3)
+B <- diag(sqrt(1:3))
+
+## Without autoscale_args
+## We know these are equal
+pqfr(1.5, A, B, autoscale_args = FALSE)
+pqfr(1.5, A * 1e-10, B * 1e-10, autoscale_args = FALSE)
+## The latter failed because of numerically small eigenvalues
+
+## With autoscale_args = 1 (default)
+pqfr(1.5, A * 1e-10, B * 1e-10)
+```
+
+### `trim_values`
+
+Numerical integration can yield spurious results that are outside
+the mathematically permissible supports; $[ 0, \infty )$ and $[0, 1]$ for
+the density and distribution functions, respectively.
+By default (`trim_values = TRUE`), the external functions
+`dqfr()` and `pqfr()` trim those values into the permissible
+range by using `tol_zero` as a margin; e.g., negative p-values are
+replaced by ~`2.2e-14` (default `tol_zero`).  A warning is
+thrown if this happens, because it usually means that numerically accurate
+evaluation was impossible, at least with the given parameters.  Turn
+`trim_values = FALSE` to skip these trimming and warning, although
+`pqfr_imhof()` and `pqfr_davies()` can still throw a warning
+from `CompQuadForm` functions.  Note that, on the other hand,
+all these functions try to return exact `0` or `1`
+when $q$ is outside the possible range of $Q$ (as numerically determined).
+
+```{r example_inversion_trim, error = TRUE}
+## Result without trimming
+## (typically) negative density,
+## which is absurd
+dqfr(2.5, diag(1:50), trim_values = FALSE)
+
+## In this case, error interval typically spans across 0
+dqfr(2.5, diag(1:50), trim_values = FALSE,
+     return_abserr_attr = TRUE)
+
+## Result with trimming (default)
+dqfr(2.5, diag(1:50))
+```
+
+## Saddlepoint approximation
+```{r definition_internal_spa, eval = FALSE}
+pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
+                        order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
+                        tol_zero = .Machine$double.eps * 100,
+                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
+                        maxiter = 5000) { ... }
+dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
+                        order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
+                        tol_zero = .Machine$double.eps * 100,
+                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
+                        maxiter = 5000) { ... }
+```
+
+These functions evaluate the saddlepiont approximations described above.
+They first check whether $\sum_{i=1}^{n} \lambda_i (1 + \nu_i^2)$ is close to
+`0` using `tol_zero`.
+If not, they conduct numerical root-finding for the saddlepoint by
+the Brent method (`gsl_root_fsolver_brent`), with the stopping rule specified by
+`gsl_root_test_delta(..., epsabs, epsrel)` and the maximum number of
+iteration by `maxiter`.
+When `use_cpp = FALSE`,
+`stats::uniroot(..., check.conv = stop_on_error, tol = epsabs, maxiter = maxiter)`
+is used instead, and `epsrel` is ignored.
+The Newton--Raphson method was also explored in the development stage, but
+that method sometimes failed because the derivative can be numerically close to
+`0`.
+
+
+### Options
+
+The saddlepoint approximation density does not integrate to unity,
+but can be normalized by setting `normalize_spa = TRUE` in `dqfr()`
+(note that this is done in the external function).
+The normalized density can be more accurate (although it is usually a matter of
+empirism).
+However, this is usually slower than the numerical inversion method
+for a small number of quantiles.
+
+The second-order approximation is used by default (`order_spa = 2`)
+(internally, any value `> 1` calls this option).
+The first-order approximation can be used by setting `order_spa = 1`,
+but this is usually less accurate and only slightly faster than
+the second-order approximation.
+
+```{r example_spa_1}
+A <- diag(1:3)
+
+## Default for spa distribution function
+pqfr(1.2, A, method = "butler", order_spa = 2)
+
+## First-order spa
+pqfr(1.2, A, method = "butler", order_spa = 1)
+
+## More accurate numerical inversion
+pqfr(1.2, A)
+
+
+## Default for density
+dqfr(1.2, A, method = "butler",
+     order_spa = 2, normalize_spa = FALSE)
+
+## First-order
+dqfr(1.2, A, method = "butler",
+     order_spa = 1, normalize_spa = FALSE)
+
+## Normalized density, second-order
+dqfr(1.2, A, method = "butler",
+     order_spa = 2, normalize_spa = TRUE)
+
+## Normalized density, first-order
+dqfr(1.2, A, method = "butler",
+     order_spa = 1, normalize_spa = TRUE)
+
+## More accurate numerical inversion
+dqfr(1.2, A)
+
+```
+
+
+@Paolella2007[program listing 10.4] noted that the second-order approximation
+for the distribution function can be "problematic", which presumably means
+that the evaluation result can be instable.
+In development of this package, some instability in the second-order
+approximation was encountered, but experiments suggest that
+this was due to sensitivity of the result to the numerically found root
+$\hat{s}$.
+This instability is rarely encountered with the present default setting,
+but the user may want to adjust root-finding-related parameters when
+any doubt exists.
+
+
+## Error bound
+
+Return values from `pqfr_imhof()` and `dqfr_broda()` have an error bound
+`abserr` for numerical integration, along with the evaluation result itself.
+Technically, the error bound from the integration algorithm is divided by
+`pi` before returned, as the evaluation result itself is.
+This can be passed to the external functions as an attribute by setting
+`return_abserr_attr = TRUE` (as already used in above examples):
+```{r errorbound_1}
+A <- diag(1:4)
+
+pqfr(1.5, A, return_abserr_attr = TRUE)
+
+dqfr(1.5, A, return_abserr_attr = TRUE)
+```
+
+This error bound tries to accommodate the effect of `trim_values`.
+If the integration result is outside the permissible support
+(e.g., negative density), the possible error bound is only on the direction
+toward the support (assuming things are calculated honestly).
+The returned `abserr` is truncated accordingly, unless trimming is
+beyond the original `abserr` (in which case it is replaced by `tol_zero`).
+See this in examples:
+```{r errorbound_trim, error = TRUE}
+## Without trimming, result is (typically) negative
+## But note that value + abserr is positive
+dqfr(2.5, diag(1:50), return_abserr_attr = TRUE,
+     trim_values = FALSE)
+
+## With trimming, value is replaced by tol_zero
+## Note slightly shortened abserr
+dqfr(2.5, diag(1:50), return_abserr_attr = TRUE)
+
+
+## When untrimmed value + abserr < tol_zero
+dqfr(2.5, diag(1:50), epsabs = 1e-15,
+     return_abserr_attr = TRUE, trim_values = FALSE)
+## True value is somewhere between 0 and value + abserr
+## (assuming these are reliable)
+
+## When trimmed, abserr reflects tol_zero
+## because the true value is between 0 and tol_zero
+dqfr(2.5, diag(1:50), epsabs = 1e-15,
+     return_abserr_attr = TRUE)
+```
+
+When `log`/`log.p = TRUE`, `abserr` is transformed so that
+it is a conservative absolute error bound on the log scale.
+That is, if the original value and its error bound is denoted by 
+$\hat{x}$ and $\delta \hat{x}$, respectively, and the
+log-transformed value and its error bound is by $\log \hat{x}$ and
+$\delta (\log \hat{x})$, the latter error bound is set so that
+$\log \hat{x} - \delta (\log \hat{x}) = \log (\hat{x} - \delta \hat{x})$, i.e.,
+$\delta (\log \hat{x}) = - \log \left( 1 - \frac{\delta \hat{x}}{\hat{x}} \right)$.
+Note that the upper error bound
+$\log \left( 1 + \frac{\delta \hat{x}}{\hat{x}} \right)$ is narrower than this
+unless $\delta \hat{x} > \hat{x}$ (i.e., $\hat{x} - \delta \hat{x} < 0$)
+in which case it should be taken as $\delta (\log \hat{x}) = \infty$.
+In summary, the new error bound is calculated as
+`ifelse(abserr > ans, Inf, -log1p(-abserr/ans))`.
+
+
+
+# References

@@ -9,7 +9,7 @@
       <name>Junya Watanabe</name>
     </author>
     <category citation-format="author-date"/>
-    <updated>2023-03-22T21:02:24+00:00</updated>
+    <updated>2023-07-12T12:05:22+00:00</updated>
   </info>
   <macro name="author-text">
     <names variable="author">
@@ -32,7 +32,7 @@
   </macro>
   <macro name="title-and-descriptions">
     <choose>
-      <if type="article-journal article-magazine article chapter" match="any">
+      <if type="article-journal article-magazine article chapter report" match="any">
         <text variable="title" prefix=" "/>
       </if>
       <else>
@@ -43,6 +43,14 @@
               <group>
                 <number variable="edition" form="ordinal"/>
                 <label prefix=" " variable="edition" form="short"/>
+              </group>
+            </if>
+          </choose>
+          <choose>
+            <if match="any" variable="volume">
+              <group>
+                <label suffix=" " variable="volume" form="short"/>
+                <text variable="volume"/>
               </group>
             </if>
           </choose>
@@ -66,7 +74,7 @@
                 </choose>
               </if>
               <else>
-                <text variable="issue" font-weight="bold"/>
+                <text variable="issue" font-weight="bold" prefix=", "/>
               </else>
             </choose>
           </group>
@@ -84,6 +92,35 @@
           <text variable="container-title" text-case="title" font-style="italic" prefix=", "/>
         </group>
       </else-if>
+    </choose>
+    <choose>
+      <if type="report" match="any">
+        <group>
+          <choose>
+            <if match="any" variable="genre">
+              <text variable="genre" text-case="title"/>
+            </if>
+          </choose>
+          <choose>
+            <if match="any" variable="publisher">
+              <choose>
+                <if match="any" variable="genre">
+                  <text value=", "/>
+                </if>
+              </choose>
+              <text variable="publisher"/>
+            </if>
+          </choose>
+          <choose>
+            <if match="any" variable="number">
+              <group delimiter=" " prefix=", ">
+                <text term="issue" form="short"/>
+                <text variable="number" font-weight="bold"/>
+              </group>
+            </if>
+          </choose>
+        </group>
+      </if>
     </choose>
   </macro>
   <macro name="editor-chapter">
@@ -150,12 +187,21 @@
             </group>
           </if>
         </choose>
-        <choose>
-          <if match="any" variable="DOI">
-            <text macro="doi"/>
-          </if>
-        </choose>
       </group>
+      <choose>
+        <if match="any" variable="note">
+          <group delimiter="; " prefix=" [" suffix=".]">
+            <text variable="note"/>
+          </group>
+        </if>
+      </choose>
+      <choose>
+        <if match="any" variable="DOI">
+          <group prefix=" " suffix=".">
+            <text macro="doi"/>
+          </group>
+        </if>
+      </choose>
     </layout>
   </bibliography>
 </style>
