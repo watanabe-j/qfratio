@@ -89,7 +89,7 @@ moments of ratios of quadratic forms.
 - $\qfrtr{\mathbf{A}}$: matrix trace
 - $\boldsymbol{\Lambda} = \qfrdiag \left( \lambda_1 , \dots \lambda_n \right)$:
   matrix of eigenvalues of $\mathbf{A} - q \mathbf{B}$
-- $\mathbf{P}$: matrix of correponding eigenvectors of $\mathbf{A} - q \mathbf{B}$
+- $\mathbf{P}$: matrix of corresponding eigenvectors of $\mathbf{A} - q \mathbf{B}$
 - $\boldsymbol{\Lambda}_1$, $-\boldsymbol{\Lambda}_2$: submatrices of
   $\boldsymbol{\Lambda}$ that has positive and negative eigenvalues
 - $\boldsymbol{\nu}$: transformed mean vector,
@@ -369,7 +369,7 @@ From one of the above expressions, $f_Q(q)$ can be obtained as
     f_V (v) 
     \cdot
     \left| \frac{\mathrm{d} Q}{\mathrm{d} V} \right|
-    \nonumber \\
+    \\
     = &
     f_V \left( \frac{q - \eta_s}{\eta_1 - q} \right)
     \cdot
@@ -407,7 +407,7 @@ the computational cost can be substantial in large problems.
 A popular way to numerically evaluate the distribution function of
 quadratic forms is to use the inversion formula of the characteristic function
 [e.g., @StuartOrd1994, chapter 4].
-For the pesent purpose, a quadratic form is expressed as a weighted sum of
+For the present purpose, a quadratic form is expressed as a weighted sum of
 independent chi-square variables:
 $\mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x} =
 \sum_{i=1}^{n} \lambda_i \chi ^2 \left( 1, \nu_i^2 \right)$, where
@@ -538,8 +538,6 @@ $\mathbf{A} - q \mathbf{B}$,
 $\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu} = \left( \nu_i \right)$ and
 $\mathbf{H} = \mathbf{P}^T \mathbf{B} \mathbf{P} = \left( h_{ij} \right)$.
 
-### Distribution function
-
 Let $M_{X_q}(s)$ be the moment generating function of
 $X_q = \mathbf{x}^T \left( \mathbf{A} - q \mathbf{B} \right) \mathbf{x}$,
 which is
@@ -553,6 +551,24 @@ which is
 \end{equation}
 Also, let $K_{X_q}(s) =  \log M_{X_q}(s)$ be the corresponding
 cumulant generating function.
+These are convergent within the interval
+$\frac{1}{2 \lambda_n} < s < \frac{1}{2 \lambda_1}$,
+where $\lambda_1$ and $\lambda_n$ are the largest and smallest of
+the eigenvalues (which are positive and negative, respectively; see above).
+
+For $X_q$, the saddlepoint root $\hat{s}$ is defined as the unique root of
+\begin{equation}
+  0 = K_{X_q}' \left( s \right) =
+  \sum_{i=1}^{n}
+    \left[
+       \frac{\lambda_i}{1 - 2 s \lambda_i^2} +
+       \frac{\nu_i^2 \lambda_i}{\left( 1 - 2 s \lambda_i^2 \right)^2}
+    \right] ,
+\end{equation}
+and is found numerically within the above interval.
+
+
+### Distribution function
 
 The first-order saddlepoint approximation formula for the distribution function
 $F_Q$ is [@ButlerPaolella2007; @ButlerPaolella2008]:
@@ -576,19 +592,9 @@ normal distribution, and
   \hat{u} = & \hat{s} \sqrt{K_{X_q}'' (\hat{s})} .
   \end{aligned}
 \end{equation}
-In these expressions, $\hat{s}$ is the unique root of
-\begin{equation}
-  0 = K_{X_q}' \left( s \right) =
-  \sum_{i=1}^{n}
-    \left[
-       \frac{\lambda_i}{1 - 2 s \lambda_i^2} +
-       \frac{\nu_i^2 \lambda_i}{\left( 1 - 2 s \lambda_i^2 \right)^2}
-    \right] ,
-\end{equation}
-and is found numerically.
-It is easily confirmed that
-$\qfrE \left( X_q \right) =  K_{X_q}' (0) = \sum_{i=1}^{n} \lambda_i (1 + \nu_i^2)$,
-which is used to determine the above condition.
+The condition $\qfrE \left( X_q \right) = 0$ is equivalent to $\hat{s} = 0$,
+because of the elementary property of the cumulant generating function
+$\qfrE \left( X_q \right) = K_{X_q}' \left( 0 \right)$.
 Higher-order derivatives of $K_{X_q}$ are [see also @Paolella2007, chapter 10]
 \begin{equation}
   \begin{aligned}
@@ -643,7 +649,7 @@ The second-order approximation is used by default (`order_spa = 2`) (see below).
 The corresponding first-order saddlepoint approximation for
 the density function $f_Q$ is [@ButlerPaolella2007; @ButlerPaolella2008]
 \begin{equation}
-  \hat{f_1}(s)
+  \hat{f_1}(q)
   =
   \frac{
     J_q \left( \hat{s} \right)
@@ -669,9 +675,9 @@ $\boldsymbol{\Xi} = \mathbf{I}_n - 2 s \boldsymbol{\Lambda}$.
 
 The second-order approximation is [@ButlerPaolella2007]
 \begin{equation}
-  \hat{f_2}(s)
+  \hat{f_2}(q)
   =
-  \hat{f_1}(s) (1 + O) ,
+  \hat{f_1}(q) (1 + O) ,
 \end{equation}
 where
 \begin{equation}
@@ -846,6 +852,7 @@ ks.test(x, pqfr, A = A, B = B)
 
 ## Series expressions
 ```{r definition_internal_series, eval = FALSE}
+## Used in pqfr(..., method = "forchini")
 pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
@@ -856,6 +863,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
                       tol_zero = .Machine$double.eps * 100,
                       tol_sing = .Machine$double.eps * 100,
                       thr_margin = 100) { ... }
+## Used in dqfr(..., method = "hillier")
 dqfr_A1I1 <- function(quantile, LA, m = 100L,
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
@@ -906,13 +914,16 @@ pqfr(1.9999, A, method = "imhof")
 
 ## Numerical inversion
 ```{r definition_internal_inversion, eval = FALSE}
+## Used in pqfr(..., method = "imhof") (default)
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1,
                        tol_zero = .Machine$double.eps * 100,
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
+## Used in pqfr(..., method = "davies")
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         autoscale_args = 1,
                         tol_zero = .Machine$double.eps * 100, ...) { ... }
+## Used in dqfr(..., method = "broda") (default)
 dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE,
                        use_cpp = TRUE, tol_zero = .Machine$double.eps * 100,
@@ -933,7 +944,7 @@ When `use_cpp = FALSE`, it uses the `R` function
 instead, and `limit` is ignored.
 To be strict, the user-specified `epsabs`, but not `epsrel`, is multiplied by
 `pi` before passed to these functions, because the integration result and
-its error are subsequently dividied by `pi`.
+its error are subsequently divided by `pi`.
 
 
 ### `autoscale_args`
@@ -993,11 +1004,13 @@ dqfr(2.5, diag(1:50))
 
 ## Saddlepoint approximation
 ```{r definition_internal_spa, eval = FALSE}
+## Used in pqfr(..., method = "butler")
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
                         epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
                         maxiter = 5000) { ... }
+## Used in dqfr(..., method = "butler")
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
@@ -1005,10 +1018,8 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         maxiter = 5000) { ... }
 ```
 
-These functions evaluate the saddlepiont approximations described above.
-They first check whether $\sum_{i=1}^{n} \lambda_i (1 + \nu_i^2)$ is close to
-`0` using `tol_zero`.
-If not, they conduct numerical root-finding for the saddlepoint by
+These functions evaluate the saddlepoint approximations described above.
+They conduct numerical root-finding for the saddlepoint by
 the Brent method (`gsl_root_fsolver_brent`), with the stopping rule specified by
 `gsl_root_test_delta(..., epsabs, epsrel)` and the maximum number of
 iteration by `maxiter`.
@@ -1026,7 +1037,7 @@ The saddlepoint approximation density does not integrate to unity,
 but can be normalized by setting `normalize_spa = TRUE` in `dqfr()`
 (note that this is done in the external function).
 The normalized density can be more accurate (although it is usually a matter of
-empirism).
+empiricism).
 However, this is usually slower than the numerical inversion method
 for a small number of quantiles.
 
@@ -1073,7 +1084,7 @@ dqfr(1.2, A)
 
 @Paolella2007[program listing 10.4] noted that the second-order approximation
 for the distribution function can be "problematic", which presumably means
-that the evaluation result can be instable.
+that the evaluation result can be unstable.
 In development of this package, some instability in the second-order
 approximation was encountered, but experiments suggest that
 this was due to sensitivity of the result to the numerically found root
@@ -1144,6 +1155,109 @@ in which case it should be taken as $\delta (\log \hat{x}) = \infty$.
 In summary, the new error bound is calculated as
 `ifelse(abserr > ans, Inf, -log1p(-abserr/ans))`.
 
+
+
+# Graphical comparisons
+
+First we compare evaluation methods for the distribution function:
+```{r example_profile_distr, fig.width = 4, figh.height = 4, error = TRUE}
+A <- diag(1:4)
+qseq <- seq.int(0.8, 4.2, length.out = 100)
+
+## Generate p-value sequences
+## Warning is expected
+pseq_inv <- pqfr(qseq, A, method = "imhof",
+                 return_abserr_attr = TRUE)
+pseq_ser <- pqfr(qseq, A, method = "forchini",
+                 check_convergence = FALSE)
+pseq_spa <- pqfr(qseq, A, method = "butler")
+
+## Maximum error in numerical inversion;
+## looks small enough
+max(attr(pseq_inv, "abserr"))
+
+## Graphical comparison
+par(mar = c(4, 4, 0.1, 0.1))
+plot(qseq, type = "n", xlim = c(1, 4), ylim = c(0, 1),
+     xlab = "q", ylab = "F(q)")
+lines(qseq, pseq_inv, col = "gray", lty = 1)
+lines(qseq, pseq_ser, col = "tomato", lty = 2)
+lines(qseq, pseq_spa, col = "slateblue", lty = 3)
+legend("topleft", legend = c("inversion", "series", "saddlepoint"),
+       col = c("gray", "tomato", "slateblue"), lty = 1:3)
+
+## Logical vector to exclude q around eigenvalues of A
+avoid_evals <- ((qseq %% 1) > 0.05) & ((qseq %% 1) < 0.95)
+
+## Numerical comparison
+all.equal(pseq_inv[avoid_evals], pseq_ser[avoid_evals],
+          check.attributes = FALSE)
+all.equal(pseq_inv[avoid_evals], pseq_spa[avoid_evals],
+          check.attributes = FALSE)
+```
+Around the eigenvalues of `A`, the series expression is slow to converge;
+this could partly be mitigated by using larger `m` (default `100`),
+but that will usually be time-consuming, and evaluation of hypergeometric
+function may fail regardless (for which a warning is already thrown above).
+Apart from these points, the series and numerical inversion methods yield
+very similar values.
+The saddlepoint approximation yields slightly inaccurate result,
+but is usually the fastest among these methods.
+
+Next, we compare methods for the probability density:
+```{r example_profile_density, fig.width = 4, figh.height = 4, error = TRUE}
+## Generate p-value sequences
+## Warning is expected
+dseq_inv <- dqfr(qseq, A, method = "broda",
+                 return_abserr_attr = TRUE)
+dseq_ser <- dqfr(qseq, A, method = "hillier",
+                 check_convergence = FALSE)
+dseq_spa <- dqfr(qseq, A, method = "butler")
+
+## Maximum error in numerical inversion;
+## looks small enough
+max(attr(dseq_inv, "abserr"))
+
+## Graphical comparison
+par(mar = c(4, 4, 0.1, 0.1))
+plot(qseq, type = "n", xlim = c(1, 4), ylim = c(0, 1),
+     xlab = "q", ylab = "f(q)")
+lines(qseq, dseq_inv, col = "gray", lty = 1)
+lines(qseq, dseq_ser, col = "tomato", lty = 2)
+lines(qseq, dseq_spa, col = "slateblue", lty = 3)
+legend("topleft", legend = c("inversion", "series", "saddlepoint"),
+       col = c("gray", "tomato", "slateblue"), lty = 1:3)
+
+## Numerical comparison
+all.equal(dseq_inv, dseq_ser, check.attributes = FALSE)
+all.equal(dseq_inv, dseq_spa, check.attributes = FALSE)
+
+## Do densities sum up to 1?
+sum(dseq_inv * diff(qseq)[1])
+sum(dseq_ser * diff(qseq)[1])
+sum(dseq_spa * diff(qseq)[1])
+```
+The series expression looks successful across the range.
+The saddlepoint approximation usually fails to capture a fancy profile
+as seen in the above plot.
+That will be less of a concern as the dimensionality increases,
+in which case the distribution approaches normality.
+
+The last three lines conduct a rough check on whether the densities
+integrate/sum up to unity.
+The results for the inversion and series methods are expected to approach `1`
+as we use a finer sequence.
+The saddlepoint approximation density could be normalized at the cost of
+slight computational time, although the normalization may or may not yield
+more accurate results:
+```{r example_density_normalize, fig.width = 4, figh.height = 4, error = TRUE}
+## Generate p-value sequences
+dseq_spa_normalized <- dqfr(qseq, A, method = "butler",
+                            normalize_spa = TRUE)
+all.equal(dseq_inv, dseq_spa_normalized,
+          check.attributes = FALSE)
+sum(dseq_spa_normalized * diff(qseq)[1])
+```
 
 
 # References
