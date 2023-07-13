@@ -282,10 +282,10 @@ NULL
 #'
 #' @export
 #'
-pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
-                 trim_values = TRUE, return_abserr_attr = FALSE,
+                 trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100,
                  ...) {
@@ -335,9 +335,9 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                      "for A, B, mu.\n  See documentation for details")
             }
         }
-        return(pqfr(quantile, KtAK, KtBK, m = m, mu = iKmu,
+        return(pqfr(quantile, KtAK, KtBK, mu = iKmu,
                     lower.tail = lower.tail, log.p = log.p, method = method,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+                    m = m, tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     LB <- eigen(B, symmetric = TRUE)$values
     ## Check basic requirements for arguments
@@ -349,7 +349,7 @@ pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
     if(method == "forchini" || method == "butler") {
         if(method == "forchini") {
             ans <- sapply(quantile,
-                          function(q) pqfr_A1B1(q, A, B, m, mu = mu,
+                          function(q) pqfr_A1B1(q, A, B, m = m, mu = mu,
                                                 tol_zero = tol_zero,
                                                 tol_sing = tol_sing, ...)$p)
         } else {
@@ -771,10 +771,10 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 #' @export
 #'
-dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
-                 log = FALSE, method = c("broda", "hillier", "butler"),
+dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
+                 log = FALSE, method = c("broda", "hillier", "butler"), 
                  trim_values = TRUE, normalize_spa = FALSE,
-                 return_abserr_attr = FALSE,
+                 return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) {
     method <- match.arg(method)
@@ -817,8 +817,8 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
                      "for A, B, mu.\n  See documentation for details")
             }
         }
-        return(dqfr(quantile, KtAK, KtBK, m = m, mu = iKmu,
-                    log = log, method = method,
+        return(dqfr(quantile, KtAK, KtBK, mu = iKmu,
+                    log = log, method = method, m = m,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     eigB <- eigen(B, symmetric = TRUE)
@@ -864,7 +864,7 @@ dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
         }
         LA <- eigen(A, symmetric = TRUE)$values
         ans <- sapply(quantile,
-                      function(q) dqfr_A1I1(q, LA, m, ...)$d)
+                      function(q) dqfr_A1I1(q, LA, m = m, ...)$d)
     }
     ## Trim spurious negative density into [0, Inf)
     if(trim_values) {

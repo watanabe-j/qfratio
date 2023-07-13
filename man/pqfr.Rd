@@ -16,7 +16,6 @@ dqfr(
   quantile,
   A,
   B,
-  m = 100L,
   mu = rep.int(0, n),
   Sigma = diag(n),
   log = FALSE,
@@ -24,6 +23,7 @@ dqfr(
   trim_values = TRUE,
   normalize_spa = FALSE,
   return_abserr_attr = FALSE,
+  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -33,7 +33,6 @@ pqfr(
   quantile,
   A,
   B,
-  m = 100L,
   mu = rep.int(0, n),
   Sigma = diag(n),
   lower.tail = TRUE,
@@ -41,6 +40,7 @@ pqfr(
   method = c("imhof", "davies", "forchini", "butler"),
   trim_values = TRUE,
   return_abserr_attr = FALSE,
+  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = .Machine$double.eps * 100,
   ...
@@ -144,9 +144,6 @@ pqfr_butler(
 definite.  Will be automatically symmetrized in \code{dqfr()} and
 \code{pqfr()}.}
 
-\item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
-in Hillier et al. (2009, 2014).}
-
 \item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
@@ -185,6 +182,9 @@ the density integrates to unity (see \dQuote{Details})}
 
 \item{return_abserr_attr}{If \code{TRUE}, absolute error of numerical evaluation is returned
 as an attribute \code{"abserr"} (see \dQuote{Value})}
+
+\item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
+in Hillier et al. (2009, 2014).}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals

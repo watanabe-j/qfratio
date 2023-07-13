@@ -751,16 +751,16 @@ in a very similar way to `pqfr(..., method = "butler")` (see below).
 The above expressions for the distribution and density functions
 are implemented in `pqfr()` and `dqfr()`, which are defined as:
 ```{r definition_exported, eval = FALSE}
-pqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
-                 trim_values = TRUE, return_abserr_attr = FALSE,
+                 trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) { ... }
-dqfr <- function(quantile, A, B, m = 100L, mu = rep.int(0, n), Sigma = diag(n),
+dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
-                 return_abserr_attr = FALSE,
+                 return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = .Machine$double.eps * 100, ...) { ... }
 ```
