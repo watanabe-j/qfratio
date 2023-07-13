@@ -717,8 +717,8 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     )
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
-    if(all(L >  tol_zero)) return(list(p = 0))
-    if(all(L < -tol_zero)) return(list(p = 1))
+    if(all(L >= -tol_zero)) return(list(p = 0))
+    if(all(L <=  tol_zero)) return(list(p = 1))
     U <- eigA_qB$vectors
     mu <- c(crossprod(U, c(mu)))
     if(use_cpp) {
@@ -1059,7 +1059,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     )
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
-    if(all(L < -tol_zero) || all(L > tol_zero)) {
+    if(all(L <= tol_zero) || all(L >= -tol_zero)) {
         return(list(d = 0, abserr = 0))
     }
     U <- eigA_qB$vectors
@@ -1144,7 +1144,7 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     )
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
-    if(all(L < -tol_zero) || all(L > tol_zero)) {
+    if(all(L <= tol_zero) || all(L >= -tol_zero)) {
         return(list(d = 0))
     }
     U <- eigA_qB$vectors
