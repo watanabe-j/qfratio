@@ -948,7 +948,7 @@ SEXP p_butler_Ed(const Eigen::ArrayXd L, const Eigen::ArrayXd mu, int order_spa,
     double s;
     int status;
     status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
-    if(std::abs(s) < tol_zero) {
+    if(std::abs(s) * (1 - epsrel) < std::max(epsabs, tol_zero)) {
         ArrayXd Xii_0 = ArrayXd::Ones(L.size());
         double Kp2_0 = Kder_fun(Xii_0, L, theta, 2);
         double Kp3_0 = Kder_fun(Xii_0, L, theta, 3);

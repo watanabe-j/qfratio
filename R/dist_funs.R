@@ -732,7 +732,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                                    check.conv = stop_on_error, tol = epsabs,
                                    maxiter = maxiter)
         s <- root_res$root
-        if(abs(s) < tol_zero) {
+        if(abs(s) < max(epsabs, tol_zero)) {
             Xii_0 <- rep.int(1, n)
             Kp2_0 <- Kder(Xii_0, L, theta, 2)
             Kp3_0 <- Kder(Xii_0, L, theta, 3)
