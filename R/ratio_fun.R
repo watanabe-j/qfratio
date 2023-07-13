@@ -1482,7 +1482,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / bB, p,
+                                     symmetric = TRUE, only.values = TRUE)$values / bB, p,
                                      thr_margin = thr_margin)[p + 1]
                 }
             } else {
@@ -1618,7 +1618,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     if(use_vec && missing(nthreads)) nthreads <- 1
     diminished <- FALSE
-    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE)$values
+    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE, only.values = TRUE)$values
     bA <- alphaA / max(abs(LA))
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
@@ -1931,7 +1931,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 } else {
                     Bisqr <- 1 / sqrt(LB)
                     dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE)$values / bB, p,
+                                     symmetric = TRUE, only.values = TRUE)$values / bB, p,
                                      thr_margin = thr_margin)[p + 1]
                 }
                 lscft <- attr(dkstm, "logscale")[p + 1, ]
@@ -2080,8 +2080,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         LA <- diag(A)
         if(missing(nthreads)) nthreads <- 1
     } else {
-        eigA <- eigen(A, symmetric = TRUE)
-        LA <- eigA$values
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
     }
     bA <- alphaA / max(abs(LA))
     if(any(LA < -tol_sing) && (p %% 1) != 0) {
@@ -2109,8 +2108,6 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             LAh <- rep.int(1, n) - bA * LA
             LBh <- rep.int(1, n) - bB * LB
         } else {
-            eigA <- eigen(A, symmetric = TRUE)
-            LA <- eigA$values
             bA <- alphaA / max(abs(LA))
             Ah <- In - bA * A
             Bh <- In - bB * diag(LB, nrow = n)
@@ -2291,7 +2288,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
             projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
                        t(zerocols)
-            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            eigBD <- eigen(In - projmat, symmetric = TRUE, only.values = TRUE)
             nzBD <- eigBD$values > tol_sing
         }
     }
@@ -2509,7 +2506,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         if(missing(nthreads)) nthreads <- 1
     } else {
         eigD <- eigen(D, symmetric = TRUE)
-        LA <- eigen(A, symmetric = TRUE)$values
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         LD <- eigD$values
     }
     stopifnot("B must be nonnegative definite" = all(LB >= -tol_sing),
@@ -2754,7 +2751,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         if(missing(nthreads)) nthreads <- 1
     } else {
         eigD <- eigen(D, symmetric = TRUE)
-        LA <- eigen(A, symmetric = TRUE)$values
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         LD <- eigD$values
     }
     stopifnot("B must be nonnegative definite" = all(LB >= -tol_sing),

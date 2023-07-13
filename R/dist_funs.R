@@ -339,7 +339,7 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                     lower.tail = lower.tail, log.p = log.p, method = method,
                     m = m, tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
-    LB <- eigen(B, symmetric = TRUE)$values
+    LB <- eigen(B, symmetric = TRUE, only.values = TRUE)$values
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
@@ -821,7 +821,7 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                     log = log, method = method, m = m,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
-    eigB <- eigen(B, symmetric = TRUE)
+    eigB <- eigen(B, symmetric = TRUE, only.values = normalize_spa)
     LB <- eigB$values
     ## Check basic requirements for arguments
     stopifnot(
@@ -862,7 +862,7 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
             stop("dqfr() does not accommodate B, mu, or Sigma ",
                  "with method = \"hillier\"")
         }
-        LA <- eigen(A, symmetric = TRUE)$values
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         ans <- sapply(quantile,
                       function(q) dqfr_A1I1(q, LA, m = m, ...)$d)
     }
