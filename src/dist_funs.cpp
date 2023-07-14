@@ -821,20 +821,20 @@ double broda_fun(double u, void *p){
     const ArrayXd nu = (params->nu);
     double out;
     ArrayXd a = L * u;
-    ArrayXd b = a.pow(2);
-    ArrayXd c = 1 + b;
-    ArrayXd theta = nu.pow(2);
-    double beta = (a.atan() + theta * a / c).sum() / 2;
-    double gamma = std::exp((theta * b / c).sum() / 2 + c.log().sum() / 4);
-    ArrayXd Fi = (1 + a.pow(2)).inverse();
+    ArrayXd b = a.pow(2.0);
+    ArrayXd c = 1.0 + b;
+    ArrayXd theta = nu.pow(2.0);
+    double beta = (a.atan() + theta * a / c).sum() / 2.0;
+    double gamma = std::exp((theta * b / c).sum() / 2.0 + c.log().sum() / 4.0);
+    ArrayXd Fi = c.inverse();
     VectorXd Finu = Fi * nu;
     double rho = (H * Fi.matrix().asDiagonal()).trace() +
                  Finu.transpose() *
                  (H - a.matrix().asDiagonal() * H * a.matrix().asDiagonal()) *
                  Finu;
     double delta = (H * (L * Fi).matrix().asDiagonal()).trace() +
-                   2 * Finu.transpose() * H * L.matrix().asDiagonal() * Finu;
-    out = (rho * std::cos(beta) - u * delta * std::sin(beta)) / gamma / 2;
+                   2.0 * Finu.transpose() * H * L.matrix().asDiagonal() * Finu;
+    out = (rho * std::cos(beta) - u * delta * std::sin(beta)) / gamma / 2.0;
     return out;
 }
 
@@ -858,10 +858,10 @@ SEXP d_broda_Ed(const double quantile,
     const MatrixXd U = eigA_qB.eigenvectors();
     const ArrayXd nu = U.transpose() * mu.matrix();
     MatrixXd H = U.transpose() * B * U;
-    if(autoscale_args > 0) {
+    if(autoscale_args > 0.0) {
         double Labsmax = L.abs().maxCoeff() / autoscale_args;
-        L = L / Labsmax;
-        H = H / Labsmax;
+        L /= Labsmax;
+        H /= Labsmax;
     }
     gsl_set_error_handler_off();
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
