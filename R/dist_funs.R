@@ -455,31 +455,34 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
         "In pqfr_A1B1, quantile must be length-one" = (length(quantile) == 1)
     )
     diminished <- FALSE
-    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    Ds <- eigA_qB$values
-    D1 <- Ds[Ds > tol_sing]
-    D2 <- -Ds[Ds < -tol_sing]
-    n1 <- length(D1)
-    n2 <- length(D2)
-    if(n2 == 0) return(list(p = 0, terms = rep.int(0, m + 1)))
-    if(n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m))))
-    mu <- c(crossprod(eigA_qB$vectors, c(mu)))
-    mu1 <- mu[Ds > tol_sing]
-    mu2 <- mu[Ds < -tol_sing]
     if(use_cpp) {
         if(cpp_method == "coef_wise") {
-            cppres <- p_A1B1_Ec(D1, D2, mu1, mu2, m, stop_on_error,
-                              thr_margin, nthreads, tol_zero)
+            cppres <- p_A1B1_Ec(quantile, A, B, mu, m, stop_on_error,
+                                thr_margin, nthreads, tol_zero)
         } else if(cpp_method == "long_double") {
-            cppres <- p_A1B1_El(D1, D2, mu1, mu2, m, stop_on_error,
-                              thr_margin, nthreads, tol_zero)
+            cppres <- p_A1B1_El(quantile, A, B, mu, m, stop_on_error,
+                                thr_margin, nthreads, tol_zero)
         } else {
-            cppres <- p_A1B1_Ed(D1, D2, mu1, mu2, m, stop_on_error,
-                              thr_margin, nthreads, tol_zero)
+            cppres <- p_A1B1_Ed(quantile, A, B, mu, m, stop_on_error,
+                                thr_margin, nthreads, tol_zero)
         }
         ansseq <- cppres$ansseq
         diminished <- cppres$diminished
+        if(cppres$exact) {
+            return(list(p = sum(ansseq), terms = ansseq))
+        }
     } else {
+        eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+        Ds <- eigA_qB$values
+        D1 <- Ds[Ds > tol_sing]
+        D2 <- -Ds[Ds < -tol_sing]
+        n1 <- length(D1)
+        n2 <- length(D2)
+        if(n2 == 0) return(list(p = 0, terms = rep.int(0, m + 1)))
+        if(n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m))))
+        mu <- c(crossprod(eigA_qB$vectors, c(mu)))
+        mu1 <- mu[Ds > tol_sing]
+        mu2 <- mu[Ds < -tol_sing]
         D1i <- 1 / D1
         D2i <- 1 / D2
         sumtrDi <- sum(D1i) + sum(D2i)
@@ -715,17 +718,17 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In pqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
-    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    L <- eigA_qB$values
-    if(all(L >= -tol_zero)) return(list(p = 0))
-    if(all(L <=  tol_zero)) return(list(p = 1))
-    U <- eigA_qB$vectors
-    mu <- c(crossprod(U, c(mu)))
     if(use_cpp) {
-        cppres <- p_butler_Ed(L, mu, order_spa, stop_on_error,
+        cppres <- p_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
                               tol_zero, epsabs, epsrel, maxiter)
         value <- cppres$value
     } else {
+        eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+        L <- eigA_qB$values
+        if(all(L >= -tol_zero)) return(list(p = 0))
+        if(all(L <=  tol_zero)) return(list(p = 1))
+        U <- eigA_qB$vectors
+        mu <- c(crossprod(U, c(mu)))
         theta <- mu ^ 2
         root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
                                    L = L, theta = theta, extendInt = "upX",
@@ -917,32 +920,35 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    n <- length(LA)
     ## Check basic requirements for arguments
     stopifnot(
         "In dqfr_A1I1, quantile must be length-one" = (length(quantile) == 1)
     )
-    L1 <- max(LA)
-    Ls <- min(LA)
-    if(quantile >= L1 || quantile <= Ls) {
-        return(list(d = 0, terms = rep.int(0, m + 1)))
-    }
-    f <- (quantile - Ls) / (L1 - quantile)
-    n1 <- sum(LA == L1)
-    ns <- sum(LA == Ls)
-    if(n1 + ns == n) {
-        ## When LA has only two distinct elements, the series vanishes and
-        ## the distribution of f reduces to a beta prime distribution
-        ans <- f ^ (n1 / 2 - 1) / (1 + f) ^ (n / 2) / beta(n1 / 2, (n - n1) / 2)
-        ans <- ans * (L1 - Ls) / (L1 - quantile) ^ 2
-        return(list(d = ans, terms = c(ans, rep.int(0, m))))
-    }
-    ind_psi <- which(LA != L1 & LA != Ls)
-    psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
     if(use_cpp) {
-        cppres <- d_A1I1_Ed(quantile, f, L1, Ls, psi, n, n1, ns, m, thr_margin)
+        cppres <- d_A1I1_Ed(quantile, LA, m, thr_margin)
         ansseq <- cppres$ansseq
+        if(cppres$exact) {
+            return(list(d = sum(ansseq), terms = ansseq))
+        }
     } else {
+        n <- length(LA)
+        L1 <- max(LA)
+        Ls <- min(LA)
+        if(quantile >= L1 || quantile <= Ls) {
+            return(list(d = 0, terms = rep.int(0, m + 1)))
+        }
+        f <- (quantile - Ls) / (L1 - quantile)
+        n1 <- sum(LA == L1)
+        ns <- sum(LA == Ls)
+        if(n1 + ns == n) {
+            ## When LA has only two distinct elements, the series vanishes and
+            ## the distribution of f reduces to a beta prime distribution
+            ans <- f ^ (n1 / 2 - 1) / (1 + f) ^ (n / 2) / beta(n1 / 2, (n - n1) / 2)
+            ans <- ans * (L1 - Ls) / (L1 - quantile) ^ 2
+            return(list(d = ans, terms = c(ans, rep.int(0, m))))
+        }
+        ind_psi <- which(LA != L1 & LA != Ls)
+        psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
         ind_r1 <- psi > f
         pr <- sum(ind_r1) + n1
         if((pr == n1) || (pr == n - ns)) {
@@ -1057,27 +1063,27 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In dqfr_broda, quantile must be length-one" = (length(quantile) == 1)
     )
-    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    L <- eigA_qB$values
-    if(all(L <= tol_zero) || all(L >= -tol_zero)) {
-        return(list(d = 0, abserr = 0))
-    }
-    U <- eigA_qB$vectors
-    mu <- c(crossprod(U, c(mu)))
-    H <- crossprod(crossprod(B, U), U)
-    ## Arguments are scaled because small L yields small broda_fun
-    ## and hence makes numerical integration difficult
-    if(autoscale_args > 0) {
-        Labsmax <- max(abs(L)) / autoscale_args
-        L <- L / Labsmax
-        H <- H / Labsmax
-    }
     if(use_cpp) {
-        cppres <- d_broda_Ed(L, H, mu, stop_on_error,
-                             pi * epsabs, epsrel, limit)
+        cppres <- d_broda_Ed(quantile, A, B, mu, autoscale_args, stop_on_error,
+                             tol_zero, pi * epsabs, epsrel, limit)
         value <- cppres$value / pi
         abserr <- cppres$abs.error / pi
     } else {
+        eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+        L <- eigA_qB$values
+        if(all(L <= tol_zero) || all(L >= -tol_zero)) {
+            return(list(d = 0, abserr = 0))
+        }
+        U <- eigA_qB$vectors
+        mu <- c(crossprod(U, c(mu)))
+        H <- crossprod(crossprod(B, U), U)
+        ## Arguments are scaled because small L yields small broda_fun
+        ## and hence makes numerical integration difficult
+        if(autoscale_args > 0) {
+            Labsmax <- max(abs(L)) / autoscale_args
+            L <- L / Labsmax
+            H <- H / Labsmax
+        }
         ans <- stats::integrate(
             function(x) sapply(x, function(u) broda_fun(u, L, H, mu)),
             0, Inf, rel.tol = epsrel, abs.tol = pi * epsabs,
@@ -1142,19 +1148,19 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In dqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
-    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    L <- eigA_qB$values
-    if(all(L <= tol_zero) || all(L >= -tol_zero)) {
-        return(list(d = 0))
-    }
-    U <- eigA_qB$vectors
-    mu <- c(crossprod(U, c(mu)))
-    H <- crossprod(crossprod(B, U), U)
     if(use_cpp) {
-        cppres <- d_butler_Ed(L, H, mu, order_spa, stop_on_error,
-                              epsabs, epsrel, maxiter)
+        cppres <- d_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
+                              tol_zero, epsabs, epsrel, maxiter)
         value <- cppres$value
     } else {
+        eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+        L <- eigA_qB$values
+        if(all(L <= tol_zero) || all(L >= -tol_zero)) {
+            return(list(d = 0))
+        }
+        U <- eigA_qB$vectors
+        mu <- c(crossprod(U, c(mu)))
+        H <- crossprod(crossprod(B, U), U)
         theta <- mu ^ 2
         root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
                                    L = L, theta = theta, extendInt = "upX",

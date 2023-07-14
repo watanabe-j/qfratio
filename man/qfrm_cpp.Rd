@@ -42,10 +42,10 @@
 \title{Internal C++ functions}
 \usage{
 p_A1B1_Ed(
-  D1,
-  D2,
-  mu1,
-  mu2,
+  quantile,
+  A,
+  B,
+  mu,
   m,
   stop_on_error,
   thr_margin = 100,
@@ -54,10 +54,10 @@ p_A1B1_Ed(
 )
 
 p_A1B1_El(
-  D1,
-  D2,
-  mu1,
-  mu2,
+  quantile,
+  A,
+  B,
+  mu,
   m,
   stop_on_error,
   thr_margin = 100L,
@@ -66,10 +66,10 @@ p_A1B1_El(
 )
 
 p_A1B1_Ec(
-  D1,
-  D2,
-  mu1,
-  mu2,
+  quantile,
+  A,
+  B,
+  mu,
   m,
   stop_on_error,
   thr_margin = 100,
@@ -77,13 +77,46 @@ p_A1B1_Ec(
   tol_zero = 2.2e-14
 )
 
-d_A1I1_Ed(quantile, f, L1, Ls, psi, n_, n1_, ns_, m, thr_margin = 100)
+d_A1I1_Ed(quantile, LA, m, thr_margin = 100)
 
-d_broda_Ed(L, H, mu, stop_on_error, epsabs, epsrel, limit)
+d_broda_Ed(
+  quantile,
+  A,
+  B,
+  mu,
+  autoscale_args,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
 
-d_butler_Ed(L, H, mu, order_spa, stop_on_error, epsabs, epsrel, maxiter)
+d_butler_Ed(
+  quantile,
+  A,
+  B,
+  mu,
+  order_spa,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  maxiter
+)
 
-p_butler_Ed(L, mu, order_spa, stop_on_error, tol_zero, epsabs, epsrel, maxiter)
+p_butler_Ed(
+  quantile,
+  A,
+  B,
+  mu,
+  order_spa,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  maxiter
+)
 
 Ap_int_E(A, mu, p_ = 1, thr_margin = 100, tol_zero = 2.2e-14)
 
@@ -453,11 +486,15 @@ ApBDqr_npi_El(
 rqfpE(nit, A, B, D, p_, q_, r_, mu, Sigma)
 }
 \arguments{
-\item{D1, D2}{Positive and (positivized) negative eigenvalues of
-\eqn{\mathbf{A} - q \mathbf{B}}{A - qB} passed as \code{Eigen::Array}}
+\item{quantile}{Scalar of quantile \eqn{q}, passed as \code{double}}
 
-\item{mu1, mu2}{Parts of mean vector \eqn{\bm{\mu}}{\mu} corresponding to
-\code{D1} and \code{D2}, respectively}
+\item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
+Symmetry is assumed.}
+
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
+passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
+assumed to be rotated by the eigenvectors of
+\eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
 
 \item{m}{Integer to specify the order of polynomials at which the series
 expression is truncated.  Passed as \code{Eigen::Index}
@@ -474,42 +511,19 @@ functions.  See \dQuote{Multithreading} in \code{\link{qfrm}}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined}
 
-\item{quantile, f}{Scalar of quantile \eqn{q} and corresponding \eqn{f},
-passed as \code{double}}
+\item{LA, LB}{Eigenvalues of the argument matrices passed as \code{Eigen::Array}}
 
-\item{L1, Ls}{Largest and smallest eigenvalues of \eqn{\mathbf{A}}{A},
-\eqn{\lambda_1} and \eqn{\lambda_s}, passed as \code{double}}
-
-\item{psi}{Vector of transformed eigenvalues \eqn{\psi_i},
-passed as \code{Eigen::Array}}
-
-\item{n_, n1_, ns_}{Number of eigenvalues \eqn{n} and degrees of multiplicity of
-largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
-passed as \code{double}}
-
-\item{L}{Eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
-
-\item{H}{\eqn{\mathbf{B}}{B} rotated by the eigenvectors of
-\eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
-
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
-passed as \code{Eigen::Array}.  For \code{d_broda_Ed()},
-assumed to be rotated by the eigenvectors of
-\eqn{\mathbf{A} - q \mathbf{B}}{A - q B}}
+\item{autoscale_args}{Factor to which the largest absolute eigenvalue of
+\eqn{\mathbf{A} - q \mathbf{B}}{A - q B} is scaled, passed as \code{double}}
 
 \item{epsrel, epsabs, limit, maxiter}{Optional arguments passed to \code{gsl_integration_qagi()} or
 \code{gsl_root_test_delta()}}
 
 \item{order_spa}{\code{int} to specify order of saddlepoint approximation}
 
-\item{A, B, D}{Argument matrices passed as \code{Eigen::Matrix}.
-Symmetry is assumed.}
-
 \item{p_, q_, r_}{Exponents for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B}, and
 \eqn{\mathbf{D}}{D}.
 Passed as \code{double} or \code{long double}.}
-
-\item{LA, LB}{Eigenvalues of the argument matrices passed as \code{Eigen::Array}}
 
 \item{bA, bB, bD}{Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.}

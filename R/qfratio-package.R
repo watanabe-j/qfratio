@@ -140,11 +140,6 @@ NULL
 #'   Symmetry is assumed.
 #' @param LA,LB
 #'   Eigenvalues of the argument matrices passed as \code{Eigen::Array}
-#' @param L
-#'   Eigenvalues of \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}
-#' @param H
-#'   \eqn{\mathbf{B}}{B} rotated by the eigenvectors of
-#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - q B}
 #' @param bA,bB,bD
 #'   Scaling coefficients for \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 #'   and \eqn{\mathbf{D}}{D}.  Passed as \code{double} or \code{long double}.
@@ -176,25 +171,11 @@ NULL
 #'   Tolerance against which numerical zero is determined
 #' @param nit
 #'   \code{int} to specify the number of iteration or sample size
-#' @param D1,D2
-#'   Positive and (positivized) negative eigenvalues of
-#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - qB} passed as \code{Eigen::Array}
-#' @param mu1,mu2
-#'   Parts of mean vector \eqn{\bm{\mu}}{\mu} corresponding to
-#'   \code{D1} and \code{D2}, respectively
-#' @param quantile,f
-#'   Scalar of quantile \eqn{q} and corresponding \eqn{f},
-#'   passed as \code{double}
-#' @param psi
-#'   Vector of transformed eigenvalues \eqn{\psi_i},
-#'   passed as \code{Eigen::Array}
-#' @param L1,Ls
-#'   Largest and smallest eigenvalues of \eqn{\mathbf{A}}{A},
-#'   \eqn{\lambda_1} and \eqn{\lambda_s}, passed as \code{double}
-#' @param n_,n1_,ns_
-#'   Number of eigenvalues \eqn{n} and degrees of multiplicity of
-#'   largest and smallest eigenvalues, \eqn{n_1} and \eqn{n_s},
-#'   passed as \code{double}
+#' @param quantile
+#'   Scalar of quantile \eqn{q}, passed as \code{double}
+#' @param autoscale_args
+#'   Factor to which the largest absolute eigenvalue of
+#'   \eqn{\mathbf{A} - q \mathbf{B}}{A - q B} is scaled, passed as \code{double}
 #' @param order_spa
 #'   \code{int} to specify order of saddlepoint approximation
 #' @param stop_on_error
