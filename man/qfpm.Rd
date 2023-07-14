@@ -15,7 +15,7 @@ qfm_Ap_int(
   use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = tol_zero
 )
 
 qfpm_ABpq_int(
@@ -28,7 +28,7 @@ qfpm_ABpq_int(
   use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = tol_zero
 )
 
 qfpm_ABDpqr_int(
@@ -43,7 +43,7 @@ qfpm_ABDpqr_int(
   use_cpp = TRUE,
   cpp_method = "double",
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100
+  tol_sing = tol_zero
 )
 }
 \arguments{

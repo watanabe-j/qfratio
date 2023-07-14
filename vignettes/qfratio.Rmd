@@ -609,7 +609,7 @@ where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$
 qfrm(A, B, p = 1, q = p, m = 100L,
      mu = rep.int(0, n), Sigma = diag(n),
      tol_zero = .Machine$double.eps * 100,
-     tol_sing = .Machine$double.eps * 100, ...)
+     tol_sing = tol_zero, ...)
 ```
 
 `A` and `B` are the argument matrices; when one is missing, $\mathbf{I}_n$ is
@@ -690,7 +690,7 @@ It works in a way very similar to `qfrm()`, just with the additional arguments
 qfmrm(A, B, D, p = 1, q = p/2, r = q, m = 100L,
       mu = rep.int(0, n), Sigma = diag(n),
       tol_zero = .Machine$double.eps * 100,
-      tol_sing = .Machine$double.eps * 100, ...)
+      tol_sing = tol_zero, ...)
 ```
 Essentially the same as `qfrm()`.
 
@@ -720,7 +720,7 @@ qfpm_ABDpqr_int(A, B, D, p = 1, q = 1, r = 1,
                 mu = rep.int(0, n), Sigma = diag(n),
                 use_cpp = TRUE, cpp_method = "double",
                 tol_zero = .Machine$double.eps * 100,
-                tol_sing = .Machine$double.eps * 100)
+                tol_sing = tol_zero)
 ```
 
 The other two functions have the same arguments, just dropping the inapplicable

@@ -25,7 +25,7 @@ dqfr(
   return_abserr_attr = FALSE,
   m = 100L,
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
   ...
 )
 
@@ -42,7 +42,7 @@ pqfr(
   return_abserr_attr = FALSE,
   m = 100L,
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
   ...
 )
 
@@ -97,7 +97,6 @@ pqfr_A1B1(
   nthreads = 1,
   tol_conv = .Machine$double.eps^(1/4),
   tol_zero = .Machine$double.eps * 100,
-  tol_sing = .Machine$double.eps * 100,
   thr_margin = 100
 )
 

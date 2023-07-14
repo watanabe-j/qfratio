@@ -756,13 +756,13 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  method = c("imhof", "davies", "forchini", "butler"),
                  trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps * 100, ...) { ... }
+                 tol_sing = tol_zero, ...) { ... }
 dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
                  return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps * 100, ...) { ... }
+                 tol_sing = tol_zero, ...) { ... }
 ```
 
 These functions are (pseudo-)vectorized with respect to `quantile`
@@ -861,7 +861,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
                       nthreads = 1,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       tol_zero = .Machine$double.eps * 100,
-                      tol_sing = .Machine$double.eps * 100,
+                      tol_sing = tol_zero,
                       thr_margin = 100) { ... }
 ## Used in dqfr(..., method = "hillier")
 dqfr_A1I1 <- function(quantile, LA, m = 100L,

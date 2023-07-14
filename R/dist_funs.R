@@ -287,7 +287,7 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  method = c("imhof", "davies", "forchini", "butler"),
                  trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps * 100,
+                 tol_sing = tol_zero,
                  ...) {
     method <- match.arg(method)
     if(!(method == "forchini" ||
@@ -350,8 +350,7 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
         if(method == "forchini") {
             ans <- sapply(quantile,
                           function(q) pqfr_A1B1(q, A, B, m = m, mu = mu,
-                                                tol_zero = tol_zero,
-                                                tol_sing = tol_sing, ...)$p)
+                                                tol_zero = tol_zero, ...)$p)
         } else {
             ans <- sapply(quantile,
                           function(q) pqfr_butler(q, A, B, mu = mu,
@@ -431,7 +430,6 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
                       nthreads = 1,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       tol_zero = .Machine$double.eps * 100,
-                      tol_sing = .Machine$double.eps * 100,
                       thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -474,15 +472,15 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         Ds <- eigA_qB$values
-        D1 <- Ds[Ds > tol_sing]
-        D2 <- -Ds[Ds < -tol_sing]
+        D1 <- Ds[Ds > tol_zero]
+        D2 <- -Ds[Ds < -tol_zero]
         n1 <- length(D1)
         n2 <- length(D2)
         if(n2 == 0) return(list(p = 0, terms = rep.int(0, m + 1)))
         if(n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m))))
         mu <- c(crossprod(eigA_qB$vectors, c(mu)))
-        mu1 <- mu[Ds > tol_sing]
-        mu2 <- mu[Ds < -tol_sing]
+        mu1 <- mu[Ds > tol_zero]
+        mu2 <- mu[Ds < -tol_zero]
         D1i <- 1 / D1
         D2i <- 1 / D2
         sumtrDi <- sum(D1i) + sum(D2i)
@@ -775,11 +773,11 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 #' @export
 #'
 dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
-                 log = FALSE, method = c("broda", "hillier", "butler"), 
+                 log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
                  return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps * 100, ...) {
+                 tol_sing = tol_zero, ...) {
     method <- match.arg(method)
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize

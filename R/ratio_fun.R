@@ -293,7 +293,7 @@
 qfrm <- function(A, B, p = 1, q = p, m = 100L,
                  mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = .Machine$double.eps * 100, ...) {
+                 tol_sing = tol_zero, ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -503,7 +503,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                   mu = rep.int(0, n), Sigma = diag(n),
                   tol_zero = .Machine$double.eps * 100,
-                  tol_sing = .Machine$double.eps * 100, ...) {
+                  tol_sing = tol_zero, ...) {
     ## If A, B, or D is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -700,7 +700,7 @@ NULL
 qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                        use_cpp = TRUE, cpp_method = "double",
                        tol_zero = .Machine$double.eps * 100,
-                       tol_sing = .Machine$double.eps * 100) {
+                       tol_sing = tol_zero) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     n <- ncol(A)
     stopifnot(
@@ -771,7 +771,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
                           mu = rep.int(0, n), Sigma = diag(n),
                           use_cpp = TRUE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
-                          tol_sing = .Machine$double.eps * 100) {
+                          tol_sing = tol_zero) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -879,7 +879,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
                             mu = rep.int(0, n), Sigma = diag(n),
                             use_cpp = TRUE, cpp_method = "double",
                             tol_zero = .Machine$double.eps * 100,
-                            tol_sing = .Machine$double.eps * 100) {
+                            tol_sing = tol_zero) {
     if(!missing(cpp_method)) use_cpp <- TRUE
     ## If A, B, or D is missing, let it be an identity matrix
     if(missing(A)) {
@@ -1153,7 +1153,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     nthreads = 1, alphaA = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -1311,7 +1311,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -1539,7 +1539,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     nthreads = 0, alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -1730,7 +1730,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -1992,7 +1992,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0, alphaA = 1, alphaB = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -2203,7 +2203,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -2425,7 +2425,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     nthreads = 0, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
@@ -2661,7 +2661,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
                     tol_conv = .Machine$double.eps ^ (1/4),
                     tol_zero = .Machine$double.eps * 100,
-                    tol_sing = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
                     thr_margin = 100) {
     if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if(isFALSE(check_convergence)) check_convergence <- "none"
