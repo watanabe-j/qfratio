@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# qfratio: R Package for Moments of Ratios of Quadratic Forms
+# qfratio: R Package for Moments and Distributions of Ratios of Quadratic Forms
 
 <!-- badges: start -->
 
@@ -13,23 +13,30 @@ products) of quadratic forms in normal variables, specifically using
 recursive algorithms developed by Bao and Kan ([2013](#ref-BaoKan2013))
 and Hillier et al. ([2014](#ref-HillierEtAl2014)). Generating functions
 for these moments are closely related to the top-order zonal and
-invariant polynomials of matrix arguments.
+invariant polynomials of matrix arguments. It also provides some
+functions to evaluate distribution and density functions of simple
+ratios of quadratic forms in normal variables using several methods from
+Imhof ([1961](#ref-Imhof1961)), Hillier ([2001](#ref-Hillier2001)),
+Forchini ([2002](#ref-Forchini2002), [2005](#ref-Forchini2005)), Butler
+and Paolella ([2008](#ref-ButlerPaolella2008)), and Broda and Paolella
+([2009](#ref-BrodaPaolella2009)).
 
 There exist a couple of `Matlab` programs developed by Raymond Kan
-(available from <https://www-2.rotman.utoronto.ca/~kan/>), but this `R`
-package is an independent project (not a fork or translation) and has
-different functionalities, including evaluation of moments of multiple
-ratios of a particular form and scaling to avoid numerical overflow.
-This has originally been developed for a biological application,
-specifically for evaluating average evolvability measures in
-evolutionary quantitative genetics ([Watanabe,
-2023](#ref-Watanabe2023cevo)).
+(available from <https://www-2.rotman.utoronto.ca/~kan/>) for evaluating
+the moments, but this `R` package is an independent project (not a fork
+or translation) and has different functionalities, including evaluation
+of moments of multiple ratios of a particular form and scaling to avoid
+numerical overflow. This has originally been developed for a biological
+application, specifically for evaluating average evolvability measures
+in evolutionary quantitative genetics ([Watanabe,
+2023](#ref-Watanabe2023cevo)), but can be used for a broader class of
+statistics.
 
 ## Installation
 
 ***WARNING*** Installation size of this package can be very large (\>100
-MB on Linux and macOS; ~3 MB on Windows with `Rtools42`), as it involves
-lots of `RcppEigen` functions.
+MB on Linux and macOS; ~3 MB on Windows with a recent version (`>= 4.2`)
+of `Rtools`), as it involves lots of `RcppEigen` functions.
 
 ### From CRAN (stable version)
 
@@ -52,10 +59,15 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
 
 ### Dependencies
 
-    Imports: Rcpp, MASS
+    Imports: Rcpp, MASS, CompQuadForm
     LinkingTo: Rcpp, RcppEigen, RcppGSL
-    Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
+    Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0),
               rlang (>= 0.4.7), knitr, rmarkdown
+
+Note that the [GNU Scientific
+Library](https://www.gnu.org/software/gsl/) (`GSL`) needs to be
+installed separately to use `RcppGSL`. It seems that Windows users with
+a recent version of `Rtools` can skip this installation.
 
 If installing from GitHub, you also need [`pandoc`](https://pandoc.org)
 for correctly building the vignette. For `pandoc < 2.11`,
@@ -64,7 +76,7 @@ which appears to have them bundled.)
 
 ## Examples
 
-Here are some simple examples:
+### Moments
 
 ``` r
 ## Simple matrices
@@ -181,6 +193,62 @@ plot(mom_A2B3)
 
 <img src="man/figures/README-examples-5.png" width="100%" />
 
+### Distributions
+
+``` r
+## Simple matrices
+nv <- 4
+A <- diag(1:nv)
+B <- diag(sqrt(nv:1))
+mu <- 1:nv * 0.2
+quantiles <- 0:nv + 0.5
+
+## Distribution function and density of
+## (x^T A x) / (x^T B x) where x ~ N(0, I)
+pqfr(quantiles, A, B)
+#> [1] 0.0000000 0.4349385 0.8570354 0.9816503 1.0000000
+dqfr(quantiles, A, B)
+#> [1] 0.00000000 0.57079928 0.21551262 0.06123152 0.00000000
+
+## Comparing profiles
+qseq <- seq.int(1 / sqrt(nv) - 0.2, nv + 0.2, length.out = 100)
+
+## Generate p-value sequences for
+## (x^T A x) / (x^T B x) where x ~ N(0, I) vs
+## (x^T A x) / (x^T B x) where x ~ N(mu, I)
+pseq_central <- pqfr(qseq, A, B)
+pseq_noncent <- pqfr(qseq, A, B, mu = mu)
+
+## Graphical comparison
+plot(qseq, type = "n", xlim = c(1 / sqrt(nv), nv), ylim = c(0, 1),
+     xlab = "q", ylab = "F(q)")
+lines(qseq, pseq_central, col = "royalblue4", lty = 1)
+lines(qseq, pseq_noncent, col = "tomato", lty = 2)
+legend("topleft", legend = c("central", "noncentral"),
+       col = c("royalblue4", "tomato"), lty = 1:2)
+```
+
+<img src="man/figures/README-examples_distr-1.png" width="100%" />
+
+``` r
+
+## Generate density sequences for
+## (x^T A x) / (x^T B x) where x ~ N(0, I) vs
+## (x^T A x) / (x^T B x) where x ~ N(mu, I)
+dseq_central <- dqfr(qseq, A, B)
+dseq_noncent <- dqfr(qseq, A, B, mu = mu)
+
+## Graphical comparison
+plot(qseq, type = "n", xlim = c(1 / sqrt(nv), nv), ylim = c(0, 0.7),
+     xlab = "q", ylab = "f(q)")
+lines(qseq, dseq_central, col = "royalblue4", lty = 1)
+lines(qseq, dseq_noncent, col = "tomato", lty = 2)
+legend("topright", legend = c("central", "noncentral"),
+       col = c("royalblue4", "tomato"), lty = 1:2)
+```
+
+<img src="man/figures/README-examples_distr-2.png" width="100%" />
+
 ## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"
@@ -192,6 +260,49 @@ Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms
 in normal random variables. *Journal of Multivariate Analysis*, **117**,
 229–245.
 doi:[10.1016/j.jmva.2013.03.002](https://doi.org/10.1016/j.jmva.2013.03.002).
+
+</div>
+
+<div id="ref-BrodaPaolella2009" class="csl-entry">
+
+Broda, S. and Paolella, M. S. (2009) Evaluating the density of ratios of
+noncentral quadratic forms in normal variables. *Computational
+Statistics and Data Analysis*, **53**, 1264–1270.
+doi:[10.1016/j.csda.2008.10.035](https://doi.org/10.1016/j.csda.2008.10.035).
+
+</div>
+
+<div id="ref-ButlerPaolella2008" class="csl-entry">
+
+Butler, R. W. and Paolella, M. S. (2008) Uniform saddlepoint
+approximations for ratios of quadratic forms. *Bernoulli*, **14**,
+140–154. doi:[10.3150/07-BEJ616](https://doi.org/10.3150/07-BEJ616).
+
+</div>
+
+<div id="ref-Forchini2002" class="csl-entry">
+
+Forchini, G. (2002) The exact cumulative distribution function of a
+ratio of quadratic forms in normal variables, with application to the
+AR(1) model. *Econometric Theory*, **18**, 823–852.
+doi:[10.1017/s0266466602184015](https://doi.org/10.1017/s0266466602184015).
+
+</div>
+
+<div id="ref-Forchini2005" class="csl-entry">
+
+Forchini, G. (2005) The distribution of a ratio of quadratic forms in
+noncentral normal variables. *Communications in Statistics—Theory and
+Methods*, **34**, 999–1008.
+doi:[10.1081/STA-200056855](https://doi.org/10.1081/STA-200056855).
+
+</div>
+
+<div id="ref-Hillier2001" class="csl-entry">
+
+Hillier, G. (2001) The density of a quadratic form in a vector uniformly
+distributed on the *n*-sphere. *Econometric Theory*, **17**, 1–28.
+doi:[10.1017/S026646660117101X](https://doi.org/10.1017/S026646660117101X).
 
 </div>
 
@@ -210,6 +321,14 @@ Hillier, G., Kan, R. and Wang, X. (2014) Generating functions and short
 recursions, with applications to the moments of quadratic forms in
 noncentral normal vectors. *Econometric Theory*, **30**, 436–473.
 doi:[10.1017/S0266466613000364](https://doi.org/10.1017/S0266466613000364).
+
+</div>
+
+<div id="ref-Imhof1961" class="csl-entry">
+
+Imhof, J. P. (1961) Computing the distribution of quadratic forms in
+normal variables. *Biometrika*, **48**, 419–426.
+doi:[10.2307/2332763](https://doi.org/10.2307/2332763).
 
 </div>
 

@@ -297,13 +297,11 @@ exact numerical inversion algorithm of Imhof (1961).
 
 \code{pqfr_davies()}: internal for \code{pqfr()},
 exact numerical inversion algorithm of Davies (1973, 1980).
+This is \strong{experimental} and may be removed in the future.
 
 \code{pqfr_butler()}: internal for \code{pqfr()},
 saddlepoint approximation of Butler & Paolella (2007, 2008).
 
-This functionality is \strong{experimental}.
-}
-\details{
 The user is supposed to use the exported functions \code{dqfr()} and
 \code{pqfr()}, which are (pseudo-)vectorized with respect to
 \code{quantile}.  The actual calculations are done by one
@@ -311,7 +309,8 @@ of the internal functions, which only accommodate a length-one
 \code{quantile}.  The internal functions skip most checks on argument
 structures and do not accommodate \code{Sigma}
 to reduce execution time.
-
+}
+\details{
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 and (cumulative) distribution function, respectively,
 as a partial sum of infinite series involving top-order zonal or

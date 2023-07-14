@@ -449,7 +449,7 @@ The above integral can be evaluated by using a regular numerical evaluation
 algorithm.
 Alternatively, it can be evaluated by the method of @Davies1973[@Davies1980]
 which explicitly evaluates numerical errors involved.
-The package `CompQuadForm` impelemnts these methods in the function `imhof()`
+The package `CompQuadForm` implements these methods in the function `imhof()`
 and `davies()`, respectively (strictly speaking, these are for $1 - F_Q$
 as per Imhof's original result).
 The present package utilizes those functions via

@@ -1,12 +1,15 @@
 ## Documentation of the package
-#' qfratio: Moments of Ratios of Quadratic Forms Using Recursion
+#' qfratio: Moments and Distributions of Ratios of Quadratic Forms
 #'
 #' This package is for evaluating moments of ratios (and products) of quadratic
 #' forms in normal variables, specifically using recursive algorithms developed
 #' by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
-#' Hillier et al., 2009).  It was originally developed as a supplement to
-#' Watanabe (2023) for evaluating average evolvability measures in evolutionary
-#' quantitative genetics, but can be used for a broader class of moments.
+#' Hillier et al., 2009).  It also provides some functions to evaluate
+#' distribution and probability density functions of simple ratios of quadratic
+#' forms in normal variables using several algorithms.  It was originally
+#' developed as a supplement to Watanabe (2023) for evaluating
+#' average evolvability measures in evolutionary quantitative genetics,
+#' but can be used for a broader class of statistics.
 #'
 #' The primary front-end functions of this package are
 #' \code{\link{qfrm}()} and \code{\link{qfmrm}()} for evaluating moments of
@@ -24,7 +27,12 @@
 #' related to the top-order zonal and invariant
 #' polynomials of matrix arguments.
 #'
-#' See package vignette (\code{vignette("qfratio")}) for more details.
+#' The package also has some functions to evaluate distribution and
+#' density functions of simple ratios of quadratic forms: \code{\link{pqfr}()}
+#' and \code{\link{dqfr}()}.
+#'
+#' See package vignettes (\code{vignette("qfratio")} and
+#' \code{vignette("qfratio_distr")}) for more details.
 #'
 #' The DESCRIPTION file:
 #' \packageDESCRIPTION{qfratio}
@@ -73,6 +81,9 @@
 #'   \code{\link{rqfr}}: Monte Carlo sampling of ratio/product of
 #'                       quadratic forms
 #'
+#'   \code{\link{dqfr}}: Probability distribution of simple ratio of
+#'                       quadratic forms
+#'
 #' @examples
 #' ## Symmetric matrices
 #' nv <- 4
@@ -115,6 +126,11 @@
 #' qfpm_ABDpqr_int(A, B, D, 1, 1, 1, mu = mu)
 #' ## A Monte Carlo mean
 #' mean(rqfp(1000, A = A, B = B, D = D, p = 1, q = 1, r = 1, mu = mu))
+#'
+#' ## Distribution function and density of (x^T A x) / (x^T B x)
+#' quantiles <- 0:nv + 0.5
+#' pqfr(quantiles, A, B)
+#' dqfr(quantiles, A, B)
 #'
 #' @docType package
 #' @name qfratio-package

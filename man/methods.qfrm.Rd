@@ -54,7 +54,7 @@ when \code{add_error = TRUE}.}
 
 \item{ylim, ylim_f}{\code{ylim} is passed to \code{\link[graphics]{plot.default}}.  By default,
 this is automatically set to \code{ylim_f} times the terminal value of
-the seies expression (\code{x$statistic}).  \code{ylim_f} is
+the series expression (\code{x$statistic}).  \code{ylim_f} is
 by default \code{c(0.9, 1.1)}.}
 
 \item{xlab, ylab}{Passed to \code{\link[graphics]{plot.default}}}

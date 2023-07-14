@@ -110,4 +110,7 @@ stats::t.test(mcres, mu = anres$statistic)
 }
 \seealso{
 \code{\link{qfrm}} and \code{\link{qfpm}} for analytic moments
+
+\code{\link{dqfr}} for analytic distribution-related functions for
+simple ratios
 }

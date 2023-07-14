@@ -60,6 +60,9 @@
 #'
 #' @seealso \code{\link{qfrm}} and \code{\link{qfpm}} for analytic moments
 #'
+#' \code{\link{dqfr}} for analytic distribution-related functions for
+#' simple ratios
+#'
 #' @name rqfr
 #'
 #' @examples

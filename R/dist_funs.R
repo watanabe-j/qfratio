@@ -1,8 +1,6 @@
 ##### pqfr #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' This functionality is **experimental**.
-#'
 #' The user is supposed to use the exported functions \code{dqfr()} and
 #' \code{pqfr()}, which are (pseudo-)vectorized with respect to
 #' \code{quantile}.  The actual calculations are done by one
@@ -638,6 +636,7 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 #' \code{pqfr_davies()}: internal for \code{pqfr()},
 #' exact numerical inversion algorithm of Davies (1973, 1980).
+#' This is **experimental** and may be removed in the future.
 #'
 #' @rdname pqfr
 #' @order 8
