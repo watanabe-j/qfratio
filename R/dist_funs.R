@@ -290,12 +290,6 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  tol_sing = tol_zero,
                  ...) {
     method <- match.arg(method)
-    if(!(method == "forchini" ||
-         requireNamespace("CompQuadForm", quietly = TRUE))) {
-        message("method was set to \"forchini\" as package 'CompQuadForm' ",
-                "is unavailable")
-        method <- "forchini"
-    }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
