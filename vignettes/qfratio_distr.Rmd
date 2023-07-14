@@ -418,31 +418,32 @@ the $i$th elements of $\boldsymbol{\nu} = \mathbf{P}^T \boldsymbol{\mu}$.
 
 ### Distribution function
 
-The famous formula of @Imhof1961 is
+From the famous formula of @Imhof1961,
 \begin{equation}
     F_Q(q)
     = \frac{1}{2} -
     \frac{1}{\pi}
-    \int_{0}^{\infty} \frac{\sin \alpha (u)}{u \gamma (u)} \, \mathrm{d}u ,
+    \int_{0}^{\infty} \frac{\sin \beta (u)}{u \gamma (u)} \, \mathrm{d}u ,
 \end{equation}
 where
 \begin{equation}
   \begin{aligned}
-    \alpha (u)
+    \beta (u)
       = &
       \frac{1}{2} \sum_{i=1}^{n}
       \left[
         \arctan \left( u \lambda_i \right)
         + \frac{\nu_i^2 u \lambda_i}{1 + u^2 \lambda_i^2}
-      \right] - \frac{1}{2} q u , \\
+      \right] , \\
     \gamma (u)
       = &
       \prod_{i=1}^{n} \left( 1 + u^2 \lambda_i^2 \right)^{\frac{1}{4}}
       \exp \left[ \frac{1}{2}
         \sum_{i=1}^{n} \frac{\nu_i^2 u^2 \lambda_i^2}{1 + u^2 \lambda_i^2}
-      \right] .
+      \right] ,
   \end{aligned}
 \end{equation}
+and $\beta$ and $\gamma$ are as defined above.
 
 The above integral can be evaluated by using a regular numerical evaluation
 algorithm.
@@ -474,19 +475,6 @@ function using Geary's formula [@Geary1944; @StuartOrd1994, section 11.10].
 where
 \begin{equation}
   \begin{aligned}
-    \beta (u)
-      = &
-      \frac{1}{2} \sum_{i=1}^{n}
-      \left[
-        \arctan \left( u \lambda_i \right)
-        + \frac{\nu_i^2 u \lambda_i}{1 + u^2 \lambda_i^2}
-      \right] , \\
-    \gamma (u)
-      = &
-      \prod_{i=1}^{n} \left( 1 + u^2 \lambda_i^2 \right)^{\frac{1}{4}}
-      \exp \left[ \frac{1}{2}
-        \sum_{i=1}^{n} \frac{\nu_i^2 u^2 \lambda_i^2}{1 + u^2 \lambda_i^2}
-      \right] , \\
     \rho (u)
       = &
       \sum_{i=1}^{n} \frac{h_{ii}}{1 + u^2 \lambda_i^2}
@@ -1184,7 +1172,7 @@ lines(qseq, pseq_inv, col = "gray", lty = 1)
 lines(qseq, pseq_ser, col = "tomato", lty = 2)
 lines(qseq, pseq_spa, col = "slateblue", lty = 3)
 legend("topleft", legend = c("inversion", "series", "saddlepoint"),
-       col = c("gray", "tomato", "slateblue"), lty = 1:3)
+       col = c("gray", "tomato", "slateblue"), lty = 1:3, cex = 0.8)
 
 ## Logical vector to exclude q around eigenvalues of A
 avoid_evals <- ((qseq %% 1) > 0.05) & ((qseq %% 1) < 0.95)
@@ -1220,13 +1208,13 @@ max(attr(dseq_inv, "abserr"))
 
 ## Graphical comparison
 par(mar = c(4, 4, 0.1, 0.1))
-plot(qseq, type = "n", xlim = c(1, 4), ylim = c(0, 1),
+plot(qseq, type = "n", xlim = c(1, 4), ylim = c(0, 0.8),
      xlab = "q", ylab = "f(q)")
 lines(qseq, dseq_inv, col = "gray", lty = 1)
 lines(qseq, dseq_ser, col = "tomato", lty = 2)
 lines(qseq, dseq_spa, col = "slateblue", lty = 3)
 legend("topleft", legend = c("inversion", "series", "saddlepoint"),
-       col = c("gray", "tomato", "slateblue"), lty = 1:3)
+       col = c("gray", "tomato", "slateblue"), lty = 1:3, cex = 0.8)
 
 ## Numerical comparison
 all.equal(dseq_inv, dseq_ser, check.attributes = FALSE)
