@@ -243,32 +243,23 @@ transformed when trimming happens with \code{trim_values} (above) or when
 \code{log}/\code{log.p = TRUE}.  See vignette for details
 (\code{vignette("qfratio_distr")}).
 
-\code{dqfr_A1I1()} and \code{pqfr_A1B1()} return a list containing
-the following elements, of which only \code{$d} or \code{$p} is
-passed to the external functions:
+The internal functions return a list containing \code{$d} or \code{$p}
+(for density and lower \eqn{p}-value, respectively), and only this is passed
+to the external function by default.  Other components may be inspected
+for debugging purposes:
 \itemize{
-\item{\code{$d} or \code{$p}: }{probability density or
-lower \eqn{p}-value, respectively (\code{sum(terms)})}
-\item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
+\item{\code{dqfr_A1I1()} and \code{pqfr_A1B1()}: }{have \code{$terms},
+a vector of \eqn{0}th to \eqn{m}th order terms.}
+\item{\code{pqfr_imhof()} and \code{dqfr_broda()}: }{have \code{$abserr},
+absolute error of numerical integration; the one returned from
+\code{CompQuadForm::\link[CompQuadForm]{imhof}()} is divided by
+\code{pi}, as the integration result itself is (internally).  This is
+passed to the external functions when \code{return_abserr_attr = TRUE}
+(above).}
+\item{\code{pqfr_davies()}: }{has the same components as
+\code{CompQuadForm::\link[CompQuadForm]{davies}()} apart from \code{Qq}
+which is replaced by \code{p = 1 - Qq}.}
 }
-
-\code{pqfr_imhof()} and \code{pqfr_davies()} simply return the full output
-(a list) of \code{CompQuadForm::\link[CompQuadForm]{imhof}()} and
-\code{CompQuadForm::\link[CompQuadForm]{davies}()}, respectively.  This may
-be useful for debugging purposes.  Note that
-\code{$Qq} there is the \emph{upper} \eqn{p}-value.  When
-\code{lower.tail = TRUE}, \code{pqfr()} takes its complement to return
-the lower \eqn{p}-value.
-
-\code{dqfr_broda()} returns a list containing:
-\itemize{
-\item{\code{$d}: }{probability density}
-\item{\code{$abserr}: }{absolute error of numerical integration, as in
-code{CompQuadForm::\link[CompQuadForm]{imhof}()}}
-}
-
-\code{dqfr_butler()} and \code{pqfr_butler()} return a list containing
-\code{$d} and \code{$p} only, respectively.
 }
 \description{
 \code{dqfr()}: Density of the ratio of quadratic forms,
