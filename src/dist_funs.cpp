@@ -859,9 +859,9 @@ SEXP d_broda_Ed(const double quantile,
     const ArrayXd nu = U.transpose() * mu.matrix();
     MatrixXd H = U.transpose() * B * U;
     if(autoscale_args > 0.0) {
-        double Labsmax = L.abs().maxCoeff() / autoscale_args;
-        L /= Labsmax;
-        H /= Labsmax;
+        double scale_L = (L.maxCoeff() - L.minCoeff()) / autoscale_args;
+        L /= scale_L;
+        H /= scale_L;
     }
     gsl_set_error_handler_off();
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);

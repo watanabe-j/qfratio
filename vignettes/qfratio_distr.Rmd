@@ -951,12 +951,14 @@ its error are subsequently divided by `pi`.
 ### `autoscale_args`
 
 Numerical integration involved in these functions typically fail when
-the magnitude of eigenvalues is small, whence some temporary objects
-numerically underflow to `0` and the integrand function decreases too slowly
-(i.e., divergent-looking).
-To avoid this failure, these functions internally scales the eigenvalues
-by default, so that the maximum absolute eigenvalue is equal to the argument
-`autoscale_args` (default `1`).
+the magnitude of eigenvalues is too small or too large, whence the integrand
+functions can decrease too slowly (i.e., divergent-looking) or too quickly
+(i.e., looks constant `0`) with respect to the integration parameter
+($u$ above).
+To avoid such failures, these functions internally scale the eigenvalues
+by default, so that $\max \lambda_i - \min \lambda_i$ is equal to
+the argument `autoscale_args` (default `1`); remember that $\min \lambda_i$ is
+negative, so this quantity is sum of the absolute values.
 
 ```{r example_inversion_scale, error = TRUE}
 A <- diag(1:3)
@@ -990,17 +992,16 @@ all these functions try to return exact `0` or `1`
 when $q$ is outside the possible range of $Q$ (as numerically determined).
 
 ```{r example_inversion_trim, error = TRUE}
-## Result without trimming
-## (typically) negative density,
-## which is absurd
-dqfr(2.5, diag(1:50), trim_values = FALSE)
-
+## Result without trimming;
+## (typically) negative density, which is absurd
 ## In this case, error interval typically spans across 0
-dqfr(2.5, diag(1:50), trim_values = FALSE,
-     return_abserr_attr = TRUE)
+dqfr(1.2, diag(1:30), return_abserr_attr = TRUE,
+     trim_values = FALSE)
 
 ## Result with trimming (default)
-dqfr(2.5, diag(1:50))
+dqfr(1.2, diag(1:30), return_abserr_attr = TRUE)
+## Note that the actual value is only bounded by
+## 0 and abserr
 ```
 
 ## Saddlepoint approximation
@@ -1121,24 +1122,25 @@ See this in examples:
 ```{r errorbound_trim, error = TRUE}
 ## Without trimming, result is (typically) negative
 ## But note that value + abserr is positive
-dqfr(2.5, diag(1:50), return_abserr_attr = TRUE,
-     trim_values = FALSE)
+dqfr(1.2, diag(1:35), return_abserr_attr = TRUE,
+     epsabs = 1e-10, trim_values = FALSE)
 
 ## With trimming, value is replaced by tol_zero
 ## Note slightly shortened abserr
-dqfr(2.5, diag(1:50), return_abserr_attr = TRUE)
+dqfr(1.2, diag(1:35), return_abserr_attr = TRUE,
+     epsabs = 1e-10)
 
 
 ## When untrimmed value + abserr < tol_zero
-dqfr(2.5, diag(1:50), epsabs = 1e-15,
-     return_abserr_attr = TRUE, trim_values = FALSE)
+dqfr(1.1, diag(1:35), return_abserr_attr = TRUE,
+     epsabs = 1e-15, trim_values = FALSE)
 ## True value is somewhere between 0 and value + abserr
 ## (assuming these are reliable)
 
 ## When trimmed, abserr reflects tol_zero
 ## because the true value is between 0 and tol_zero
-dqfr(2.5, diag(1:50), epsabs = 1e-15,
-     return_abserr_attr = TRUE)
+dqfr(1.1, diag(1:35), return_abserr_attr = TRUE,
+     epsabs = 1e-15)
 ```
 
 When `log`/`log.p = TRUE`, `abserr` is transformed so that

@@ -613,8 +613,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
     ## By default, L is scaled because small L yields small integrand
     ## and hence makes numerical integration difficult
     if(autoscale_args > 0) {
-        Labsmax <- max(abs(L)) / autoscale_args
-        L <- L / Labsmax
+        scale_L <- (max(L) - min(L)) / autoscale_args
+        L <- L / scale_L
     }
     res <- CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
                         delta = delta2, epsabs = pi * epsabs, epsrel = epsrel,
@@ -657,8 +657,8 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
     if(all(L <=  tol_zero)) return(list(p = 1, trace = rep.int(0, 7), ifault = 0))
     ## Scale L, although davies is more robust to small L than imhof
     if(autoscale_args > 0) {
-        Labsmax <- max(abs(L)) / autoscale_args
-        L <- L / Labsmax
+        scale_L <- (max(L) - min(L)) / autoscale_args
+        L <- L / scale_L
     }
     res <- CompQuadForm::davies(0, lambda = L, h = rep.int(1, n),
                                 delta = delta2, sigma = 0, ...)
@@ -1066,9 +1066,9 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
         ## Arguments are scaled because small L yields small broda_fun
         ## and hence makes numerical integration difficult
         if(autoscale_args > 0) {
-            Labsmax <- max(abs(L)) / autoscale_args
-            L <- L / Labsmax
-            H <- H / Labsmax
+            scale_L <- (max(L) - min(L)) / autoscale_args
+            L <- L / scale_L
+            H <- H / scale_L
         }
         ans <- stats::integrate(
             function(x) sapply(x, function(u) broda_fun(u, L, H, mu)),
