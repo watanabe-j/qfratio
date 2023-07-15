@@ -26,6 +26,7 @@ set.seed(764561)
 $$
 \DeclareMathOperator{\qfrE}{E}
 \DeclareMathOperator{\qfrtr}{tr}
+\newcommand{\qfrGmf}[1]{\Gamma \! \left( #1 \right)}
 \newcommand{\qfrbrc}[1]{\left[ {#1} \right]}
 \newcommand{\qfrCit}[7]{ C^{#1, #2, #3}_{#4} \! \left( #5, #6, #7 \right) }
 \newcommand{\qfrrf}[2][k]{\left( #2 \right)_{#1}}
@@ -41,12 +42,16 @@ $$
 \newcommand{\qfrhhijk}[4][k]{ \hat{h}_{#1} \! \left( #2; #3, #4 \right) }
 \renewcommand{\det}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\qfrlmax}{\lambda_{\max}}
+\newcommand{\qfrmvnorm}[3][n]{N_{#1} \! \left( #2 , #3 \right)}
 $$
 
 
-This document is to provide an overview of the `R` package `qfratio`
+This document is to provide an overview of the moment-related functionalities
+of the `R` package `qfratio`
 ([CRAN](https://CRAN.R-project.org/package=qfratio){target="_blank"};
 [GitHub](https://github.com/watanabe-j/qfratio){target="_blank"}).
+Distribution-related functionalities are documented in a separate vignette:
+`vignette("qfratio_distr")`.
 
 
 ## Symbols used
@@ -58,13 +63,13 @@ This document is to provide an overview of the `R` package `qfratio`
 - $a$, $d$, $\tilde{d}$, $h$, $\tilde{h}$, $\hat{h}$: coefficients in generating functions defined in text
 - $C$: (top-order) zonal and invariant polynomials of matrix arguments [@Muirhead1982; @Davis1980proc; @Chikuse1980msa; @Chikuse1987]
 - $\mathbf{x}$: $n$-variate random vector (in most cases normal)
-- $N_n \left( \boldsymbol{\mu} , \boldsymbol{\Sigma}\right)$: $n$-variate normal distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$
+- $\qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$: $n$-variate normal distribution with mean vector $\boldsymbol{\mu}$ and covariance matrix $\boldsymbol{\Sigma}$
 - $\mathbf{A}, \mathbf{B}, \mathbf{D}$: $n \times n$ argument matrices
 - $\mathbf{I}_n$: $n$-dimensional identity matrix
 - $\mathbf{0}_n$: $n$-variate vector of $0$'s
 - $\mathbf{0}_{n \times n}$: $n \times n$ matrix of $0$'s
 - $\qfrE \left( \cdot \right)$: expectation/mean
-- $\Gamma \left( \cdot \right)$: gamma function
+- $\qfrGmf{\cdot}$: gamma function
 - $(x)_a$: Pochhammer symbol, that is, $(x)_a = x (x + 1) \dots (x + a - 1)$ (with the convention $(x)_0 = 1$)
 - $\mathbf{A}^T$: matrix transposition
 - $\mathbf{A}^{-1}$: matrix inverse
@@ -81,7 +86,7 @@ The use of $n$ for the number of variables and $p, q, \dots$ for exponents
 is to conform with @BaoKan2013.
 
 
-# What the package is for
+# Target
 
 The package primarily concerns moments of ratios of quadratic forms of
 the following forms:
@@ -102,8 +107,8 @@ the same general form, and evaluation of their expectation (average or mean
 evolvability measures) can be of practical interest
 [@HansenHoule2008; @MeloEtAl2016; @Watanabe2023cevo].
 
-The package is for evaluating the moments of the above quantity assuming the
-multivariate normality of $\mathbf{x}$, that is,
+The package is mainly for evaluating the moments of the above quantity assuming
+the multivariate normality of $\mathbf{x}$, that is,
 \begin{equation}
   \qfrE \left(
   \frac{\left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p}
@@ -114,7 +119,7 @@ multivariate normality of $\mathbf{x}$, that is,
   {\left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r}
   \right),
 \end{equation}
-where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$.
+where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$.
 
 
 ## First examples
@@ -209,7 +214,7 @@ and term-by-term integration of a ratio
 @BaoKan2013].
 
 The following expressions assume
-$\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \mathbf{I}_n \right)$.
+$\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\mathbf{I}_n}$.
 For arbitrary but nonsingular $\boldsymbol{\Sigma}$, it is always possible to transform
 the variables and argument matrices by using
 $\mathbf{x}_{\mathrm{new}} = \mathbf{K}^{-1} \mathbf{x}$,
@@ -228,12 +233,12 @@ exists, the expression is
 \begin{aligned}
   \qfrE \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q} \right)
   = &
-  2^{p - q} \beta_{\mathbf{A}}^{-p} \beta_{\mathbf{B}}^{q} \Gamma \left( \frac{n}{2} + p - q \right) \\
+  2^{p - q} \beta_{\mathbf{A}}^{-p} \beta_{\mathbf{B}}^{q} \qfrGmf{ \frac{n}{2} + p - q } \\
   & \quad \cdot
   \sum_{i=0}^{\infty} \sum_{j=0}^{\infty}
-  \frac{ \qfrrf[i]{-p} \qfrrf[j]{q} }{ \Gamma \left(\frac{n}{2} + i + j \right) } % \\
-  % & \qquad
-  % \cdot
+  \frac{ \qfrrf[i]{-p} \qfrrf[j]{q} }{ \qfrGmf{\frac{n}{2} + i + j } } \\
+  & \qquad
+  \cdot
   \qfrhij[i,j]{ \mathbf{I}_n - \beta_{\mathbf{A}} \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }
   ,
 \end{aligned}
@@ -245,9 +250,9 @@ and for a positive-integral $p$, this can be simplified into
 \begin{aligned}
   \qfrE \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q} \right)
   = &
-  2^{p - q} \beta_{\mathbf{B}}^{q} p! \Gamma \left( \frac{n}{2} + p - q \right)
+  2^{p - q} \beta_{\mathbf{B}}^{q} p! \qfrGmf{ \frac{n}{2} + p - q }
   \sum_{j=0}^{\infty}
-  \frac{ \qfrrf[j]{q} }{ \Gamma \left( \frac{n}{2} + p + j \right) }
+  \frac{ \qfrrf[j]{q} }{ \qfrGmf{ \frac{n}{2} + p + j } }
   \qfrhtij[p;j]{ \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }
   .
 \end{aligned}
@@ -261,11 +266,11 @@ For the multiple ratio, the expression for an arbitrary $p$ is
   \qfrE \! \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q (\mathbf{x}^T \mathbf{D} \mathbf{x})^r} \right)
   = &
   2^{p - q - r} \beta_{\mathbf{B}}^{q} \beta_{\mathbf{D}}^{r}
-  \Gamma \left( \frac{n}{2} + p - q - r \right)
+  \qfrGmf{ \frac{n}{2} + p - q - r }
     \\
   & \quad \cdot
   \sum_{i=0}^{\infty} \sum_{j=0}^{\infty} \sum_{k=0}^{\infty}
-  \frac{ \qfrrf[i]{-p} \qfrrf[j]{q} \qfrrf[k]{r} }{ \Gamma \left( \frac{n}{2} + i + j + k \right) }
+  \frac{ \qfrrf[i]{-p} \qfrrf[j]{q} \qfrrf[k]{r} }{ \qfrGmf{ \frac{n}{2} + i + j + k } }
   \\
   & \quad \quad \cdot
   \qfrhijk[i, j, k]{ \mathbf{I}_n - \beta_{\mathbf{A}} \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }{ \mathbf{I}_n - \beta_{\mathbf{D}} \mathbf{D} },
@@ -278,10 +283,10 @@ and for a positive-integral $p$ [@Watanabe2023cevo, eq. (B28)],
   \qfrE \! \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q (\mathbf{x}^T \mathbf{D} \mathbf{x})^r} \right)
   = &
   2^{p - q - r} \beta_{\mathbf{B}}^{q} \beta_{\mathbf{D}}^{r} p!
-  \Gamma \left( \frac{n}{2} + p - q - r \right) \\
+  \qfrGmf{ \frac{n}{2} + p - q - r } \\
   & \quad \cdot
   \sum_{j=0}^{\infty} \sum_{k=0}^{\infty}
-  \frac{ \qfrrf[j]{q} \qfrrf[k]{r} }{ \Gamma \left( \frac{n}{2} + p + j + k \right) }
+  \frac{ \qfrrf[j]{q} \qfrrf[k]{r} }{ \qfrGmf{ \frac{n}{2} + p + j + k } }
   \\
   & \quad \quad \cdot
   \qfrhtijk[p; j,k]{ \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }{ \mathbf{I}_n - \beta_{\mathbf{D}} \mathbf{D} },
@@ -364,7 +369,7 @@ In this case, (2) simplifies into [@HillierEtAl2014, theorem 4]
   = 
   2^{p - q} p!
   \sum_{k=0}^{p}
-  \frac{ \Gamma \left( \frac{n}{2} + p - q + k \right) }{ 2^k k! \Gamma \left( \frac{n}{2} + p + k \right) }
+  \frac{ \qfrGmf{ \frac{n}{2} + p - q + k } }{ 2^k k! \qfrGmf{ \frac{n}{2} + p + k } }
   {}_1 F_1 \left( q ; \frac{n}{2} + p + k ; - \frac{\boldsymbol{\mu}^T \boldsymbol{\mu}}{2} \right) a_{p, k} \left( \mathbf{A}, \boldsymbol{\mu} \right)
   ,
 \tag{5}
@@ -429,8 +434,8 @@ $\hat{M}_m \left( \mathbf{A}, \mathbf{B}, p, q \right)$, the error bound is
 \begin{multline}
   \lvert M \left( \mathbf{A}, \mathbf{B}, p, q \right) - \hat{M}_m \left( \mathbf{A}, \mathbf{B}, p, q \right) \rvert \\
   \leq
-  \frac{ 2^{p - q} \beta_{\mathbf{B}}^{q} p! \Gamma \left( \frac{n}{2} + p - q \right) \qfrrf[m+1]{q} }
-        { \Gamma \left( \frac{n}{2} + p + m + 1 \right) }
+  \frac{ 2^{p - q} \beta_{\mathbf{B}}^{q} p! \qfrGmf{ \frac{n}{2} + p - q } \qfrrf[m+1]{q} }
+        { \qfrGmf{ \frac{n}{2} + p + m + 1 } }
   \left[
     \frac{
       \exp \left( \frac{ \bar{\boldsymbol{\mu}}^T \bar{\boldsymbol{\mu}} - \boldsymbol{\mu}^T \boldsymbol{\mu} }{2} \right)
@@ -484,8 +489,8 @@ $\hat{M}_m \left( \mathbf{A}, \mathbf{B}, \mathbf{D}, p, q, r \right)$, the erro
   \lvert M \left( \mathbf{A}, \mathbf{B}, \mathbf{I}_n, p, q, r \right) - \hat{M}_m \left( \mathbf{A}, \mathbf{B}, \mathbf{I}_n, p, q, r \right) \rvert
   \\ & \quad
   \leq
-  \frac{ 2^{p - q - r} \beta_{\mathbf{B}}^{q} p! \Gamma \left( \frac{n}{2} + p - q - r \right) \qfrrf[m+1]{\max \left( q, r \right)} }
-        { \Gamma \left( \frac{n}{2} + p + m + 1 \right) }
+  \frac{ 2^{p - q - r} \beta_{\mathbf{B}}^{q} p! \qfrGmf{ \frac{n}{2} + p - q - r } \qfrrf[m+1]{\max \left( q, r \right)} }
+        { \qfrGmf{ \frac{n}{2} + p + m + 1 } }
   \\ & \quad \quad \cdot
   \left[
     \frac{
@@ -602,7 +607,7 @@ for quick inspection of evaluation results.
 This function is for evaluating moments of the simple ratios of quadratic forms,
 $\qfrE \left( \frac{\left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p}
 {\left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q} \right)$,
-where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$.
+where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$.
 
 #### Usage
 ```
@@ -619,7 +624,7 @@ inserted.
 arguments specified by the user.
 
 `mu` and `Sigma` specify the mean and covariance of $\mathbf{x}$, so by default
-$\mathbf{x} \sim N_n \left( \mathbf{0}_n, \mathbf{I}_n \right)$.
+$\mathbf{x} \sim \qfrmvnorm{\mathbf{0}_n}{\mathbf{I}_n}$.
 
 `tol_zero` and `tol_sing` just determine the numerical tolerance for assessing
 identity and singularity, respectively, so usually need not be changed
@@ -642,7 +647,8 @@ functions, for which `qfrm()` acts as a switcher:
 | `qfrm_ApIq_npi()` | $\mathbf{B} = \mathbf{I}_n$ | *n*on-*p*ositive-*i*nteger | (1) (simplified when $\boldsymbol{\mu} = \mathbf{0}_n$) | Available only when $\boldsymbol{\mu} = \mathbf{0}_n$ | $\sim m$ when $\boldsymbol{\mu} = \mathbf{0}_n$; $\sim m^2 / 2$ otherwise |
 | `qfrm_ApBq_int()` | $\mathbf{B}$ arbitrary | *int*eger                  | (2)                                        | Available                                | $\sim (p + 1)m$                                              |
 | `qfrm_ApBq_npi()` | $\mathbf{B}$ arbitrary | *n*on-*p*ositive-*i*nteger | (1)                                        | Unavailable                              | $\sim m^2 / 2$                                               |
-\*: requires the `gsl` package when $\boldsymbol{\mu} \neq \mathbf{0}_n$
+\*: assuming accurate evaluation of the confluent hypergeometric function
+when $\boldsymbol{\mu} \neq \mathbf{0}_n$
 
 These functions are exported into the package namespace so can be directly used
 if necessary.
@@ -672,7 +678,7 @@ respectively).
 This function is for evaluating moments of the multiple ratios of quadratic forms,
 $\qfrE \left( \frac{\left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p}
 {\left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q\left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r} \right)$,
-where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$.
+where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$.
 
 It works in a way very similar to `qfrm()`, just with the additional arguments
 `D` and `r`. The corresponding "internal" functions are:
@@ -704,7 +710,7 @@ $\qfrE \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p
 $\qfrE \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p
     \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q
     \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r \right)$,
-where $\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$,
+where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$,
 using the algorithm described in @HillierEtAl2014[sections 3--4].
 The exponents must be positive integers.
 
@@ -739,7 +745,7 @@ multiple ratio $\frac{\left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p}
 and product $\left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p
 \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r$,
 respectively, of quadratic forms in normal variables
-$\mathbf{x} \sim N_n \left( \boldsymbol{\mu}, \boldsymbol{\Sigma} \right)$.
+$\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$.
 
 They can be used for verifying results from the above functions,
 or as a Monte Carlo surrogate when numerical convergence cannot be
@@ -801,7 +807,7 @@ scale the results back to the original one (see below).
 
 
 
-# Using the package
+# Using the functionality
 
 ## Recommended workflow
 

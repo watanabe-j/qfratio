@@ -69,14 +69,32 @@ Library](https://www.gnu.org/software/gsl/) (`GSL`) needs to be
 installed separately to use `RcppGSL`. It seems that Windows users with
 a recent version of `Rtools` can skip this installation.
 
-If installing from GitHub, you also need [`pandoc`](https://pandoc.org)
+If installing from source, you also need [`pandoc`](https://pandoc.org)
 for correctly building the vignette. For `pandoc < 2.11`,
 `pandoc-citeproc` is required as well. (Never mind if you use `RStudio`,
 which appears to have them bundled.)
 
 ## Examples
 
+This package has two major functionalities: evaluating moments and
+distribution function of ratios of quadratic forms in normal variables.
+
 ### Moments
+
+This functionality concerns evaluation of the following moments:
+$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p / \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \right)$
+and
+$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p / \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r \right)$,
+where
+$\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
+
+These quantities are evaluated by `qfrm(A, B, p, q, ...)` and
+`qfmrm(A, B, D, p, q, r, ...)`. Because they are evaluated as partial
+sums of infinite series ([Smith, 1989](#ref-Smith1989),
+[1993](#ref-Smith1993); [Hillier et al., 2009](#ref-HillierEtAl2009),
+[2014](#ref-HillierEtAl2014); [Bao and Kan, 2013](#ref-BaoKan2013)), the
+evaluation results come with an error bound (where available), and a
+`plot` method is defined for inspecting numerical convergence.
 
 ``` r
 ## Simple matrices
@@ -195,8 +213,18 @@ plot(mom_A2B3)
 
 ### Distributions
 
+This functionality concerns evaluation of the (cumulative) distribution
+function and probability density of
+$\mathbf{x}^T \mathbf{A} \mathbf{x} / \mathbf{x}^T \mathbf{B} \mathbf{x}$,
+where
+$\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
+
+These are handled by `pqfr(quantile, A, B, ...)` and
+`dqfr(quantile, A, B, ...)`, whose usage mimics that of regular
+distribution-related functions.
+
 ``` r
-## Simple matrices
+## Example parameters
 nv <- 4
 A <- diag(1:nv)
 B <- diag(sqrt(nv:1))
