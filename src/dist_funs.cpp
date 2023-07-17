@@ -809,31 +809,31 @@ SEXP d_A1I1_Ed(const double quantile, const Eigen::ArrayXd LA,
 }
 
 struct broda_params {
-    Eigen::ArrayXd L;
-    Eigen::MatrixXd H;
-    Eigen::ArrayXd nu;
+    const Eigen::ArrayXd *L;
+    const Eigen::MatrixXd *H;
+    const Eigen::ArrayXd *nu;
 };
 
 double broda_fun(double u, void *p){
     struct broda_params *params = (struct broda_params *)p;
-    const ArrayXd L = (params->L);
-    const MatrixXd H = (params->H);
-    const ArrayXd nu = (params->nu);
+    const ArrayXd *L = (params->L);
+    const MatrixXd *H = (params->H);
+    const ArrayXd *nu = (params->nu);
     double out;
-    ArrayXd a = L * u;
+    ArrayXd a = (*L) * u;
     ArrayXd b = a.pow(2.0);
     ArrayXd c = 1.0 + b;
-    ArrayXd theta = nu.pow(2.0);
+    ArrayXd theta = nu->pow(2.0);
     double beta = (a.atan() + theta * a / c).sum() / 2.0;
     double gamma = std::exp((theta * b / c).sum() / 2.0 + c.log().sum() / 4.0);
     ArrayXd Fi = c.inverse();
-    VectorXd Finu = Fi * nu;
-    double rho = (H * Fi.matrix().asDiagonal()).trace() +
+    VectorXd Finu = Fi * *nu;
+    double rho = ((*H) * Fi.matrix().asDiagonal()).trace() +
                  Finu.transpose() *
-                 (H - a.matrix().asDiagonal() * H * a.matrix().asDiagonal()) *
+                 ((*H) - a.matrix().asDiagonal() * (*H) * a.matrix().asDiagonal()) *
                  Finu;
-    double delta = (H * (L * Fi).matrix().asDiagonal()).trace() +
-                   2.0 * Finu.transpose() * H * L.matrix().asDiagonal() * Finu;
+    double delta = ((*H) * ((*L) * Fi).matrix().asDiagonal()).trace() +
+                   2.0 * Finu.transpose() * (*H) * L->matrix().asDiagonal() * Finu;
     out = (rho * std::cos(beta) - u * delta * std::sin(beta)) / gamma / 2.0;
     return out;
 }
@@ -868,9 +868,9 @@ SEXP d_broda_Ed(const double quantile,
     double value, error;
     int status;
     struct broda_params params;
-    params.L = L;
-    params.H = H;
-    params.nu = nu;
+    params.L = &L;
+    params.H = &H;
+    params.nu = &nu;
     gsl_function F;
     F.function = &broda_fun;
     F.params = &params;
@@ -899,33 +899,33 @@ double Kder_fun(const Eigen::ArrayXd& Xii, const Eigen::ArrayXd& L,
 }
 
 struct mgf_params {
-    Eigen::ArrayXd L;
-    Eigen::ArrayXd theta;
+    const Eigen::ArrayXd *L;
+    const Eigen::ArrayXd *theta;
 };
 
 double Kp1_gslfun(double s, void *p) {
     struct mgf_params *params = (struct mgf_params *)p;
-    const ArrayXd L = (params->L);
-    const ArrayXd theta = (params->theta);
-    ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
-    double out = Kder_fun(Xii, L, theta, 1.0);
+    const ArrayXd *L = (params->L);
+    const ArrayXd *theta = (params->theta);
+    const ArrayXd Xii = (1.0 - 2.0 * s * (*L)).inverse();
+    double out = (((*L) * Xii) * (1.0 + (*theta) * Xii)).sum();
     return out;
 }
 
 // double Kp2_gslfun(double s, void *p) {
 //     struct mgf_params *params = (struct mgf_params *)p;
-//     const ArrayXd L = (params->L);
-//     const ArrayXd theta = (params->theta);
-//     ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
+//     const ArrayXd *L = (params->L);
+//     const ArrayXd *theta = (params->theta);
+//     ArrayXd Xii = (1.0 - 2.0 * s * (*L)).inverse();
 //     double out = Kder_fun(Xii, L, theta, 2.0);
 //     return out;
 // }
 
 // void Kp1_Kp2_gslfun(double s, void *p, double *y, double *dy) {
 //     struct mgf_params *params = (struct mgf_params *)p;
-//     const ArrayXd L = (params->L);
-//     const ArrayXd theta = (params->theta);
-//     ArrayXd Xii = (1.0 - 2.0 * s * L).inverse();
+//     const ArrayXd *L = (params->L);
+//     const ArrayXd *theta = (params->theta);
+//     ArrayXd Xii = (1.0 - 2.0 * s * (*L)).inverse();
 //     *y = Kder_fun(Xii, L, theta, 1.0);
 //     *dy = Kder_fun(Xii, L, theta, 2.0);
 // }
@@ -975,8 +975,8 @@ int butler_spa_root_find(double& s,
     double s_lo = 0.5 / L.minCoeff() + epsabs;
     double s_hi = 0.5 / L.maxCoeff() - epsabs;
     struct mgf_params params;
-    params.L = L;
-    params.theta = theta;
+    params.L = &L;
+    params.theta = &theta;
     // root finding with Brent method
     const gsl_root_fsolver_type *T = gsl_root_fsolver_brent;
     gsl_root_fsolver *solver = gsl_root_fsolver_alloc(T);
