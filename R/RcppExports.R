@@ -30,6 +30,13 @@ d_A1I1_Ed <- function(quantile, LA, m, thr_margin = 100) {
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{pqfm_imhof()}
+#'
+p_imhof_Ed <- function(quantile, A, B, mu, autoscale_args, stop_on_error, tol_zero, epsabs, epsrel, limit) {
+    .Call(`_qfratio_p_imhof_Ed`, quantile, A, B, mu, autoscale_args, stop_on_error, tol_zero, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{dqfm_broda()}
 #'
 d_broda_Ed <- function(quantile, A, B, mu, autoscale_args, stop_on_error, tol_zero, epsabs, epsrel, limit) {

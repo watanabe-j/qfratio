@@ -808,6 +808,85 @@ SEXP d_A1I1_Ed(const double quantile, const Eigen::ArrayXd LA,
         Rcpp::Named("exact")  = exact);
 }
 
+
+struct imhof_params {
+    const Eigen::ArrayXd* L;
+    const Eigen::ArrayXd* theta;
+};
+
+double imhof_fun(double u, void *p){
+    struct imhof_params *params = (struct imhof_params *)p;
+    const ArrayXd* L = (params->L);
+    const ArrayXd* theta = (params->theta);
+    double out;
+    ArrayXd a = (*L) * u;
+    ArrayXd b = a.pow(2.0);
+    ArrayXd c = 1.0 + b;
+    double beta = (a.atan() + (*theta) * a / c).sum() / 2.0;
+    double gamma = std::exp(((*theta) * b / c).sum() / 2.0 + c.log().sum() / 4.0);
+    out = std::sin(beta) / u / gamma;
+    return out;
+}
+
+//' @describeIn qfrm_cpp
+//'   \code{pqfm_imhof()}
+//'
+// [[Rcpp::export]]
+SEXP p_imhof_Ed(const double quantile,
+                const Eigen::MatrixXd A, const Eigen::MatrixXd B,
+                const Eigen::ArrayXd mu,
+                double autoscale_args, bool stop_on_error, double tol_zero,
+                double epsabs, double epsrel, int limit) {
+    MatrixXd A_qB =  A - quantile * B;
+    SelfAdjointEigenSolver<MatrixXd> eigA_qB(A_qB);
+    ArrayXd L = eigA_qB.eigenvalues();
+    if((L >= -tol_zero).all()) {
+        return Rcpp::List::create(
+            Rcpp::Named("value") = 0,
+            Rcpp::Named("abs.error") = 0);
+    }
+    if((L <= tol_zero).all()) {
+        return Rcpp::List::create(
+            Rcpp::Named("value") = 1,
+            Rcpp::Named("abs.error") = 0);
+    }
+    const MatrixXd U = eigA_qB.eigenvectors();
+    const ArrayXd nu = U.transpose() * mu.matrix();
+    const ArrayXd theta = nu.pow(2.0);
+    if(autoscale_args > 0) {
+        double Labsmax = L.abs().maxCoeff() / autoscale_args;
+        L /= Labsmax;
+    }
+    gsl_set_error_handler_off();
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
+    double value, result, error;
+    int status;
+    struct imhof_params params;
+    params.L = &L;
+    params.theta = &theta;
+    gsl_function F;
+    F.function = &imhof_fun;
+    F.params = &params;
+    status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                   &result, &error);
+    gsl_integration_workspace_free(w);
+    if(status) {
+        std::string errmsg = "problem in gsl_integration_qagiu():\n  ";
+        errmsg += gsl_strerror(status);
+        if(stop_on_error) {
+            Rcpp::stop(errmsg);
+        } else {
+            Rcpp::warning(errmsg);
+        }
+    }
+    value = 0.5 - M_1_PI * result;
+    error *= M_1_PI;
+    return Rcpp::List::create(
+        Rcpp::Named("value") = value,
+        Rcpp::Named("abs.error") = error);
+}
+
+
 struct broda_params {
     const Eigen::ArrayXd *L;
     const Eigen::MatrixXd *H;

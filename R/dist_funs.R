@@ -18,9 +18,10 @@
 #'
 #' \code{pqfr_imhof()} and \code{pqfr_davies()} evaluate the distribution
 #' function by numerical inversion of the characteristic function based on
-#' Imhof (1961) or Davies (1973, 1980), calling
-#' \code{\link[CompQuadForm]{imhof}()} and \code{\link[CompQuadForm]{davies}()},
-#' respectively, from the package \pkg{CompQuadForm}.  Additional arguments for
+#' Imhof (1961) or Davies (1973, 1980), respectively.  The latter calls
+#' \code{\link[CompQuadForm]{davies}()}, and the former with
+#' \code{use_cpp = FALSE} calls \code{\link[CompQuadForm]{imhof}()},
+#' from the package \pkg{CompQuadForm}.  Additional arguments for
 #' \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
 #' except for \code{sigma}, which is not applicable.
 #'
@@ -279,6 +280,10 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  tol_sing = tol_zero,
                  ...) {
     method <- match.arg(method)
+    if(method == "davies" &&
+       !requireNamespace("CompQuadForm", quietly = TRUE)) {
+        stop("Package 'CompQuadForm' is required to use davies method")
+    }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -419,7 +424,8 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     if(!use_cpp && !requireNamespace("gsl", quietly = TRUE)) {
-        stop("Package 'gsl' is required when \"use_cpp = FALSE\"")
+        stop("Package 'gsl' is required to use forchini method\n  ",
+             "with \"use_cpp = FALSE\"")
     }
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
@@ -589,7 +595,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 #' @order 7
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
-                       autoscale_args = 1,
+                       autoscale_args = 1, stop_on_error = TRUE, use_cpp = TRUE,
                        tol_zero = .Machine$double.eps * 100,
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     ## If A or B is missing, let it be an identity matrix
@@ -605,22 +611,33 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In pqfr_imhof, quantile must be length-one" = (length(quantile) == 1)
     )
-    eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
-    L <- eigA_qB$values
-    delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-    if(all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
-    if(all(L <=  tol_zero)) return(list(p = 1, abserr = 0))
-    ## By default, L is scaled because small L yields small integrand
-    ## and hence makes numerical integration difficult
-    if(autoscale_args > 0) {
-        scale_L <- (max(L) - min(L)) / autoscale_args
-        L <- L / scale_L
+    if(use_cpp) {
+        cppres <- p_imhof_Ed(quantile, A, B, mu, autoscale_args,
+                             stop_on_error, tol_zero, pi * epsabs, epsrel, limit)
+        value <- cppres$value
+        abserr <- cppres$abs.error
+    } else {
+        if(!requireNamespace("CompQuadForm", quietly = TRUE)) {
+            stop("Package 'CompQuadForm' is required to use imhof method\n  ",
+                 "with \"use_cpp = FALSE\"")
+        }
+        eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
+        L <- eigA_qB$values
+        delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
+        if(all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
+        if(all(L <=  tol_zero)) return(list(p = 1, abserr = 0))
+        ## By default, L is scaled because small L yields small integrand
+        ## and hence makes numerical integration difficult
+        if(autoscale_args > 0) {
+            scale_L <- (max(L) - min(L)) / autoscale_args
+            L <- L / scale_L
+        }
+        res <- CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
+                                   delta = delta2, epsabs = pi * epsabs,
+                                   epsrel = epsrel, limit = limit)
+        value <- 1 - res$Qq
+        abserr <- res$abserr / pi
     }
-    res <- CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
-                        delta = delta2, epsabs = pi * epsabs, epsrel = epsrel,
-                        limit = limit)
-    value <- 1 - res$Qq
-    abserr <- res$abserr / pi
     return(list(p = value, abserr = abserr))
 }
 

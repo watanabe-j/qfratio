@@ -1,5 +1,6 @@
 tol <- 5e-7
 tol2 <- 5e-4
+CQF_available <- requireNamespace("CompQuadForm", quietly = TRUE)
 
 if(requireNamespace("stats", quietly = TRUE)) {
     test_that("Expect identical results for simultaneously rotated matrices", {
@@ -42,14 +43,18 @@ test_that("Expect equal from R and C++ methods", {
         A2 <- diag(L2)
         mu <- 1:nv * 0.2
 
+        if(CQF_available) {
+            expect_equal(pqfr(qs, A1, A2, mu = mu, method = "imhof", return_abserr_attr = FALSE, use_cpp = TRUE),
+                         pqfr(qs, A1, A2, mu = mu, method = "imhof", return_abserr_attr = FALSE, use_cpp = FALSE), tolerance = tol)
+        }
         expect_equal(pqfr(qs, A1, A2, mu = mu, method = "forchini", m = 5, check_convergence = FALSE, use_cpp = TRUE),
                      pqfr(qs, A1, A2, mu = mu, method = "forchini", m = 5, check_convergence = FALSE, use_cpp = FALSE), tolerance = tol)
         expect_equal(pqfr(qs, A1, A2, mu = mu, method = "butler", use_cpp = TRUE),
                      pqfr(qs, A1, A2, mu = mu, method = "butler", use_cpp = FALSE), tolerance = tol)
         expect_equal(pqfr(qs, A1, A2, mu = mu, method = "butler", order_spa = 1, use_cpp = TRUE),
                      pqfr(qs, A1, A2, mu = mu, method = "butler", order_spa = 1, use_cpp = FALSE), tolerance = tol)
-        expect_equal(dqfr(qs, A1, A2, mu = mu, method = "broda", use_cpp = TRUE),
-                     dqfr(qs, A1, A2, mu = mu, method = "broda", use_cpp = FALSE), tolerance = tol)
+        expect_equal(dqfr(qs, A1, A2, mu = mu, method = "broda", return_abserr_attr = FALSE, use_cpp = TRUE),
+                     dqfr(qs, A1, A2, mu = mu, method = "broda", return_abserr_attr = FALSE, use_cpp = FALSE), tolerance = tol)
         expect_equal(dqfr(qs, A1,              method = "hillier", m = 5, check_convergence = FALSE, use_cpp = TRUE),
                      dqfr(qs, A1,              method = "hillier", m = 5, check_convergence = FALSE, use_cpp = FALSE), tolerance = tol)
         expect_equal(dqfr(qs, A1, A2, mu = mu, method = "butler", use_cpp = TRUE),
@@ -68,14 +73,16 @@ test_that("Expect similar results between different methods", {
         A1 <- diag(L1)
         A2 <- diag(L2)
         mu <- 1:nv * 0.2
-        pseq_imhof    <- pqfr(qs, A1, A2, mu = mu, method = "imhof")
-        pseq_davies   <- pqfr(qs, A1, A2, mu = mu, method = "davies")
+        pseq_imhof    <- pqfr(qs, A1, A2, mu = mu, method = "imhof", return_abserr_attr = FALSE)
         pseq_forchini <- pqfr(qs, A1, A2, mu = mu, method = "forchini", m = 50, check_convergence = FALSE)
-        dseq_broda    <- dqfr(qs, A1, method = "broda")
+        dseq_broda    <- dqfr(qs, A1, method = "broda", return_abserr_attr = FALSE)
         dseq_hillier  <- dqfr(qs, A1, method = "hillier", m = 50, check_convergence = FALSE)
 
-        expect_equal(pseq_imhof, pseq_davies,   tolerance = tol2)
         expect_equal(pseq_imhof, pseq_forchini, tolerance = tol2)
+        if(CQF_available) {
+            pseq_davies <- pqfr(qs, A1, A2, mu = mu, method = "davies")
+            expect_equal(pseq_imhof, pseq_davies,   tolerance = tol2)
+        }
         expect_equal(dseq_broda, dseq_hillier,  tolerance = tol2)
     }
 })

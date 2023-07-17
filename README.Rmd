@@ -77,9 +77,9 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
 
 ### Dependencies
 
-    Imports: Rcpp, MASS, CompQuadForm
+    Imports: Rcpp, MASS
     LinkingTo: Rcpp, RcppEigen, RcppGSL
-    Suggests: gsl, mvtnorm, graphics, stats, testthat (>= 3.0.0),
+    Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
               rlang (>= 0.4.7), knitr, rmarkdown
 
 Note that the [GNU Scientific Library](https://www.gnu.org/software/gsl/)

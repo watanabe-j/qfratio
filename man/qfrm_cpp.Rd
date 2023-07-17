@@ -5,6 +5,7 @@
 \alias{p_A1B1_El}
 \alias{p_A1B1_Ec}
 \alias{d_A1I1_Ed}
+\alias{p_imhof_Ed}
 \alias{d_broda_Ed}
 \alias{d_butler_Ed}
 \alias{p_butler_Ed}
@@ -78,6 +79,19 @@ p_A1B1_Ec(
 )
 
 d_A1I1_Ed(quantile, LA, m, thr_margin = 100)
+
+p_imhof_Ed(
+  quantile,
+  A,
+  B,
+  mu,
+  autoscale_args,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
 
 d_broda_Ed(
   quantile,
@@ -565,6 +579,8 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{p_A1B1_Ec()}: \code{pqfm_A1B1()}, coefficient-wise scaling
 
 \item \code{d_A1I1_Ed()}: \code{dqfm_A1I1()}
+
+\item \code{p_imhof_Ed()}: \code{pqfm_imhof()}
 
 \item \code{d_broda_Ed()}: \code{dqfm_broda()}
 

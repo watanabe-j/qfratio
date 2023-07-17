@@ -83,6 +83,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// p_imhof_Ed
+SEXP p_imhof_Ed(const double quantile, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::ArrayXd mu, double autoscale_args, bool stop_on_error, double tol_zero, double epsabs, double epsrel, int limit);
+RcppExport SEXP _qfratio_p_imhof_Ed(SEXP quantileSEXP, SEXP ASEXP, SEXP BSEXP, SEXP muSEXP, SEXP autoscale_argsSEXP, SEXP stop_on_errorSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type quantile(quantileSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type B(BSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type autoscale_args(autoscale_argsSEXP);
+    Rcpp::traits::input_parameter< bool >::type stop_on_error(stop_on_errorSEXP);
+    Rcpp::traits::input_parameter< double >::type tol_zero(tol_zeroSEXP);
+    Rcpp::traits::input_parameter< double >::type epsabs(epsabsSEXP);
+    Rcpp::traits::input_parameter< double >::type epsrel(epsrelSEXP);
+    Rcpp::traits::input_parameter< int >::type limit(limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(p_imhof_Ed(quantile, A, B, mu, autoscale_args, stop_on_error, tol_zero, epsabs, epsrel, limit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // d_broda_Ed
 SEXP d_broda_Ed(const double quantile, const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::ArrayXd mu, double autoscale_args, bool stop_on_error, double tol_zero, double epsabs, double epsrel, int limit);
 RcppExport SEXP _qfratio_d_broda_Ed(SEXP quantileSEXP, SEXP ASEXP, SEXP BSEXP, SEXP muSEXP, SEXP autoscale_argsSEXP, SEXP stop_on_errorSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP limitSEXP) {
@@ -761,6 +781,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_p_A1B1_El", (DL_FUNC) &_qfratio_p_A1B1_El, 9},
     {"_qfratio_p_A1B1_Ec", (DL_FUNC) &_qfratio_p_A1B1_Ec, 9},
     {"_qfratio_d_A1I1_Ed", (DL_FUNC) &_qfratio_d_A1I1_Ed, 4},
+    {"_qfratio_p_imhof_Ed", (DL_FUNC) &_qfratio_p_imhof_Ed, 10},
     {"_qfratio_d_broda_Ed", (DL_FUNC) &_qfratio_d_broda_Ed, 10},
     {"_qfratio_d_butler_Ed", (DL_FUNC) &_qfratio_d_butler_Ed, 10},
     {"_qfratio_p_butler_Ed", (DL_FUNC) &_qfratio_p_butler_Ed, 10},

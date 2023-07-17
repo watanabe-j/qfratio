@@ -106,6 +106,8 @@ pqfr_imhof(
   B,
   mu = rep.int(0, n),
   autoscale_args = 1,
+  stop_on_error = TRUE,
+  use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
   epsabs = epsrel,
   epsrel = 1e-06,
@@ -311,9 +313,10 @@ functions of this package, these are evaluated with the recursive algorithm
 
 \code{pqfr_imhof()} and \code{pqfr_davies()} evaluate the distribution
 function by numerical inversion of the characteristic function based on
-Imhof (1961) or Davies (1973, 1980), calling
-\code{\link[CompQuadForm]{imhof}()} and \code{\link[CompQuadForm]{davies}()},
-respectively, from the package \pkg{CompQuadForm}.  Additional arguments for
+Imhof (1961) or Davies (1973, 1980), respectively.  The latter calls
+\code{\link[CompQuadForm]{davies}()}, and the former with
+\code{use_cpp = FALSE} calls \code{\link[CompQuadForm]{imhof}()},
+from the package \pkg{CompQuadForm}.  Additional arguments for
 \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
 except for \code{sigma}, which is not applicable.
 

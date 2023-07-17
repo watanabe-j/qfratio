@@ -475,8 +475,10 @@ The package `CompQuadForm` implements these methods in the function `imhof()`
 and `davies()`, respectively (strictly speaking, these are for $1 - F_Q$
 as per Imhof's original result).
 The present package utilizes those functions via
-`pqfr(..., method = "imhof")` and `pqfr(..., method = "davies")`, respectively
-(see below).
+`pqfr(..., method = "imhof", use_cpp = FALSE)` and
+`pqfr(..., method = "davies")`, respectively (see below).
+For the former method, the package also has its own `C++` implementation
+called via `pqfr(..., method = "imhof", use_cpp = TRUE)` (default).
 The numerical inversion can be evaluated fairly quickly on modern computers,
 and the accuracy will be sufficient for most practical purposes with slight
 error in numerical integration.
@@ -917,7 +919,7 @@ pqfr(1.9999, A, method = "imhof")
 ```{r definition_internal_inversion, eval = FALSE}
 ## Used in pqfr(..., method = "imhof") (default)
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
-                       autoscale_args = 1,
+                       autoscale_args = 1, stop_on_error = TRUE, use_cpp = TRUE,
                        tol_zero = .Machine$double.eps * 100,
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
 ## Used in pqfr(..., method = "davies")
@@ -931,18 +933,18 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
                        epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
 ```
 
-`pqfr_imhof()` and `pqfr_davies()` calculate appropriate parameters from
-the arguments and pass them to `imhof()` and `davies()` from the `CompQuadForm`
-package.
-`dqfr_broda()` conducts numerical integration by the `C` function
-`gsl_integration_qagi(..., epsabs, epsrel, limit)` from `GSL`, when
-`use_cpp = TRUE` (default).
+`pqfr_imhof(..., use_cpp = TRUE)` and `dqfr_broda(..., use_cpp = TRUE)`
+conduct numerical integration by the `C` function
+`gsl_integration_qagi(..., epsabs, epsrel, limit)` from `GSL`.
 The arguments `epsabs`, `epsrel`, and `limit` determine the permissible bounds
 of absolute and relative errors, and the maximum number of integration
 intervals, respectively.
-When `use_cpp = FALSE`, it uses the `R` function
+`dqfr_broda(..., use_cpp = FALSE)` uses the `R` function
 `stats::integrate(..., rel.tol = epsrel, abs.tol = epsabs, stop.on.error = stop_on_error)`,
 instead, and `limit` is ignored.
+`pqfr_imhof(..., use_cpp = FALSE)` and `pqfr_davies()` calculate appropriate
+parameters from the arguments and pass them to `imhof()` and `davies()` from
+the `CompQuadForm` package.
 To be strict, the user-specified `epsabs`, but not `epsrel`, is multiplied by
 `pi` before passed to these functions, because the integration result and
 its error are subsequently divided by `pi`.
