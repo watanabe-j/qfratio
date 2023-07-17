@@ -613,7 +613,7 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
     )
     if(use_cpp) {
         cppres <- p_imhof_Ed(quantile, A, B, mu, autoscale_args,
-                             stop_on_error, tol_zero, pi * epsabs, epsrel, limit)
+                             stop_on_error, tol_zero, epsabs, epsrel, limit)
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
@@ -633,7 +633,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
             L <- L / scale_L
         }
         res <- CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
-                                   delta = delta2, epsabs = pi * epsabs,
+                                   delta = delta2,
+                                   epsabs = pi * (epsabs + epsrel / 2),
                                    epsrel = epsrel, limit = limit)
         value <- 1 - res$Qq
         abserr <- res$abserr / pi

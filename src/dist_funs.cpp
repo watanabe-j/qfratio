@@ -867,7 +867,7 @@ SEXP p_imhof_Ed(const double quantile,
     gsl_function F;
     F.function = &imhof_fun;
     F.params = &params;
-    status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+    status = gsl_integration_qagiu(&F, 0, M_PI * (epsabs + epsrel / 2.0), epsrel, limit, w,
                                    &result, &error);
     gsl_integration_workspace_free(w);
     if(status) {

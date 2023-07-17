@@ -945,9 +945,50 @@ instead, and `limit` is ignored.
 `pqfr_imhof(..., use_cpp = FALSE)` and `pqfr_davies()` calculate appropriate
 parameters from the arguments and pass them to `imhof()` and `davies()` from
 the `CompQuadForm` package.
-To be strict, the user-specified `epsabs`, but not `epsrel`, is multiplied by
-`pi` before passed to these functions, because the integration result and
-its error are subsequently divided by `pi`.
+
+
+### Specifying integration error
+
+The above integration functions try to find an absolute error bound $e_I$
+that is bounded by the user-specified tolerance for absolute
+$\epsilon_{\mathrm{abs}}$ and relative $\epsilon_{\mathrm{rel}}$ errors:
+$e_I \leq \epsilon_{\mathrm{abs}} + \lvert I \rvert \epsilon_{\mathrm{rel}}$,
+where $I$ is the result of integration.
+
+Internally, $\epsilon_{\mathrm{abs}}$ is calculated from the user-specified
+arguments `epsabs` and `epsrel` to appropriately constrain the density
+or distribution function (whereas $\epsilon_{\mathrm{rel}}$ is always
+specified by `epsrel`).
+In `dqfr_broda()`, `pi * epsabs` is used as $\epsilon_{\mathrm{abs}}$,
+and the resultant error bound `abserr` is subsequently divided by `pi`,
+so is the integration result itself to yield the density: $f_Q = I / \pi$
+(see above).
+
+Situation is more complicated for `pqfr_imhof()`, because the relative error in
+$I$ cannot in general be directly transformed to that of the distribution
+function, which is $F_Q = 1/2 - I / \pi$ (see above).
+In this function, `pi * (epsabs * epsrel / 2)` is passed as
+$\epsilon_{\mathrm{abs}}$, and the resultant error bound `abserr` is divided
+by `pi`.
+This procedure ensures an equivalent of the above inequality to hold for
+$F_Q$, provided $I \leq 0$ ($F_Q \geq 1/2$) or $\epsilon_{\mathrm{rel}} = 0$.
+Otherwise, an error bound calculated in the same way can only be conservative;
+`pqfr_imhof()` returns this value, but it can violate the user-specified
+relative tolerance `epsrel`.
+```{r example_specify_error}
+A <- diag(1:4)
+
+## This error bound satisfies "abserr < value * epsrel"
+pqfr(3.9, A, method = "imhof", return_abserr_attr = TRUE,
+     epsabs = 0, epsrel = 1e-6)
+
+## This one violates "abserr < value * epsrel",
+## although abserr is a valid error bound
+pqfr(1.2, A, method = "imhof", return_abserr_attr = TRUE,
+     epsabs = 0, epsrel = 1e-6)
+
+```
+
 
 
 ### `autoscale_args`
