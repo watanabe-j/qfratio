@@ -40,7 +40,9 @@ $$
 \renewcommand{\det}[1]{\left\lvert #1 \right\rvert}
 \newcommand{\qfrhgmf}[4]{{}_2 F_1 \left( #1 , #2 ; #3 ; #4 \right)}
 \newcommand{\qfrmvnorm}[3][n]{N_{#1} \! \left( #2 , #3 \right)}
+\newcommand{\qfrcchisq}[1]{\chi_{#1}^2}
 \newcommand{\qfrnchisq}[2]{\chi^2 \! \left( #1 , #2 \right)}
+\newcommand{\qfrBtd}[2]{\mathrm{beta} \! \left( #1 , #2 \right)}
 $$
 
 
@@ -322,7 +324,7 @@ In this case, the distribution of $Q$ does not depend on the norm of
 $\mathbf{x}$, so any spherically symmetric distribution of $\mathbf{x}$
 yields the same distribution of $Q$ [@Hillier2001].
 
-Let $\eta_1 , \dots , \eta_s$ be $s$ distinct eigenvalues of
+Let $\eta_1 > \dots > \eta_s$ be $s$ distinct eigenvalues of
 $\mathbf{A}$, and $n_1 , \dots , n_s$ be the corresponding degrees of
 multiplicity ($\sum_{i=1}^{s} n_i = n$).
 Consider the transformed variable $V = \frac{Q - \eta_s}{\eta_1 - Q}$
@@ -381,7 +383,7 @@ and $c_r (j, k)$ are the coefficients defined as
 \end{equation}
 $c_r (j, k)$ can be $0$ when $p_r$ or $n - p_r$ is even, so that some terms
 in the above series disappear.
-Otherwise, it is possible to write
+Otherwise (whenever $c_r (j, k) \neq 0$), it is possible to write
 \begin{equation}
     c_r (j, k) =
       (-1)^{j-k}
@@ -389,8 +391,7 @@ Otherwise, it is possible to write
         \qfrGmf{\frac{p_r}{2} + j - k} \qfrGmf{\frac{n - p_r}{2} + k - j}
       } ,
 \end{equation}
-when denominator is defined, to simplify calculation.
-
+to simplify calculation.
 The density is undefined at $v = \psi_{i}$ ($q = \eta_i$) for any $i$.
 
 From one of the above expressions, $f_Q(q)$ can be obtained as
@@ -407,8 +408,8 @@ From one of the above expressions, $f_Q(q)$ can be obtained as
     \frac{\eta_1 - \eta_s}{\left( \eta_1 - q \right)^2} .
   \end{aligned}
 \end{equation}
-A notable special case is when $s = 2$ (i.e., there are only two distinct
-eigenvalues), in which case the above becomes
+It is seen that, when $s = 2$ (i.e., there are only two distinct
+eigenvalues), the above becomes
 \begin{equation}
   \begin{aligned}
     f_Q (q) = &
@@ -418,12 +419,20 @@ eigenvalues), in which case the above becomes
         \left( \eta_1 - q \right)^{\frac{n_s}{2} - 1}
     }{
         \left( \eta_1 - \eta_s \right)^{\frac{n_1 + n_s}{2} - 1}
-    }.
+    } ,
   \end{aligned}
 \end{equation}
-This is the density of the (scaled) beta distribution in the interval
-$\left[ \eta_s , \eta_1 \right]$ with the parameters
-$n_1 / 2$ and $n_s / 2$.
+which is the density of the (scaled) beta distribution in the interval
+$\left[ \eta_s , \eta_1 \right]$ with the parameters $n_1 / 2$ and $n_s / 2$.
+This result is expected from the basic relationship between the chi-square
+and beta distributions, i.e.,
+$\qfrcchisq{n_1} / \left( \qfrcchisq{n_1} + \qfrcchisq{n_s} \right) =
+b \sim \qfrBtd{n_1 / 2}{n_s / 2}$, a standard beta distribution in $[0, 1]$,
+with $\qfrcchisq{n_i}$ being independent chi-square variables;
+$Q = \left( \eta_1 \qfrcchisq{n_1} + \eta_s \qfrcchisq{n_s} \right) /
+\left( \qfrcchisq{n_1} + \qfrcchisq{n_s} \right) =
+\eta_1 b + \eta_s \left( 1 - b \right) =
+\left( \eta_1 - \eta_s \right) b + \eta_s$.
 
 As for the above series expression of $F_Q$, these expressions can be
 evaluated by taking a partial sum of the series and using the recursive
@@ -468,17 +477,18 @@ where
 \end{equation}
 
 The above integral can be evaluated by using a regular numerical evaluation
-algorithm.
-Alternatively, it can be evaluated by the method of @Davies1973[@Davies1980]
-which explicitly evaluates numerical errors involved.
+algorithm for infinite intervals.
+Alternatively, it can be evaluated by the trapezoidal integration algorithm of
+@Davies1973[@Davies1980] which explicitly controls the numerical errors
+involved.
 The package `CompQuadForm` implements these methods in the function `imhof()`
 and `davies()`, respectively (strictly speaking, these are for $1 - F_Q$
 as per Imhof's original result).
 The present package utilizes those functions via
 `pqfr(..., method = "imhof", use_cpp = FALSE)` and
 `pqfr(..., method = "davies")`, respectively (see below).
-For the former method, the package also has its own `C++` implementation
-called via `pqfr(..., method = "imhof", use_cpp = TRUE)` (default).
+For the former method, the present package also has its own `C++` implementation
+used via `pqfr(..., method = "imhof", use_cpp = TRUE)` (default).
 The numerical inversion can be evaluated fairly quickly on modern computers,
 and the accuracy will be sufficient for most practical purposes with slight
 error in numerical integration.
