@@ -941,16 +941,16 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
         if(quantile >= L1 || quantile <= Ls) {
             return(list(d = 0, terms = rep.int(0, m + 1)))
         }
-        f <- (quantile - Ls) / (L1 - quantile)
         n1 <- sum(LA == L1)
         ns <- sum(LA == Ls)
         if(n1 + ns == n) {
             ## When LA has only two distinct elements, the series vanishes and
-            ## the distribution of f reduces to a beta prime distribution
-            ans <- f ^ (n1 / 2 - 1) / (1 + f) ^ (n / 2) / beta(n1 / 2, (n - n1) / 2)
-            ans <- ans * (L1 - Ls) / (L1 - quantile) ^ 2
+            ## the distribution reduces to a scaled beta distribution
+            ans <- stats::dbeta((quantile - Ls) / (L1 - Ls), n1 / 2, ns / 2) /
+                   (L1 - Ls)
             return(list(d = ans, terms = c(ans, rep.int(0, m))))
         }
+        f <- (quantile - Ls) / (L1 - quantile)
         ind_psi <- which(LA != L1 & LA != Ls)
         psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
         ind_r1 <- psi > f

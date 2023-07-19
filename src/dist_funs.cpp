@@ -728,18 +728,17 @@ SEXP d_A1I1_Ed(const double quantile, const Eigen::ArrayXd LA,
             Rcpp::Named("ansseq") = ansseq,
             Rcpp::Named("exact")  = exact);
     }
-    const double f = (quantile - Ls) / (L1 - quantile);
     const double n1_ = double((LA == L1).cast<int>().sum());
     const double ns_ = double((LA == Ls).cast<int>().sum());
     if(n1_ + ns_ == n_) {
-        ansseq(0) = std::pow(f, n1_ / 2.0 - 1.0) / std::pow(1 + f, n_ / 2.0) /
-                    std::beta(n1_ / 2.0, (n_ - n1_) / 2.0);
-        ansseq(0) *= (L1 - Ls) / std::pow(L1 - quantile, 2.0);
+        ansseq(0) = R::dbeta((quantile - Ls) / (L1 - Ls), n1_ / 2.0, ns_ / 2.0, 0) /
+                    (L1 - Ls);
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
             Rcpp::Named("exact")  = exact);
     }
+    const double f = (quantile - Ls) / (L1 - quantile);
     const ArrayXd LA_for_psi = get_subset(LA, ((LA != L1) && (LA != Ls)).cast<int>());
     const ArrayXd psi = (LA_for_psi - Ls) / (L1 - LA_for_psi);
     ArrayXi ind_r1 = (psi > f).cast<int>();
