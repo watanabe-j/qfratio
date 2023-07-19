@@ -1130,8 +1130,7 @@ SEXP d_butler_Ed(const double quantile,
     const ArrayXd theta = nu.pow(2.0);
     const MatrixXd H = U.transpose() * B * U;
     double s;
-    int status;
-    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
+    butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
     ArrayXd Xii_s = (1.0 - 2.0 * s * L).inverse();
     VectorXd Xiinu = Xii_s * nu;
     double J_s = J_fun(Xii_s, L, H, Xiinu);
@@ -1179,8 +1178,7 @@ SEXP p_butler_Ed(const double quantile,
     const ArrayXd theta = nu.pow(2.0);
     double value;
     double s;
-    int status;
-    status = butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
+    butler_spa_root_find(s, L, theta, epsabs, epsrel, maxiter, stop_on_error);
     if(std::abs(s) * (1 - epsrel) < std::max(epsabs, tol_zero)) {
         ArrayXd Xii_0 = ArrayXd::Ones(L.size());
         double Kp2_0 = Kder_fun(Xii_0, L, theta, 2);
