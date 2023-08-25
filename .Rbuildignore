@@ -3,9 +3,11 @@
 ^\.Rproj\.user$
 ^R/int
 ^src/int
+^src/scripts/copy_gsl\.sh$
+^src/scripts/process_gsl\.sh$
 ^README\.Rmd$
 ^README\.html$
-^\.vscode$
+\.vscode$
 ^\.lintr$
 ^\.github$
 ^cran-comments\.md$

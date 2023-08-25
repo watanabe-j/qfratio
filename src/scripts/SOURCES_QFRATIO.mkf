@@ -1,0 +1,10 @@
+SOURCES_QFRATIO = \
+    dist_funs.cpp \
+    dk_funs_cwise.cpp \
+    dk_funs.cpp \
+    hgs_funs.cpp \
+    ratio_funs_cwise.cpp \
+    ratio_funs_long.cpp \
+    ratio_funs.cpp \
+    RcppExports.cpp \
+    rqf_funs.cpp
