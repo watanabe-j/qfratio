@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/gsl_sf_hyperg.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -22,7 +26,7 @@
 #ifndef __GSL_SF_HYPERG_H__
 #define __GSL_SF_HYPERG_H__
 
-#include <gsl/gsl_sf_result.h>
+#include "gsl_sf_result.h" // edited for qfratio
 
 #undef __BEGIN_DECLS
 #undef __END_DECLS
@@ -37,15 +41,15 @@
 __BEGIN_DECLS
 
 
-/* Hypergeometric function related to Bessel functions
- * 0F1[c,x] =
- *            Gamma[c]    x^(1/2(1-c)) I_{c-1}(2 Sqrt[x])
- *            Gamma[c] (-x)^(1/2(1-c)) J_{c-1}(2 Sqrt[-x])
- *
- * exceptions: GSL_EOVRFLW, GSL_EUNDRFLW
- */
-int gsl_sf_hyperg_0F1_e(double c, double x, gsl_sf_result * result);
-double gsl_sf_hyperg_0F1(const double c, const double x);
+// /* Hypergeometric function related to Bessel functions // edited for qfratio
+//  * 0F1[c,x] = // edited for qfratio
+//  *            Gamma[c]    x^(1/2(1-c)) I_{c-1}(2 Sqrt[x]) // edited for qfratio
+//  *            Gamma[c] (-x)^(1/2(1-c)) J_{c-1}(2 Sqrt[-x]) // edited for qfratio
+//  * // edited for qfratio
+//  * exceptions: GSL_EOVRFLW, GSL_EUNDRFLW // edited for qfratio
+//  */ // edited for qfratio
+// int gsl_sf_hyperg_0F1_e(double c, double x, gsl_sf_result * result); // edited for qfratio
+// double gsl_sf_hyperg_0F1(const double c, const double x); // edited for qfratio
 
 
 /* Confluent hypergeometric function  for integer parameters.
@@ -139,14 +143,14 @@ int gsl_sf_hyperg_2F1_conj_renorm_e(const double aR, const double aI, const doub
 double gsl_sf_hyperg_2F1_conj_renorm(double aR, double aI, double c, double x);
 
 
-/* Mysterious hypergeometric function. The series representation
- * is a divergent hypergeometric series. However, for x < 0 we
- * have 2F0(a,b,x) = (-1/x)^a U(a,1+a-b,-1/x)
- *
- * exceptions: GSL_EDOM
- */
-int     gsl_sf_hyperg_2F0_e(const double a, const double b, const double x, gsl_sf_result * result);
-double     gsl_sf_hyperg_2F0(const double a, const double b, const double x);
+// /* Mysterious hypergeometric function. The series representation // edited for qfratio
+//  * is a divergent hypergeometric series. However, for x < 0 we // edited for qfratio
+//  * have 2F0(a,b,x) = (-1/x)^a U(a,1+a-b,-1/x) // edited for qfratio
+//  * // edited for qfratio
+//  * exceptions: GSL_EDOM // edited for qfratio
+//  */ // edited for qfratio
+// int     gsl_sf_hyperg_2F0_e(const double a, const double b, const double x, gsl_sf_result * result); // edited for qfratio
+// double     gsl_sf_hyperg_2F0(const double a, const double b, const double x); // edited for qfratio
 
 
 __END_DECLS

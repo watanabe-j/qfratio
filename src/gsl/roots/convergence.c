@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* roots/convergence.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Reid Priedhorsky, Brian Gough
@@ -18,43 +22,43 @@
  */
 
 #include <config.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_roots.h>
+#include "../gsl_math.h" // edited for qfratio
+#include "../err/gsl_errno.h" // edited for qfratio
+#include "gsl_roots.h" // edited for qfratio
 
-int
-gsl_root_test_interval (double x_lower, double x_upper, double epsabs, double epsrel)
-{
-  const double abs_lower = fabs(x_lower) ;
-  const double abs_upper = fabs(x_upper) ;
+// int // edited for qfratio
+// gsl_root_test_interval (double x_lower, double x_upper, double epsabs, double epsrel) // edited for qfratio
+// { // edited for qfratio
+//   const double abs_lower = fabs(x_lower) ; // edited for qfratio
+//   const double abs_upper = fabs(x_upper) ; // edited for qfratio
 
-  double min_abs, tolerance;
+//   double min_abs, tolerance; // edited for qfratio
 
-  if (epsrel < 0.0)
-    GSL_ERROR ("relative tolerance is negative", GSL_EBADTOL);
-  
-  if (epsabs < 0.0)
-    GSL_ERROR ("absolute tolerance is negative", GSL_EBADTOL);
+//   if (epsrel < 0.0) // edited for qfratio
+//     GSL_ERROR ("relative tolerance is negative", GSL_EBADTOL); // edited for qfratio
+//    // edited for qfratio
+//   if (epsabs < 0.0) // edited for qfratio
+//     GSL_ERROR ("absolute tolerance is negative", GSL_EBADTOL); // edited for qfratio
 
-  if (x_lower > x_upper)
-    GSL_ERROR ("lower bound larger than upper bound", GSL_EINVAL);
+//   if (x_lower > x_upper) // edited for qfratio
+//     GSL_ERROR ("lower bound larger than upper bound", GSL_EINVAL); // edited for qfratio
 
-  if ((x_lower > 0.0 && x_upper > 0.0) || (x_lower < 0.0 && x_upper < 0.0)) 
-    {
-      min_abs = GSL_MIN_DBL(abs_lower, abs_upper) ;
-    }
-  else
-    {
-      min_abs = 0;
-    }
+//   if ((x_lower > 0.0 && x_upper > 0.0) || (x_lower < 0.0 && x_upper < 0.0))  // edited for qfratio
+//     { // edited for qfratio
+//       min_abs = GSL_MIN_DBL(abs_lower, abs_upper) ; // edited for qfratio
+//     } // edited for qfratio
+//   else // edited for qfratio
+//     { // edited for qfratio
+//       min_abs = 0; // edited for qfratio
+//     } // edited for qfratio
 
-  tolerance = epsabs + epsrel * min_abs  ;
-  
-  if (fabs(x_upper - x_lower) < tolerance)
-    return GSL_SUCCESS;
-  
-  return GSL_CONTINUE ;
-}
+//   tolerance = epsabs + epsrel * min_abs  ; // edited for qfratio
+//    // edited for qfratio
+//   if (fabs(x_upper - x_lower) < tolerance) // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//    // edited for qfratio
+//   return GSL_CONTINUE ; // edited for qfratio
+// } // edited for qfratio
 
 int
 gsl_root_test_delta (double x1, double x0, double epsabs, double epsrel)
@@ -73,15 +77,15 @@ gsl_root_test_delta (double x1, double x0, double epsabs, double epsrel)
   return GSL_CONTINUE ;
 }
 
-int
-gsl_root_test_residual (double f, double epsabs)
-{
-  if (epsabs < 0.0)
-    GSL_ERROR ("absolute tolerance is negative", GSL_EBADTOL);
- 
-  if (fabs(f) < epsabs)
-    return GSL_SUCCESS;
-  
-  return GSL_CONTINUE ;
-}
+// int // edited for qfratio
+// gsl_root_test_residual (double f, double epsabs) // edited for qfratio
+// { // edited for qfratio
+//   if (epsabs < 0.0) // edited for qfratio
+//     GSL_ERROR ("absolute tolerance is negative", GSL_EBADTOL); // edited for qfratio
+//   // edited for qfratio
+//   if (fabs(f) < epsabs) // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//    // edited for qfratio
+//   return GSL_CONTINUE ; // edited for qfratio
+// } // edited for qfratio
 

@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* integration/workspace.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007, 2009 Brian Gough
@@ -19,8 +23,8 @@
 
 #include <config.h>
 #include <stdlib.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_errno.h>
+#include "gsl_integration.h" // edited for qfratio
+#include "../err/gsl_errno.h" // edited for qfratio
 
 gsl_integration_workspace *
 gsl_integration_workspace_alloc (const size_t n) 

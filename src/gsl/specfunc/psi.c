@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/psi.c
  * 
  * Copyright (C) 2007 Brian Gough
@@ -21,13 +25,13 @@
 /* Author: G. Jungman */
 
 #include <config.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_sf_exp.h>
-#include <gsl/gsl_sf_gamma.h>
-#include <gsl/gsl_sf_zeta.h>
-#include <gsl/gsl_sf_psi.h>
-#include <gsl/gsl_complex_math.h>
+#include "../gsl_math.h" // edited for qfratio
+#include "../err/gsl_errno.h" // edited for qfratio
+#include "gsl_sf_exp.h" // edited for qfratio
+#include "gsl_sf_gamma.h" // edited for qfratio
+#include "gsl_sf_zeta.h" // edited for qfratio
+#include "gsl_sf_psi.h" // edited for qfratio
+// #include <gsl/gsl_complex_math.h> // edited for qfratio
 
 #include <stdio.h>
 
@@ -455,101 +459,101 @@ psi_x(const double x, gsl_sf_result * result)
 }
 
 
-/* psi(z) for large |z| in the right half-plane; [Abramowitz + Stegun, 6.3.18] */
-static
-gsl_complex
-psi_complex_asymp(gsl_complex z)
-{
-  /* coefficients in the asymptotic expansion for large z;
-   * let w = z^(-2) and write the expression in the form
-   *
-   *   ln(z) - 1/(2z) - 1/12 w (1 + c1 w + c2 w + c3 w + ... )
-   */
-  static const double c1 = -0.1;
-  static const double c2 =  1.0/21.0;
-  static const double c3 = -0.05;
+// /* psi(z) for large |z| in the right half-plane; [Abramowitz + Stegun, 6.3.18] */ // edited for qfratio
+// static // edited for qfratio
+// gsl_complex // edited for qfratio
+// psi_complex_asymp(gsl_complex z) // edited for qfratio
+// { // edited for qfratio
+//   /* coefficients in the asymptotic expansion for large z; // edited for qfratio
+//    * let w = z^(-2) and write the expression in the form // edited for qfratio
+//    * // edited for qfratio
+//    *   ln(z) - 1/(2z) - 1/12 w (1 + c1 w + c2 w + c3 w + ... ) // edited for qfratio
+//    */ // edited for qfratio
+//   static const double c1 = -0.1; // edited for qfratio
+//   static const double c2 =  1.0/21.0; // edited for qfratio
+//   static const double c3 = -0.05; // edited for qfratio
 
-  gsl_complex zi = gsl_complex_inverse(z);
-  gsl_complex w  = gsl_complex_mul(zi, zi);
-  gsl_complex cs;
+//   gsl_complex zi = gsl_complex_inverse(z); // edited for qfratio
+//   gsl_complex w  = gsl_complex_mul(zi, zi); // edited for qfratio
+//   gsl_complex cs; // edited for qfratio
 
-  /* Horner method evaluation of term in parentheses */
-  gsl_complex sum;
-  sum = gsl_complex_mul_real(w, c3/c2);
-  sum = gsl_complex_add_real(sum, 1.0);
-  sum = gsl_complex_mul_real(sum, c2/c1);
-  sum = gsl_complex_mul(sum, w);
-  sum = gsl_complex_add_real(sum, 1.0);
-  sum = gsl_complex_mul_real(sum, c1);
-  sum = gsl_complex_mul(sum, w);
-  sum = gsl_complex_add_real(sum, 1.0);
+//   /* Horner method evaluation of term in parentheses */ // edited for qfratio
+//   gsl_complex sum; // edited for qfratio
+//   sum = gsl_complex_mul_real(w, c3/c2); // edited for qfratio
+//   sum = gsl_complex_add_real(sum, 1.0); // edited for qfratio
+//   sum = gsl_complex_mul_real(sum, c2/c1); // edited for qfratio
+//   sum = gsl_complex_mul(sum, w); // edited for qfratio
+//   sum = gsl_complex_add_real(sum, 1.0); // edited for qfratio
+//   sum = gsl_complex_mul_real(sum, c1); // edited for qfratio
+//   sum = gsl_complex_mul(sum, w); // edited for qfratio
+//   sum = gsl_complex_add_real(sum, 1.0); // edited for qfratio
 
-  /* correction added to log(z) */
-  cs = gsl_complex_mul(sum, w);
-  cs = gsl_complex_mul_real(cs, -1.0/12.0);
-  cs = gsl_complex_add(cs, gsl_complex_mul_real(zi, -0.5));
+//   /* correction added to log(z) */ // edited for qfratio
+//   cs = gsl_complex_mul(sum, w); // edited for qfratio
+//   cs = gsl_complex_mul_real(cs, -1.0/12.0); // edited for qfratio
+//   cs = gsl_complex_add(cs, gsl_complex_mul_real(zi, -0.5)); // edited for qfratio
 
-  return gsl_complex_add(gsl_complex_log(z), cs);
-}
+//   return gsl_complex_add(gsl_complex_log(z), cs); // edited for qfratio
+// } // edited for qfratio
 
 
 
-/* psi(z) for complex z in the right half-plane */
-static int
-psi_complex_rhp(
-  gsl_complex z,
-  gsl_sf_result * result_re,
-  gsl_sf_result * result_im
-  )
-{
-  int n_recurse = 0;
-  int i;
-  gsl_complex a;
+// /* psi(z) for complex z in the right half-plane */ // edited for qfratio
+// static int // edited for qfratio
+// psi_complex_rhp( // edited for qfratio
+//   gsl_complex z, // edited for qfratio
+//   gsl_sf_result * result_re, // edited for qfratio
+//   gsl_sf_result * result_im // edited for qfratio
+//   ) // edited for qfratio
+// { // edited for qfratio
+//   int n_recurse = 0; // edited for qfratio
+//   int i; // edited for qfratio
+//   gsl_complex a; // edited for qfratio
 
-  if(GSL_REAL(z) == 0.0 && GSL_IMAG(z) == 0.0)
-  {
-    result_re->val = 0.0;
-    result_im->val = 0.0;
-    result_re->err = 0.0;
-    result_im->err = 0.0;
-    return GSL_EDOM;
-  }
+//   if(GSL_REAL(z) == 0.0 && GSL_IMAG(z) == 0.0) // edited for qfratio
+//   { // edited for qfratio
+//     result_re->val = 0.0; // edited for qfratio
+//     result_im->val = 0.0; // edited for qfratio
+//     result_re->err = 0.0; // edited for qfratio
+//     result_im->err = 0.0; // edited for qfratio
+//     return GSL_EDOM; // edited for qfratio
+//   } // edited for qfratio
 
-  /* compute the number of recurrences to apply */
-  if(GSL_REAL(z) < 20.0 && fabs(GSL_IMAG(z)) < 20.0)
-  {
-    const double sp = sqrt(20.0 + GSL_IMAG(z));
-    const double sn = sqrt(20.0 - GSL_IMAG(z));
-    const double rhs = sp*sn - GSL_REAL(z);
-    if(rhs > 0.0) n_recurse = ceil(rhs);
-  }
+//   /* compute the number of recurrences to apply */ // edited for qfratio
+//   if(GSL_REAL(z) < 20.0 && fabs(GSL_IMAG(z)) < 20.0) // edited for qfratio
+//   { // edited for qfratio
+//     const double sp = sqrt(20.0 + GSL_IMAG(z)); // edited for qfratio
+//     const double sn = sqrt(20.0 - GSL_IMAG(z)); // edited for qfratio
+//     const double rhs = sp*sn - GSL_REAL(z); // edited for qfratio
+//     if(rhs > 0.0) n_recurse = ceil(rhs); // edited for qfratio
+//   } // edited for qfratio
 
-  /* compute asymptotic at the large value z + n_recurse */
-  a = psi_complex_asymp(gsl_complex_add_real(z, n_recurse));
+//   /* compute asymptotic at the large value z + n_recurse */ // edited for qfratio
+//   a = psi_complex_asymp(gsl_complex_add_real(z, n_recurse)); // edited for qfratio
 
-  result_re->err = 2.0 * GSL_DBL_EPSILON * fabs(GSL_REAL(a));
-  result_im->err = 2.0 * GSL_DBL_EPSILON * fabs(GSL_IMAG(a));
+//   result_re->err = 2.0 * GSL_DBL_EPSILON * fabs(GSL_REAL(a)); // edited for qfratio
+//   result_im->err = 2.0 * GSL_DBL_EPSILON * fabs(GSL_IMAG(a)); // edited for qfratio
 
-  /* descend recursively, if necessary */
-  for(i = n_recurse; i >= 1; --i)
-  {
-    gsl_complex zn = gsl_complex_add_real(z, i - 1.0);
-    gsl_complex zn_inverse = gsl_complex_inverse(zn);
-    a = gsl_complex_sub(a, zn_inverse);
+//   /* descend recursively, if necessary */ // edited for qfratio
+//   for(i = n_recurse; i >= 1; --i) // edited for qfratio
+//   { // edited for qfratio
+//     gsl_complex zn = gsl_complex_add_real(z, i - 1.0); // edited for qfratio
+//     gsl_complex zn_inverse = gsl_complex_inverse(zn); // edited for qfratio
+//     a = gsl_complex_sub(a, zn_inverse); // edited for qfratio
 
-    /* accumulate the error, to catch cancellations */
-    result_re->err += 2.0 * GSL_DBL_EPSILON * fabs(GSL_REAL(zn_inverse));
-    result_im->err += 2.0 * GSL_DBL_EPSILON * fabs(GSL_IMAG(zn_inverse));
-  }
+//     /* accumulate the error, to catch cancellations */ // edited for qfratio
+//     result_re->err += 2.0 * GSL_DBL_EPSILON * fabs(GSL_REAL(zn_inverse)); // edited for qfratio
+//     result_im->err += 2.0 * GSL_DBL_EPSILON * fabs(GSL_IMAG(zn_inverse)); // edited for qfratio
+//   } // edited for qfratio
 
-  result_re->val = GSL_REAL(a);
-  result_im->val = GSL_IMAG(a);
+//   result_re->val = GSL_REAL(a); // edited for qfratio
+//   result_im->val = GSL_IMAG(a); // edited for qfratio
 
-  result_re->err += 2.0 * GSL_DBL_EPSILON * fabs(result_re->val);
-  result_im->err += 2.0 * GSL_DBL_EPSILON * fabs(result_im->val);
+//   result_re->err += 2.0 * GSL_DBL_EPSILON * fabs(result_re->val); // edited for qfratio
+//   result_im->err += 2.0 * GSL_DBL_EPSILON * fabs(result_im->val); // edited for qfratio
 
-  return GSL_SUCCESS;
-}
+//   return GSL_SUCCESS; // edited for qfratio
+// } // edited for qfratio
 
 
 
@@ -794,40 +798,40 @@ int gsl_sf_psi_n_e(const int n, const double x, gsl_sf_result * result)
 }
 
 
-int
-gsl_sf_complex_psi_e(
-  const double x,
-  const double y,
-  gsl_sf_result * result_re,
-  gsl_sf_result * result_im
-  )
-{
-  if(x >= 0.0)
-  {
-    gsl_complex z = gsl_complex_rect(x, y);
-    return psi_complex_rhp(z, result_re, result_im);
-  }
-  else
-  {
-    /* reflection formula [Abramowitz+Stegun, 6.3.7] */
-    gsl_complex z = gsl_complex_rect(x, y);
-    gsl_complex omz = gsl_complex_rect(1.0 - x, -y);
-    gsl_complex zpi = gsl_complex_mul_real(z, M_PI);
-    gsl_complex cotzpi = gsl_complex_cot(zpi);
-    int ret_val = psi_complex_rhp(omz, result_re, result_im);
+// int // edited for qfratio
+// gsl_sf_complex_psi_e( // edited for qfratio
+//   const double x, // edited for qfratio
+//   const double y, // edited for qfratio
+//   gsl_sf_result * result_re, // edited for qfratio
+//   gsl_sf_result * result_im // edited for qfratio
+//   ) // edited for qfratio
+// { // edited for qfratio
+//   if(x >= 0.0) // edited for qfratio
+//   { // edited for qfratio
+//     gsl_complex z = gsl_complex_rect(x, y); // edited for qfratio
+//     return psi_complex_rhp(z, result_re, result_im); // edited for qfratio
+//   } // edited for qfratio
+//   else // edited for qfratio
+//   { // edited for qfratio
+//     /* reflection formula [Abramowitz+Stegun, 6.3.7] */ // edited for qfratio
+//     gsl_complex z = gsl_complex_rect(x, y); // edited for qfratio
+//     gsl_complex omz = gsl_complex_rect(1.0 - x, -y); // edited for qfratio
+//     gsl_complex zpi = gsl_complex_mul_real(z, M_PI); // edited for qfratio
+//     gsl_complex cotzpi = gsl_complex_cot(zpi); // edited for qfratio
+//     int ret_val = psi_complex_rhp(omz, result_re, result_im); // edited for qfratio
 
-    if(GSL_IS_REAL(GSL_REAL(cotzpi)) && GSL_IS_REAL(GSL_IMAG(cotzpi)))
-    {
-      result_re->val -= M_PI * GSL_REAL(cotzpi);
-      result_im->val -= M_PI * GSL_IMAG(cotzpi);
-      return ret_val;
-    }
-    else
-    {
-      GSL_ERROR("singularity", GSL_EDOM);
-    }
-  }
-}
+//     if(GSL_IS_REAL(GSL_REAL(cotzpi)) && GSL_IS_REAL(GSL_IMAG(cotzpi))) // edited for qfratio
+//     { // edited for qfratio
+//       result_re->val -= M_PI * GSL_REAL(cotzpi); // edited for qfratio
+//       result_im->val -= M_PI * GSL_IMAG(cotzpi); // edited for qfratio
+//       return ret_val; // edited for qfratio
+//     } // edited for qfratio
+//     else // edited for qfratio
+//     { // edited for qfratio
+//       GSL_ERROR("singularity", GSL_EDOM); // edited for qfratio
+//     } // edited for qfratio
+//   } // edited for qfratio
+// } // edited for qfratio
 
 
 

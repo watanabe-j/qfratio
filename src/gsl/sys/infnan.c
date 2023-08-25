@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* sys/infnan.c
  * 
  * Copyright (C) 2001, 2004, 2007, 2010 Brian Gough
@@ -24,7 +28,7 @@
 #include <ieeefp.h>
 #endif
 
-#include <gsl/gsl_sys.h>
+#include "gsl_sys.h" // edited for qfratio
 
 double gsl_nan (void)
 {

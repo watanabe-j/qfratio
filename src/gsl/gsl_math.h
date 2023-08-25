@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* gsl_math.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2004, 2007 Gerard Jungman, Brian Gough
@@ -20,13 +24,13 @@
 #ifndef __GSL_MATH_H__
 #define __GSL_MATH_H__
 #include <math.h>
-#include <gsl/gsl_sys.h>
-#include <gsl/gsl_inline.h>
-#include <gsl/gsl_machine.h>
-#include <gsl/gsl_precision.h>
-#include <gsl/gsl_nan.h>
-#include <gsl/gsl_pow_int.h>
-#include <gsl/gsl_minmax.h>
+#include "sys/gsl_sys.h" // edited for qfratio
+#include "gsl_inline.h" // edited for qfratio
+#include "gsl_machine.h" // edited for qfratio
+#include "gsl_precision.h" // edited for qfratio
+#include "gsl_nan.h" // edited for qfratio
+#include "gsl_pow_int.h" // edited for qfratio
+#include "gsl_minmax.h" // edited for qfratio
 
 #ifndef M_E
 #define M_E        2.71828182845904523536028747135      /* e */

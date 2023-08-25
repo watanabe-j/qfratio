@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/hyperg.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -25,7 +29,7 @@
 #ifndef _HYPERG_H_
 #define _HYPERG_H_
 
-#include <gsl/gsl_sf_result.h>
+#include "gsl_sf_result.h" // edited for qfratio
 
 
 /* Direct implementation of 1F1 series.

@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/hyperg_1F1.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -21,14 +25,14 @@
 /* Author:  G. Jungman */
 
 #include <config.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_sf_elementary.h>
-#include <gsl/gsl_sf_exp.h>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_gamma.h>
-#include <gsl/gsl_sf_laguerre.h>
-#include <gsl/gsl_sf_hyperg.h>
+#include "../gsl_math.h" // edited for qfratio
+#include "../err/gsl_errno.h" // edited for qfratio
+#include "gsl_sf_elementary.h" // edited for qfratio
+#include "gsl_sf_exp.h" // edited for qfratio
+#include "gsl_sf_bessel.h" // edited for qfratio
+#include "gsl_sf_gamma.h" // edited for qfratio
+#include "gsl_sf_laguerre.h" // edited for qfratio
+#include "gsl_sf_hyperg.h" // edited for qfratio
 
 #include "error.h"
 #include "hyperg.h"

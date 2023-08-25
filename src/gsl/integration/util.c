@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* integration/util.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Brian Gough
@@ -16,6 +20,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
+#include "gsl_integration.h" // added for qfratio
 
 static inline
 void update (gsl_integration_workspace * workspace,

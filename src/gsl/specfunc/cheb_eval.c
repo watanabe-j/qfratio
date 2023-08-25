@@ -1,3 +1,12 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
+#include "chebyshev.h" // added for qfratio
+#include "gsl_sf_result.h" // added for qfratio
+#include "../gsl_machine.h" // added for qfratio
+#include "../err/gsl_errno.h" // added for qfratio
+
 
 static inline int
 cheb_eval_e(const cheb_series * cs,

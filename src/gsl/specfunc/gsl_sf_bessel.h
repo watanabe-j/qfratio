@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/gsl_sf_bessel.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -23,9 +27,9 @@
 #define __GSL_SF_BESSEL_H__
 
 #include <stdlib.h>
-#include <gsl/gsl_mode.h>
-#include <gsl/gsl_precision.h>
-#include <gsl/gsl_sf_result.h>
+#include "../gsl_mode.h" // edited for qfratio
+#include "../gsl_precision.h" // edited for qfratio
+#include "gsl_sf_result.h" // edited for qfratio
 
 #undef __BEGIN_DECLS
 #undef __END_DECLS

@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* integration/err.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Brian Gough
@@ -20,8 +24,8 @@
 #include <config.h>
 #include <math.h>
 #include <float.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_integration.h>
+#include "../gsl_math.h" // edited for qfratio
+#include "gsl_integration.h" // edited for qfratio
 
 static double rescale_error (double err, const double result_abs, const double result_asc) ;
 

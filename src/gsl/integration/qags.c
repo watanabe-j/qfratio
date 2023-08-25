@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* integration/qags.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Brian Gough
@@ -19,8 +23,8 @@
 
 #include <config.h>
 #include <stdlib.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_integration.h>
+#include "../err/gsl_errno.h" // edited for qfratio
+#include "gsl_integration.h" // edited for qfratio
 
 #include "initialise.c"
 #include "set_initial.c"
@@ -36,109 +40,109 @@ static int qags (const gsl_function * f, const double a, const double
   gsl_integration_workspace * workspace, double *result, double *abserr,
   gsl_integration_rule * q);
 
-int
-gsl_integration_qags (const gsl_function *f,
-                      double a, double b,
-                      double epsabs, double epsrel, size_t limit,
-                      gsl_integration_workspace * workspace,
-                      double * result, double * abserr)
-{
-  int status = qags (f, a, b, epsabs, epsrel, limit,
-                     workspace, 
-                     result, abserr, 
-                     &gsl_integration_qk21) ;
-  return status ;
-}
+// int // edited for qfratio
+// gsl_integration_qags (const gsl_function *f, // edited for qfratio
+//                       double a, double b, // edited for qfratio
+//                       double epsabs, double epsrel, size_t limit, // edited for qfratio
+//                       gsl_integration_workspace * workspace, // edited for qfratio
+//                       double * result, double * abserr) // edited for qfratio
+// { // edited for qfratio
+//   int status = qags (f, a, b, epsabs, epsrel, limit, // edited for qfratio
+//                      workspace,  // edited for qfratio
+//                      result, abserr,  // edited for qfratio
+//                      &gsl_integration_qk21) ; // edited for qfratio
+//   return status ; // edited for qfratio
+// } // edited for qfratio
 
-/* QAGI: evaluate an integral over an infinite range using the
-   transformation
+// /* QAGI: evaluate an integral over an infinite range using the // edited for qfratio
+//    transformation // edited for qfratio
 
-   integrate(f(x),-Inf,Inf) = integrate((f((1-t)/t) + f(-(1-t)/t))/t^2,0,1)
+//    integrate(f(x),-Inf,Inf) = integrate((f((1-t)/t) + f(-(1-t)/t))/t^2,0,1) // edited for qfratio
 
-   */
+//    */ // edited for qfratio
 
-static double i_transform (double t, void *params);
+// static double i_transform (double t, void *params); // edited for qfratio
 
-int
-gsl_integration_qagi (gsl_function * f,
-                      double epsabs, double epsrel, size_t limit,
-                      gsl_integration_workspace * workspace,
-                      double *result, double *abserr)
-{
-  int status;
+// int // edited for qfratio
+// gsl_integration_qagi (gsl_function * f, // edited for qfratio
+//                       double epsabs, double epsrel, size_t limit, // edited for qfratio
+//                       gsl_integration_workspace * workspace, // edited for qfratio
+//                       double *result, double *abserr) // edited for qfratio
+// { // edited for qfratio
+//   int status; // edited for qfratio
 
-  gsl_function f_transform;
+//   gsl_function f_transform; // edited for qfratio
 
-  f_transform.function = &i_transform;
-  f_transform.params = f;
+//   f_transform.function = &i_transform; // edited for qfratio
+//   f_transform.params = f; // edited for qfratio
 
-  status = qags (&f_transform, 0.0, 1.0, 
-                 epsabs, epsrel, limit,
-                 workspace,
-                 result, abserr,
-                 &gsl_integration_qk15);
+//   status = qags (&f_transform, 0.0, 1.0,  // edited for qfratio
+//                  epsabs, epsrel, limit, // edited for qfratio
+//                  workspace, // edited for qfratio
+//                  result, abserr, // edited for qfratio
+//                  &gsl_integration_qk15); // edited for qfratio
 
-  return status;
-}
+//   return status; // edited for qfratio
+// } // edited for qfratio
 
-static double 
-i_transform (double t, void *params)
-{
-  gsl_function *f = (gsl_function *) params;
-  double x = (1 - t) / t;
-  double y = GSL_FN_EVAL (f, x) + GSL_FN_EVAL (f, -x);
-  return (y / t) / t;
-}
+// static double  // edited for qfratio
+// i_transform (double t, void *params) // edited for qfratio
+// { // edited for qfratio
+//   gsl_function *f = (gsl_function *) params; // edited for qfratio
+//   double x = (1 - t) / t; // edited for qfratio
+//   double y = GSL_FN_EVAL (f, x) + GSL_FN_EVAL (f, -x); // edited for qfratio
+//   return (y / t) / t; // edited for qfratio
+// } // edited for qfratio
 
 
-/* QAGIL: Evaluate an integral over an infinite range using the
-   transformation,
-   
-   integrate(f(x),-Inf,b) = integrate(f(b-(1-t)/t)/t^2,0,1)
+// /* QAGIL: Evaluate an integral over an infinite range using the // edited for qfratio
+//    transformation, // edited for qfratio
+//     // edited for qfratio
+//    integrate(f(x),-Inf,b) = integrate(f(b-(1-t)/t)/t^2,0,1) // edited for qfratio
 
-   */
+//    */ // edited for qfratio
 
-struct il_params { double b ; gsl_function * f ; } ;
+// struct il_params { double b ; gsl_function * f ; } ; // edited for qfratio
 
-static double il_transform (double t, void *params);
+// static double il_transform (double t, void *params); // edited for qfratio
 
-int
-gsl_integration_qagil (gsl_function * f,
-                       double b,
-                       double epsabs, double epsrel, size_t limit,
-                       gsl_integration_workspace * workspace,
-                       double *result, double *abserr)
-{
-  int status;
+// int // edited for qfratio
+// gsl_integration_qagil (gsl_function * f, // edited for qfratio
+//                        double b, // edited for qfratio
+//                        double epsabs, double epsrel, size_t limit, // edited for qfratio
+//                        gsl_integration_workspace * workspace, // edited for qfratio
+//                        double *result, double *abserr) // edited for qfratio
+// { // edited for qfratio
+//   int status; // edited for qfratio
 
-  gsl_function f_transform;
-  struct il_params transform_params  ;
+//   gsl_function f_transform; // edited for qfratio
+//   struct il_params transform_params  ; // edited for qfratio
 
-  transform_params.b = b ;
-  transform_params.f = f ;
+//   transform_params.b = b ; // edited for qfratio
+//   transform_params.f = f ; // edited for qfratio
 
-  f_transform.function = &il_transform;
-  f_transform.params = &transform_params;
+//   f_transform.function = &il_transform; // edited for qfratio
+//   f_transform.params = &transform_params; // edited for qfratio
 
-  status = qags (&f_transform, 0.0, 1.0, 
-                 epsabs, epsrel, limit,
-                 workspace,
-                 result, abserr,
-                 &gsl_integration_qk15);
+//   status = qags (&f_transform, 0.0, 1.0,  // edited for qfratio
+//                  epsabs, epsrel, limit, // edited for qfratio
+//                  workspace, // edited for qfratio
+//                  result, abserr, // edited for qfratio
+//                  &gsl_integration_qk15); // edited for qfratio
 
-  return status;
-}
+//   return status; // edited for qfratio
+// } // edited for qfratio
 
-static double 
-il_transform (double t, void *params)
-{
-  struct il_params *p = (struct il_params *) params;
-  double b = p->b;
-  gsl_function * f = p->f;
-  double x = b - (1 - t) / t;
-  double y = GSL_FN_EVAL (f, x);
-  return (y / t) / t;
-}
+// static double  // edited for qfratio
+// il_transform (double t, void *params) // edited for qfratio
+// { // edited for qfratio
+//   struct il_params *p = (struct il_params *) params; // edited for qfratio
+//   double b = p->b; // edited for qfratio
+//   gsl_function * f = p->f; // edited for qfratio
+//   double x = b - (1 - t) / t; // edited for qfratio
+//   double y = GSL_FN_EVAL (f, x); // edited for qfratio
+//   return (y / t) / t; // edited for qfratio
+// } // edited for qfratio
 
 /* QAGIU: Evaluate an integral over an infinite range using the
    transformation

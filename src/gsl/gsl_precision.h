@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* gsl_precision.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -21,7 +25,7 @@
 
 #ifndef __GSL_PRECISION_H__
 #define __GSL_PRECISION_H__
-#include <gsl/gsl_types.h>
+#include "gsl_types.h" // edited for qfratio
 
 #undef __BEGIN_DECLS
 #undef __END_DECLS

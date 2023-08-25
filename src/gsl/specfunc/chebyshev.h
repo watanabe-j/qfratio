@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* specfunc/chebyshev.h
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Gerard Jungman
@@ -19,6 +23,9 @@
 
 /* data for a Chebyshev series over a given interval */
 
+#ifndef __GSL__CHEBYSHEV_H__ // added for qfratio
+#define __GSL__CHEBYSHEV_H__ // added for qfratio
+
 struct cheb_series_struct {
   double * c;   /* coefficients                */
   int order;    /* order of expansion          */
@@ -27,5 +34,8 @@ struct cheb_series_struct {
   int order_sp; /* effective single precision order */
 };
 typedef struct cheb_series_struct cheb_series;
+
+
+#endif // added for qfratio
 
 

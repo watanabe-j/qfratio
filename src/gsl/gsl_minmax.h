@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* gsl_minmax.h
  * 
  * Copyright (C) 2008 Gerard Jungman, Brian Gough
@@ -19,7 +23,7 @@
 
 #ifndef __GSL_MINMAX_H__
 #define __GSL_MINMAX_H__
-#include <gsl/gsl_inline.h>
+#include "gsl_inline.h" // edited for qfratio
 
 #undef __BEGIN_DECLS
 #undef __END_DECLS

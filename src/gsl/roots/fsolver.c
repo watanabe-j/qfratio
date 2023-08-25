@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* roots/fsolver.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Reid Priedhorsky, Brian Gough
@@ -20,8 +24,8 @@
 #include <config.h>
 #include <stdlib.h>
 #include <string.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_roots.h>
+#include "../err/gsl_errno.h" // edited for qfratio
+#include "gsl_roots.h" // edited for qfratio
 
 gsl_root_fsolver *
 gsl_root_fsolver_alloc (const gsl_root_fsolver_type * T)

@@ -1,3 +1,7 @@
+// This file is taken from GSL version 2.7.1 and distributed as part of qfratio
+// with modification, in accordance with the GNU General Public License
+// version 3.  All modified lines are marked with comments.
+
 /* integration/qk.c
  * 
  * Copyright (C) 1996, 1997, 1998, 1999, 2000, 2007 Brian Gough
@@ -20,7 +24,7 @@
 #include <config.h>
 #include <float.h>
 #include <math.h>
-#include <gsl/gsl_integration.h>
+#include "gsl_integration.h" // edited for qfratio
 #include "err.c"
 
 void
