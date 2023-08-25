@@ -64,10 +64,9 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
     Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
               rlang (>= 0.4.7), knitr, rmarkdown
 
-Note that the [GNU Scientific
-Library](https://www.gnu.org/software/gsl/) (`GSL`) needs to be
-installed separately to use `RcppGSL`. It seems that Windows users with
-a recent version of `Rtools` can skip this installation.
+This version bundles relevant files from the [GNU Scientific
+Library](https://www.gnu.org/software/gsl/), so that it does not need to
+be installed separately.
 
 If installing from source, you also need [`pandoc`](https://pandoc.org)
 for correctly building the vignette. For `pandoc < 2.11`,
