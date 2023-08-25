@@ -5,11 +5,10 @@
 #include <cmath>
 
 // These are to use gsl
-#include <RcppGSL.h>
-// [[Rcpp::depends(RcppGSL)]]
-#include <gsl/gsl_sf_hyperg.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_roots.h>
+#include "gsl/specfunc/gsl_sf_hyperg.h"
+#include "gsl/integration/gsl_integration.h"
+#include "gsl/roots/gsl_roots.h"
+#include "gsl/err/gsl_errno.h"
 
 #include "dk_funs.h"
 #include "hgs_funs.h"

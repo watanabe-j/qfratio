@@ -4,9 +4,8 @@
 #include <cmath>
 
 // These are to use gsl in ApIq_int_nmE
-#include <RcppGSL.h>
-// [[Rcpp::depends(RcppGSL)]]
-#include <gsl/gsl_sf_hyperg.h>
+#include "gsl/specfunc/gsl_sf_hyperg.h"
+#include "gsl/err/gsl_errno.h"
 
 #include "dk_funs.h"
 #include "hgs_funs.h"

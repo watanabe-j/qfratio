@@ -2,17 +2,41 @@
 ## With R 3.1.0 or later, you can uncomment the following line to tell R to
 ## enable compilation with C++11 (or even C++14) where available
 # CXX_STD = CXX11
-### C++14 is the default from R 4.1.0, and C++ is from R 4.3.0
+### C++14 is the default from R 4.1.0, and C++17 is from R 4.3.0
 
-# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
-# PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
 ## PKG_CPPFLAGS is set so that header(s) can be found in config.h using #define:
 ## #define EIGEN_ARRAYBASE_PLUGIN "ArrayBaseAddons.h"
 PKG_CPPFLAGS = -I.
 
-## For linking GSL; use RcppGSL funs to get flags
-# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`
-# PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `gsl-config --libs`
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::CFlags()"`
-PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::LdFlags()"`
+## wildcard function is a non-portable GNU make extension
+# SOURCES_GSL = $(wildcard gsl/*.c)
+# SOURCES_QFRATIO = $(wildcard *.cpp)
+
+## Instead, use a predefined list
+include scripts/SOURCES_GSL.mkf
+include scripts/SOURCES_QFRATIO.mkf
+
+OBJECTS_GSL = $(SOURCES_GSL:.c=.o)
+OBJECTS_QFRATIO = $(SOURCES_QFRATIO:.cpp=.o)
+OBJECTS = $(OBJECTS_QFRATIO) $(OBJECTS_GSL)
+
+all: $(SHLIB)
+
+$(SHLIB): $(OBJECTS)
+
+clean: subclean
+	@-rm -rf .libs _libs
+	@-rm -f $(OBJECTS_QFRATIO) $(SHLIB)
+
+subclean:
+	@-rm -f *.a
+	@-rm $(OBJECTS_GSL)
+
+# ## For linking GSL; use RcppGSL funs to get flags
+# # PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`
+# # PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `gsl-config --libs`
+# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::CFlags()"`
+# PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::LdFlags()"`
