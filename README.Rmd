@@ -78,7 +78,7 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
 ### Dependencies
 
     Imports: Rcpp, MASS
-    LinkingTo: Rcpp, RcppEigen, RcppGSL
+    LinkingTo: Rcpp, RcppEigen
     Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
               rlang (>= 0.4.7), knitr, rmarkdown
 
