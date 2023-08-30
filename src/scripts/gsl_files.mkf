@@ -84,3 +84,4 @@ gsl_nan.h
 gsl_pow_int.h
 gsl_precision.h
 gsl_types.h
+COPYING

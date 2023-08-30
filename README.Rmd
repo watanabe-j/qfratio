@@ -223,4 +223,13 @@ legend("topright", legend = c("central", "noncentral"),
        col = c("royalblue4", "tomato"), lty = 1:2)
 ```
 
+
+## Copyright notice
+
+This package bundles selected `C` codes from `GSL`, whose copyright belongs to
+the original authors.
+See `DESCRIPTION` and individual code files in `src/gsl` for details.
+The redistribution complies with the GNU General Public License version 3.
+
+
 ## References

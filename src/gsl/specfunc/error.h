@@ -1,6 +1,7 @@
 // This file is taken from GSL version 2.7.1 and distributed as part of qfratio
 // with modification, in accordance with the GNU General Public License
 // version 3.  All modified lines are marked with comments.
+// - 2023 Junya Watanabe
 
 #define OVERFLOW_ERROR(result) do { (result)->val = GSL_POSINF; (result)->err = GSL_POSINF; GSL_ERROR ("overflow", GSL_EOVRFLW); } while(0)
 
