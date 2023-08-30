@@ -4,6 +4,7 @@
 ^R/int
 ^src/int
 ^src/gsl/.*/.*\.o$
+^src/scripts/README\.md$
 ^src/scripts/copy_gsl\.sh$
 ^src/scripts/gsl_files\.mkf$
 ^src/scripts/process_gsl\.sh$
