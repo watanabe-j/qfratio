@@ -22,7 +22,9 @@
  */
 
 #include <stddef.h> // added for qfratio
+#include <math.h> // added for qfratio
 #include "../gsl_machine.h" // added for qfratio
+#include "../gsl_minmax.h" // added for qfratio
 
 struct extrapolation_table
   {

@@ -89,23 +89,30 @@ add_directives(){
     DIR_INT=$INDIR/integration
     DIR_SPF=$INDIR/specfunc
 
-    ## integration/qelg.c: requires <stddef.h> and "../gsl_machine.h"
-    sed -i -s '20i#include <stddef.h> // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n' $DIR_INT/qelg.c
+    ## integration/qelg.c: requires several include directives
+    sed -i -s '20i#include <stddef.h> // added for qfratio\n#include <math.h> // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n#include "../gsl_minmax.h" // added for qfratio\n' $DIR_INT/qelg.c
 
     ## integration/..: requires "integration.h"
     sed -i -s '20i#include "gsl_integration.h" // added for qfratio\n' $DIR_INT/initialise.c $DIR_INT/qpsrt.c $DIR_INT/util.c
     sed -i -s '24i#include "gsl_integration.h" // added for qfratio\n' $DIR_INT/qpsrt2.c
     sed -i -s  '1i#include "gsl_integration.h" // added for qfratio\n' $DIR_INT/reset.c $DIR_INT/set_initial.c
 
-    ## integration/positivity: requires "../gsl_machine.h"
-    sed -i -s  '4i#include "../gsl_machine.h" // added for qfratio\n'  $DIR_INT/positivity.c
+    ## integration/util.c: requires <math.h>
+    sed -i -s '20i#include <math.h> // added for qfratio' $DIR_INT/util.c
+
+    ## integration/util.c,qags.c: move #include "qpsrt.c" to avoid warning for implicit declaration
+    sed -i -s '22i#include "qpsrt.c" // added for qfratio' $DIR_INT/util.c
+    sed -i -E 's|#include "qpsrt.c"|// #include "qpsrt.c" // edited for qfratio|' $DIR_INT/qags.c
+
+    ## integration/positivity.c: requires <math.h> and "../gsl_machine.h"
+    sed -i -s  '4i#include <math.h> // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n'  $DIR_INT/positivity.c
 
     ## specfunc/chebyshev.h: requires #ifndef ... #endif directives
     sed -i -s '22i#ifndef __GSL__CHEBYSHEV_H__ // added for qfratio\n#define __GSL__CHEBYSHEV_H__ // added for qfratio\n' $DIR_SPF/chebyshev.h
     sed -i -s '$i\\n#endif // added for qfratio\n' $DIR_SPF/chebyshev.h
 
     ## specfunc/cheb_eval.c: requires several include diriectives
-    sed -i -s '1i#include "chebyshev.h" // added for qfratio\n#include "gsl_sf_result.h" // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n#include "../err/gsl_errno.h" // added for qfratio\n' $DIR_SPF/cheb_eval.c
+    sed -i -s '1i#include <math.h> // added for qfratio\n#include "chebyshev.h" // added for qfratio\n#include "gsl_sf_result.h" // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n#include "../err/gsl_errno.h" // added for qfratio\n' $DIR_SPF/cheb_eval.c
 }
 
 ## Add license statements

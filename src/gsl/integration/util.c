@@ -21,7 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <math.h> // added for qfratio
 #include "gsl_integration.h" // added for qfratio
+#include "qpsrt.c" // added for qfratio
 
 static inline
 void update (gsl_integration_workspace * workspace,

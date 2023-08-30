@@ -28,7 +28,7 @@
 
 #include "initialise.c"
 #include "set_initial.c"
-#include "qpsrt.c"
+// #include "qpsrt.c" // edited for qfratio
 #include "util.c"
 #include "reset.c"
 #include "qpsrt2.c"

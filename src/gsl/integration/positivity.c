@@ -5,6 +5,7 @@
 /* Compare the integral of f(x) with the integral of |f(x)|
    to determine if f(x) covers both positive and negative values */
 
+#include <math.h> // added for qfratio
 #include "../gsl_machine.h" // added for qfratio
 
 static inline int

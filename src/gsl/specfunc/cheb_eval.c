@@ -2,6 +2,7 @@
 // with modification, in accordance with the GNU General Public License
 // version 3.  All modified lines are marked with comments.
 
+#include <math.h> // added for qfratio
 #include "chebyshev.h" // added for qfratio
 #include "gsl_sf_result.h" // added for qfratio
 #include "../gsl_machine.h" // added for qfratio
