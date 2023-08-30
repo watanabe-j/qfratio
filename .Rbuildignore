@@ -5,6 +5,7 @@
 ^src/int
 ^src/gsl/.*/.*\.o$
 ^src/scripts/copy_gsl\.sh$
+^src/scripts/gsl_files\.mkf$
 ^src/scripts/process_gsl\.sh$
 ^README\.Rmd$
 ^README\.html$

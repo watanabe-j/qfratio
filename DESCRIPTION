@@ -2,7 +2,7 @@ Package: qfratio
 Type: Package
 Title: Moments and Distributions of Ratios of Quadratic Forms Using Recursion
 Version: 1.0.1.9000
-Date: 2023-08-25
+Date: 2023-08-30
 Authors@R: c(person("Junya", "Watanabe", email = "jw2098@cam.ac.uk",
              role = c("aut", "cre", "cph"),
              comment = c(ORCID = "0000-0002-9810-5286")))
