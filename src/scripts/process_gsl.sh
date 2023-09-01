@@ -40,11 +40,19 @@ localize_header_inclusion() {
 ## Manually comment out unnecessary lines
 comment_out_lines(){
     INDIR=$1
+    DIR_ERR=$INDIR/err
     DIR_INT=$INDIR/integration
     DIR_PLY=$INDIR/poly
     DIR_RTS=$INDIR/roots
     DIR_SPF=$INDIR/specfunc
 
+    ## err/error.c: remove '#include <gsl/gsl_message.h>'
+    sed -i -E  '26s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_ERR/error.c
+
+    ## err/gsl_errno.h: remove stream-related types and functions
+    sed -i -E   '80,81s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_ERR/gsl_errno.h
+    sed -i -E   '88,89s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_ERR/gsl_errno.h
+    sed -i -E  '97,100s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_ERR/gsl_errno.h
 
     ## integration/gsl_integration.h:
     ## leave only *_workspace*, *_qk15, *_qk, *_qagil
@@ -88,11 +96,24 @@ comment_out_lines(){
     sed -i -E '797,830s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/psi.c
 }
 
+## Use R's error handler
+edit_error_handler(){
+    INDIR=$1
+    DIR_ERR=$INDIR/err
+
+    sed -i -E  '41,47s/^( *)(.+)/\1\/\/ \2 \/\/ edited for qfratio/' $DIR_ERR/error.c
+    sed -i -E  '48i\  error("Problem in %s: %d: %s\\n  This is unexpected; contact qfratio maintainer", file, line, reason); // added for qfratio' $DIR_ERR/error.c
+}
+
 ## Add necessary preprocessor directives
 add_directives(){
     INDIR=$1
+    DIR_ERR=$INDIR/err
     DIR_INT=$INDIR/integration
     DIR_SPF=$INDIR/specfunc
+
+    ## err/error.c: use R's error hander
+    sed -i -s '24i#include <R_ext/Error.h> // added for qfratio' $DIR_ERR/error.c
 
     ## integration/qelg.c: requires several include directives
     sed -i -s '20i#include <stddef.h> // added for qfratio\n#include <math.h> // added for qfratio\n#include "../gsl_machine.h" // added for qfratio\n#include "../gsl_minmax.h" // added for qfratio\n' $DIR_INT/qelg.c
@@ -130,6 +151,8 @@ add_license_statement(){
 localize_header_inclusion $*
 
 comment_out_lines $*
+
+edit_error_handler $*
 
 add_directives $*
 

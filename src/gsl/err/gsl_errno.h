@@ -82,16 +82,16 @@ enum {
 void gsl_error (const char * reason, const char * file, int line,
                 int gsl_errno);
 
-void gsl_stream_printf (const char *label, const char *file,
-                        int line, const char *reason);
+// void gsl_stream_printf (const char *label, const char *file, // edited for qfratio
+//                         int line, const char *reason); // edited for qfratio
 
 const char * gsl_strerror (const int gsl_errno);
 
 typedef void gsl_error_handler_t (const char * reason, const char * file,
                                   int line, int gsl_errno);
 
-typedef void gsl_stream_handler_t (const char * label, const char * file,
-                                   int line, const char * reason);
+// typedef void gsl_stream_handler_t (const char * label, const char * file, // edited for qfratio
+//                                    int line, const char * reason); // edited for qfratio
 
 gsl_error_handler_t * 
 gsl_set_error_handler (gsl_error_handler_t * new_handler);
@@ -99,10 +99,10 @@ gsl_set_error_handler (gsl_error_handler_t * new_handler);
 gsl_error_handler_t *
 gsl_set_error_handler_off (void);
 
-gsl_stream_handler_t * 
-gsl_set_stream_handler (gsl_stream_handler_t * new_handler);
+// gsl_stream_handler_t *  // edited for qfratio
+// gsl_set_stream_handler (gsl_stream_handler_t * new_handler); // edited for qfratio
 
-FILE * gsl_set_stream (FILE * new_stream);
+// FILE * gsl_set_stream (FILE * new_stream); // edited for qfratio
 
 /* GSL_ERROR: call the error handler, and return the error code */
 

@@ -26,9 +26,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <R_ext/Error.h> // added for qfratio
 
 #include "gsl_errno.h" // edited for qfratio
-#include "gsl_message.h" // edited for qfratio
+// #include <gsl/gsl_message.h> // edited for qfratio
 
 gsl_error_handler_t * gsl_error_handler = NULL;
 
@@ -43,13 +44,14 @@ gsl_error (const char * reason, const char * file, int line, int gsl_errno)
       return ;
     }
 
-  gsl_stream_printf ("ERROR", file, line, reason);
+  // gsl_stream_printf ("ERROR", file, line, reason); // edited for qfratio
 
-  fflush (stdout);
-  fprintf (stderr, "Default GSL error handler invoked.\n");
-  fflush (stderr);
+  // fflush (stdout); // edited for qfratio
+  // fprintf (stderr, "Default GSL error handler invoked.\n"); // edited for qfratio
+  // fflush (stderr); // edited for qfratio
 
-  abort ();
+  // abort (); // edited for qfratio
+  error("Problem in %s: %d: %s\n  This is unexpected; contact qfratio maintainer", file, line, reason); // added for qfratio
 }
 
 gsl_error_handler_t *

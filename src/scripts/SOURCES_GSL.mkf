@@ -1,7 +1,5 @@
 SOURCES_GSL = \
     gsl/err/error.c \
-    gsl/err/message.c \
-    gsl/err/stream.c \
     gsl/err/strerror.c \
     gsl/integration/err.c \
     gsl/integration/initialise.c \

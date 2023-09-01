@@ -1,8 +1,5 @@
 err/error.c
 err/gsl_errno.h
-err/gsl_message.h
-err/message.c
-err/stream.c
 err/strerror.c
 integration/err.c
 integration/gsl_integration.h
