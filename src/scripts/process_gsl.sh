@@ -40,47 +40,52 @@ localize_header_inclusion() {
 ## Manually comment out unnecessary lines
 comment_out_lines(){
     INDIR=$1
+    DIR_INT=$INDIR/integration
+    DIR_PLY=$INDIR/poly
+    DIR_RTS=$INDIR/roots
+    DIR_SPF=$INDIR/specfunc
+
 
     ## integration/gsl_integration.h:
     ## leave only *_workspace*, *_qk15, *_qk, *_qagil
-    sed -i -E  '87,117s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/integration/gsl_integration.h
-    sed -i -E '131,152s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/integration/gsl_integration.h
-    sed -i -E '176,192s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/integration/gsl_integration.h
-    sed -i -E '200,386s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/integration/gsl_integration.h
+    sed -i -E  '87,117s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_INT/gsl_integration.h
+    sed -i -E '131,152s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_INT/gsl_integration.h
+    sed -i -E '176,192s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_INT/gsl_integration.h
+    sed -i -E '200,386s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_INT/gsl_integration.h
 
     ## integration/qags.c:
     ## leave only qags, gsl_integration_qagiu, iu_transform
-    sed -i -E '39,141s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/integration/qags.c
+    sed -i -E '39,141s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_INT/qags.c
 
     ## poly/gsl_poly.h: leave only gsl_poly_eval
-    sed -i -E      '25s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    sed -i -E   '50,56s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    sed -i -E  '69,102s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    sed -i -E '105,179s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    # sed -i -E '144,146s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    # sed -i -E '158,161s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
-    # sed -i -E '164,179s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/poly/gsl_poly.h
+    sed -i -E      '25s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    sed -i -E   '50,56s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    sed -i -E  '69,102s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    sed -i -E '105,179s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    # sed -i -E '144,146s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    # sed -i -E '158,161s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
+    # sed -i -E '164,179s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_PLY/gsl_poly.h
 
     ## roots/convergence.c: leave only gsl_root_test_delta
-    sed -i -E   '25,57s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/roots/convergence.c
-    sed -i -E   '76,86s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/roots/convergence.c
+    sed -i -E   '25,57s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_RTS/convergence.c
+    sed -i -E   '76,86s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_RTS/convergence.c
 
     ## roots/gsl_roots.h: remove fdfsolver-related parts
-    sed -i -E   '59,75s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/roots/gsl_roots.h
-    sed -i -E  '93,107s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/roots/gsl_roots.h
-    sed -i -E '121,123s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/roots/gsl_roots.h
+    sed -i -E   '59,75s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_RTS/gsl_roots.h
+    sed -i -E  '93,107s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_RTS/gsl_roots.h
+    sed -i -E '121,123s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_RTS/gsl_roots.h
 
     ## specfunc/bessel.c: remove #include gsl_sf_airy.h
-    sed -i -E '26s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/bessel.c
+    sed -i -E '26s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/bessel.c
 
     ## specfunc/gsl_sf_hyperg.h: remove *_0F1 and *_2F0
-    sed -i -E   '40,48s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/gsl_sf_hyperg.h
-    sed -i -E '142,149s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/gsl_sf_hyperg.h
+    sed -i -E   '40,48s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_hyperg.h
+    sed -i -E '142,149s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_hyperg.h
 
     ## specfunc/psi.c: remove complex-related parts
-    sed -i -E      '30s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/psi.c
-    sed -i -E '458,552s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/psi.c
-    sed -i -E '797,830s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $INDIR/specfunc/psi.c
+    sed -i -E      '30s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/psi.c
+    sed -i -E '458,552s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/psi.c
+    sed -i -E '797,830s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/psi.c
 }
 
 ## Add necessary preprocessor directives
