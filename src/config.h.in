@@ -1,0 +1,75 @@
+/* src/config.h.in.  Generated from configure.ac by autoheader.  */
+
+// To add user-defined methods in Eigen classes
+#ifndef EIGEN_ARRAYBASE_PLUGIN
+#define EIGEN_ARRAYBASE_PLUGIN "ArrayBaseAddons.h"
+#endif
+
+
+/* Define if you have inline with C99 behavior */
+#undef HAVE_C99_INLINE
+
+/* Define to 1 if you have the declaration of `finite', and to 0 if you don't.
+   */
+#undef HAVE_DECL_FINITE
+
+/* Define to 1 if you have the declaration of `isfinite', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ISFINITE
+
+/* Define to 1 if you have the declaration of `isnan', and to 0 if you don't.
+   */
+#undef HAVE_DECL_ISNAN
+
+/* Defined on architectures with excess floating-point precision */
+#undef HAVE_EXTENDED_PRECISION_REGISTERS
+
+/* Define this if IEEE comparisons work correctly (e.g. NaN != NaN) */
+#undef HAVE_IEEE_COMPARISONS
+
+/* Define if you have inline */
+#undef HAVE_INLINE
+
+/* Define to 1 if you have the `m' library (-lm). */
+#undef HAVE_LIBM
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define a rounding function which moves extended precision values
+   out of registers and rounds them to double-precision. This should
+   be used *sparingly*, in places where it is necessary to keep
+   double-precision rounding for critical expressions while running in
+   extended precision. For example, the following code should ensure
+   exact equality, even when extended precision registers are in use,
+
+      double q = GSL_COERCE_DBL(3.0/7.0) ;
+      if (q == GSL_COERCE_DBL(3.0/7.0)) { ... } ;
+
+   It carries a penalty even when the program is running in double
+   precision mode unless you compile a separate version of the
+   library with HAVE_EXTENDED_PRECISION_REGISTERS turned off. */
+
+#if HAVE_EXTENDED_PRECISION_REGISTERS
+#define GSL_COERCE_DBL(x) (gsl_coerce_double(x))
+#else
+#define GSL_COERCE_DBL(x) (x)
+#endif
+
+#define RETURN_IF_NULL(x) if (!x) { return ; }
+

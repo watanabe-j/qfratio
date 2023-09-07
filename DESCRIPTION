@@ -2,7 +2,7 @@ Package: qfratio
 Type: Package
 Title: Moments and Distributions of Ratios of Quadratic Forms Using Recursion
 Version: 1.0.1.9000
-Date: 2023-09-01
+Date: 2023-09-07
 Authors@R: c(person("Junya", "Watanabe", email = "jw2098@cam.ac.uk",
                     role = c("aut", "cre", "cph"),
                     comment = c(ORCID = "0000-0002-9810-5286")),
@@ -15,7 +15,9 @@ Authors@R: c(person("Junya", "Watanabe", email = "jw2098@cam.ac.uk",
              person("Gerard", "Jungman", role = "cph",
                     comment = "Author of bundled C codes from GSL"),
              person("Reid", "Priedhorsky", role = "cph",
-                    comment = "Author of bundled C codes from GSL"))
+                    comment = "Author of bundled C codes from GSL"),
+             person("Free Software Foundation, Inc.", role = "cph",
+                    comment = "Copyright holder of some bundled scripts"))
 Description: Evaluates moments of ratios (and products) of quadratic forms
     in normal variables, specifically using recursive algorithms developed by
     Bao and Kan (2013) <doi:10.1016/j.jmva.2013.03.002> and Hillier et al.

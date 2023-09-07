@@ -6,10 +6,16 @@
 ^src/gsl/.*/.*\.o$
 ^src/scripts/README\.md$
 ^src/scripts/copy_gsl\.sh$
+^src/scripts/get_config_aux\.sh$
 ^src/scripts/gsl_files\.mkf$
 ^src/scripts/process_gsl\.sh$
+^src/config\.h$
+^src/config\.h\.in~$
 ^README\.Rmd$
 ^README\.html$
+^config\..*$
+^configure~$
+^autom4te.cache$
 \.vscode$
 ^\.lintr$
 ^\.github$
