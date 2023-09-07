@@ -82,10 +82,6 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
     Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
               rlang (>= 0.4.7), knitr, rmarkdown
 
-This version bundles relevant files from the
-[GNU Scientific Library](https://www.gnu.org/software/gsl/),
-so that it does not need to be installed separately.
-
 If installing from source, you also need [`pandoc`](https://pandoc.org) for
 correctly building the vignette.
 For `pandoc < 2.11`, `pandoc-citeproc` is required as well.
@@ -226,8 +222,9 @@ legend("topright", legend = c("central", "noncentral"),
 
 ## Copyright notice
 
-This package bundles selected `C` codes from `GSL`, whose copyright belongs to
-the original authors.
+This package bundles selected `C` codes and part of `config.ac` from the
+[GNU Scientific Library](https://www.gnu.org/software/gsl/),
+whose copyright belongs to the original authors.
 See `DESCRIPTION` and individual code files in `src/gsl` for details.
 The redistribution complies with the GNU General Public License version 3.
 
