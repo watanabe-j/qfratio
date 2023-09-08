@@ -477,8 +477,10 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
         D2 <- -Ds[Ds < -tol_zero]
         n1 <- length(D1)
         n2 <- length(D2)
-        if(n2 == 0) return(list(p = 0, terms = rep.int(0, m + 1)))
+        ## It is possible that n1 == n2 == 0, when F(q) = Pr(Q <= q) must be 1
+        ## Hence the condition n1 == 0 is evaluated first
         if(n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m))))
+        if(n2 == 0) return(list(p = 0, terms = rep.int(0, m + 1)))
         mu <- c(crossprod(eigA_qB$vectors, c(mu)))
         mu1 <- mu[Ds > tol_zero]
         mu2 <- mu[Ds < -tol_zero]
@@ -641,8 +643,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
         delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-        if(all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
         if(all(L <=  tol_zero)) return(list(p = 1, abserr = 0))
+        if(all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
         ## By default, L is scaled because small L yields small integrand
         ## and hence makes numerical integration difficult
         if(autoscale_args > 0) {
@@ -700,8 +702,8 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
     delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-    if(all(L >= -tol_zero)) return(list(p = 0, trace = rep.int(0, 7), ifault = 0))
     if(all(L <=  tol_zero)) return(list(p = 1, trace = rep.int(0, 7), ifault = 0))
+    if(all(L >= -tol_zero)) return(list(p = 0, trace = rep.int(0, 7), ifault = 0))
     ## Scale L, although davies is more robust to small L than imhof
     if(autoscale_args > 0) {
         scale_L <- (max(L) - min(L)) / autoscale_args
@@ -762,6 +764,8 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
+        ## Saddlepoint approximation is about Pr(Q < q)
+        ## Hence the condition all(L >= -tol_zero) is evaluated first
         if(all(L >= -tol_zero)) return(list(p = 0))
         if(all(L <=  tol_zero)) return(list(p = 1))
         U <- eigA_qB$vectors
@@ -971,6 +975,9 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
     if(is.infinite(quantile)) {
         return(list(d = 0, terms = rep.int(0, m + 1)))
     }
+    if(all(LA == quantile)) {
+        return(list(d = Inf, terms = c(Inf, rep.int(0, m))))
+    }
     if(use_cpp) {
         cppres <- d_A1I1_Ed(quantile, LA, m, thr_margin)
         ansseq <- cppres$ansseq
@@ -1121,6 +1128,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
+        if(all(L == 0)) return(list(d = Inf, abserr = 0))
         if(all(L <= tol_zero) || all(L >= -tol_zero)) {
             return(list(d = 0, abserr = 0))
         }
@@ -1208,6 +1216,7 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
+        if(all(L == 0)) return(list(d = Inf))
         if(all(L <= tol_zero) || all(L >= -tol_zero)) {
             return(list(d = 0))
         }

@@ -110,15 +110,15 @@ SEXP p_A1B1_Ed(const double quantile,
     const ArrayXd D2 = -get_subset(L, ind_neg);
     Index n1 = D1.size();
     Index n2 = D2.size();
-    if(n2 == 0) {
+    if(n1 == 0) {
+        ansseq(0) = 1;
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
-    if(n1 == 0) {
-        ansseq(0) = 1;
+    if(n2 == 0) {
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
@@ -312,15 +312,15 @@ SEXP p_A1B1_El(const long double quantile,
     const ArrayXl D2 = -get_subset(L, ind_neg);
     Index n1 = D1.size();
     Index n2 = D2.size();
-    if(n2 == 0) {
+    if(n1 == 0) {
+        ansseq(0) = 1;
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
-    if(n1 == 0) {
-        ansseq(0) = 1;
+    if(n2 == 0) {
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
@@ -516,15 +516,15 @@ SEXP p_A1B1_Ec(const double quantile,
     const ArrayXd D2 = -get_subset(L, ind_neg);
     Index n1 = D1.size();
     Index n2 = D2.size();
-    if(n2 == 0) {
+    if(n1 == 0) {
+        ansseq(0) = 1;
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
-    if(n1 == 0) {
-        ansseq(0) = 1;
+    if(n2 == 0) {
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
@@ -838,14 +838,14 @@ SEXP p_imhof_Ed(const double quantile,
     MatrixXd A_qB =  A - quantile * B;
     SelfAdjointEigenSolver<MatrixXd> eigA_qB(A_qB);
     ArrayXd L = eigA_qB.eigenvalues();
-    if((L >= -tol_zero).all()) {
-        return Rcpp::List::create(
-            Rcpp::Named("value") = 0,
-            Rcpp::Named("abs.error") = 0);
-    }
     if((L <= tol_zero).all()) {
         return Rcpp::List::create(
             Rcpp::Named("value") = 1,
+            Rcpp::Named("abs.error") = 0);
+    }
+    if((L >= -tol_zero).all()) {
+        return Rcpp::List::create(
+            Rcpp::Named("value") = 0,
             Rcpp::Named("abs.error") = 0);
     }
     const MatrixXd U = eigA_qB.eigenvectors();
@@ -927,6 +927,11 @@ SEXP d_broda_Ed(const double quantile,
     MatrixXd A_qB =  A - quantile * B;
     SelfAdjointEigenSolver<MatrixXd> eigA_qB(A_qB);
     ArrayXd L = eigA_qB.eigenvalues();
+    if((L == 0).all()) {
+        return Rcpp::List::create(
+            Rcpp::Named("value") = INFINITY,
+            Rcpp::Named("abs.error") = 0);
+    }
     if((L >= -tol_zero).all() || (L <= tol_zero).all()) {
         return Rcpp::List::create(
             Rcpp::Named("value") = 0,
@@ -1120,6 +1125,10 @@ SEXP d_butler_Ed(const double quantile,
     MatrixXd A_qB =  A - quantile * B;
     SelfAdjointEigenSolver<MatrixXd> eigA_qB(A_qB);
     const ArrayXd L = eigA_qB.eigenvalues();
+    if((L == 0).all()) {
+        return Rcpp::List::create(
+            Rcpp::Named("value") = INFINITY);
+    }
     if((L >= -tol_zero).all() || (L <= tol_zero).all()) {
         return Rcpp::List::create(
             Rcpp::Named("value") = 0);
