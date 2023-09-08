@@ -331,7 +331,8 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
-        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "B must be nonnegative definite" =
+            all(LB >= -tol_sing) && any(LB > tol_sing),
         "quantile must be numeric" = is.numeric(quantile)
     )
     if(method == "forchini" || method == "butler") {
@@ -361,7 +362,7 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
     }
     if(!lower.tail) ans <- 1 - ans
     if(trim_values) {
-        if(any(ans > 1)) {
+        if(any(ans[!is.na(ans)] > 1)) {
             ## When this happens, true value is always on negative side,
             ## so that abserr can be truncated
             if(exists("abserr", inherits = FALSE)) {
@@ -370,7 +371,7 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
             ans <- pmin.int(ans, 1 - tol_zero)
             warning("values > 1 trimmed down to 1 - tol_zero")
         }
-        if(any(ans < 0)) {
+        if(any(ans[!is.na(ans)] < 0)) {
             ## When this happens, true value is always on positive side,
             ## so that abserr can be truncated
             if(exists("abserr", inherits = FALSE)) {
@@ -440,6 +441,18 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     stopifnot(
         "In pqfr_A1B1, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) {
+        return(list(p = NaN, terms = rep.int(NaN, m + 1)))
+    }
+    if(is.na(quantile)) {
+        return(list(p = NA_real_, terms = rep.int(NA_real_, m + 1)))
+    }
+    if(quantile == -Inf) {
+        return(list(p = 0, terms = rep.int(0, m + 1)))
+    }
+    if(quantile ==  Inf) {
+        return(list(p = 1, terms = c(1, rep.int(0, m))))
+    }
     diminished <- FALSE
     if(use_cpp) {
         if(cpp_method == "coef_wise") {
@@ -611,6 +624,10 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In pqfr_imhof, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) return(list(p = NaN, abserr = NaN))
+    if(is.na(quantile))  return(list(p = NA_real_, abserr = NA_real_))
+    if(quantile == -Inf) return(list(p = 0, abserr = 0))
+    if(quantile ==  Inf) return(list(p = 1, abserr = 0))
     if(use_cpp) {
         cppres <- p_imhof_Ed(quantile, A, B, mu, autoscale_args,
                              stop_on_error, tol_zero, epsabs, epsrel, limit)
@@ -668,6 +685,18 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In pqfr_davies, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) {
+        return(list(p = NaN, trace = rep.int(NA_real_, 7), ifault = 3))
+    }
+    if(is.na(quantile)) {
+        return(list(p = NA_real_, trace = rep.int(NA_real_, 7), ifault = 3))
+    }
+    if(quantile == -Inf) {
+        return(list(p = 0, trace = rep.int(0, 7), ifault = 0))
+    }
+    if(quantile == Inf) {
+        return(list(p = 1, trace = rep.int(0, 7), ifault = 0))
+    }
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
     delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
@@ -722,6 +751,10 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In pqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) return(list(p = NaN))
+    if(is.na(quantile))  return(list(p = NA_real_))
+    if(quantile == -Inf) return(list(p = 0))
+    if(quantile ==  Inf) return(list(p = 1))
     if(use_cpp) {
         cppres <- p_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
                               tol_zero, epsabs, epsrel, maxiter)
@@ -833,7 +866,8 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
-        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "B must be nonnegative definite" =
+            all(LB >= -tol_sing) && any(LB > tol_sing),
         "quantile must be numeric" = is.numeric(quantile)
     )
     if(method == "broda") {
@@ -875,7 +909,7 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
     }
     ## Trim spurious negative density into [0, Inf)
     if(trim_values) {
-        if(any(ans < 0)) {
+        if(any(ans[!is.na(ans)] < 0)) {
             ## When this happens, true value is always on positive side,
             ## so that abserr can be truncated
             if(exists("abserr", inherits = FALSE)) {
@@ -928,6 +962,15 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
     stopifnot(
         "In dqfr_A1I1, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) {
+        return(list(d = NaN, terms = rep.int(NaN, m + 1)))
+    }
+    if(is.na(quantile)) {
+        return(list(d = NA_real_, terms = rep.int(NA_real_, m + 1)))
+    }
+    if(is.infinite(quantile)) {
+        return(list(d = 0, terms = rep.int(0, m + 1)))
+    }
     if(use_cpp) {
         cppres <- d_A1I1_Ed(quantile, LA, m, thr_margin)
         ansseq <- cppres$ansseq
@@ -1067,6 +1110,9 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In dqfr_broda, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) return(list(d = NaN, abserr = NaN))
+    if(is.na(quantile))  return(list(d = NA_real_, abserr = NA_real_))
+    if(is.infinite(quantile)) return(list(d = 0, abserr = 0))
     if(use_cpp) {
         cppres <- d_broda_Ed(quantile, A, B, mu, autoscale_args, stop_on_error,
                              tol_zero, pi * epsabs, epsrel, limit)
@@ -1152,6 +1198,9 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     stopifnot(
         "In dqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
+    if(is.nan(quantile)) return(list(d = NaN))
+    if(is.na(quantile))  return(list(d = NA_real_))
+    if(is.infinite(quantile)) return(list(d = 0))
     if(use_cpp) {
         cppres <- d_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
                               tol_zero, epsabs, epsrel, maxiter)
