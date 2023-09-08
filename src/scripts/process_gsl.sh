@@ -86,6 +86,15 @@ comment_out_lines(){
     ## specfunc/bessel.c: remove #include gsl_sf_airy.h
     sed -i -E '26s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/bessel.c
 
+    ## specfunc/exp.c, gsl_sf_exp.h: remove gsl_sf_exp_mult_e10_e()
+    sed -i -E '183,226s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/exp.c
+    sed -i -E   '64,68s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_exp.h
+
+    ## specfunc/gamma.c, gsl_sf_gamma.h: remove gsl_sf_choose_e()
+    sed -i -E '1584,1625s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gamma.c
+    sed -i -E '1677,1680s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gamma.c
+    sed -i -E   '156,161s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_gamma.h
+
     ## specfunc/gsl_sf_hyperg.h: remove *_0F1 and *_2F0
     sed -i -E   '40,48s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_hyperg.h
     sed -i -E '142,149s/^(.+)/\/\/ \1 \/\/ edited for qfratio/' $DIR_SPF/gsl_sf_hyperg.h
@@ -103,6 +112,36 @@ edit_error_handler(){
 
     sed -i -E  '41,47s/^( *)(.+)/\1\/\/ \2 \/\/ edited for qfratio/' $DIR_ERR/error.c
     sed -i -E  '48i\  error("Problem in %s: %d: %s\\n  This is unexpected; contact qfratio maintainer", file, line, reason); // added for qfratio' $DIR_ERR/error.c
+}
+
+## Replace fabs(.) on integer-type objects to fabs((double)(.))
+## This is to avoid warning from clang
+cast_fabs_arg_double(){
+    INDIR=$1
+    DIR_SPF=$INDIR/specfunc
+
+    # specfunc/hyperg_1F1.c:
+    # fabs(a), fabs(b), fabs(a-b), fabs(b-a), fabs(1-a), fabs(1+a-b) in
+    # hyperg_1F1_ab_posint(), gsl_sf_hyperg_1F1_int_e()
+    sed -i -E  '936,1174s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_1F1.c
+    sed -i -E '1789,1840s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_1F1.c
+    sed -i -E '1789,1840s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2/' $DIR_SPF/hyperg_1F1.c # Two fabs(int) in single line
+    
+    # specfunc/hyperg_U.c:
+    # - fabs(a), fabs(b), fabs(a_target-a), fabs(a1-a), fabs(a1-a0) in
+    #   SERIES_EVAL_OK(), ASYMP_EVAL_OK(),
+    #   hyperg_U_int_bge1(), gsl_sf_hyperg_U_int_e10_e()
+    # - fabs(N) in hyperg_U_finite_sum()
+    # - fabs(scale_count_for - scale_count_bck) in hyperg_U_bge1()
+    sed -i -E     '38,40s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_U.c
+    sed -i -E     '38,40s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2/' $DIR_SPF/hyperg_U.c # Two fabs(int) in single line
+    sed -i -E   '255,342s/fabs\((N)\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_U.c
+    sed -i -E  '858,1147s/fabs\(([abegrt_01\+\-]{1,10})\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_U.c
+    sed -i -E '1154,1456s/fabs\((scale_count_for - scale_count_bck)\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_U.c
+    sed -i -E '1649,1686s/fabs\(([ab1\+\-]{1,5})\)(.+)$/fabs((double)(\1))\2 \/\/ edited for qfratio/' $DIR_SPF/hyperg_U.c
+    
+    # specfunc/poch.c: fabs(incr) in pochrel_smallx()
+    sed -i -E '82,183s/fabs\(incr\)(.+)$/fabs((double)(incr))\1 \/\/ edited for qfratio/' $DIR_SPF/poch.c
 }
 
 ## Add necessary preprocessor directives
@@ -153,6 +192,8 @@ localize_header_inclusion $*
 comment_out_lines $*
 
 edit_error_handler $*
+
+cast_fabs_arg_double $*
 
 add_directives $*
 

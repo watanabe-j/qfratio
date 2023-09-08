@@ -185,50 +185,50 @@ int gsl_sf_exp_mult_e(const double x, const double y, gsl_sf_result * result)
 }
 
 
-int gsl_sf_exp_mult_e10_e(const double x, const double y, gsl_sf_result_e10 * result)
-{
-  const double ay  = fabs(y);
+// int gsl_sf_exp_mult_e10_e(const double x, const double y, gsl_sf_result_e10 * result) // edited for qfratio
+// { // edited for qfratio
+//   const double ay  = fabs(y); // edited for qfratio
 
-  if(y == 0.0) {
-    result->val = 0.0;
-    result->err = 0.0;
-    result->e10 = 0;
-    return GSL_SUCCESS;
-  }
-  else if(   ( x < 0.5*GSL_LOG_DBL_MAX   &&   x > 0.5*GSL_LOG_DBL_MIN)
-          && (ay < 0.8*GSL_SQRT_DBL_MAX  &&  ay > 1.2*GSL_SQRT_DBL_MIN)
-    ) {
-    const double ex = exp(x);
-    result->val = y * ex;
-    result->err = (2.0 + fabs(x)) * GSL_DBL_EPSILON * fabs(result->val);
-    result->e10 = 0;
-    return GSL_SUCCESS;
-  }
-  else {
-    const double ly  = log(ay);
-    const double l10_val = (x + ly)/M_LN10;
+//   if(y == 0.0) { // edited for qfratio
+//     result->val = 0.0; // edited for qfratio
+//     result->err = 0.0; // edited for qfratio
+//     result->e10 = 0; // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//   } // edited for qfratio
+//   else if(   ( x < 0.5*GSL_LOG_DBL_MAX   &&   x > 0.5*GSL_LOG_DBL_MIN) // edited for qfratio
+//           && (ay < 0.8*GSL_SQRT_DBL_MAX  &&  ay > 1.2*GSL_SQRT_DBL_MIN) // edited for qfratio
+//     ) { // edited for qfratio
+//     const double ex = exp(x); // edited for qfratio
+//     result->val = y * ex; // edited for qfratio
+//     result->err = (2.0 + fabs(x)) * GSL_DBL_EPSILON * fabs(result->val); // edited for qfratio
+//     result->e10 = 0; // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//   } // edited for qfratio
+//   else { // edited for qfratio
+//     const double ly  = log(ay); // edited for qfratio
+//     const double l10_val = (x + ly)/M_LN10; // edited for qfratio
 
-    if(l10_val > INT_MAX-1) {
-      OVERFLOW_ERROR_E10(result);
-    }
-    else if(l10_val < INT_MIN+1) {
-      UNDERFLOW_ERROR_E10(result);
-    }
-    else {
-      const double sy  = GSL_SIGN(y);
-      const int    N   = (int) floor(l10_val);
-      const double arg_val = (l10_val - N) * M_LN10;
-      const double arg_err = 2.0 * GSL_DBL_EPSILON * (fabs(x) + fabs(ly) + M_LN10*fabs(N));
+//     if(l10_val > INT_MAX-1) { // edited for qfratio
+//       OVERFLOW_ERROR_E10(result); // edited for qfratio
+//     } // edited for qfratio
+//     else if(l10_val < INT_MIN+1) { // edited for qfratio
+//       UNDERFLOW_ERROR_E10(result); // edited for qfratio
+//     } // edited for qfratio
+//     else { // edited for qfratio
+//       const double sy  = GSL_SIGN(y); // edited for qfratio
+//       const int    N   = (int) floor(l10_val); // edited for qfratio
+//       const double arg_val = (l10_val - N) * M_LN10; // edited for qfratio
+//       const double arg_err = 2.0 * GSL_DBL_EPSILON * (fabs(x) + fabs(ly) + M_LN10*fabs(N)); // edited for qfratio
 
-      result->val  = sy * exp(arg_val);
-      result->err  = arg_err * fabs(result->val);
-      result->err += 2.0 * GSL_DBL_EPSILON * fabs(result->val);
-      result->e10 = N;
+//       result->val  = sy * exp(arg_val); // edited for qfratio
+//       result->err  = arg_err * fabs(result->val); // edited for qfratio
+//       result->err += 2.0 * GSL_DBL_EPSILON * fabs(result->val); // edited for qfratio
+//       result->e10 = N; // edited for qfratio
 
-      return GSL_SUCCESS;
-    }
-  }
-}
+//       return GSL_SUCCESS; // edited for qfratio
+//     } // edited for qfratio
+//   } // edited for qfratio
+// } // edited for qfratio
 
 
 int gsl_sf_exp_mult_err_e(const double x, const double dx,

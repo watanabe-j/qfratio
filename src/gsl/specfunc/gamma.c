@@ -1586,48 +1586,48 @@ int gsl_sf_lnchoose_e(unsigned int n, unsigned int m, gsl_sf_result * result)
 }
 
 
-int gsl_sf_choose_e(unsigned int n, unsigned int m, gsl_sf_result * result)
-{
-  if(m > n) {
-    DOMAIN_ERROR(result);
-  }
-  else if(m == n || m == 0) {
-    result->val = 1.0;
-    result->err = 0.0;
-    return GSL_SUCCESS;
-  }
-  else if (n <= GSL_SF_FACT_NMAX) {
-    result->val = (fact_table[n].f / fact_table[m].f) / fact_table[n-m].f;
-    result->err = 6.0 * GSL_DBL_EPSILON * fabs(result->val);
-    return GSL_SUCCESS;
-  } else {
-    if(m*2 < n) m = n-m;
+// int gsl_sf_choose_e(unsigned int n, unsigned int m, gsl_sf_result * result) // edited for qfratio
+// { // edited for qfratio
+//   if(m > n) { // edited for qfratio
+//     DOMAIN_ERROR(result); // edited for qfratio
+//   } // edited for qfratio
+//   else if(m == n || m == 0) { // edited for qfratio
+//     result->val = 1.0; // edited for qfratio
+//     result->err = 0.0; // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//   } // edited for qfratio
+//   else if (n <= GSL_SF_FACT_NMAX) { // edited for qfratio
+//     result->val = (fact_table[n].f / fact_table[m].f) / fact_table[n-m].f; // edited for qfratio
+//     result->err = 6.0 * GSL_DBL_EPSILON * fabs(result->val); // edited for qfratio
+//     return GSL_SUCCESS; // edited for qfratio
+//   } else { // edited for qfratio
+//     if(m*2 < n) m = n-m; // edited for qfratio
 
-    if (n - m < 64)  /* compute product for a manageable number of terms */
-      {
-        double prod = 1.0;
-        unsigned int k;
-        
-        for(k=n; k>=m+1; k--) {
-          double tk = (double)k / (double)(k-m);
-          if(tk > GSL_DBL_MAX/prod) {
-            OVERFLOW_ERROR(result);
-          }
-          prod *= tk;
-        }
-        result->val = prod;
-        result->err = 2.0 * GSL_DBL_EPSILON * prod * fabs(n-m);
-        return GSL_SUCCESS;
-      }
-    else
-      {
-        gsl_sf_result lc;
-        const int stat_lc = gsl_sf_lnchoose_e (n, m, &lc);
-        const int stat_e  = gsl_sf_exp_err_e(lc.val, lc.err, result);
-        return GSL_ERROR_SELECT_2(stat_lc, stat_e);
-      }
-  }
-}
+//     if (n - m < 64)  /* compute product for a manageable number of terms */ // edited for qfratio
+//       { // edited for qfratio
+//         double prod = 1.0; // edited for qfratio
+//         unsigned int k; // edited for qfratio
+//          // edited for qfratio
+//         for(k=n; k>=m+1; k--) { // edited for qfratio
+//           double tk = (double)k / (double)(k-m); // edited for qfratio
+//           if(tk > GSL_DBL_MAX/prod) { // edited for qfratio
+//             OVERFLOW_ERROR(result); // edited for qfratio
+//           } // edited for qfratio
+//           prod *= tk; // edited for qfratio
+//         } // edited for qfratio
+//         result->val = prod; // edited for qfratio
+//         result->err = 2.0 * GSL_DBL_EPSILON * prod * fabs(n-m); // edited for qfratio
+//         return GSL_SUCCESS; // edited for qfratio
+//       } // edited for qfratio
+//     else // edited for qfratio
+//       { // edited for qfratio
+//         gsl_sf_result lc; // edited for qfratio
+//         const int stat_lc = gsl_sf_lnchoose_e (n, m, &lc); // edited for qfratio
+//         const int stat_e  = gsl_sf_exp_err_e(lc.val, lc.err, result); // edited for qfratio
+//         return GSL_ERROR_SELECT_2(stat_lc, stat_e); // edited for qfratio
+//       } // edited for qfratio
+//   } // edited for qfratio
+// } // edited for qfratio
 
 
 /*-*-*-*-*-*-*-*-*-* Functions w/ Natural Prototypes *-*-*-*-*-*-*-*-*-*-*/
@@ -1679,10 +1679,10 @@ double gsl_sf_taylorcoeff(const int n, const double x)
   EVAL_RESULT(gsl_sf_taylorcoeff_e(n, x, &result));
 }
 
-double gsl_sf_choose(unsigned int n, unsigned int m)
-{
-  EVAL_RESULT(gsl_sf_choose_e(n, m, &result));
-}
+// double gsl_sf_choose(unsigned int n, unsigned int m) // edited for qfratio
+// { // edited for qfratio
+//   EVAL_RESULT(gsl_sf_choose_e(n, m, &result)); // edited for qfratio
+// } // edited for qfratio
 
 double gsl_sf_lnchoose(unsigned int n, unsigned int m)
 {

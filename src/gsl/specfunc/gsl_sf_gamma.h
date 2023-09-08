@@ -158,12 +158,12 @@ int gsl_sf_lnchoose_e(unsigned int n, unsigned int m, gsl_sf_result * result);
 double gsl_sf_lnchoose(unsigned int n, unsigned int m);
 
 
-/* n choose m
- *
- * exceptions: GSL_EDOM, GSL_EOVRFLW
- */
-int gsl_sf_choose_e(unsigned int n, unsigned int m, gsl_sf_result * result);
-double gsl_sf_choose(unsigned int n, unsigned int m);
+// /* n choose m // edited for qfratio
+//  * // edited for qfratio
+//  * exceptions: GSL_EDOM, GSL_EOVRFLW // edited for qfratio
+//  */ // edited for qfratio
+// int gsl_sf_choose_e(unsigned int n, unsigned int m, gsl_sf_result * result); // edited for qfratio
+// double gsl_sf_choose(unsigned int n, unsigned int m); // edited for qfratio
 
 
 /* Logarithm of Pochhammer (Apell) symbol

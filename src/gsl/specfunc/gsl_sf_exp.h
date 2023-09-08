@@ -66,11 +66,11 @@ int gsl_sf_exp_mult_e(const double x, const double y, gsl_sf_result * result);
 double gsl_sf_exp_mult(const double x, const double y);
 
 
-/* Exponentiate and multiply by a given factor:  y * Exp(x)
- *
- * exceptions: GSL_EOVRFLW, GSL_EUNDRFLW
- */
-int gsl_sf_exp_mult_e10_e(const double x, const double y, gsl_sf_result_e10 * result);
+// /* Exponentiate and multiply by a given factor:  y * Exp(x) // edited for qfratio
+//  * // edited for qfratio
+//  * exceptions: GSL_EOVRFLW, GSL_EUNDRFLW // edited for qfratio
+//  */ // edited for qfratio
+// int gsl_sf_exp_mult_e10_e(const double x, const double y, gsl_sf_result_e10 * result); // edited for qfratio
 
 
 /* exp(x)-1
