@@ -337,7 +337,7 @@ The density of $V$ has different functional forms across its domain
   \begin{aligned}
   f_V (v) = &
     \left[ \qfrBtf{ \frac{p_r}{2} }{ \frac{n - p_r}{2} } \right]^{-1}
-    \left[ \prod_{i=2}^{r+1} \psi_i^{- \frac{n_1}{2}} \right]
+    \left[ \prod_{i=2}^{r+1} \psi_i^{- \frac{n_i}{2}} \right]
     \left[ \prod_{i=2}^{s-1} (1 + \psi_i)^{\frac{n_i}{2}} \right]
     v^{\frac{p_r}{2} - 1} (1 + v)^{- \frac{n}{2}}
     & \\ & \quad \cdot
