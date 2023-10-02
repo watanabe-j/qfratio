@@ -113,8 +113,6 @@ Consider the (simple) ratio of quadratic forms in normal variables:
 where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\mathbf{I}_n}$.
 The denominator matrix $\mathbf{B}$ is assumed to be nonnegative definite,
 whereas $\mathbf{A}$ can be any symmetric matrix.
-Unlike the moment-related functionalities of this package,
-the distribution-related functions only concern unit exponents.
 
 A more general case where
 $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$
@@ -400,7 +398,7 @@ From one of the above expressions, $f_Q(q)$ can be obtained as
     f_Q (q) = &
     f_V (v) 
     \cdot
-    \left| \frac{\mathrm{d} Q}{\mathrm{d} V} \right|
+    \left| \frac{\mathrm{d} q}{\mathrm{d} v} \right|
     \\
     = &
     f_V \left( \frac{q - \eta_s}{\eta_1 - q} \right)
@@ -760,13 +758,13 @@ in a very similar way to `pqfr(..., method = "butler")` (see below).
 The above expressions for the distribution and density functions
 are implemented in `pqfr()` and `dqfr()`, which are defined as:
 ```{r definition_exported, eval = FALSE}
-pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
+pqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
                  trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, ...) { ... }
-dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
+dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
                  return_abserr_attr = FALSE, m = 100L,
@@ -1211,6 +1209,83 @@ in which case it should be taken as $\delta (\log \hat{x}) = \infty$.
 In summary, the new error bound is calculated as
 `ifelse(abserr > ans, Inf, -log1p(-abserr/ans))`.
 
+
+## Distribution of powers
+
+For completeness, `pqfr()` and `dqfr()` can be used to evaluate powers of
+ratios of quadratic forms, $Q^p$, with the exponent specified by the argument
+`p` (default `1`).
+Note that, unlike moment-related functions of this package, the numerator
+and denominator must have the same exponent.
+When `p != 1`, these functions return appropriate results typically by
+transforming those from `p == 1` with recursive calling.
+
+For the rest of this section, consider the distribution and density functions
+of $R = Q^p$ at $r = q^p$.
+The Jacobian for the density is
+$\left| \frac{\mathrm{d} q}{\mathrm{d} r} \right| =
+ \frac{1}{p} \left| r \right| ^ {\frac{1}{p} - 1}$.
+
+
+### When $\mathbf{A}$ is nonnegative definite or $p$ is an odd integer
+
+In this case, the relationship between $Q$ and $R$ is one-to-one, so that
+\begin{equation}
+  \begin{aligned}
+  F_{R}(r)
+  = &
+  \Pr \left( Q^p \leq r \right) \\
+  = &
+  \Pr \left( Q \leq \qfrsgn{(r)} \cdot \left| r \right| ^{\frac{1}{p}} \right) \\
+  = &
+  F_{Q} \left( \qfrsgn{(r)} \cdot \left| r \right| ^{\frac{1}{p}} \right) , \\
+  f_{R}(r)
+  = &
+  f_{Q}(q) \cdot \left| \frac{\mathrm{d} q}{\mathrm{d} r} \right| \\
+  = &
+  f_{Q} \left( \qfrsgn{(r)} \cdot \left| r \right| ^{\frac{1}{p}} \right) \cdot \frac{1}{p} \left| r \right| ^ {\frac{1}{p} - 1} .
+  \end{aligned}
+\end{equation}
+Thus, the result can be obtained by a single recursive call of
+`pqfr(..., p = 1)` or `dqfr(..., p = 1)` with transformed `quantile`.
+
+
+### When $\mathbf{A}$ is indefinite and $p$ is an even integer
+
+In this case, $R$ is an even function of $Q$, so that
+\begin{equation}
+  \begin{aligned}
+  F_{R}(r)
+  = &
+  \Pr \left( Q^p \leq r \right) \\
+  = &
+  \begin{cases}
+    \Pr \left( Q \leq r^{\frac{1}{p}} \right) -
+    \Pr \left( Q < - r^{\frac{1}{p}} \right)
+    = F_{Q} \left( r^{\frac{1}{p}} \right) - F_{Q} \left( - r^{\frac{1}{p}} \right) , & r > 0 , \\
+    0 , & r \leq 0 ,
+  \end{cases} \\
+  f_{R}(r)
+  = &
+  \begin{cases}
+    \left[ f_{Q} \left( r^{\frac{1}{p}} \right) +
+           f_{Q} \left( - r^{\frac{1}{p}} \right) \right]
+    \cdot \left| \frac{\mathrm{d} q}{\mathrm{d} r} \right| , & r > 0 , \\
+    f_{Q}(0) \cdot \left| \frac{\mathrm{d} q}{\mathrm{d} r} \right|
+      = \infty , & r = 0 , \\
+    0 , & r < 0 .
+  \end{cases}
+  \end{aligned}
+\end{equation}
+Thus, for $r > 0$, the result is obtained from two recursive calls of
+`pqfr(..., p = 1)` or `dqfr(..., p = 1)` with transformed `quantile`.
+
+
+### When $\mathbf{A}$ is indefinite and $p$ is non-integer
+
+In this case, $R$ can be undefined, so `pqfr()` and `dqfr()` return an error,
+`"A must be nonnegative definite when p is non-integer"`,
+*regardless of the value of* `quantile`.
 
 
 # Graphical examples

@@ -210,12 +210,12 @@ plot(mom_A2B3)
 
 This functionality concerns evaluation of the (cumulative) distribution
 function and probability density of
-$\mathbf{x}^T \mathbf{A} \mathbf{x} / \mathbf{x}^T \mathbf{B} \mathbf{x}$,
+$\left( \mathbf{x}^T \mathbf{A} \mathbf{x} /  \mathbf{x}^T \mathbf{B} \mathbf{x} \right) ^ p$,
 where
 $\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
 
-These are handled by `pqfr(quantile, A, B, ...)` and
-`dqfr(quantile, A, B, ...)`, whose usage mimics that of regular
+These are handled by `pqfr(quantile, A, B, p, ...)` and
+`dqfr(quantile, A, B, p, ...)`, whose usage mimics that of regular
 distribution-related functions.
 
 ``` r

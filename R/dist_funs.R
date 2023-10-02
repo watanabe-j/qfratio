@@ -47,7 +47,7 @@
 #' nonanalyticity, at the eigenvalues of
 #' \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (assuming nonsingular
 #' \eqn{\mathbf{B}}{B}).  Around these points,
-#' the series expressions tends fail.  Avoid using the series expression
+#' the series expressions tends to fail.  Avoid using the series expression
 #' methods for these cases.
 #'
 #' Algorithms based on numerical integration can yield spurious results
@@ -71,7 +71,13 @@
 #'   definite.  Will be automatically symmetrized in \code{dqfr()} and
 #'   \code{pqfr()}.
 #' @param LA
-#'   Eigenvalues of \eqn{\mathbf{A}}{|}
+#'   Eigenvalues of \eqn{\mathbf{A}}{A}
+#' @param p
+#'   Positive exponent of the ratio, default \code{1}.  Unlike in
+#'   \code{\link{qfrm}()}, the numerator and denominator cannot have
+#'   different exponents.  When \code{p} is non-integer, \code{A} must be
+#'   nonnegative definite.  For details, see vignette
+#'   \code{vignette("qfratio_distr")}.
 #' @param Sigma
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
 #'   \eqn{\mathbf{x}}{x}
@@ -133,7 +139,7 @@
 #'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
 #' @param epsabs,epsrel,limit,maxiter
 #'   Optional arguments used in numerical integration or root-finding
-#'   algorithm (see vignette: \code{vignette{"qfratio_distr"}})
+#'   algorithm (see vignette: \code{vignette("qfratio_distr")})
 #' @param ...
 #'   Additional arguments passed to internal functions
 #'
@@ -272,7 +278,7 @@ NULL
 #'
 #' @export
 #'
-pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
+pqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
                  trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
@@ -323,8 +329,10 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                      "for A, B, mu.\n  See documentation for details")
             }
         }
-        return(pqfr(quantile, KtAK, KtBK, mu = iKmu,
+        return(pqfr(quantile, KtAK, KtBK, p = p, mu = iKmu,
                     lower.tail = lower.tail, log.p = log.p, method = method,
+                    trim_values = trim_values,
+                    return_abserr_attr = return_abserr_attr,
                     m = m, tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     LB <- eigen(B, symmetric = TRUE, only.values = TRUE)$values
@@ -333,9 +341,47 @@ pqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
         "B must be nonnegative definite" =
             all(LB >= -tol_sing) && any(LB > tol_sing),
-        "quantile must be numeric" = is.numeric(quantile)
+        "quantile must be numeric" = is.numeric(quantile),
+        "p must be a positive scalar" = is.numeric(p) && length(p) == 1 && p > 0
     )
-    if(method == "forchini" || method == "butler") {
+    if(p != 1) {
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+        L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
+        ## When A is nonnegative definite or p is odd,
+        ## result is available by transforming quantile
+        if(L_nnd || ((p %% 1) == 0 && (p %% 2) == 1)) {
+            quantile_new <- sign(quantile) * abs(quantile) ^ (1 / p)
+            ans <- pqfr(quantile_new, A, B, p = 1, mu = mu,
+                        lower.tail = TRUE, log.p = FALSE, method = method,
+                        trim_values = FALSE,
+                        return_abserr_attr = return_abserr_attr,
+                        m = m, tol_zero = tol_zero, tol_sing = tol_sing, ...)
+            abserr <- attr(ans, "abserr")
+        } else {
+            ## When A is indefinite and p is even, result is calculated from
+            ## p-values on positive and negative branches and then processed
+            if((p %% 2) == 0) {
+                quantile_pos <- abs(quantile) ^ (1 / p)
+                ans1 <- pqfr(quantile_pos, A, B, p = 1, mu = mu,
+                             lower.tail = TRUE, log.p = FALSE,
+                             method = method, trim_values = FALSE,
+                             return_abserr_attr = return_abserr_attr, m = m,
+                             tol_zero = tol_zero, tol_sing = tol_sing, ...)
+                ans2 <- pqfr(- quantile_pos, A, B, p = 1, mu = mu,
+                             lower.tail = TRUE, log.p = FALSE,
+                             method = method, trim_values = FALSE,
+                             return_abserr_attr = return_abserr_attr, m = m,
+                             tol_zero = tol_zero, tol_sing = tol_sing, ...)
+                ans <- ifelse(quantile > 0, ans1 - ans2, 0)
+                abserr <- ifelse(quantile > 0,
+                                 attr(ans1, "abserr") + attr(ans2, "abserr"), 0)
+            } else {
+                ## When A is indefinite and p is non-integer,
+                ## the quantity can be undefined; return error
+                stop("A must be nonnegative definite when p is non-integer")
+            }
+        }
+    } else if(method == "forchini" || method == "butler") {
         if(method == "forchini") {
             ans <- sapply(quantile,
                           function(q) pqfr_A1B1(q, A, B, m = m, mu = mu,
@@ -805,9 +851,10 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 ##### dqfr #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' \code{dqfr()}: Density of the ratio of quadratic forms,
-#' \eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
-#'      }{ (x^T A x) / (x^T B x) }, where
+#' \code{dqfr()}: Density of the (power of) ratio of quadratic forms,
+#' \eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
+#'                    \mathbf{x^{\mathit{T}} B x} } \right) ^ p
+#' }{ ((x^T A x) / (x^T B x))^p }, where
 #' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 #'
 #' @rdname pqfr
@@ -815,7 +862,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 #' @export
 #'
-dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
+dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
                  return_abserr_attr = FALSE, m = 100L,
@@ -861,8 +908,10 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
                      "for A, B, mu.\n  See documentation for details")
             }
         }
-        return(dqfr(quantile, KtAK, KtBK, mu = iKmu,
-                    log = log, method = method, m = m,
+        return(dqfr(quantile, KtAK, KtBK, p = p, mu = iKmu,
+                    log = log, method = method, trim_values = trim_values,
+                    normalize_spa = normalize_spa,
+                    return_abserr_attr = return_abserr_attr, m = m,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     eigB <- eigen(B, symmetric = TRUE, only.values = normalize_spa)
@@ -872,9 +921,72 @@ dqfr <- function(quantile, A, B, mu = rep.int(0, n), Sigma = diag(n),
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
         "B must be nonnegative definite" =
             all(LB >= -tol_sing) && any(LB > tol_sing),
-        "quantile must be numeric" = is.numeric(quantile)
+        "quantile must be numeric" = is.numeric(quantile),
+        "p must be a positive scalar" = is.numeric(p) && length(p) == 1 && p > 0
     )
-    if(method == "broda") {
+    if(p != 1) {
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+        L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
+        jacobian <- abs(quantile) ^ (1 / p - 1) / p
+        ## When A is nonnegative definite or p is odd,
+        ## result is obtainable by transforming quantile
+        if(L_nnd || ((p %% 1) == 0 && (p %% 2) == 1)) {
+            quantile_new <- sign(quantile) * abs(quantile) ^ (1 / p)
+            ans <- dqfr(quantile_new, A, B, p = 1, mu = mu,
+                        log = log, method = method, trim_values = trim_values,
+                        normalize_spa = normalize_spa,
+                        return_abserr_attr = return_abserr_attr,
+                        m = m, tol_zero = tol_zero, tol_sing = tol_sing, ...)
+            ans <- ans * jacobian
+            abserr <- attr(ans, "abserr") * jacobian
+        } else {
+            ## When A is indefinite and p is even:
+            ## - For positive quantile, result is calculated from densities
+            ##   on positive and negative branches
+            ## - For zero quantile, density at zero
+            ## - For negative quantile, 0
+            if((p %% 2) == 0) {
+                ind_q_pos <- quantile > 0
+                ind_q_zero <- quantile == 0
+                ans <- rep.int(0, length(quantile))
+                abserr <- rep.int(0, length(quantile))
+                if(any(ind_q_pos)) {
+                    quantile_pos <- abs(quantile[ind_q_pos]) ^ (1 / p)
+                    ans1 <- dqfr(quantile_pos, A, B, p = 1, mu = mu,
+                                 log = FALSE, method = method,
+                                 trim_values = FALSE,
+                                 normalize_spa = normalize_spa,
+                                 return_abserr_attr = return_abserr_attr, m = m,
+                                 tol_zero = tol_zero, tol_sing = tol_sing, ...)
+                    ans2 <- dqfr(- quantile_pos, A, B, p = 1, mu = mu,
+                                 log = FALSE, method = method,
+                                 trim_values = FALSE,
+                                 normalize_spa = normalize_spa,
+                                 return_abserr_attr = return_abserr_attr, m = m,
+                                 tol_zero = tol_zero, tol_sing = tol_sing, ...)
+                    ans[ind_q_pos] <- ans1 + ans2
+                    abserr_tmp <- attr(ans1, "abserr") + attr(ans2, "abserr")
+                    if(length(abserr_tmp) > 0) abserr[ind_q_pos] <- abserr_tmp
+                }
+                if(any(ind_q_zero)) {
+                    ans0 <- dqfr(0, A, B, p = 1, mu = mu, log = FALSE,
+                                 method = method, trim_values = FALSE,
+                                 normalize_spa = normalize_spa,
+                                 return_abserr_attr = return_abserr_attr, m = m,
+                                 tol_zero = tol_zero, tol_sing = tol_sing, ...)
+                    ans[ind_q_zero] <- ans0
+                    abserr_tmp <- attr(ans0, "abserr")
+                    if(length(abserr_tmp) > 0) abserr[ind_q_zero] <- abserr_tmp
+                }
+                ans <- ans * jacobian
+                abserr <- abserr * jacobian
+            } else {
+                ## When A is indefinite and p is non-integer,
+                ## the quantity can be undefined; return error
+                stop("A must be nonnegative definite when p is non-integer")
+            }
+        }
+    } else if(method == "broda") {
         res <- sapply(quantile,
                       function(q) unlist(dqfr_broda(q, A, B, mu,
                                                     tol_zero = tol_zero, ...)))

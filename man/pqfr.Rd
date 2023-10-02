@@ -16,6 +16,7 @@ dqfr(
   quantile,
   A,
   B,
+  p = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
   log = FALSE,
@@ -33,6 +34,7 @@ pqfr(
   quantile,
   A,
   B,
+  p = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
   lower.tail = TRUE,
@@ -145,6 +147,12 @@ pqfr_butler(
 definite.  Will be automatically symmetrized in \code{dqfr()} and
 \code{pqfr()}.}
 
+\item{p}{Positive exponent of the ratio, default \code{1}.  Unlike in
+\code{\link{qfrm}()}, the numerator and denominator cannot have
+different exponents.  When \code{p} is non-integer, \code{A} must be
+nonnegative definite.  For details, see vignette
+\code{vignette("qfratio_distr")}.}
+
 \item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
@@ -196,7 +204,7 @@ eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments passed to internal functions}
 
-\item{LA}{Eigenvalues of \eqn{\mathbf{A}}{|}}
+\item{LA}{Eigenvalues of \eqn{\mathbf{A}}{A}}
 
 \item{check_convergence}{Specifies how numerical convergence is checked for series expression (see
 \code{\link{qfrm}})}
@@ -221,7 +229,7 @@ numerical integration, or root finding.  If
 \code{FALSE}, further execution is attempted regardless.}
 
 \item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
-algorithm (see vignette: \code{vignette{"qfratio_distr"}})}
+algorithm (see vignette: \code{vignette("qfratio_distr")})}
 
 \item{order_spa}{Numeric to determine order of saddlepoint approximation.  More accurate
 second-order approximation is used for any \code{order > 1} (default);
@@ -264,9 +272,10 @@ which is replaced by \code{p = 1 - Qq}.}
 }
 }
 \description{
-\code{dqfr()}: Density of the ratio of quadratic forms,
-\eqn{\frac{ \mathbf{x^\mathit{T} A x} }{ \mathbf{x^\mathit{T} B x} }
-     }{ (x^T A x) / (x^T B x) }, where
+\code{dqfr()}: Density of the (power of) ratio of quadratic forms,
+\eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
+                   \mathbf{x^{\mathit{T}} B x} } \right) ^ p
+}{ ((x^T A x) / (x^T B x))^p }, where
 \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
 
 \code{pqfr()}: Distribution function of the same.
@@ -342,7 +351,7 @@ The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
 \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (assuming nonsingular
 \eqn{\mathbf{B}}{B}).  Around these points,
-the series expressions tends fail.  Avoid using the series expression
+the series expressions tends to fail.  Avoid using the series expression
 methods for these cases.
 
 Algorithms based on numerical integration can yield spurious results
