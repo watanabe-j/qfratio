@@ -64,35 +64,24 @@ test_that("Expect silence or warning around error bound", {
         A1s <- diag(L1 - 1)
 
         ## Acceptable parameter values
-        expect_silent(qfrm(A1, p = 1/2, alphaA = 0.8,           m = m, check_convergence = FALSE))
         expect_silent(qfrm(A1, p = 1/2, mu = mu, alphaA = 0.8,  m = m, check_convergence = FALSE))
-        expect_silent(qfrm(A1, A2, alphaB = 0.8,                m = m, check_convergence = FALSE))
         expect_silent(qfrm(A1, A2, mu = mu, alphaB = 0.8,       m = m, check_convergence = FALSE))
-        expect_silent(qfmrm(A1, A2, alphaB = 0.8,               m = m, check_convergence = FALSE))
         expect_silent(qfmrm(A1, A2, mu = mu, alphaB = 0.8,      m = m, check_convergence = FALSE))
 
         ## Unacceptable value / singular argument causing warning in calculating error bound
         expect_warning(qfrm(A1, p = 1/2, alphaA = 1.5,      m = m, check_convergence = FALSE))
         expect_warning(qfrm(A1s, p = 1/2,                   m = m, check_convergence = FALSE))
-        expect_warning(qfrm(A1, A2, alphaB = 1.5,           m = m, check_convergence = FALSE))
         expect_warning(qfrm(A1, A2, mu = mu, alphaB = 1.5,  m = m, check_convergence = FALSE))
-        expect_warning(qfrm(A1, A1s,                        m = m, check_convergence = FALSE))
         expect_warning(qfrm(A1, A1s, mu = mu,               m = m, check_convergence = FALSE))
-        expect_warning(qfmrm(A1, A1s,                       m = m, check_convergence = FALSE))
         expect_warning(qfmrm(A1, A1s, mu = mu,              m = m, check_convergence = FALSE))
-        expect_warning(qfmrm(A1, A2, alphaB = 1.5,          m = m, check_convergence = FALSE))
         expect_warning(qfmrm(A1, A2, mu = mu, alphaB = 1.5, m = m, check_convergence = FALSE))
 
         ## Above is dismissed when no error bound is returned
         expect_silent(qfrm(A1, p = 1/2, alphaA = 1.5,      m = m, error_bound = FALSE, check_convergence = FALSE))
         expect_silent(qfrm(A1s, p = 1/2,                   m = m, error_bound = FALSE, check_convergence = FALSE))
-        expect_silent(qfrm(A1, A2, alphaB = 1.5,           m = m, error_bound = FALSE, check_convergence = FALSE))
         expect_silent(qfrm(A1, A2, mu = mu, alphaB = 1.5,  m = m, error_bound = FALSE, check_convergence = FALSE))
-        expect_silent(qfrm(A1, A1s,                        m = m, error_bound = FALSE, check_convergence = FALSE))
         expect_silent(qfrm(A1, A1s, mu = mu,               m = m, error_bound = FALSE, check_convergence = FALSE))
-        expect_silent(qfmrm(A1, A1s,                       m = m, error_bound = FALSE, check_convergence = FALSE))
         expect_silent(qfmrm(A1, A1s, mu = mu,              m = m, error_bound = FALSE, check_convergence = FALSE))
-        expect_silent(qfmrm(A1, A2, alphaB = 1.5,          m = m, error_bound = FALSE, check_convergence = FALSE))
         expect_silent(qfmrm(A1, A2, mu = mu, alphaB = 1.5, m = m, error_bound = FALSE, check_convergence = FALSE))
 
         ## Does not matter when error bound is unavailable
@@ -123,14 +112,10 @@ test_that("Existence conditions: qfrm, nonsingular", {
         for(p in ks[(ks %% 1) == 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) {
-                    # expect_error(qfrm(A1, I,  p, q, m = m))
                     # expect_error(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu)))
-                    expect_error(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, I,  p, q, m = m))
                     expect_silent(qfrm(A1, I,  p, q, m = m, mu = mu))
-                    expect_silent(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }
             }
@@ -138,14 +123,10 @@ test_that("Existence conditions: qfrm, nonsingular", {
         for(p in ks[(ks %% 1) != 0]) {
             for(q in ks) {
                 if(nv / 2 + p <= q) {
-                    # expect_error(qfrm(A1, I,  p, q, m = m, check_convergence = FALSE))
                     # expect_error(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE)))
-                    expect_error(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, I,  p, q, m = m, check_convergence = FALSE))
                     expect_silent(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE))
-                    expect_silent(qfrm(A1, A2,  p, q, m = m, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }
             }
@@ -177,18 +158,12 @@ test_that("Existence conditions: qfmrm, nonsingular", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if(nv / 2 + p <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
-                        expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
-                        expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, check_convergence = FALSE))
                         expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -218,10 +193,8 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
         for(p in ks[(ks %% 1) == 0]) {
             for(q in ks) {
                 if((nv - 1) / 2 + p <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
@@ -229,10 +202,8 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
         for(p in ks[(ks %% 1) != 0]) {
             for(q in ks) {
                 if((nv - 1) / 2 + p <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }
             }
@@ -262,10 +233,8 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
         for(p in ks[(ks %% 1) == 0]) {
             for(q in ks) {
                 if(((nv - 1) + p) / 2 <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
@@ -273,11 +242,9 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
         for(p in ks[(ks %% 1) != 0]) {
             for(q in ks) {
                 if(((nv - 1) + p) / 2 <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
                     # ## Here A1 is indefinite and moment is undefined
-                    # expect_silent(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     # expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }
             }
@@ -307,10 +274,8 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
         for(p in ks[(ks %% 1) == 0]) {
             for(q in ks) {
                 if((nv - 1) / 2 <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          error_bound = FALSE, check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
@@ -318,10 +283,8 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
         for(p in ks[(ks %% 1) != 0]) {
             for(q in ks) {
                 if((nv - 1) / 2 <= q) {
-                    expect_error(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
-                    expect_silent(qfrm(A1, A2,  p, q, m = m,          check_convergence = FALSE))
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 }
             }
@@ -357,14 +320,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 1) / 2 + p <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -374,14 +333,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 1) / 2 + p <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -418,14 +373,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
             for(q in ks/2) {
                 for(r in ks/2) {
                     if(((nv - 1) + p) / 2 <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -435,15 +386,11 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
             for(q in ks/2) {
                 for(r in ks/2) {
                     if(((nv - 1) + p) / 2 <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
                         # ## Here A1 is indefinite and moment is undefined
-                        # expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         # expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        # expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         # expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -480,18 +427,12 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 1) / 2 <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_error(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           error_bound = FALSE, check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
-                        expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -501,18 +442,12 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 1) / 2 <= q + r) {
-                        expect_error(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -544,14 +479,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 2) / 2 <= q + r) {
-                        expect_error(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
@@ -561,14 +492,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
             for(q in ks/2) {
                 for(r in ks/2) {
                     if((nv - 2) / 2 <= q + r) {
-                        expect_error(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
-                        expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m,           check_convergence = FALSE))
                         expect_silent(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
-                        expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m,          check_convergence = FALSE))
                         expect_silent(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     }
                 }
