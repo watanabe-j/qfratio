@@ -307,7 +307,7 @@ doi:[10.1016/j.csda.2008.10.035](https://doi.org/10.1016/j.csda.2008.10.035).
 
 Butler, R. W. and Paolella, M. S. (2008) Uniform saddlepoint
 approximations for ratios of quadratic forms. *Bernoulli*, **14**,
-140–154. doi:[10.3150/07-BEJ616](https://doi.org/10.3150/07-BEJ616).
+140–154. doi:[10.3150/07-BEJ6169](https://doi.org/10.3150/07-BEJ6169).
 
 </div>
 
