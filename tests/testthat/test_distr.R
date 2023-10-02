@@ -1,5 +1,6 @@
 tol <- 5e-7
 tol2 <- 5e-4
+tol3 <- 5e-3
 CQF_available <- requireNamespace("CompQuadForm", quietly = TRUE)
 
 if(requireNamespace("stats", quietly = TRUE)) {
@@ -86,3 +87,90 @@ test_that("Expect similar results between different methods", {
         expect_equal(dseq_broda, dseq_hillier,  tolerance = tol2)
     }
 })
+
+test_that("Expect equal p-values with exponents with nnd matrices", {
+    nvs <- 2:4
+    for(nv in nvs) {
+        qs <- 0:nv + 0.2
+        L1 <- 1:nv
+        L2 <- nv:1
+        A1 <- diag(L1)
+        A2 <- diag(L2)
+        mu <- 1:nv * 0.2
+
+        res_p1 <- pqfr(qs,   A1, A2, 1, mu = mu, return_abserr_attr = FALSE)
+        res_p2 <- pqfr(qs^2, A1, A2, 2, mu = mu, return_abserr_attr = FALSE)
+        res_p3 <- pqfr(qs^3, A1, A2, 3, mu = mu, return_abserr_attr = FALSE)
+        res_p05 <- pqfr(qs^(1/2), A1, A2, 1/2, mu = mu, return_abserr_attr = FALSE)
+
+        expect_equal(res_p1, res_p2, tolerance = tol)
+        expect_equal(res_p1, res_p3, tolerance = tol)
+        expect_equal(res_p1, res_p05, tolerance = tol)
+    }
+})
+
+test_that("Expect equal p-values with odd exponents with indefinite matrices", {
+    nvs <- 2:4
+    for(nv in nvs) {
+        qs <- (-2):nv + 0.2
+        L1 <- (1:nv - 1.5) * 2
+        L2 <- nv:1
+        A1 <- diag(L1)
+        A2 <- diag(L2)
+        mu <- 1:nv * 0.2
+
+        res_p1 <- pqfr(qs,   A1, A2, 1, mu = mu, return_abserr_attr = FALSE)
+        res_p3 <- pqfr(qs^3, A1, A2, 3, mu = mu, return_abserr_attr = FALSE)
+
+        expect_equal(res_p1, res_p3, tolerance = tol)
+    }
+})
+
+if(requireNamespace("stats", quietly = TRUE)) {
+    test_that("Expect unity when density is integrated with nnd matrices", {
+        ## Tests with nv = 2, 3 often hit singularity, causing error
+        nvs <- 4:5
+        for(nv in nvs) {
+            qs <- 0:nv + 0.2
+            L1 <- 1:nv
+            L2 <- nv:1
+            A1 <- diag(L1)
+            A2 <- diag(L2)
+            mu <- 1:nv * 0.2
+            qmin <- min(L1 / L2)
+            qmax <- max(L1 / L2)
+            
+            res_p1  <- stats::integrate(dqfr, qmin^1, qmax^1, A1, A2, p = 1, mu = mu)$value
+            res_p2  <- stats::integrate(dqfr, qmin^2, qmax^2, A1, A2, p = 2, mu = mu)$value
+            res_p3  <- stats::integrate(dqfr, qmin^3, qmax^3, A1, A2, p = 3, mu = mu)$value
+            res_p05 <- stats::integrate(dqfr, qmin^(1/2), qmax^(1/2), A1, A2, p = 0.5, mu = mu)$value
+
+            expect_equal(res_p1,  1, tolerance = tol3)
+            expect_equal(res_p2,  1, tolerance = tol3)
+            expect_equal(res_p3,  1, tolerance = tol3)
+            expect_equal(res_p05, 1, tolerance = tol3)
+        }
+    })
+    
+    test_that("Expect unity when density is integrated with indefinite matrices", {
+        nvs <- 4:5
+        for(nv in nvs) {
+            qs <- 0:nv + 0.2
+            L1 <- (1:nv - 1.5) * 2
+            L2 <- nv:1
+            A1 <- diag(L1)
+            A2 <- diag(L2)
+            mu <- 1:nv * 0.2
+            qmin <- min(L1 / L2)
+            qmax <- max(L1 / L2)
+
+            res_p1 <- stats::integrate(dqfr, qmin^1, qmax^1, A1, A2, p = 1, mu = mu)$value
+            res_p2 <- stats::integrate(dqfr, 0,      qmax^2, A1, A2, p = 2, mu = mu)$value
+            res_p3 <- stats::integrate(dqfr, qmin^3, qmax^3, A1, A2, p = 3, mu = mu)$value
+
+            expect_equal(res_p1, 1, tolerance = tol3)
+            expect_equal(res_p2, 1, tolerance = tol3)
+            expect_equal(res_p3, 1, tolerance = tol3)
+        }
+    })
+}
