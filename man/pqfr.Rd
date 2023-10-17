@@ -3,6 +3,7 @@
 \name{dqfr}
 \alias{dqfr}
 \alias{pqfr}
+\alias{qqfr}
 \alias{dqfr_A1I1}
 \alias{dqfr_broda}
 \alias{dqfr_butler}
@@ -45,6 +46,24 @@ pqfr(
   m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
+  ...
+)
+
+qqfr(
+  probability,
+  A,
+  B,
+  p = 1,
+  mu = rep.int(0, n),
+  Sigma = diag(n),
+  lower.tail = TRUE,
+  log.p = FALSE,
+  trim_values = FALSE,
+  stop_on_error = FALSE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
+  epsabs_q = .Machine$double.eps^(1/2),
+  maxiter_q = 5000,
   ...
 )
 
@@ -122,6 +141,7 @@ pqfr_davies(
   B,
   mu = rep.int(0, n),
   autoscale_args = 1,
+  stop_on_error = NULL,
   tol_zero = .Machine$double.eps * 100,
   ...
 )
@@ -202,7 +222,15 @@ the identity matrix, etc.}
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 
-\item{...}{Additional arguments passed to internal functions}
+\item{...}{Additional arguments passed to internal functions.  In \code{qqfr()},
+these are passed to \code{pqfr()}.}
+
+\item{probability}{Numeric vector of probabilities}
+
+\item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
+non-convergence) in evaluation of hypergeometric function,
+numerical integration, or root finding.  If
+\code{FALSE}, further execution is attempted regardless.}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{A}}
 
@@ -223,13 +251,11 @@ in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 numerical integration (see \code{vignette("qfratio_distr")}).  If
 \code{<= 0}, the scaling is skipped.}
 
-\item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
-non-convergence) in evaluation of hypergeometric function,
-numerical integration, or root finding.  If
-\code{FALSE}, further execution is attempted regardless.}
-
-\item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
-algorithm (see vignette: \code{vignette("qfratio_distr")})}
+\item{epsabs, epsrel, limit, maxiter, epsabs_q, maxiter_q}{Optional arguments used in numerical integration or root-finding
+algorithm (see vignette:
+\code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
+and \code{maxiter_q} are used in root-finding for quantiles whereas
+\code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.}
 
 \item{order_spa}{Numeric to determine order of saddlepoint approximation.  More accurate
 second-order approximation is used for any \code{order > 1} (default);
@@ -242,8 +268,10 @@ overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}})}
 functions (see \dQuote{Multithreading} in \code{\link{qfrm}})}
 }
 \value{
-\code{dqfr()} gives the density, and \code{pqfr()} gives the
-distribution function or \eqn{p}-values corresponding to \code{quantile}.
+\code{dqfr()} and \code{pqfr()} give the density and distribution
+(or \eqn{p}-values) functions, respectively, corresponding to
+\code{quantile}, whereas \code{qqfr()} gives the quantile function
+corresponding to \code{probability}.
 
 When \code{return_abserr_attr = TRUE}, an absolute
 error bound of numerical evaluation is returned as an attribute; this
@@ -280,6 +308,8 @@ which is replaced by \code{p = 1 - Qq}.}
 
 \code{pqfr()}: Distribution function of the same.
 
+\code{qqfr()}: Quantile function of the same.
+
 \code{dqfr_A1I1()}: internal for \code{dqfr()},
 exact series expression of Hillier (2001).  Only accommodates
 the simple case where \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
@@ -304,15 +334,20 @@ This is \strong{experimental} and may be removed in the future.
 \code{pqfr_butler()}: internal for \code{pqfr()},
 saddlepoint approximation of Butler & Paolella (2007, 2008).
 
-The user is supposed to use the exported functions \code{dqfr()} and
-\code{pqfr()}, which are (pseudo-)vectorized with respect to
-\code{quantile}.  The actual calculations are done by one
-of the internal functions, which only accommodate a length-one
+The user is supposed to use the exported functions \code{dqfr()},
+\code{pqfr()}, and \code{qqfr()}, which are (pseudo-)vectorized with respect
+to \code{quantile} or \code{probability}.  The actual calculations are done
+by one of the internal functions, which only accommodate a length-one
 \code{quantile}.  The internal functions skip most checks on argument
 structures and do not accommodate \code{Sigma}
 to reduce execution time.
 }
 \details{
+\code{qqfr()} is based on numerical root-finding with \code{pqfr()} using
+\code{\link[stats]{uniroot}()}, so its result can be affected by the
+numerical errors in both the algorithm used in \code{pqfr()} and
+root-finding.
+
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 and (cumulative) distribution function, respectively,
 as a partial sum of infinite series involving top-order zonal or
@@ -379,13 +414,22 @@ diag(Sigma) <- 1
 dqfr(1.5, A)
 pqfr(1.5, A)
 
+## 95 percentile for the same
+qqfr(0.95, A)
+qqfr(0.05, A, lower.tail = FALSE) # same
+
 ## P{ (x^T A x) / (x^T B x) <= 1.5} where x ~ N(mu, Sigma)
 pqfr(1.5, A, B, mu = mu, Sigma = Sigma)
 
 ## These are (pseudo-)vectorized
 qs <- 0:nv + 0.5
 dqfr(qs, A, B, mu = mu)
-pqfr(qs, A, B, mu = mu)
+(pres <- pqfr(qs, A, B, mu = mu))
+
+## Quantiles for above p-values
+## Results equal qs, except that those for prob = 0 and 1
+## are replaced by mininum and maximum of the ratio
+qqfr(pres, A, B, mu = mu) # = qs
 
 ## Various methods for density
 dqfr(qs, A, method = "broda")   # default

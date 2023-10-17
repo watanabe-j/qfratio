@@ -46,7 +46,7 @@ $$
 $$
 
 
-As of version 1.1.0, `qfratio`
+Since version 1.1.0, `qfratio`
 ([CRAN](https://CRAN.R-project.org/package=qfratio){target="_blank"};
 [GitHub](https://github.com/watanabe-j/qfratio){target="_blank"})
 has a functionality to evaluate probability density and distribution functions
@@ -781,6 +781,19 @@ Log-transformed $p$-values or densities can be obtained by turning
 `log.p = TRUE` or `log = TRUE`, but these are just ad-hoc transformations
 of the results so are not supposed to provide as much numerical accuracy
 as in regular probability distribution functions.
+
+There is also `qqfr()` for the corresponding quantile function, which is
+defined as:
+```{r definition_qqfr, eval = FALSE}
+qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
+                 lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
+                 stop_on_error = FALSE, tol_zero = .Machine$double.eps * 100,
+                 tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
+                 maxiter_q = 5000, ...) { ... }
+```
+
+This function is not based on any explicit inverse function, but does
+numerical root-finding using `stats::uniroot()`, internally calling `pqfr()`.
 
 Internally, these functions first check basic argument structures, and, if
 `Sigma` is specified, transform the arguments `A`, `B`, and `mu` and call
