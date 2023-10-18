@@ -268,6 +268,7 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
             ## If above didn't work, failure; update alpha
             fail_prev <- TRUE
             alpha <- alpha + sqrt(sum(A ^ 2) / sqnorm_B)
+            Abar <- A - alpha * B
             ## To avoid infinite loop; this should not happen
             i <- i + 1
             if(i > 5) stop("unexpected error: max iteration reached; ",
@@ -299,5 +300,8 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
             }
         }
     }
-    return(LBiA)
+    ## Mathematically, the generalized eigenvalues should be real
+    ## But LBiA or LM may be complex for numerically infinite ones,
+    ## so Re() is taken for safeguarding
+    return(Re(LBiA))
 }
