@@ -209,14 +209,14 @@ plot(mom_A2B3)
 ### Distributions
 
 This functionality concerns evaluation of the (cumulative) distribution
-function and probability density of
+function, probability density, and quantiles of
 $\left( \mathbf{x}^T \mathbf{A} \mathbf{x} /  \mathbf{x}^T \mathbf{B} \mathbf{x} \right) ^ p$,
 where
 $\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
 
-These are handled by `pqfr(quantile, A, B, p, ...)` and
-`dqfr(quantile, A, B, p, ...)`, whose usage mimics that of regular
-distribution-related functions.
+These are implemented in `pqfr(quantile, A, B, p, ...)`,
+`dqfr(quantile, A, B, p, ...)`, and `qqfr(probability, A, B, p, ...)`,
+whose usage mimics that of regular distribution-related functions.
 
 ``` r
 ## Example parameters
@@ -232,6 +232,10 @@ pqfr(quantiles, A, B)
 #> [1] 0.0000000 0.4349385 0.8570354 0.9816503 1.0000000
 dqfr(quantiles, A, B)
 #> [1] 0.00000000 0.57079928 0.21551262 0.06123152 0.00000000
+
+## 95, 99, and 99.9 percentiles of the same
+qqfr(c(0.05, 0.01, 0.001), A, B, lower.tail = FALSE)
+#> [1] 3.111025 3.654857 3.921405
 
 ## Comparing profiles
 qseq <- seq.int(1 / sqrt(nv) - 0.2, nv + 0.2, length.out = 100)
