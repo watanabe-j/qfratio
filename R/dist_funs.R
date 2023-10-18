@@ -1510,8 +1510,9 @@ qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
         root_res$root
     }
     ans <- sapply(probability, get_quantile)
-    if(any((abs(ans) >= 1 / tol_zero) &
-           (probability != p_lower) & (probability != p_upper))) {
+    if(any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
+           (probability[!is.na(ans)] != p_lower) &
+           (probability[!is.na(ans)] != p_upper))) {
         warning("very large quantile is difficult to estimate ",
                 "so likely inaccurate")
     }
