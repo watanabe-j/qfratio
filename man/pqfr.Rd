@@ -59,7 +59,9 @@ qqfr(
   lower.tail = TRUE,
   log.p = FALSE,
   trim_values = FALSE,
+  return_abserr_attr = FALSE,
   stop_on_error = FALSE,
+  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   epsabs_q = .Machine$double.eps^(1/2),
@@ -275,9 +277,10 @@ corresponding to \code{probability}.
 
 When \code{return_abserr_attr = TRUE}, an absolute
 error bound of numerical evaluation is returned as an attribute; this
-feature is currently available with \code{dqfr(..., method = "broda")} and
-\code{pqfr(..., method = "imhof")} only.  This error bound is automatically
-transformed when trimming happens with \code{trim_values} (above) or when
+feature is currently available with \code{dqfr(..., method = "broda")},
+\code{pqfr(..., method = "imhof")}, and \code{qqfr(..., method = "imhof")}
+(all default) only.  This error bound is automatically transformed when
+trimming happens with \code{trim_values} (above) or when
 \code{log}/\code{log.p = TRUE}.  See vignette for details
 (\code{vignette("qfratio_distr")}).
 
@@ -450,6 +453,7 @@ pqfr(qs, A, method = "butler", order_spa = 1) # 1st order
 ## To see error bounds
 dqfr(qs, A, return_abserr_attr = TRUE)
 pqfr(qs, A, return_abserr_attr = TRUE)
+qqfr(pres, A, return_abserr_attr = TRUE)
 
 }
 \references{

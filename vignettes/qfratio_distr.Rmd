@@ -787,13 +787,15 @@ defined as:
 ```{r definition_qqfr, eval = FALSE}
 qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
-                 stop_on_error = FALSE, tol_zero = .Machine$double.eps * 100,
+                 return_abserr_attr = FALSE, stop_on_error = FALSE, m = 100L,
+                 tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
                  maxiter_q = 5000, ...) { ... }
 ```
 
 This function is not based on any explicit inverse function, but does
-numerical root-finding using `stats::uniroot()`, internally calling `pqfr()`.
+numerical root-finding using `stats::uniroot()`, internally calling `pqfr()`;
+i.e., by searching the root `q` of `pqfr(q, ...) - probability = 0`.
 
 Internally, these functions first check basic argument structures, and, if
 `Sigma` is specified, transform the arguments `A`, `B`, and `mu` and call
@@ -1162,12 +1164,14 @@ any doubt exists.
 
 ## Error bound
 
+### `pqfr()` and `dqfr()`
+
 Return values from `pqfr_imhof()` and `dqfr_broda()` have an error bound
 `abserr` for numerical integration, along with the evaluation result itself.
 Technically, the error bound from the integration algorithm is divided by
 `pi` before returned, as the evaluation result itself is.
-This can be passed to the external functions as an attribute by setting
-`return_abserr_attr = TRUE` (as already used in above examples):
+This can be passed to the external functions and returned as an attribute
+by setting `return_abserr_attr = TRUE` (as already used in above examples):
 ```{r errorbound_1}
 A <- diag(1:4)
 
@@ -1221,6 +1225,46 @@ unless $\delta \hat{x} > \hat{x}$ (i.e., $\hat{x} - \delta \hat{x} < 0$),
 in which case it should be taken as $\delta (\log \hat{x}) = \infty$.
 In summary, the new error bound is calculated as
 `ifelse(abserr > ans, Inf, -log1p(-abserr/ans))`.
+
+
+### `qqfr()`
+
+The option `return_abserr_attr = TRUE` is available in `qqfr()` as well:
+```{r errorbound_q1}
+A <- diag(1:4)
+
+qqfr(0.95, A, return_abserr_attr = TRUE)
+```
+
+In `qqfr()`, numerical errors arise from the root-finding with
+`stats::uniroot()` as well as in propagation from `pqfr()`.
+When `return_abserr_attr = TRUE`, it tries to evaluate a conservative
+error bound as follows:
+
+1. Store the estimated error in root-finding `uniroot()$estim.prec`
+as $\delta q_{\mathrm{rf}}$
+2. Store that in `pqfr()` at the root as $\delta F$
+3. If $\delta F \neq 0$, calculate the density $f$ and its error bound 
+$\delta f$ at the root using `dqfr(..., method = "broda")`, so that
+the conservative slope of the tangent there is $b = \max ( f - \delta f , 0 )$.
+The error $\delta q_{\mathrm{p}}$ in the root arising from `pqfr()` is at most
+$b^{-1} \delta F$.
+If $\delta F = 0$, $\delta q_{\mathrm{p}} = 0$ regardless of $b$.
+4. The total error in the quantile is
+$\delta q_{\mathrm{rf}} + \delta q_{\mathrm{p}}$
+
+If `log.p = TRUE`, the root-finding is done on $\log F$, so the slope used in 3
+is replaced by $b = \max ( f - \delta f , 0 ) / F$.
+
+For `probability = 0` or `1`, the quantile corresponds to the minimum or
+maximum of the ratio, and the above error bound does not apply.
+At present, an *arbitrary* value of `.Machine$double.eps * 100` (~`2.2e-14`)
+is returned as an error bound for a finite minimum/maximum, although
+the actual error in calculation can be larger.
+```{r errorbound_q}
+qqfr(0, A, return_abserr_attr = TRUE)
+```
+
 
 
 ## Distribution of powers

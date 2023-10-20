@@ -162,9 +162,10 @@
 #'
 #' When \code{return_abserr_attr = TRUE}, an absolute
 #' error bound of numerical evaluation is returned as an attribute; this
-#' feature is currently available with \code{dqfr(..., method = "broda")} and
-#' \code{pqfr(..., method = "imhof")} only.  This error bound is automatically
-#' transformed when trimming happens with \code{trim_values} (above) or when
+#' feature is currently available with \code{dqfr(..., method = "broda")},
+#' \code{pqfr(..., method = "imhof")}, and \code{qqfr(..., method = "imhof")}
+#' (all default) only.  This error bound is automatically transformed when
+#' trimming happens with \code{trim_values} (above) or when
 #' \code{log}/\code{log.p = TRUE}.  See vignette for details
 #' (\code{vignette("qfratio_distr")}).
 #'
@@ -287,6 +288,7 @@
 #' ## To see error bounds
 #' dqfr(qs, A, return_abserr_attr = TRUE)
 #' pqfr(qs, A, return_abserr_attr = TRUE)
+#' qqfr(pres, A, return_abserr_attr = TRUE)
 #'
 NULL
 
@@ -1395,7 +1397,8 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
-                 stop_on_error = FALSE, tol_zero = .Machine$double.eps * 100,
+                 return_abserr_attr = FALSE, stop_on_error = FALSE, m = 100L,
+                 tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
                  maxiter_q = 5000, ...) {
     if(!requireNamespace("stats", quietly = TRUE)) {
@@ -1491,15 +1494,26 @@ qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
     ## e.g., gbutils::cdf2quantile(), flexsurv::qgeneric(), but they do not
     ## fit the use here and the increased dependencies do not pay off
     get_quantile <- function(x) {
-        if(is.nan(x)) return(NaN)
-        if(is.na(x)) return(NA_real_)
-        if(x < p_lower || x > p_upper) return(NaN)
-        if(x == p_lower) return(l_lim)
-        if(x == p_upper) return(u_lim)
+        if(is.nan(x))
+            return(c(q = NaN, q_abserr = NaN, p_abserr = NaN))
+        if(is.na(x))
+            return(c(q = NA_real_, q_abserr = NA_real_, p_abserr = NA_real_))
+        if(x < p_lower || x > p_upper)
+            return(c(q = NaN, q_abserr = NA_real_, p_abserr = NA_real_))
+        if(x == p_lower)
+            return(c(q = l_lim,
+                     q_abserr = if(is.infinite(l_lim)) 0
+                                else .Machine$double.eps * 100,
+                     p_abserr = 0))
+        if(x == p_upper)
+            return(c(q = u_lim,
+                     q_abserr = if(is.infinite(u_lim)) 0
+                                else .Machine$double.eps * 100,
+                     p_abserr = 0))
         pfun <- function(q_opt) {
             pqfr(q_opt, A, B, p = p, mu = mu, lower.tail = TRUE, log.p = log.p,
                  trim_values = trim_values, stop_on_error = stop_on_error,
-                 ...) - x
+                 return_abserr_attr = return_abserr_attr, m = m, ...) - x
         }
         root_res <- stats::uniroot(pfun, lower = l_int, upper = u_int,
                                    f.lower = if(log.p) -Inf else -x,
@@ -1507,9 +1521,25 @@ qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                                    extendInt = "upX",
                                    check.conv = stop_on_error,
                                    maxiter = maxiter_q, tol = epsabs_q)
-        root_res$root
+        p_abserr <- attr(root_res$f.root, "abserr")
+        res <- c(q = root_res$root,
+                 q_abserr = root_res$estim.prec,
+                 p_abserr = if(is.null(p_abserr)) NA_real_ else p_abserr)
+        return(res)
     }
-    ans <- sapply(probability, get_quantile)
+    quantile_res <- sapply(probability, get_quantile)
+    ans <- quantile_res["q", ]
+    if(return_abserr_attr) {
+        abserr <- quantile_res["q_abserr", ]
+        p_abserr <- quantile_res["p_abserr", ]
+        density <- dqfr(ans, A, B, p = p, mu = mu, log = FALSE,
+                        trim_values = FALSE, return_abserr_attr = TRUE,
+                        tol_zero = tol_zero, tol_sing = tol_sing,
+                        stop_on_error = stop_on_error)
+        slope <- pmax.int(density - attr(density, "abserr"), 0)
+        if(log.p) slope <- slope / exp(probability)
+        abserr <- abserr + ifelse(p_abserr == 0, 0, p_abserr / slope)
+    }
     if(any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
            (probability[!is.na(ans)] != p_lower) &
            (probability[!is.na(ans)] != p_upper))) {
@@ -1517,6 +1547,15 @@ qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                 "so likely inaccurate")
     }
     attributes(ans) <- attributes(probability)
+    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if(is.null(dim(probability))) {
+            names(abserr) <- names(probability)
+        } else {
+            dim(abserr) <- dim(probability)
+            dimnames(abserr) <- dimnames(probability)
+        }
+        attr(ans, "abserr") <- abserr
+    }
     if(any(is.nan(ans[!is.nan(probability)]))) warning("NaNs produced")
     return(ans)
 }
