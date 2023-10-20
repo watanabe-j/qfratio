@@ -938,7 +938,7 @@ dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                     return_abserr_attr = return_abserr_attr, m = m,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
-    eigB <- eigen(B, symmetric = TRUE, only.values = normalize_spa)
+    eigB <- eigen(B, symmetric = TRUE, only.values = !normalize_spa)
     LB <- eigB$values
     ## Check basic requirements for arguments
     stopifnot(
@@ -1021,19 +1021,9 @@ dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                       function(q) dqfr_butler(q, A, B, mu,
                                               tol_zero = tol_zero, ...)$d)
         if(normalize_spa) {
-            if(any(LB < tol_sing)) {
-                LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
-                l_intg <- if(min(LA) > -tol_sing) 0 else -Inf
-                u_intg <- if(max(LA) <  tol_sing) 0 else  Inf
-            } else {
-                Ad <- with(eigB, crossprod(crossprod(A, vectors), vectors))
-                BiA <- t(Ad / sqrt(LB)) / sqrt(LB)
-                LBiA <- eigen(BiA, symmetric = TRUE, only.values = TRUE)$values
-                l_intg <- min(LBiA)
-                u_intg <- max(LBiA)
-            }
+            r_intg <- range_qfr(A, B, eigB, tol = tol_zero)
             intg_res <- stats::integrate(
-                dqfr, l_intg, u_intg, A = A, B = B, mu = mu, log = FALSE,
+                dqfr, r_intg[1], r_intg[2], A = A, B = B, mu = mu, log = FALSE,
                 method = "butler", normalize_spa = FALSE, tol_zero = tol_zero,
                 tol_sing = tol_sing, ...)
             ans <- ans / intg_res$value
