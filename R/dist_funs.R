@@ -1387,9 +1387,6 @@ qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
                  maxiter_q = 5000, ...) {
-    if(!requireNamespace("stats", quietly = TRUE)) {
-        stop("Package 'stats' required to use this function")
-    }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {

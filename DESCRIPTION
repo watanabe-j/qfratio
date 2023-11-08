@@ -32,9 +32,9 @@ Description: Evaluates moments of ratios (and products) of quadratic forms
 License: GPL (>= 3)
 URL: https://github.com/watanabe-j/qfratio
 BugReports: https://github.com/watanabe-j/qfratio/issues
-Imports: Rcpp, MASS
+Imports: Rcpp, MASS, stats
 LinkingTo: Rcpp, RcppEigen
-Suggests: mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
+Suggests: mvtnorm, CompQuadForm, graphics, testthat (>= 3.0.0),
           knitr, rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

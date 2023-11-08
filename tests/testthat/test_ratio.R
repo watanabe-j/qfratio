@@ -26,26 +26,24 @@ test_that("Expect ordinary positive moments when q = 0", {
     }
 })
 
-if(requireNamespace("stats", quietly = TRUE)) {
-    test_that("Expect identical results for simultaneously rotated matrices", {
-        nvs <- 2:10
-        ps <- 1:3
-        for(nv in nvs) {
-            L1 <- 1:nv
-            L2 <- nv:1
-            L3 <- sqrt(nv:1)
-            A1 <- diag(L1)
-            A2 <- diag(L2)
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1r <- Q %*% A1 %*% t(Q)
-            A2r <- Q %*% A2 %*% t(Q)
+test_that("Expect identical results for simultaneously rotated matrices", {
+    nvs <- 2:10
+    ps <- 1:3
+    for(nv in nvs) {
+        L1 <- 1:nv
+        L2 <- nv:1
+        L3 <- sqrt(nv:1)
+        A1 <- diag(L1)
+        A2 <- diag(L2)
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1r <- Q %*% A1 %*% t(Q)
+        A2r <- Q %*% A2 %*% t(Q)
 
-            for(p in ps) {
-                expect_equal(qfrm(A1, A2, p), qfrm(A1r, A2r, p))
-            }
+        for(p in ps) {
+            expect_equal(qfrm(A1, A2, p), qfrm(A1r, A2r, p))
         }
-    })
-}
+    }
+})
 
 # This yields a message once per session, which is to be ignored
 suppressMessages(
@@ -103,11 +101,9 @@ test_that("Existence conditions: qfrm, nonsingular", {
         A2 <- diag(L2)
         I <- diag(nv)
         mu <- 1:nv / nv
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
 
         for(p in ks[(ks %% 1) == 0]) {
             for(q in ks) {
@@ -147,12 +143,10 @@ test_that("Existence conditions: qfmrm, nonsingular", {
         A3 <- diag(L3)
         I <- diag(nv)
         mu <- 1:nv / nv
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-            A3 <- Q %*% A3 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
+        A3 <- Q %*% A3 %*% t(Q)
 
         for(p in ks) {
             for(q in ks/2) {
@@ -183,11 +177,9 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
         L2[nv] <- 0
         A1 <- diag(L1)
         A2 <- diag(L2)
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -223,11 +215,9 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
         A1 <- diag(L1)
         A2 <- diag(L2)
         A1[nv, 1] <- A1[1, nv] <- 0.5
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -264,11 +254,9 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
         A1 <- diag(L1)
         A2 <- diag(L2)
         A1[nv, nv] <- A1[nv, 1] <- A1[1, nv] <- 0.5
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -308,12 +296,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
         A2 <- diag(L2)
         A3 <- diag(L3)
         I <- diag(nv)
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-            A3 <- Q %*% A3 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
+        A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -361,12 +347,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
         A3 <- diag(L3)
         I <- diag(nv)
         A1[nv, 1] <- A1[1, nv] <- 0.5
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-            A3 <- Q %*% A3 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
+        A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -415,12 +399,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
         A2 <- diag(L2)
         A3 <- diag(L3)
         I <- diag(nv)
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-            A3 <- Q %*% A3 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
+        A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
@@ -467,12 +449,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
         A2 <- diag(L2)
         A3 <- diag(L3)
         I <- diag(nv)
-        if(requireNamespace("stats", quietly = TRUE)) {
-            Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
-            A1 <- Q %*% A1 %*% t(Q)
-            A2 <- Q %*% A2 %*% t(Q)
-            A3 <- Q %*% A3 %*% t(Q)
-        }
+        Q <- qr.Q(qr(matrix(stats::rnorm(nv^2), nv, nv)))
+        A1 <- Q %*% A1 %*% t(Q)
+        A2 <- Q %*% A2 %*% t(Q)
+        A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
         for(p in ks[(ks %% 1) == 0]) {
