@@ -57,6 +57,21 @@ p_butler_Ed <- function(quantile, A, B, mu, order_spa, stop_on_error, tol_zero, 
     .Call(`_qfratio_p_butler_Ed`, quantile, A, B, mu, order_spa, stop_on_error, tol_zero, epsabs, epsrel, maxiter)
 }
 
+#' @describeIn gsl_wrap
+#'   wrapper of \code{gsl_hyperg_1F1_e()}, looping along \code{bvec}
+#'
+hyperg_1F1_vec_b <- function(a, bvec, x) {
+    .Call(`_qfratio_hyperg_1F1_vec_b`, a, bvec, x)
+}
+
+#' @describeIn gsl_wrap
+#'   wrapper of \code{gsl_hyperg_2F1_e()}, looping along \code{Amat} and
+#'   recycling \code{cvec}
+#'
+hyperg_2F1_mat_a_vec_c <- function(Amat, b, cvec, x) {
+    .Call(`_qfratio_hyperg_2F1_mat_a_vec_c`, Amat, b, cvec, x)
+}
+
 #' @describeIn qfrm_cpp
 #'   \code{qfm_Ap_int()}
 #'

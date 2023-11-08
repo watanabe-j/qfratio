@@ -494,10 +494,6 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
     check_convergence <- match.arg(check_convergence)
     if(!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
-    if(!use_cpp && !requireNamespace("gsl", quietly = TRUE)) {
-        stop("Package 'gsl' is required to use forchini method\n  ",
-             "with \"use_cpp = FALSE\"")
-    }
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -591,10 +587,10 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
         ansmat <- t(t(ansmat) - lscf2)
         ansmat <- ansmat - (sum(mu1 ^ 2) + sum(mu2 ^ 2)) / 2
         ansmat <- exp(ansmat)
-        hgres <- gsl::hyperg_2F1(ordmat, 1, n1 / 2 + 1 + seq0m, sum(D1d), give = TRUE, strict = FALSE)
+        hgres <- hyperg_2F1_mat_a_vec_c(ordmat, 1, n1 / 2 + 1 + seq0m, sum(D1d))
         hgstatus <- hgres$status[ordmat <= m + 2]
         if(any(hgstatus)) {
-            ermsg <- "problem in gsl::hyperg_2F1():"
+            ermsg <- "problem in gsl_hyperg_2F1():"
             eunimpl <- any(hgstatus == 24)
             eovrflw <- any(hgstatus == 16)
             emaxiter <- any(hgstatus == 11)

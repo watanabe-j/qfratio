@@ -28,6 +28,7 @@ qfrm_ApIq_int(
   m = 100L,
   mu = rep.int(0, n),
   use_cpp = TRUE,
+  exact_method = TRUE,
   cpp_method = "double",
   nthreads = 1,
   tol_zero = .Machine$double.eps * 100,
@@ -119,6 +120,9 @@ the appropriate \dQuote{internal} function.}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
+
+\item{exact_method}{Logical to specify whether the exact method is used in
+\code{qfrm_ApIq_int()} (see \dQuote{Details}).}
 
 \item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details}).  Options:
@@ -312,19 +316,15 @@ a larger value or \code{0} for (typically marginal) speed gains in large
 problems.
 }
 
-\subsection{Dependency note}{
+\subsection{Exact method for \code{qfrm_ApIq_int()}}{
 
 An exact expression of the moment is available when
 \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n}
-(handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
+(handled by \code{qfrm_ApIq_int()}), whose expression involves
 a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
-(Hillier et al. 2014: theorem 4).  When \code{use_cpp = FALSE}, this is
-handled with \code{gsl::hyperg_1F1()} if the package \pkg{gsl} is installed
-(which this package \code{Suggests}).  Otherwise, the function uses
-the ordinary infinite series expression (Hillier et al. 2009),
-which is less accurate and slow, and throws a message.  When
-\code{use_cpp = TRUE}, this is handled by the \proglang{C} function
-\code{gsl_sf_hyperg_1F1()} via \pkg{RcppGSL}.
+(Hillier et al. 2014: theorem 4).  There is an option
+(\code{exact_method = FALSE}) to use the ordinary infinite series expression
+(Hillier et al. 2009), which is less accurate and slow.
 }
 }
 \examples{

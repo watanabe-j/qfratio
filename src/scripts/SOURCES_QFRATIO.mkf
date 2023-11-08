@@ -2,6 +2,7 @@ SOURCES_QFRATIO = \
     dist_funs.cpp \
     dk_funs_cwise.cpp \
     dk_funs.cpp \
+    gsl_wrap.cpp \
     hgs_funs.cpp \
     ratio_funs_cwise.cpp \
     ratio_funs_long.cpp \

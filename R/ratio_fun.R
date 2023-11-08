@@ -158,6 +158,9 @@
 #' @param use_cpp
 #'   Logical to specify whether the calculation is done with \proglang{C++}
 #'   functions via \code{Rcpp}.  \code{TRUE} by default.
+#' @param exact_method
+#'   Logical to specify whether the exact method is used in
+#'   \code{qfrm_ApIq_int()} (see \dQuote{Details}).
 #' @param cpp_method
 #'   Method used in \proglang{C++} calculations to avoid numerical
 #'   overflow/underflow (see \dQuote{Details}).  Options:
@@ -1013,9 +1016,10 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 ###############################
 
 ##### qfrm_ApIq_int #####
-## The use_cpp part for the noncentral case is suboptimal as it calls
-## gsl::hyperg_1F1 from R.  The original C++ function could be called from
-## the GSL library, but this requires "LinkingTo: RcppGSL" and separate
+## The use_cpp part for the noncentral case used to call
+## gsl::hyperg_1F1 from R.  The original C function from the bundled GSL is
+## used now. Alternatively, the GSL version could be accessed via RcppGSL,
+## but this requires "LinkingTo: RcppGSL" and separate
 ## installation of the library itself.
 ## To turn this on, do the following:
 ## - DESCRIPTION: LinkingTo: RcppGSL (and SystemRequirements: GNU GSL?)
@@ -1028,29 +1032,25 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
 #' \code{qfrm_ApIq_int()}: For \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 #' positive-integral \eqn{p}.
 #'
-#' ## Dependency note
+#' ## Exact method for \code{qfrm_ApIq_int()}
 #' An exact expression of the moment is available when
 #' \eqn{p} is integer and \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n}
-#' (handled by \code{qfrm_ApIq_int()}), but this requires evaluation of
+#' (handled by \code{qfrm_ApIq_int()}), whose expression involves
 #' a confluent hypergeometric function when \eqn{\bm{\mu}}{\mu} is nonzero
-#' (Hillier et al. 2014: theorem 4).  When \code{use_cpp = FALSE}, this is
-#' handled with \code{gsl::hyperg_1F1()} if the package \pkg{gsl} is installed
-#' (which this package \code{Suggests}).  Otherwise, the function uses
-#' the ordinary infinite series expression (Hillier et al. 2009),
-#' which is less accurate and slow, and throws a message.  When
-#' \code{use_cpp = TRUE}, this is handled by the \proglang{C} function
-#' \code{gsl_sf_hyperg_1F1()} via \pkg{RcppGSL}.
-#'
-# #' @importFrom gsl hyperg_1F1
+#' (Hillier et al. 2014: theorem 4).  There is an option
+#' (\code{exact_method = FALSE}) to use the ordinary infinite series expression
+#' (Hillier et al. 2009), which is less accurate and slow.
 #'
 #' @rdname qfrm
 #'
 #' @export
 #'
 qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                          use_cpp = TRUE, cpp_method = "double", nthreads = 1,
+                          use_cpp = TRUE, exact_method = TRUE,
+                          cpp_method = "double", nthreads = 1,
                           tol_zero = .Machine$double.eps * 100,
                           thr_margin = 100) {
+    if(!exact_method) use_cpp <- FALSE
     if(!missing(cpp_method)) use_cpp <- TRUE
     n <- ncol(A)
     stopifnot(
@@ -1089,31 +1089,20 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ansseq <- ans
         } else {
             mu <- c(mu)
-            if(requireNamespace("gsl", quietly = TRUE)) {
+            if(exact_method) {
                 ## This is an exact expression (Hillier et al. 2014, (58))
                 mu <- c(crossprod(eigA$vectors, c(mu)))
                 aps <- a1_pk(LA, mu, m = p)[p + 1, ]
                 ls <- 0:p
+                hgres <- hyperg_1F1_vec_b(q, n / 2 + p + ls, -crossprod(mu) / 2)
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(p + 1)
                       + lgamma(n/2 + p - q + ls) - ls * log(2)
                       - lgamma(ls + 1) - lgamma(n/2 + p + ls)) *
-                    gsl::hyperg_1F1(q, n / 2 + p + ls, -crossprod(mu) / 2) * aps
+                    hgres$val * aps
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
                 ## which is less accurate (by truncation) and slower
-                mess_str <-
-                    paste0("  When using qfrm_ApIq_int() with nonzero mu, ",
-                           "consider setting\n  \"use_cpp = TRUE\" or ",
-                           "installing package 'gsl', with which\n  ",
-                           "an exact result is available.  See ",
-                           "documentation for details")
-                if(requireNamespace("rlang", quietly = TRUE)) {
-                    rlang::inform(mess_str, .frequency = "once",
-                                .frequency_id = "use_gsl")
-                } else {
-                    message(mess_str)
-                }
                 dks <- d2_ij_m(A, tcrossprod(mu), m, p = p,
                                thr_margin = thr_margin)[p + 1, ]
                 ansseq <-

@@ -61,8 +61,8 @@ devtools::install_github("watanabe-j/qfratio", dependencies = TRUE, build_vignet
 
     Imports: Rcpp, MASS
     LinkingTo: Rcpp, RcppEigen
-    Suggests: gsl, mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
-              rlang (>= 0.4.7), knitr, rmarkdown
+    Suggests: mvtnorm, CompQuadForm, graphics, stats, testthat (>= 3.0.0),
+              knitr, rmarkdown
 
 If installing from source, you also need [`pandoc`](https://pandoc.org)
 for correctly building the vignette. For `pandoc < 2.11`,

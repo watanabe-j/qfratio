@@ -216,3 +216,39 @@ NULL
 #' @name qfrm_cpp
 #'
 NULL
+
+## Documentation of wrapper of gsl_sf_hyperg
+#' Internal C++ wrappers for \proglang{GSL}
+#'
+#' These are internal \proglang{C++} functions which wrap hypergeometric
+#' functions from \proglang{GSL} with vectorization.  These are for
+#' particular use cases in this package, and direct access by the user is
+#' **not** assumed.
+#'
+#' @param a,b
+#'   Parameters of hypergeometric functions; passed as \code{double}
+#' @param bvec,cvec
+#'   Parameters of hypergeometric functions; passed as
+#'   \code{Rcpp::NumericVector}
+#' @param Amat
+#'   Parameter of hypergeometric functions; passed as
+#'   \code{Rcpp::NumericMatrix}.  Dimension must be square of the length of
+#'   \code{cvec}.
+#' @param x
+#'   Argument of hypergeometric functions; passed as \code{double}
+#'
+#' @return
+#'   Return a list via \code{Rcpp::List} of the following:
+#'   \itemize{
+#'      \item{\code{$val}: }{Evaluation result, numeric}
+#'      \item{\code{$err}: }{Absolute error, numeric}
+#'      \item{\code{$status}: }{Error code, integer}
+#'   }
+#'   In \code{hyperg_1F1_vec_b}, these are vectors from
+#'   \code{Rcpp::NumericVector} and \code{Rcpp::IntegerVector}, whereas in
+#'   \code{hyperg_2F1_mat_a_vec_c}, they are matrices
+#'   from \code{Rcpp::NumericMatrix} and \code{Rcpp::IntegerMatrix}.
+#'
+#' @name gsl_wrap
+#'
+NULL

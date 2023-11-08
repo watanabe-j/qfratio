@@ -162,6 +162,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// hyperg_1F1_vec_b
+SEXP hyperg_1F1_vec_b(const double a, const Rcpp::NumericVector bvec, const double x);
+RcppExport SEXP _qfratio_hyperg_1F1_vec_b(SEXP aSEXP, SEXP bvecSEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector >::type bvec(bvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(hyperg_1F1_vec_b(a, bvec, x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// hyperg_2F1_mat_a_vec_c
+SEXP hyperg_2F1_mat_a_vec_c(const Rcpp::NumericMatrix Amat, const double b, const Rcpp::NumericVector cvec, const double x);
+RcppExport SEXP _qfratio_hyperg_2F1_mat_a_vec_c(SEXP AmatSEXP, SEXP bSEXP, SEXP cvecSEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type Amat(AmatSEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericVector >::type cvec(cvecSEXP);
+    Rcpp::traits::input_parameter< const double >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(hyperg_2F1_mat_a_vec_c(Amat, b, cvec, x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ap_int_E
 SEXP Ap_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd mu, const double p_, const double thr_margin, const double tol_zero);
 RcppExport SEXP _qfratio_Ap_int_E(SEXP ASEXP, SEXP muSEXP, SEXP p_SEXP, SEXP thr_marginSEXP, SEXP tol_zeroSEXP) {
@@ -784,6 +811,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_d_broda_Ed", (DL_FUNC) &_qfratio_d_broda_Ed, 10},
     {"_qfratio_d_butler_Ed", (DL_FUNC) &_qfratio_d_butler_Ed, 10},
     {"_qfratio_p_butler_Ed", (DL_FUNC) &_qfratio_p_butler_Ed, 10},
+    {"_qfratio_hyperg_1F1_vec_b", (DL_FUNC) &_qfratio_hyperg_1F1_vec_b, 3},
+    {"_qfratio_hyperg_2F1_mat_a_vec_c", (DL_FUNC) &_qfratio_hyperg_2F1_mat_a_vec_c, 4},
     {"_qfratio_Ap_int_E", (DL_FUNC) &_qfratio_Ap_int_E, 5},
     {"_qfratio_ABpq_int_E", (DL_FUNC) &_qfratio_ABpq_int_E, 7},
     {"_qfratio_ABDpqr_int_E", (DL_FUNC) &_qfratio_ABDpqr_int_E, 9},
