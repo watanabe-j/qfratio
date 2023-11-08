@@ -165,7 +165,7 @@ is_diagonal <- function(A, tol = .Machine$double.eps * 100, symmetric = FALSE) {
 #' }{ (x^T A x) / (x^T B x) }.
 #'
 #' @param A,B
-#'   Square matrices.  No check is done.
+#'   Symmetric matrices.  No check is done.
 #' @param eigB
 #'   Result of \code{eigen(B)} can be passed when already computed
 #' @param tol
@@ -179,21 +179,29 @@ range_qfr <- function(A, B, eigB = eigen(B, symmetric = TRUE),
     Ad <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     if(rB == n) {
         LBiA <- gen_eig(A, B, eigB, Ad, tol = tol, t = t)
+    } else if(rB == 0) {
+        ## Pathologic case
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+        if(all(abs(LA) < tol)) return(c( NaN,  NaN))
+        if(all(LA > -tol))     return(c( Inf,  Inf))
+        if(all(LA <  tol))     return(c(-Inf, -Inf))
+        return(c(-Inf, Inf))
     } else {
-        A11 <- Ad[1:rB, 1:rB]
-        A12 <- Ad[1:rB, (rB + 1):n]
-        A22 <- Ad[(rB + 1):n, (rB + 1):n]
-        A12_is_zero <- all(abs(A12) < tol)
-        A22_is_zero <- all(abs(A22) < tol)
-        ## If A12 and A22 are zero, B's null space is within A's
-        ## It suffices to consider the non-null space of B
-        if(A12_is_zero && A22_is_zero) {
-            LBiA <- gen_eig(A11, diag(LB[1:rB]), tol = tol, t = t)
-        } else {
-            ## This is not ideal but try anyway
-            LBiA <- try(gen_eig(A, B, eigB, Ad, tol = tol, t = t), TRUE)
-            if(inherits(LBiA, "try-error")) return(c(-Inf, Inf))
+        ## Common null space of A and B makes generalized eigenvalue problem
+        ## unsolvable; try excluding this
+        nonnull_AB <- rep.int(TRUE, n)
+        for(i in (rB + 1):n) {
+            nonnull_AB[i] <- any(abs(Ad[i, ]) >= tol)
         }
+        rAd <- sum(nonnull_AB)
+        Adn <- Ad[nonnull_AB, nonnull_AB]
+        LBn <- LB[nonnull_AB]
+        eigBn <- list(values = LBn, vectors = diag(rAd))
+        class(eigBn) <- "eigen"
+        LBiA <- try(gen_eig(Adn, diag(LBn, rAd), eigBn, Adn, tol = tol, t = t),
+                    TRUE)
+        ## In case common null space could not be excluded
+        if(inherits(LBiA, "try-error")) return(c(-Inf, Inf))
     }
     ## NaN in LBiA usually corresponds to common null space so is negligible
     res <- range(LBiA[!is.nan(LBiA)])

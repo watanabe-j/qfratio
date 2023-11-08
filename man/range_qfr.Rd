@@ -23,7 +23,7 @@ gen_eig(
 )
 }
 \arguments{
-\item{A, B}{Square matrices.  No check is done.}
+\item{A, B}{Symmetric matrices.  No check is done.}
 
 \item{eigB}{Result of \code{eigen(B)} can be passed when already computed}
 
