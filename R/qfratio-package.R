@@ -39,7 +39,7 @@
 #' \packageIndices{qfratio}
 #'
 #' @section Author/Maintainer:
-#' Junya Watanabe <jw2098@cam.ac.uk>
+#' Junya Watanabe <Junya.Watanabe@uab.cat>
 #'
 #' @references
 #' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in

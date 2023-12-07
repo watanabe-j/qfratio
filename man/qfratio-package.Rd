@@ -45,7 +45,7 @@ The DESCRIPTION file:
 }
 \section{Author/Maintainer}{
 
-Junya Watanabe \href{mailto:jw2098@cam.ac.uk}{jw2098@cam.ac.uk}
+Junya Watanabe \href{mailto:Junya.Watanabe@uab.cat}{Junya.Watanabe@uab.cat}
 }
 
 \examples{
