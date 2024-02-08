@@ -1,3 +1,9 @@
+# qfratio 1.1.1
+
+* Implement quantile function, qqfr()
+* Streamline dependencies
+
+
 # qfratio 1.1.0
 
 * Implement probability distribution/density functions, pqfr() and dqfr()

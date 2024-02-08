@@ -6,9 +6,9 @@
 Maintainer: ‘Junya Watanabe <jw2098@cam.ac.uk>’
 
 * checking installed package size ... NOTE
-  installed size is 132.1Mb
+  installed size is 132.6Mb
   sub-directories of 1Mb or more:
-    libs  130.8Mb
+    libs  131.3Mb
 
 - This package involves many C++ ('Eigen') functions, which are essential to
   the package functionality. This typically causes a large installation size
