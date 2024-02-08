@@ -5,9 +5,9 @@
 #' forms in normal variables, specifically using recursive algorithms developed
 #' by Bao et al. (2013) and Hillier et al. (2014) (see also Smith, 1989, 1993;
 #' Hillier et al., 2009).  It also provides some functions to evaluate
-#' distribution and probability density functions of simple ratios of quadratic
-#' forms in normal variables using several algorithms.  It was originally
-#' developed as a supplement to Watanabe (2023) for evaluating
+#' distribution, quantile, and probability density functions of simple ratios
+#' of quadratic forms in normal variables using several algorithms.  It was
+#' originally developed as a supplement to Watanabe (2023) for evaluating
 #' average evolvability measures in evolutionary quantitative genetics,
 #' but can be used for a broader class of statistics.
 #'
@@ -27,9 +27,9 @@
 #' related to the top-order zonal and invariant
 #' polynomials of matrix arguments.
 #'
-#' The package also has some functions to evaluate distribution and
-#' density functions of simple ratios of quadratic forms: \code{\link{pqfr}()}
-#' and \code{\link{dqfr}()}.
+#' The package also has some functions to evaluate distribution, quantile, and
+#' density functions of simple ratios of quadratic forms: \code{\link{pqfr}()},
+#' \code{\link{qqfr}()}, and \code{\link{dqfr}()}.
 #'
 #' See package vignettes (\code{vignette("qfratio")} and
 #' \code{vignette("qfratio_distr")}) for more details.
@@ -127,9 +127,11 @@
 #' ## A Monte Carlo mean
 #' mean(rqfp(1000, A = A, B = B, D = D, p = 1, q = 1, r = 1, mu = mu))
 #'
-#' ## Distribution function and density of (x^T A x) / (x^T B x)
+#' ## Distribution and quantile functions,
+#' ## and density of (x^T A x) / (x^T B x)
 #' quantiles <- 0:nv + 0.5
-#' pqfr(quantiles, A, B)
+#' (probs <- pqfr(quantiles, A, B))
+#' qqfr(probs, A, B)     # p = 1 yields maximum of ratio
 #' dqfr(quantiles, A, B)
 #'
 #' @docType package
