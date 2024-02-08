@@ -2,8 +2,16 @@
 
 0 errors | 0 warnings | 2 notes
 
-* checking CRAN incoming feasibility ... [6s/12s] Note_to_CRAN_maintainers
-Maintainer: ‘Junya Watanabe <jw2098@cam.ac.uk>’
+* checking CRAN incoming feasibility ... [10s/32s] NOTE
+Maintainer: ‘Junya Watanabe <Junya.Watanabe@uab.cat>’
+
+New maintainer:
+  Junya Watanabe <Junya.Watanabe@uab.cat>
+Old maintainer(s):
+  Junya Watanabe <jw2098@cam.ac.uk>
+
+- The maintainer email address has changed because he changed affiliations.
+  A confirmation will be sent from the old maintainer email.
 
 * checking installed package size ... NOTE
   installed size is 132.6Mb
