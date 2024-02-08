@@ -205,14 +205,14 @@ NULL
 #'
 #' @return
 #'   All return a list via \code{Rcpp::List} of the following (as appropriate):
-#'   \itemize{
-#'      \item{\code{$ans}: }{Exact moment, from \code{double} or
+#'   \describe{
+#'      \item{\code{$ans}}{Exact moment, from \code{double} or
 #'                           \code{long double}}
-#'      \item{\code{$ansseq}: }{Series for the moment, from
+#'      \item{\code{$ansseq}}{Series for the moment, from
 #'                              \code{Eigen::Array}}
-#'      \item{\code{$errseq}: }{Series of errors, from \code{Eigen::Array}}
-#'      \item{\code{$twosided}: }{Logical, from \code{bool}}
-#'      \item{\code{$dimnished}: }{Logical, from \code{bool}}
+#'      \item{\code{$errseq}}{Series of errors, from \code{Eigen::Array}}
+#'      \item{\code{$twosided}}{Logical, from \code{bool}}
+#'      \item{\code{$dimnished}}{Logical, from \code{bool}}
 #'   }
 #'
 #' @name qfrm_cpp
@@ -241,10 +241,10 @@ NULL
 #'
 #' @return
 #'   Return a list via \code{Rcpp::List} of the following:
-#'   \itemize{
-#'      \item{\code{$val}: }{Evaluation result, numeric}
-#'      \item{\code{$err}: }{Absolute error, numeric}
-#'      \item{\code{$status}: }{Error code, integer}
+#'   \describe{
+#'      \item{\code{$val}}{Evaluation result, numeric}
+#'      \item{\code{$err}}{Absolute error, numeric}
+#'      \item{\code{$status}}{Error code, integer}
 #'   }
 #'   In \code{hyperg_1F1_vec_b}, these are vectors from
 #'   \code{Rcpp::NumericVector} and \code{Rcpp::IntegerVector}, whereas in

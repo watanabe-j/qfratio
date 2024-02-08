@@ -2,7 +2,7 @@
 % Please edit documentation in R/dk_funs.R
 \name{a1_pk}
 \alias{a1_pk}
-\title{Recursion for a_{p,k}}
+\title{Recursion for a_\{p,k\}}
 \usage{
 a1_pk(L, mu = rep.int(0, n), m = 10L)
 }

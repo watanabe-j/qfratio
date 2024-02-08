@@ -818,7 +818,7 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
 
 
 ##### a1_pk #####
-#' Recursion for a_{p,k}
+#' Recursion for a_\{p,k\}
 #'
 #' \code{a1_pk()} is an internal function to calculate \eqn{a_{p,k}}
 #' (\eqn{a_{r,l}} in Hillier et al. 2014; eq. 24), which is used in the

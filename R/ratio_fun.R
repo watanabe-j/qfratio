@@ -164,13 +164,13 @@
 #' @param cpp_method
 #'   Method used in \proglang{C++} calculations to avoid numerical
 #'   overflow/underflow (see \dQuote{Details}).  Options:
-#'   \itemize{
-#'     \item{\code{"double"}: }{default; fastest but prone to underflow in
+#'   \describe{
+#'     \item{\code{"double"}}{default; fastest but prone to underflow in
 #'           some conditions}
-#'     \item{\code{"long_double"}: }{same algorithm but using the
+#'     \item{\code{"long_double"}}{same algorithm but using the
 #'           \code{long double} variable type; robust but slow and
 #'           memory-inefficient}
-#'     \item{\code{"coef_wise"}: }{coefficient-wise scaling algorithm;
+#'     \item{\code{"coef_wise"}}{coefficient-wise scaling algorithm;
 #'           most robust but variably slow}
 #'    }
 #' @param error_bound
@@ -178,15 +178,15 @@
 #' @param check_convergence
 #'   Specifies how numerical convergence is checked (see \dQuote{Details}).
 #'   Options:
-#'   \itemize{
-#'     \item{\code{"relative"}: }{default; magnitude of the last term of
+#'   \describe{
+#'     \item{\code{"relative"}}{default; magnitude of the last term of
 #'           the series relative to the sum is compared with \code{tol_conv}}
-#'     \item{\code{"strict_relative"} or \code{TRUE}: }{same, but stricter than
+#'     \item{\code{"strict_relative"} or \code{TRUE}}{same, but stricter than
 #'           default by setting \code{tol_conv = .Machine$double.eps}
 #'           (unless a smaller value is specified by the user)}
-#'     \item{\code{"absolute"}: }{absolute magnitude of the last term is
+#'     \item{\code{"absolute"}}{absolute magnitude of the last term is
 #'           compared with \code{tol_conv}}
-#'     \item{\code{"none"} or \code{FALSE}: }{skips convergence check}
+#'     \item{\code{"none"} or \code{FALSE}}{skips convergence check}
 #'   }
 #' @param tol_conv
 #'   Tolerance against which numerical convergence of series is checked.  Used
@@ -203,11 +203,11 @@
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
-#' \itemize{
-#'   \item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
-#'   \item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
-#'   \item{\code{$error_bound}: }{error bound of \code{statistic}}
-#'   \item{\code{$seq_error}: }{vector of error bounds corresponding to
+#' \describe{
+#'   \item{\code{$statistic}}{evaluation result (\code{sum(terms)})}
+#'   \item{\code{$terms}}{vector of \eqn{0}th to \eqn{m}th order terms}
+#'   \item{\code{$error_bound}}{error bound of \code{statistic}}
+#'   \item{\code{$seq_error}}{vector of error bounds corresponding to
 #'                            partial sums (\code{cumsum(terms)})}
 #'  }
 #'

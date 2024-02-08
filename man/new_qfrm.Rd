@@ -48,11 +48,11 @@ and \code{c(qfpm, qfrm)}, respectively.  These classes are defined for
 the \code{print} and \code{plot} methods.
 
 The return object is a list of 4 elements which are intended to be:
-\itemize{
-\item{\code{$statistic}: }{evaluation result (\code{sum(terms)})}
-\item{\code{$terms}: }{vector of \eqn{0}th to \eqn{m}th order terms}
-\item{\code{$error_bound}: }{error bound of \code{statistic}}
-\item{\code{$seq_error}: }{vector of error bounds corresponding to
+\describe{
+\item{\code{$statistic}}{evaluation result (\code{sum(terms)})}
+\item{\code{$terms}}{vector of \eqn{0}th to \eqn{m}th order terms}
+\item{\code{$error_bound}}{error bound of \code{statistic}}
+\item{\code{$seq_error}}{vector of error bounds corresponding to
 partial sums (\code{cumsum(terms)})}
 }
 When the result is exact, \code{$terms} can be of length 1 and equal to
@@ -61,14 +61,14 @@ When the result is exact, \code{$terms} can be of length 1 and equal to
 When the relevant flags are provided in the constructor, \code{$error_bound}
 and \code{$seq_error} have the following attributes which control behaviors
 of the \code{print} and \code{plot} methods:
-\itemize{
-\item{\code{"exact"}: }{indicates whether the moment is exact}
-\item{\code{"twosided"}: }{indicates whether the error bounds are
+\describe{
+\item{\code{"exact"}}{indicates whether the moment is exact}
+\item{\code{"twosided"}}{indicates whether the error bounds are
 two-sided}
-\item{\code{"alphaout"}: }{indicates whether any of the scaling factors
+\item{\code{"alphaout"}}{indicates whether any of the scaling factors
 (\code{alphaA}, \code{alphaB}, \code{alphaD}) is outside
 \eqn{(0, 1]}, when error bound does not strictly hold}
-\item{\code{"singular"}: }{indicates whether the relevant argument matrix
+\item{\code{"singular"}}{indicates whether the relevant argument matrix
 is (numerically) singular, in which case the error bound is
 invalid}
 }

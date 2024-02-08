@@ -24,10 +24,10 @@ hyperg_2F1_mat_a_vec_c(Amat, b, cvec, x)
 }
 \value{
 Return a list via \code{Rcpp::List} of the following:
-\itemize{
-\item{\code{$val}: }{Evaluation result, numeric}
-\item{\code{$err}: }{Absolute error, numeric}
-\item{\code{$status}: }{Error code, integer}
+\describe{
+\item{\code{$val}}{Evaluation result, numeric}
+\item{\code{$err}}{Absolute error, numeric}
+\item{\code{$status}}{Error code, integer}
 }
 In \code{hyperg_1F1_vec_b}, these are vectors from
 \code{Rcpp::NumericVector} and \code{Rcpp::IntegerVector}, whereas in

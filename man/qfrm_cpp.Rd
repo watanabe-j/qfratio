@@ -551,14 +551,14 @@ Passed as \code{Eigen::Matrix}.}
 }
 \value{
 All return a list via \code{Rcpp::List} of the following (as appropriate):
-\itemize{
-\item{\code{$ans}: }{Exact moment, from \code{double} or
+\describe{
+\item{\code{$ans}}{Exact moment, from \code{double} or
 \code{long double}}
-\item{\code{$ansseq}: }{Series for the moment, from
+\item{\code{$ansseq}}{Series for the moment, from
 \code{Eigen::Array}}
-\item{\code{$errseq}: }{Series of errors, from \code{Eigen::Array}}
-\item{\code{$twosided}: }{Logical, from \code{bool}}
-\item{\code{$dimnished}: }{Logical, from \code{bool}}
+\item{\code{$errseq}}{Series of errors, from \code{Eigen::Array}}
+\item{\code{$twosided}}{Logical, from \code{bool}}
+\item{\code{$dimnished}}{Logical, from \code{bool}}
 }
 }
 \description{

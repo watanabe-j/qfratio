@@ -185,23 +185,23 @@ for convenience only, and not meant for accuracy.}
 
 \item{method}{Method to specify an internal function (see \dQuote{Details}).  In
 \code{dqfr()}, options are:
-\itemize{
-\item{\code{"broda"}: }{default; uses \code{dqfr_broda()}, numerical
+\describe{
+\item{\code{"broda"}}{default; uses \code{dqfr_broda()}, numerical
 inversion of Broda & Paolella (2009)}
-\item{\code{"hillier"}: }{uses \code{dqfr_A1I1()}, series expression
+\item{\code{"hillier"}}{uses \code{dqfr_A1I1()}, series expression
 of Hillier (2001)}
-\item{\code{"butler"}: }{uses \code{dqfr_butler()}, saddlepoint
+\item{\code{"butler"}}{uses \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }
 In \code{pqfr()}, options are:
-\itemize{
-\item{\code{"imhof"}: }{default; uses \code{pqfr_imhof()}, numerical
+\describe{
+\item{\code{"imhof"}}{default; uses \code{pqfr_imhof()}, numerical
 inversion of Imhof (1961)}
-\item{\code{"davies"}: }{uses \code{pqfr_davies()}, numerical inversion
+\item{\code{"davies"}}{uses \code{pqfr_davies()}, numerical inversion
 of Davies (1973, 1980)}
-\item{\code{"forchini"}: }{uses \code{pqfr_A1B1()}, series expression
+\item{\code{"forchini"}}{uses \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
-\item{\code{"butler"}: }{uses \code{pqfr_butler()}, saddlepoint
+\item{\code{"butler"}}{uses \code{pqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }}
 
@@ -288,16 +288,16 @@ The internal functions return a list containing \code{$d} or \code{$p}
 (for density and lower \eqn{p}-value, respectively), and only this is passed
 to the external function by default.  Other components may be inspected
 for debugging purposes:
-\itemize{
-\item{\code{dqfr_A1I1()} and \code{pqfr_A1B1()}: }{have \code{$terms},
+\describe{
+\item{\code{dqfr_A1I1()} and \code{pqfr_A1B1()}}{have \code{$terms},
 a vector of \eqn{0}th to \eqn{m}th order terms.}
-\item{\code{pqfr_imhof()} and \code{dqfr_broda()}: }{have \code{$abserr},
+\item{\code{pqfr_imhof()} and \code{dqfr_broda()}}{have \code{$abserr},
 absolute error of numerical integration; the one returned from
 \code{CompQuadForm::\link[CompQuadForm]{imhof}()} is divided by
 \code{pi}, as the integration result itself is (internally).  This is
 passed to the external functions when \code{return_abserr_attr = TRUE}
 (above).}
-\item{\code{pqfr_davies()}: }{has the same components as
+\item{\code{pqfr_davies()}}{has the same components as
 \code{CompQuadForm::\link[CompQuadForm]{davies}()} apart from \code{Qq}
 which is replaced by \code{p = 1 - Qq}.}
 }
