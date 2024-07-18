@@ -77,10 +77,11 @@ distribution function of ratios of quadratic forms in normal variables.
 ### Moments
 
 This functionality concerns evaluation of the following moments:
-$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p / \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \right)$
-and
-$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p / \left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r \right)$,
-where
+$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p /
+\left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q \right)$ and
+$\mathrm{E} \left( \left( \mathbf{x}^T \mathbf{A} \mathbf{x} \right)^p /
+\left( \mathbf{x}^T \mathbf{B} \mathbf{x} \right)^q
+\left( \mathbf{x}^T \mathbf{D} \mathbf{x} \right)^r \right)$, where
 $\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
 
 These quantities are evaluated by `qfrm(A, B, p, q, ...)` and
@@ -210,8 +211,8 @@ plot(mom_A2B3)
 
 This functionality concerns evaluation of the (cumulative) distribution
 function, probability density, and quantiles of
-$\left( \mathbf{x}^T \mathbf{A} \mathbf{x} /  \mathbf{x}^T \mathbf{B} \mathbf{x} \right) ^ p$,
-where
+$\left( \mathbf{x}^T \mathbf{A} \mathbf{x} /
+        \mathbf{x}^T \mathbf{B} \mathbf{x} \right) ^ p$, where
 $\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
 
 These are implemented in `pqfr(quantile, A, B, p, ...)`,
@@ -287,7 +288,7 @@ complies with the GNU General Public License version 3.
 ## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"
-line-spacing="2">
+entry-spacing="0" line-spacing="2">
 
 <div id="ref-BaoKan2013" class="csl-entry">
 
