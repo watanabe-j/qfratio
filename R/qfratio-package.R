@@ -38,9 +38,6 @@
 #' \packageDESCRIPTION{qfratio}
 #' \packageIndices{qfratio}
 #'
-#' @section Author/Maintainer:
-#' Junya Watanabe <Junya.Watanabe@uab.cat>
-#'
 #' @references
 #' Bao, Y. and Kan, R. (2013) On the moments of ratios of quadratic forms in
 #'   normal random variables. *Journal of Multivariate Analysis*, **117**,
@@ -134,9 +131,10 @@
 #' qqfr(probs, A, B)     # p = 1 yields maximum of ratio
 #' dqfr(quantiles, A, B)
 #'
-#' @docType package
-#' @name qfratio-package
+#' @keywords internal
 #'
+"_PACKAGE"
+
 ## Setting Rcpp-related import
 #' @useDynLib qfratio, .registration = TRUE
 #' @importFrom Rcpp evalCpp

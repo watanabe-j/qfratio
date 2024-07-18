@@ -2,6 +2,7 @@
 % Please edit documentation in R/qfratio-package.R
 \docType{package}
 \name{qfratio-package}
+\alias{qfratio}
 \alias{qfratio-package}
 \title{qfratio: Moments and Distributions of Ratios of Quadratic Forms}
 \description{
@@ -43,11 +44,6 @@ The DESCRIPTION file:
 \packageDESCRIPTION{qfratio}
 \packageIndices{qfratio}
 }
-\section{Author/Maintainer}{
-
-Junya Watanabe \href{mailto:Junya.Watanabe@uab.cat}{Junya.Watanabe@uab.cat}
-}
-
 \examples{
 ## Symmetric matrices
 nv <- 4
@@ -142,3 +138,18 @@ quadratic forms
 \code{\link{dqfr}}: Probability distribution of simple ratio of
 quadratic forms
 }
+\author{
+\strong{Maintainer}: Junya Watanabe \email{Junya.Watanabe@uab.cat} (\href{https://orcid.org/0000-0002-9810-5286}{ORCID}) [copyright holder]
+
+Other contributors:
+\itemize{
+  \item Patrick Alken (Author of bundled C codes from GSL) [copyright holder]
+  \item Brian Gough (Author of bundled C codes from GSL) [copyright holder]
+  \item Pavel Holoborodko (Author of bundled C codes from GSL) [copyright holder]
+  \item Gerard Jungman (Author of bundled C codes from GSL) [copyright holder]
+  \item Reid Priedhorsky (Author of bundled C codes from GSL) [copyright holder]
+  \item Free Software Foundation, Inc. (Copyright holder of some bundled scripts) [copyright holder]
+}
+
+}
+\keyword{internal}
