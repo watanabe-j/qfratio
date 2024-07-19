@@ -390,6 +390,25 @@ int gsl_integration_qagiu (gsl_function * f,
 // int gsl_integration_fixed(const gsl_function * func, double * result, // edited for qfratio
 //                           const gsl_integration_fixed_workspace * w); // edited for qfratio
 
+// /* Lebedev quadrature */ // edited for qfratio
+
+// typedef struct // edited for qfratio
+// { // edited for qfratio
+//   size_t n;        /* number of nodes/weights */ // edited for qfratio
+//   double *weights; /* quadrature weights */ // edited for qfratio
+//   double *x;       /* x quadrature nodes */ // edited for qfratio
+//   double *y;       /* y quadrature nodes */ // edited for qfratio
+//   double *z;       /* z quadrature nodes */ // edited for qfratio
+//   double *theta;   /* theta quadrature nodes */ // edited for qfratio
+//   double *phi;     /* phi quadrature nodes */ // edited for qfratio
+// } gsl_integration_lebedev_workspace; // edited for qfratio
+
+// gsl_integration_lebedev_workspace * gsl_integration_lebedev_alloc(const size_t n); // edited for qfratio
+
+// void gsl_integration_lebedev_free(gsl_integration_lebedev_workspace * w); // edited for qfratio
+
+// size_t gsl_integration_lebedev_n(const gsl_integration_lebedev_workspace * w); // edited for qfratio
+
 __END_DECLS
 
 #endif /* __GSL_INTEGRATION_H__ */

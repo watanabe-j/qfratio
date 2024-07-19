@@ -25,6 +25,7 @@
 /* Author:  G. Jungman */
 
 #include <config.h>
+#include <stdlib.h>
 #include "../gsl_math.h" // edited for qfratio
 #include "../err/gsl_errno.h" // edited for qfratio
 #include "gsl_sf_gamma.h" // edited for qfratio
@@ -218,7 +219,7 @@ int gsl_sf_exp_mult_e(const double x, const double y, gsl_sf_result * result)
 //       const double sy  = GSL_SIGN(y); // edited for qfratio
 //       const int    N   = (int) floor(l10_val); // edited for qfratio
 //       const double arg_val = (l10_val - N) * M_LN10; // edited for qfratio
-//       const double arg_err = 2.0 * GSL_DBL_EPSILON * (fabs(x) + fabs(ly) + M_LN10*fabs(N)); // edited for qfratio
+//       const double arg_err = 2.0 * GSL_DBL_EPSILON * (fabs(x) + fabs(ly) + M_LN10*abs(N)); // edited for qfratio
 
 //       result->val  = sy * exp(arg_val); // edited for qfratio
 //       result->err  = arg_err * fabs(result->val); // edited for qfratio

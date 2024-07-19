@@ -1616,7 +1616,7 @@ int gsl_sf_lnchoose_e(unsigned int n, unsigned int m, gsl_sf_result * result)
 //           prod *= tk; // edited for qfratio
 //         } // edited for qfratio
 //         result->val = prod; // edited for qfratio
-//         result->err = 2.0 * GSL_DBL_EPSILON * prod * fabs(n-m); // edited for qfratio
+//         result->err = 2.0 * GSL_DBL_EPSILON * prod * fabs((double) (n-m)); // edited for qfratio
 //         return GSL_SUCCESS; // edited for qfratio
 //       } // edited for qfratio
 //     else // edited for qfratio

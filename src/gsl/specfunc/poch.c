@@ -26,6 +26,7 @@
 /* Author:  G. Jungman */
 
 #include <config.h>
+#include <stdlib.h>
 #include "../gsl_math.h" // edited for qfratio
 #include "../err/gsl_errno.h" // edited for qfratio
 #include "gsl_sf_exp.h" // edited for qfratio
@@ -166,7 +167,7 @@ pochrel_smallx(const double a, const double x, gsl_sf_result * result)
 
     if(bp == a) {
       result->val = dpoch1;
-      result->err = 2.0 * GSL_DBL_EPSILON * (fabs((double)(incr)) + 1.0) * fabs(result->val); // edited for qfratio
+      result->err = 2.0 * GSL_DBL_EPSILON * (abs(incr) + 1.0) * fabs(result->val);
       return GSL_SUCCESS;
     }
     else {
@@ -181,7 +182,7 @@ pochrel_smallx(const double a, const double x, gsl_sf_result * result)
       double trig  = t1 - t2;
       result->val  = dpoch1 * (1.0 + x*trig) + trig;
       result->err  = (fabs(dpoch1*x) + 1.0) * GSL_DBL_EPSILON * (fabs(t1) + fabs(t2));
-      result->err += 2.0 * GSL_DBL_EPSILON * (fabs((double)(incr)) + 1.0) * fabs(result->val); // edited for qfratio
+      result->err += 2.0 * GSL_DBL_EPSILON * (abs(incr) + 1.0) * fabs(result->val);
       return GSL_SUCCESS;
     }    
   }
