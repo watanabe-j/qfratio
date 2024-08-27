@@ -10,7 +10,6 @@ R/int
 src/int
 README.html
 inst/doc
-src/config.h
 src/config.h.in~
 config.log
 config.status

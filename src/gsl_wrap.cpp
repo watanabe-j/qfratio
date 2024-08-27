@@ -1,8 +1,9 @@
 #include <Rcpp.h>
 
 // These are to use gsl
-#include "gsl/specfunc/gsl_sf_hyperg.h"
-#include "gsl/err/gsl_errno.h"
+#include <RcppGSL.h>
+// [[Rcpp::depends(RcppGSL)]]
+#include <gsl/gsl_sf_hyperg.h>
 
 using Rcpp::IntegerVector;
 using Rcpp::IntegerMatrix;

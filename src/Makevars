@@ -35,8 +35,8 @@ subclean:
 	@-rm -f *.a
 	@-rm $(OBJECTS_GSL)
 
-# ## For linking GSL; use RcppGSL funs to get flags
-# # PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`
-# # PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `gsl-config --libs`
-# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::CFlags()"`
-# PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::LdFlags()"`
+## For linking GSL; use RcppGSL funs to get flags
+# PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`
+# PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `gsl-config --libs`
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::CFlags()"`
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) `"$(R_HOME)/bin/Rscript" -e "RcppGSL::LdFlags()"`

@@ -2,7 +2,7 @@ Package: qfratio
 Type: Package
 Title: Moments and Distributions of Ratios of Quadratic Forms Using Recursion
 Version: 1.1.1.9000
-Date: 2024-07-18
+Date: 2024-08-27
 Authors@R: c(person("Junya", "Watanabe", email = "Junya.Watanabe@uab.cat",
                     role = c("aut", "cre", "cph"),
                     comment = c(ORCID = "0000-0002-9810-5286")),
@@ -33,7 +33,7 @@ License: GPL (>= 3)
 URL: https://github.com/watanabe-j/qfratio
 BugReports: https://github.com/watanabe-j/qfratio/issues
 Imports: Rcpp, MASS, stats
-LinkingTo: Rcpp, RcppEigen
+LinkingTo: Rcpp, RcppEigen, RcppGSL
 Suggests: mvtnorm, CompQuadForm, graphics, testthat (>= 3.0.0),
           knitr, rmarkdown
 Encoding: UTF-8
