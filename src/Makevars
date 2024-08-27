@@ -11,17 +11,10 @@ PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 ## #define EIGEN_ARRAYBASE_PLUGIN "ArrayBaseAddons.h"
 PKG_CPPFLAGS = -I.
 
-## wildcard function is a non-portable GNU make extension
-# SOURCES_GSL = $(wildcard gsl/*.c)
-# SOURCES_QFRATIO = $(wildcard *.cpp)
-
-## Instead, use a predefined list
-include scripts/SOURCES_GSL.mkf
 include scripts/SOURCES_QFRATIO.mkf
 
-OBJECTS_GSL = $(SOURCES_GSL:.c=.o)
 OBJECTS_QFRATIO = $(SOURCES_QFRATIO:.cpp=.o)
-OBJECTS = $(OBJECTS_QFRATIO) $(OBJECTS_GSL)
+OBJECTS = $(OBJECTS_QFRATIO)
 
 all: $(SHLIB)
 
@@ -33,7 +26,6 @@ clean: subclean
 
 subclean:
 	@-rm -f *.a
-	@-rm $(OBJECTS_GSL)
 
 ## For linking GSL; use RcppGSL funs to get flags
 # PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) `gsl-config --cflags`

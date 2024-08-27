@@ -1,4 +1,0 @@
-#! /bin/sh
-# Windows version of cleanup: just run cleanup
-
-./cleanup

@@ -1,4 +1,0 @@
-#! /bin/sh
-# Windows version of configure: just run configure
-
-./configure
