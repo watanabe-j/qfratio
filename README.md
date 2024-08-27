@@ -277,14 +277,6 @@ legend("topright", legend = c("central", "noncentral"),
 
 <img src="man/figures/README-examples_distr-2.png" width="100%" />
 
-## Copyright notice
-
-This package bundles selected `C` codes and part of `config.ac` from the
-[GNU Scientific Library](https://www.gnu.org/software/gsl/), whose
-copyright belongs to the original authors. See `DESCRIPTION` and
-individual code files in `src/gsl` for details. The redistribution
-complies with the GNU General Public License version 3.
-
 ## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"

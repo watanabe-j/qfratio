@@ -5,19 +5,7 @@ Version: 1.1.1.9000
 Date: 2024-08-27
 Authors@R: c(person("Junya", "Watanabe", email = "Junya.Watanabe@uab.cat",
                     role = c("aut", "cre", "cph"),
-                    comment = c(ORCID = "0000-0002-9810-5286")),
-             person("Patrick", "Alken", role = "cph",
-                    comment = "Author of bundled C codes from GSL"),
-             person("Brian", "Gough", role = "cph",
-                    comment = "Author of bundled C codes from GSL"),
-             person("Pavel", "Holoborodko", role = "cph",
-                    comment = "Author of bundled C codes from GSL"),
-             person("Gerard", "Jungman", role = "cph",
-                    comment = "Author of bundled C codes from GSL"),
-             person("Reid", "Priedhorsky", role = "cph",
-                    comment = "Author of bundled C codes from GSL"),
-             person("Free Software Foundation, Inc.", role = "cph",
-                    comment = "Copyright holder of some bundled scripts"))
+                    comment = c(ORCID = "0000-0002-9810-5286")))
 Description: Evaluates moments of ratios (and products) of quadratic forms
     in normal variables, specifically using recursive algorithms developed by
     Bao and Kan (2013) <doi:10.1016/j.jmva.2013.03.002> and Hillier et al.
