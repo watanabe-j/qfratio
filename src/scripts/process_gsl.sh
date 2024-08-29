@@ -153,7 +153,7 @@ add_directives(){
 ## Add license statements
 add_license_statement(){
     INDIR=$1
-    sed -i -s '1i// This file is taken from GSL version 2.7.1 and distributed as part of qfratio\n// with modification, in accordance with the GNU General Public License\n// version 3.  All modified lines are marked with comments.\n// - 2023 Junya Watanabe\n' $INDIR/*\.h $INDIR/*/*\.c $INDIR/*/*\.h
+    sed -i -s '1i// This file is taken from GSL version 2.8 and distributed as part of qfratio\n// with modification, in accordance with the GNU General Public License\n// version 3.  All modified lines are marked with comments.\n// - 2023 Junya Watanabe\n' $INDIR/*\.h $INDIR/*/*\.c $INDIR/*/*\.h
 }
 
 
