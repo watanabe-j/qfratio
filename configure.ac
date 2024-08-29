@@ -10,11 +10,11 @@
 ## GSL version 2.7.1.
 ## The original line numbers are specified at the top of each chunk.
 ##
-## Copyright (C) 2023 Junya Watanabe
+## Copyright (C) 2023-2024 Junya Watanabe
 ##           (C) ND   Free Software Foundation, Inc. (for GSL-originated part)
 ## Licensed under the GNU GPL (>=3). See LISENSE.md
 
-AC_INIT([qfratio], [1.0.1.9000], [https://github.com/watanabe-j/qfratio/issues])
+AC_INIT([qfratio], [1.1.1.9000], [https://github.com/watanabe-j/qfratio/issues])
 
 AC_CONFIG_SRCDIR([R/qfratio-package.R])
 
