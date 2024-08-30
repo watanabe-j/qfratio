@@ -7,7 +7,7 @@
 ## (or autoconf to generate configure and autoheader to generate config.h.in)
 ##
 ## GSL-related parts in this file were taken from configure.ac in
-## GSL version 2.7.1.
+## GSL version 2.8.
 ## The original line numbers are specified at the top of each chunk.
 ##
 ## Copyright (C) 2023-2024 Junya Watanabe
@@ -64,7 +64,7 @@ AC_SUBST(LIBM)
 #####
 ## Check availability of inline;
 ## HAVE_INLINE required to define gsl_poly_eval()
-## From lines 135-165 in configure.ac from GSL
+## From lines 136-166 in configure.ac from GSL
 if test "$ac_cv_c_inline" != no ; then 
 dnl Check for "extern inline", using a modified version of the test
 dnl for AC_C_INLINE from acspecific.mt
@@ -101,7 +101,7 @@ fi
 #####
 ## Use libm; necessary to compile the check code for
 ## IEEE comparisons (with exp()) below
-## From lines 216-220 in configure.ac from GSL
+## From lines 217-221 in configure.ac from GSL
 dnl Use alternate libm if specified by user
 
 if test "x$LIBS" = "x" ; then
@@ -114,7 +114,7 @@ fi
 ## HAVE_DECL_ISFINITE, HAVE_DECL_FINITE or HAVE_IEEE_COMPARISONS required
 ## to define gsl_finite();
 ## HAVE_DECL_ISNAN or HAVE_IEEE_COMPARISONS required to define gsl_isnan()
-## From lines 236-241 in configure.ac from GSL
+## From lines 237-242 in configure.ac from GSL
 AC_CHECK_DECLS(isfinite,,,[#include <math.h>])
 AC_CHECK_DECLS(finite,,,[#include <math.h>
 #if HAVE_IEEEFP_H
@@ -126,7 +126,7 @@ AC_CHECK_DECLS(isnan,,,[#include <math.h>])
 #####
 ## HAVE_EXTENDED_PRECISION_REGISTERS influences the definition of
 ## GSL_COERCE_DBL(), which is used in gsl_sf_multiply_e()
-## From lines 269-300 in configure.ac from GSL
+## From lines 270-301 in configure.ac from GSL
 AC_CACHE_CHECK([for extended floating point registers],ac_cv_c_extended_fp,
 [case "$host" in
     *sparc*-*-*)
@@ -163,7 +163,7 @@ fi
 
 #####
 ## Check for HAVE_IEEE_COMPARISONS; see above for where this is used
-## From lines 441-458 in configure.ac from GSL
+## From lines 442-459 in configure.ac from GSL
 dnl Check IEEE comparisons, whether "x != x" is true for NaNs
 dnl
 AC_CACHE_CHECK([for IEEE comparisons], ac_cv_c_ieee_comparisons,
@@ -175,7 +175,7 @@ int main (void)
    inf = exp(1.0e10);
    nan = inf / inf ;
    status = (nan == nan);
-   exit (status);
+   return status;
 }]])],[ac_cv_c_ieee_comparisons="yes"],[ac_cv_c_ieee_comparisons="no"],[ac_cv_c_ieee_comparisons="yes"])
 ])
 
@@ -186,7 +186,7 @@ fi
 
 dnl #####
 dnl ## To define GSL_COERCE_DBL() in config.h
-dnl ## From lines 507-525 in configure.ac from GSL
+dnl ## From lines 508-526 in configure.ac from GSL
 AH_BOTTOM([/* Define a rounding function which moves extended precision values
    out of registers and rounds them to double-precision. This should
    be used *sparingly*, in places where it is necessary to keep
@@ -210,7 +210,7 @@ AH_BOTTOM([/* Define a rounding function which moves extended precision values
 
 dnl #####
 dnl ## To define RETURN_IF_NULL() in config.h
-dnl ## From lines 587-588 in configure.ac from GSL
+dnl ## From lines 588-589 in configure.ac from GSL
 AH_BOTTOM([#define RETURN_IF_NULL(x) if (!x) { return ; }
 ])
 

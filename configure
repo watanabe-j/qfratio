@@ -3455,7 +3455,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 #####
 ## Check availability of inline;
 ## HAVE_INLINE required to define gsl_poly_eval()
-## From lines 135-165 in configure.ac from GSL
+## From lines 136-166 in configure.ac from GSL
 if test "$ac_cv_c_inline" != no ; then
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GNU-style extern inline" >&5
@@ -3555,7 +3555,7 @@ fi
 #####
 ## Use libm; necessary to compile the check code for
 ## IEEE comparisons (with exp()) below
-## From lines 216-220 in configure.ac from GSL
+## From lines 217-221 in configure.ac from GSL
 
 if test "x$LIBS" = "x" ; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for cos in -lm" >&5
@@ -3609,7 +3609,7 @@ fi
 ## HAVE_DECL_ISFINITE, HAVE_DECL_FINITE or HAVE_IEEE_COMPARISONS required
 ## to define gsl_finite();
 ## HAVE_DECL_ISNAN or HAVE_IEEE_COMPARISONS required to define gsl_isnan()
-## From lines 236-241 in configure.ac from GSL
+## From lines 237-242 in configure.ac from GSL
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CC options needed to detect all undeclared functions" >&5
 printf %s "checking for $CC options needed to detect all undeclared functions... " >&6; }
 if test ${ac_cv_c_undeclared_builtin_options+y}
@@ -3728,7 +3728,7 @@ printf "%s\n" "#define HAVE_DECL_ISNAN $ac_have_decl" >>confdefs.h
 #####
 ## HAVE_EXTENDED_PRECISION_REGISTERS influences the definition of
 ## GSL_COERCE_DBL(), which is used in gsl_sf_multiply_e()
-## From lines 269-300 in configure.ac from GSL
+## From lines 270-301 in configure.ac from GSL
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for extended floating point registers" >&5
 printf %s "checking for extended floating point registers... " >&6; }
 if test ${ac_cv_c_extended_fp+y}
@@ -3775,7 +3775,7 @@ fi
 
 #####
 ## Check for HAVE_IEEE_COMPARISONS; see above for where this is used
-## From lines 441-458 in configure.ac from GSL
+## From lines 442-459 in configure.ac from GSL
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for IEEE comparisons" >&5
 printf %s "checking for IEEE comparisons... " >&6; }
 if test ${ac_cv_c_ieee_comparisons+y}
@@ -3796,7 +3796,7 @@ int main (void)
    inf = exp(1.0e10);
    nan = inf / inf ;
    status = (nan == nan);
-   exit (status);
+   return status;
 }
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
