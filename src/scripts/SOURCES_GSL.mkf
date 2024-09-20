@@ -14,6 +14,7 @@ SOURCES_GSL = \
     gsl/integration/set_initial.c \
     gsl/integration/util.c \
     gsl/integration/workspace.c \
+    gsl/poly/eval.c \
     gsl/roots/brent.c \
     gsl/roots/convergence.c \
     gsl/roots/fsolver.c \
