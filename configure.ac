@@ -185,6 +185,11 @@ fi
 
 
 dnl #####
+dnl ## To handle inline functions in some compilers
+dnl ## From lines 481 in configure.ac from GSL
+AH_TEMPLATE([HIDE_INLINE_STATIC],[Define if you need to hide the static definitions of inline functions])
+
+dnl #####
 dnl ## To define GSL_COERCE_DBL() in config.h
 dnl ## From lines 508-526 in configure.ac from GSL
 AH_BOTTOM([/* Define a rounding function which moves extended precision values
