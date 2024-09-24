@@ -33,6 +33,9 @@
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
+/* Define if you need to hide the static definitions of inline functions */
+#undef HIDE_INLINE_STATIC
+
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 

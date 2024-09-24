@@ -14,6 +14,7 @@ localize_header_inclusion() {
     do
         sed -i -E "s|#include *<gsl/$HEADER>|#include \"$HEADER\" // edited for qfratio|"    $INDIR/*.h
         sed -i -E "s|#include *<gsl/$HEADER>|#include \"../$HEADER\" // edited for qfratio|" $INDIR/*/*
+        sed -i -E "s|#include *\"$HEADER\"|#include \"../$HEADER\" // edited for qfratio|"    $INDIR/*/*
     done
     
     ## Then loop across subdirectories

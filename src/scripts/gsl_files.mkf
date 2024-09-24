@@ -15,6 +15,7 @@ integration/reset.c
 integration/set_initial.c
 integration/util.c
 integration/workspace.c
+poly/eval.c
 poly/gsl_poly.h
 roots/brent.c
 roots/convergence.c
@@ -72,6 +73,7 @@ sys/gsl_sys.h
 sys/coerce.c
 sys/fdiv.c
 sys/infnan.c
+build.h
 gsl_inline.h
 gsl_machine.h
 gsl_math.h
