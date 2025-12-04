@@ -781,7 +781,7 @@ these are:
 | $\tilde{d}$ | `dtil1_i_*()` | `dtil2_pq_*()`           | `dtil3_pqr_*()`            |
 | $h$         | ---           | `h2_ij_*()`              | `h3_ijk_*()`               |
 | $\tilde{h}$ | ---           | `htil2_pj_*()`           | `htil3_pjk_*()`            |
-| $\hat{h}$   | ---           | `hhat2_pj_*()`           | `htil3_pjk_*()`            |
+| $\hat{h}$   | ---           | `hhat2_pj_*()`           | `hhat3_pjk_*()`            |
 | $a$         | `a1_pk()`     | ---                      | ---                        |
 
 The functions with `*_ij_*` or `*_ijk_*` are to calculate terms in
