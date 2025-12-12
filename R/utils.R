@@ -77,29 +77,43 @@ tr <- function(X) sum(diag(X))
 #'
 sum_counterdiag <- function(X) {
     n <- nrow(X)
-    ans <- rep.int(0, n)
+    sum_p <- rep.int(0, n)
+    sum_n <- rep.int(0, n)
     for(i in seq_len(n)) {
         for(j in seq_len(i)) {
             x <- X[i - j + 1, j]
-            if(!is.na(x)) ans[i] <- ans[i] + x
+            if(!is.na(x)) {
+                if(x >= 0) {
+                    sum_p[i] <- sum_p[i] + x
+                } else {
+                    sum_n[i] <- sum_n[i] - x
+                }
+            }
         }
     }
-    return(ans)
+    return(sum_p - sum_n)
 }
 
 #' @rdname sum_counterdiag
 sum_counterdiag3D <- function(X) {
     n <- dim(X)[1]
-    ans <- rep.int(0, n)
+    sum_p <- rep.int(0, n)
+    sum_n <- rep.int(0, n)
     for(i in seq_len(n)) {
         for(j in seq_len(i)) {
             for(k in seq_len(i - j + 1)) {
                 x <- X[i - j - k + 2, j, k]
-                if(!is.na(x)) ans[i] <- ans[i] + x
+                if(!is.na(x)) {
+                    if (x >= 0) {
+                        sum_p[i] <- sum_p[i] + x
+                    } else {
+                        sum_n[i] <- sum_n[i] - x
+                    }
+                }
             }
         }
     }
-    return(ans)
+    return(sum_p - sum_n)
 }
 
 ##### iseq #####

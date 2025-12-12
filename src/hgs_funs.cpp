@@ -346,15 +346,22 @@ sum_counterdiagE(const Eigen::ArrayBase<Derived>& X) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     const Index n = (sqrt(8 * X.size() + 2) - 1) / 2;
-    ArrayXx ans = ArrayXx::Zero(n);
+    ArrayXx sum_p = ArrayXx::Zero(n);
+    ArrayXx sum_n = ArrayXx::Zero(n);
     Scalar x;
     for(Index i = 0; i < n; i++) {
         for(Index j = 0; j <= i; j++) {
             x = X.ULTat(i - j, j, n);
-            if(!std::isnan(x)) ans(i) += x;
+            if(!std::isnan(x)) {
+                if(x >= 0) {
+                    sum_p(i) += x;
+                } else {
+                    sum_n(i) -= x;
+                }
+            }
         }
     }
-    return ans;
+    return sum_p - sum_n;
 }
 template ArrayXd sum_counterdiagE(const ArrayBase<ArrayXd>& X);
 template ArrayXl sum_counterdiagE(const ArrayBase<ArrayXl>& X);
@@ -367,17 +374,24 @@ sum_counterdiag3DE(const Eigen::ArrayBase<Derived>& X) {
     typedef typename Derived::Scalar Scalar;
     typedef Array<Scalar, Dynamic, 1> ArrayXx;
     const Index n = X.ULC_getM();
-    ArrayXx ans = ArrayXx::Zero(n);
+    ArrayXx sum_p = ArrayXx::Zero(n);
+    ArrayXx sum_n = ArrayXx::Zero(n);
     Scalar x;
     for(Index i = 0; i < n; i++) {
         for(Index j = 0; j <= i; j++) {
             for(Index k = 0; k <= (i - j); k++){
                 x = X.ULCat(i - j - k, j, k, n);
-                if(!std::isnan(x)) ans(i) += x;
+                if(!std::isnan(x)) {
+                    if(x >= 0) {
+                        sum_p(i) += x;
+                    } else {
+                        sum_n(i) -= x;
+                    }
+                }
             }
         }
     }
-    return ans;
+    return sum_p - sum_n;
 }
 template ArrayXd sum_counterdiag3DE(const ArrayBase<ArrayXd>& X);
 template ArrayXl sum_counterdiag3DE(const ArrayBase<ArrayXl>& X);
