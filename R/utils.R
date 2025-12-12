@@ -78,8 +78,8 @@ tr <- function(X) sum(diag(X))
 sum_counterdiag <- function(X) {
     n <- nrow(X)
     ans <- rep.int(0, n)
-    for(i in 1:n) {
-        for(j in 1:i) {
+    for(i in seq_len(n)) {
+        for(j in seq_len(i)) {
             x <- X[i - j + 1, j]
             if(!is.na(x)) ans[i] <- ans[i] + x
         }
@@ -91,9 +91,9 @@ sum_counterdiag <- function(X) {
 sum_counterdiag3D <- function(X) {
     n <- dim(X)[1]
     ans <- rep.int(0, n)
-    for(i in 1:n) {
-        for(j in 1:i) {
-            for(k in 1:(i - j + 1)) {
+    for(i in seq_len(n)) {
+        for(j in seq_len(i)) {
+            for(k in seq_len(i - j + 1)) {
                 x <- X[i - j - k + 2, j, k]
                 if(!is.na(x)) ans[i] <- ans[i] + x
             }

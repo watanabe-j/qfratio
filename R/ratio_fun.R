@@ -1255,8 +1255,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                        - lgamma(n/2 + 0:m + 1) + lgamma(n/2 + p - q)
                        + (p - q) * log(2) - p * log(bA))
             errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
-                      exp((lcoefe + log(cumsum(dkst[1:(m + 1)] /
-                                        exp(lscf[1:(m + 1)] - lscf[m + 1])))) -
+                      exp((lcoefe + log(cumsum(dkst[seq_len(m + 1)] /
+                                        exp(lscf[seq_len(m + 1)] - lscf[m + 1])))) -
                           lscf[m + 1])
             errseq <- errseq * cumprod(sign(-p + 0:m))
         }
@@ -1356,7 +1356,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(rB == n) {
         cond_exist <- n / 2 + p > q ## condition(1)
     } else {
-        A12z <- all(abs(A[1:rB, (rB + 1):n]) < tol_zero)
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
         cond_exist <- if(!A22z) {
                     rB / 2 > q              ## condition(2)(iii)
@@ -1399,8 +1399,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 dksm <- htil2_pj_m(A, Bh, mu, m, p = p, thr_margin = thr_margin)
             }
         }
-        dks <- dksm[p + 1, 1:(m + 1)]
-        lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
+        dks <- dksm[p + 1, seq_len(m + 1)]
+        lscf <- attr(dksm, "logscale")[p + 1, seq_len(m + 1)]
         ansseq <- hgs_1d(dks, q, n/2 + p,
                          ((p - q) * log(2) + q * log(bB) + lgamma(p + 1)
                           + lgamma(n/2 + p - q) - lgamma(n/2 + p) - lscf))
@@ -1492,8 +1492,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                                     mub, p, thr_margin = thr_margin)[p + 1]
                 }
             }
-            dkst <- dkstm[p + 1, 1:(m + 1)]
-            lscft <- attr(dkstm, "logscale")[p + 1, 1:(m + 1)]
+            dkst <- dkstm[p + 1, seq_len(m + 1)]
+            lscft <- attr(dkstm, "logscale")[p + 1, seq_len(m + 1)]
             lBdet <- sum(log(LB * bB))
             lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
                         - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q)
@@ -1588,7 +1588,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     if(rB == n) {
         cond_exist <- n / 2 + p > q ## condition(1)
     } else {
-        A12z <- all(abs(A[1:rB, (rB + 1):n]) < tol_zero)
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
         cond_exist <- if(!A22z) {
                     rB / 2 > q              ## condition(2)(iii)
@@ -1777,7 +1777,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(rB == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
     } else {
-        A12z <- all(abs(A[1:rB, (rB + 1):n]) < tol_zero)
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
         cond_exist <- if(!A22z) {
                     rB / 2 > q + r              ## condition(2)(iii)
@@ -1829,8 +1829,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             } else {
                 dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
             }
-            dks <- dksm[p + 1, 1:(m + 1)]
-            lscf <- attr(dksm, "logscale")[p + 1, 1:(m + 1)]
+            dks <- dksm[p + 1, seq_len(m + 1)]
+            lscf <- attr(dksm, "logscale")[p + 1, seq_len(m + 1)]
             ansseq <- hgs_1d(dks, q, n / 2 + p,
                              ((p - q - r) * log(2) + q * log(bB) + lgamma(p + 1)
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
@@ -1914,7 +1914,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     Ap <- A
                     dkstm <- dksm
                 }
-                dkst <- dkstm[p + 1, 1:(m + 1)]
+                dkst <- dkstm[p + 1, seq_len(m + 1)]
                 if(use_vec) {
                     dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
@@ -2047,7 +2047,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     if(rB == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
     } else {
-        A12z <- all(abs(A[1:rB, (rB + 1):n]) < tol_zero)
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
         cond_exist <- if(!A22z) {
                     rB / 2 > q + r              ## condition(2)(iii)
@@ -2127,9 +2127,9 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
             if(any(lscf < 0 )) {
-                for(k in 1:(m + 1)) {
+                for(k in seq_len(m + 1)) {
                     diminished <-
-                        any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                        any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
                     if(diminished) break
                 }
             }
@@ -2348,9 +2348,9 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                               - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
             if(any(lscf < 0)) {
-                for(k in 1:(m + 1)) {
+                for(k in seq_len(m + 1)) {
                     diminished <-
-                        any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                        any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
                     if(diminished) break
                 }
             }
@@ -2839,9 +2839,9 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                          + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
         if(any(lscf < 0)) {
-            for(k in 1:(m + 1)) {
+            for(k in seq_len(m + 1)) {
                 diminished <-
-                    any(diag(dksm[(m + 2 - k):1, 1:(m + 2 - k), k]) == 0)
+                    any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
                 if(diminished) break
             }
         }
