@@ -1201,7 +1201,7 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L, thr_margin = 100) {
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeromat <- matrix(0, n, n)
     Gc <- list()
     Gc[seq_len(p1)] <- list(zeromat)
@@ -1267,7 +1267,7 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100) {
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
     Gc[seq_len(p1)] <- list(zeros)
@@ -1733,7 +1733,7 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     Gc <- list()
@@ -1828,7 +1828,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
     gc <- list()
@@ -2114,7 +2114,7 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeromat <- matrix(0, n, n)
     zerovec <- matrix(0, n, 1)
     Gc <- list()
@@ -2209,7 +2209,7 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
     dks[1L] <- 1
     lscf <- array(0, dim(dks))
     thr <- .Machine$double.xmax / thr_margin / n
-    order_array <- outer(outer(rep.int(0, p1), 0:m, "+"), 0:m, "+")
+    order_array <- outer(matrix(0:m, p1, m + 1, byrow = TRUE), 0:m, "+")
     zeros <- rep.int(0, n)
     Gc <- list()
     gc <- list()

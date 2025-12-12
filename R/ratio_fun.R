@@ -1093,12 +1093,11 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 ## This is an exact expression (Hillier et al. 2014, (58))
                 mu <- c(crossprod(eigA$vectors, c(mu)))
                 aps <- a1_pk(LA, mu, m = p)[p + 1, ]
-                ls <- 0:p
-                hgres <- hyperg_1F1_vec_b(q, n / 2 + p + ls, -crossprod(mu) / 2)
+                hgres <- hyperg_1F1_vec_b(q, seq.int(n/2 + p, n/2 + p + p), -crossprod(mu) / 2)
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(p + 1)
-                      + lgamma(n/2 + p - q + ls) - ls * log(2)
-                      - lgamma(ls + 1) - lgamma(n/2 + p + ls)) *
+                      + lgamma(seq.int(n/2 + p - q, n/2 + p - q + p)) - 0:p * log(2)
+                      - lgamma(seq_len(p + 1)) - lgamma(seq.int(n/2 + p, n/2 + p + p))) *
                     hgres$val * aps
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
@@ -1107,8 +1106,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                                thr_margin = thr_margin)[p + 1, ]
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
-                      + lgamma(n/2 + p - q + 0:m) - 0:m * log(2)
-                      - lgamma(1/2 + 0:m) + lgamma(1/2) - lgamma(n/2 + p + 0:m)
+                      + lgamma(seq.int(n/2 + p - q, n/2 + p - q + m)) - 0:m * log(2)
+                      - lgamma(seq.int(1/2, 1/2 + m)) + lgamma(1/2) - lgamma(seq.int(n/2 + p, n/2 + p + m))
                       + log(dks))
                 exact <- FALSE
             }
@@ -1251,14 +1250,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             Lp <- LAh
             dkst <- dks
             twosided <- FALSE
-            lcoefe <- (lgamma(-p + 0:m + 1) - lgamma(-p)
-                       - lgamma(n/2 + 0:m + 1) + lgamma(n/2 + p - q)
+            lcoefe <- (lgamma(seq.int(-p + 1, -p + 1 + m)) - lgamma(-p)
+                       - lgamma(seq.int(n/2 + 1, n/2 + 1 + m)) + lgamma(n/2 + p - q)
                        + (p - q) * log(2) - p * log(bA))
             errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
                       exp((lcoefe + log(cumsum(dkst[seq_len(m + 1)] /
                                         exp(lscf[seq_len(m + 1)] - lscf[m + 1])))) -
                           lscf[m + 1])
-            errseq <- errseq * cumprod(sign(-p + 0:m))
+            errseq <- errseq * cumprod(sign(seq.int(-p, -p + m)))
         }
         if(singularA) {
             warning("Argument matrix is numerically close to singular.\n  ",
@@ -1495,8 +1494,8 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             dkst <- dkstm[p + 1, seq_len(m + 1)]
             lscft <- attr(dkstm, "logscale")[p + 1, seq_len(m + 1)]
             lBdet <- sum(log(LB * bB))
-            lcoefe <- (lgamma(q + 0:m + 1) - lgamma(q)
-                        - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q)
+            lcoefe <- (lgamma(seq.int(q + 1, q + 1 + m)) - lgamma(q)
+                        - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m)) + lgamma(n/2 + p - q)
                         + (p - q) * log(2) + q * log(bB) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
@@ -1946,8 +1945,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 lscft <- attr(dkstm, "logscale")[p + 1, , 1]
             }
             lBdet <- sum(log(LB * bB))
-            lcoefe <- (lgamma(s + 0:m + 1) - lgamma(s)
-                       - lgamma(n/2 + p + 0:m + 1) + lgamma(n/2 + p - q - r)
+            lcoefe <- (lgamma(seq.int(s + 1, s + 1 + m)) - lgamma(s)
+                       - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m)) + lgamma(n/2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(bB) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))

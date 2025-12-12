@@ -28,9 +28,9 @@ NULL
 # Internal function to calculate sequence of log rising factorial
 .lrfseq <- function(a, m) {
     if(a <= 0 && (a %% 1) == 0) {
-        return(cumsum(suppressWarnings(log(c(1, pmax(-a - 0:(m - 1), 0))))))
+        return(cumsum(suppressWarnings(log(c(1, pmax(seq.int(-a, -a - (m - 1)), 0))))))
     } else {
-        return(lgamma(a + 0:m) - lgamma(a))
+        return(lgamma(seq.int(a, a + m)) - lgamma(a))
     }
 }
 
@@ -48,7 +48,7 @@ hgs_1d <- function(dks, a1, b, lconst = 0) {
     lcoefm <- lnum_i - lden_i
     ansseq <- exp(lcoefm + log(abs(dks)) + lconst)
     ## Signs for (a1)_i, where i = 0:m is along the rows
-    sgnseq <- cumprod(c(1, sign(a1 + 0:(m - 1)))) * sign(dks)
+    sgnseq <- cumprod(c(1, sign(seq.int(a1, a1 + m - 1)))) * sign(dks)
     ansseq * sgnseq
 }
 
@@ -68,8 +68,8 @@ hgs_2d <- function(dks, a1, a2, b, lconst = 0) {
     lcoefm <- (outer(lnum_i, lnum_j, "+") - lden_ij)
     ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
     ## Signs for (a1)_i and (a2)_j, where i = 0:m is along the rows
-    sgnseq <- outer(cumprod(c(1, sign(a1 + 0:(m - 1)))),
-                    cumprod(c(1, sign(a2 + 0:(m - 1))))) * sign(dks)
+    sgnseq <- outer(cumprod(c(1, sign(seq.int(a1, a1 + m - 1)))),
+                    cumprod(c(1, sign(seq.int(a2, a2 + m - 1))))) * sign(dks)
     ansmat * sgnseq
 }
 
@@ -91,8 +91,8 @@ hgs_3d <- function(dks, a1, a2, a3, b, lconst = 0) {
     lcoefm <- (outer(outer(lnum_i, lnum_j, "+"), lnum_k, "+") - lden_ijk)
     ansmat <- exp(lcoefm + log(abs(dks)) + lconst)
     ## Signs for (a1)_i and (a2)_j, where i = 0:m is along the rows
-    sgnseq <- outer(outer(cumprod(c(1, sign(a1 + 0:(m - 1)))),
-                          cumprod(c(1, sign(a2 + 0:(m - 1))))),
-                    cumprod(c(1, sign(a3 + 0:(m - 1))))) * sign(dks)
+    sgnseq <- outer(outer(cumprod(c(1, sign(seq.int(a1, a1 + m - 1)))),
+                          cumprod(c(1, sign(seq.int(a2, a2 + m - 1))))),
+                    cumprod(c(1, sign(seq.int(a3, a3 + m - 1))))) * sign(dks)
     ansmat * sgnseq
 }
