@@ -141,6 +141,11 @@ quadratic forms
 \author{
 \strong{Maintainer}: Junya Watanabe \email{Junya.Watanabe@vetmeduni.ac.at} (\href{https://orcid.org/0000-0002-9810-5286}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Junya Watanabe \email{Junya.Watanabe@vetmeduni.ac.at} (\href{https://orcid.org/0000-0002-9810-5286}{ORCID}) [copyright holder]
+}
+
 Other contributors:
 \itemize{
   \item Patrick Alken (Author of bundled C codes from GSL) [copyright holder]
