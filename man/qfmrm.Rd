@@ -137,11 +137,12 @@ and \code{r} equals \code{q}.  If unsure, specify all explicitly.}
 \item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
 in Hillier et al. (2009, 2014).}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+vector.}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-\eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
-\code{qfmrm()}.  See \dQuote{Details} in \code{\link{qfrm}}.}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+\eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
+the front-end \code{qfmrm()}.  See \dQuote{Details}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals

@@ -23,15 +23,14 @@ one of these must be specified.}
 \item{p, q, r}{Exponents for A, B, D, respectively (see \dQuote{Details}).  Assumed to be
 numeric of length 1 each.  See \dQuote{Details} for default values.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}.  Default
-zero vector.}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+vector.}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-\eqn{\mathbf{x}}{x}.  Default identity matrix.  \code{mu} and
-\code{Sigma} are assumed to be of the same order as the argument matrices.}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+\eqn{\mathbf{x}}{x}.  Default identity matrix.}
 
-\item{use_cpp}{Logical to specify whether an \proglang{C++} version is called or
-not.  \code{TRUE} by default.}
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
+functions via \code{Rcpp}.  \code{TRUE} by default.}
 }
 \value{
 Numeric vector of length \code{nit}.

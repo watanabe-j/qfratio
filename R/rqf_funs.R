@@ -35,6 +35,8 @@
 #' an argument matrix and its exponent (e.g., \code{D} and \code{r})
 #' are missing, the exponent is set to \code{0} so that the factor be unity.
 #'
+#' @inheritParams qfrm
+#'
 #' @param nit
 #'   Number of iteration or sample size.  Should be an integer-alike of
 #'   length 1.
@@ -45,16 +47,9 @@
 #' @param p,q,r
 #'   Exponents for A, B, D, respectively (see \dQuote{Details}).  Assumed to be
 #'   numeric of length 1 each.  See \dQuote{Details} for default values.
-#' @param mu
-#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}.  Default
-#'   zero vector.
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-#'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  \code{mu} and
-#'   \code{Sigma} are assumed to be of the same order as the argument matrices.
-#' @param use_cpp
-#'   Logical to specify whether an \proglang{C++} version is called or
-#'   not.  \code{TRUE} by default.
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+#'   \eqn{\mathbf{x}}{x}.  Default identity matrix.
 #'
 #' @return Numeric vector of length \code{nit}.
 #'

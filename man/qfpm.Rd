@@ -53,7 +53,8 @@ qfpm_ABDpqr_int(
 \eqn{\mathbf{D}}{D}, respectively.  By default, these are set to the same
 value.  If unsure, specify all explicitly.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+vector.}
 
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}}
 

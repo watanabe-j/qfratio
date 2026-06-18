@@ -163,11 +163,13 @@ pqfr_butler(
 )
 }
 \arguments{
-\item{quantile}{Numeric vector of quantiles \eqn{q}}
+\item{quantile, probability}{Numeric vector of quantiles \eqn{q} or probabilities \eqn{P}; corresponds
+to \code{x}, \code{q}, or \code{p} in, e.g., \code{\link[stats]{dnorm}()}}
 
-\item{A, B}{Argument matrices.  Should be square.  \code{B} should be nonnegative
-definite.  Will be automatically symmetrized in \code{dqfr()} and
-\code{pqfr()}.}
+\item{A, B}{Numerator and denominator argument matrices, respectively, of quadratic
+forms.  Should be square.  \code{B} should be nonnegative definite.  Will
+be automatically symmetrized in the exported functions but not in
+the internals.}
 
 \item{p}{Positive exponent of the ratio, default \code{1}.  Unlike in
 \code{\link{qfrm}()}, the numerator and denominator cannot have
@@ -175,33 +177,34 @@ different exponents.  When \code{p} is non-integer, \code{A} must be
 nonnegative definite.  For details, see vignette
 \code{vignette("qfratio_distr")}.}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+vector.}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-\eqn{\mathbf{x}}{x}}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+\eqn{\mathbf{x}}{x}.  Default identity matrix.}
 
-\item{log, lower.tail, log.p}{Logical; as in regular probability distribution functions.  But these are
+\item{log, lower.tail, log.p}{Logical; as in, e.g., \code{\link[stats]{dnorm}()}.  But these are
 for convenience only, and not meant for accuracy.}
 
 \item{method}{Method to specify an internal function (see \dQuote{Details}).  In
 \code{dqfr()}, options are:
 \describe{
-\item{\code{"broda"}}{default; uses \code{dqfr_broda()}, numerical
+\item{\code{"broda"}}{default; use \code{dqfr_broda()}, numerical
 inversion of Broda & Paolella (2009)}
-\item{\code{"hillier"}}{uses \code{dqfr_A1I1()}, series expression
+\item{\code{"hillier"}}{use \code{dqfr_A1I1()}, series expression
 of Hillier (2001)}
-\item{\code{"butler"}}{uses \code{dqfr_butler()}, saddlepoint
+\item{\code{"butler"}}{use \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }
 In \code{pqfr()}, options are:
 \describe{
-\item{\code{"imhof"}}{default; uses \code{pqfr_imhof()}, numerical
+\item{\code{"imhof"}}{default; use \code{pqfr_imhof()}, numerical
 inversion of Imhof (1961)}
-\item{\code{"davies"}}{uses \code{pqfr_davies()}, numerical inversion
+\item{\code{"davies"}}{use \code{pqfr_davies()}, numerical inversion
 of Davies (1973, 1980)}
-\item{\code{"forchini"}}{uses \code{pqfr_A1B1()}, series expression
+\item{\code{"forchini"}}{use \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
-\item{\code{"butler"}}{uses \code{pqfr_butler()}, saddlepoint
+\item{\code{"butler"}}{use \code{pqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }}
 
@@ -226,8 +229,6 @@ eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments passed to internal functions.  In \code{qqfr()},
 these are passed to \code{pqfr()}.}
-
-\item{probability}{Numeric vector of probabilities}
 
 \item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
 non-convergence) in evaluation of hypergeometric function,
@@ -354,7 +355,7 @@ root-finding.
 \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
 and (cumulative) distribution function, respectively,
 as a partial sum of infinite series involving top-order zonal or
-invariant polynomials (Hillier 2001; Forchini 2002, 2005).  As in other
+invariant polynomials (Hillier 2001; Forchini 2002, 2005).  As in some other
 functions of this package, these are evaluated with the recursive algorithm
 \code{\link{d1_i}}.
 
@@ -505,5 +506,5 @@ variables.
 \seealso{
 \code{\link{rqfr}}, a Monte Carlo random number generator
 
-\code{vignette("qfratio_distr")} for theoretical details
+\code{vignette("qfratio_distr")} for mathematical details
 }

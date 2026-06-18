@@ -127,7 +127,8 @@
 #' problems.
 #'
 #' @param A,B
-#'   Argument matrices.  Should be square.  Will be automatically symmetrized.
+#'   Numerator and denominator argument matrices, respectively, of quadratic
+#'   forms.  Should be square.  Will be automatically symmetrized.
 #' @param p,q
 #'   Exponents corresponding to \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B},
 #'   respectively.  When only one is provided, the other is set to the same
@@ -137,11 +138,12 @@
 #'   Order of polynomials at which the series expression is truncated.  \eqn{M}
 #'   in Hillier et al. (2009, 2014).
 #' @param mu
-#'   Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}
+#'   Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+#'   vector.
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-#'   \eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
-#'   \code{qfrm()}.  See \dQuote{Details}.
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+#'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
+#'   the front-end \code{qfrm()}.  See \dQuote{Details}.
 #' @param tol_zero
 #'   Tolerance against which numerical zero is determined.  Used to determine,
 #'   e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
@@ -197,9 +199,8 @@
 #'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
-#'   functions.  \code{0} or any negative value is special and means one-half of
-#'   the number of processors detected.  See \dQuote{Multithreading} in
-#'   \dQuote{Details}.
+#'   functions.  If \code{<= 0} (default), one-half of the number of processors
+#'   detected is used.  See \dQuote{Multithreading} in \dQuote{Details}.
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
@@ -423,9 +424,9 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   \eqn{\mathbf{D}}{D}, respectively.  By default, \code{q} equals \code{p/2}
 #'   and \code{r} equals \code{q}.  If unsure, specify all explicitly.
 #' @param Sigma
-#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-#'   \eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
-#'   \code{qfmrm()}.  See \dQuote{Details} in \code{\link{qfrm}}.
+#'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+#'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
+#'   the front-end \code{qfmrm()}.  See \dQuote{Details}.
 #' @param alphaA,alphaB,alphaD
 #'   Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 #'   \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See

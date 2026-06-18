@@ -92,7 +92,8 @@ qfrm_ApBq_npi(
 )
 }
 \arguments{
-\item{A, B}{Argument matrices.  Should be square.  Will be automatically symmetrized.}
+\item{A, B}{Numerator and denominator argument matrices, respectively, of quadratic
+forms.  Should be square.  Will be automatically symmetrized.}
 
 \item{p, q}{Exponents corresponding to \eqn{\mathbf{A}}{A} and \eqn{\mathbf{B}}{B},
 respectively.  When only one is provided, the other is set to the same
@@ -102,11 +103,12 @@ conditions).}
 \item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
 in Hillier et al. (2009, 2014).}
 
-\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} for \eqn{\mathbf{x}}{x}}
+\item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
+vector.}
 
-\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for
-\eqn{\mathbf{x}}{x}.  Accommodated only by the front-end
-\code{qfrm()}.  See \dQuote{Details}.}
+\item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
+\eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
+the front-end \code{qfrm()}.  See \dQuote{Details}.}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
@@ -137,9 +139,8 @@ most robust but variably slow}
 }}
 
 \item{nthreads}{Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
-functions.  \code{0} or any negative value is special and means one-half of
-the number of processors detected.  See \dQuote{Multithreading} in
-\dQuote{Details}.}
+functions.  If \code{<= 0} (default), one-half of the number of processors
+detected is used.  See \dQuote{Multithreading} in \dQuote{Details}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
