@@ -121,15 +121,15 @@ non-convergence) in evaluation of hypergeometric function,
 numerical integration, or root finding.  If
 \code{FALSE}, further execution is attempted regardless.}
 
+\item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
+functions via \code{Rcpp}.  \code{TRUE} by default.}
+
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{epsabs, epsrel, limit, maxiter, epsabs_q, maxiter_q}{Optional arguments used in numerical integration or root-finding
-algorithm (see vignette:
-\code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
-and \code{maxiter_q} are used in root-finding for quantiles whereas
-\code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.}
+\item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
+algorithm (see vignette: \code{vignette("qfratio_distr")}).}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{A}}
 
@@ -138,6 +138,13 @@ in Hillier et al. (2009, 2014).}
 
 \item{check_convergence}{Specifies how numerical convergence is checked for series expression (see
 \code{\link{qfrm}})}
+
+\item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
+with \code{check_convergence}.}
+
+\item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
+in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
 
 \item{order_spa}{Numeric to determine order of saddlepoint approximation.  More accurate
 second-order approximation is used for any \code{order > 1} (default);

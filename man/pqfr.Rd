@@ -134,11 +134,11 @@ non-convergence) in evaluation of hypergeometric function,
 numerical integration, or root finding.  If
 \code{FALSE}, further execution is attempted regardless.}
 
-\item{epsabs, epsrel, limit, maxiter, epsabs_q, maxiter_q}{Optional arguments used in numerical integration or root-finding
-algorithm (see vignette:
-\code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
-and \code{maxiter_q} are used in root-finding for quantiles whereas
-\code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.}
+\item{epsabs_q, maxiter_q}{Optional arguments used in root-finding for quantiles (see vignette:
+\code{vignette("qfratio_distr")}).  Minor point: these are different from
+\code{epsabs} and \code{maxiter}, which can be passed to \code{pqfr()}
+via \code{...} and are used for numerical integration or root-finding
+for saddlepoint approximation (see \code{\link{pqfr_int}}).}
 }
 \value{
 \code{dqfr()} and \code{pqfr()} give the density and distribution

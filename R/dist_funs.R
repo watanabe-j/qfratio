@@ -99,12 +99,12 @@
 #'   non-convergence) in evaluation of hypergeometric function,
 #'   numerical integration, or root finding.  If
 #'   \code{FALSE}, further execution is attempted regardless.
-#' @param epsabs,epsrel,limit,maxiter,epsabs_q,maxiter_q
-#'   Optional arguments used in numerical integration or root-finding
-#'   algorithm (see vignette:
-#'   \code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
-#'   and \code{maxiter_q} are used in root-finding for quantiles whereas
-#'   \code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.
+#' @param epsabs_q,maxiter_q
+#'   Optional arguments used in root-finding for quantiles (see vignette:
+#'   \code{vignette("qfratio_distr")}).  Minor point: these are different from
+#'   \code{epsabs} and \code{maxiter}, which can be passed to \code{pqfr()}
+#'   via \code{...} and are used for numerical integration or root-finding
+#'   for saddlepoint approximation (see \code{\link{pqfr_int}}).
 #' @param ...
 #'   Additional arguments passed to
 #'   \link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr}() or
@@ -279,6 +279,7 @@ NULL
 #' (see vignette: \code{vignette("qfratio_distr")}).
 #'
 #' @inheritParams pqfr
+#' @inheritParams qfrm
 #'
 #' @param quantile
 #'   Length-one numeric of quantile \eqn{q}
@@ -308,12 +309,9 @@ NULL
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 #'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
-#' @param epsabs,epsrel,limit,maxiter,epsabs_q,maxiter_q
+#' @param epsabs,epsrel,limit,maxiter
 #'   Optional arguments used in numerical integration or root-finding
-#'   algorithm (see vignette:
-#'   \code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
-#'   and \code{maxiter_q} are used in root-finding for quantiles whereas
-#'   \code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.
+#'   algorithm (see vignette: \code{vignette("qfratio_distr")}).
 #' @param ...
 #'     Additional arguments passed to \code{\link[CompQuadForm]{davies}()};
 #'     cannot include \code{sigma}, which is not applicable.
