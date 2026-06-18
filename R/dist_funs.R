@@ -1,59 +1,31 @@
 ##### pqfr #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' The user is supposed to use the exported functions \code{dqfr()},
-#' \code{pqfr()}, and \code{qqfr()}, which are (pseudo-)vectorized with respect
-#' to \code{quantile} or \code{probability}.  The actual calculations are done
-#' by one of the internal functions, which only accommodate a length-one
-#' \code{quantile}.  The internal functions skip most checks on argument
-#' structures and do not accommodate \code{Sigma}
-#' to reduce execution time.
+#' Density, distribution function, and quantile function of the (power of)
+#' ratio of quadratic forms in normal variables,
+#' \eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
+#'                    \mathbf{x^{\mathit{T}} B x} } \right) ^ p
+#' }{ ((x^T A x) / (x^T B x))^p }, where
+#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
+#' The usage is intended to mimic that of regular functions for probability
+#' distributions, e.g., \code{\link[stats]{dnorm}()}.
+#'
+#' These functions are (pseudo-)vectorized
+#' with respect to \code{quantile} or \code{probability}.  The actual
+#' calculations are done by one of the
+#' \link[qfratio:pqfr_int]{internal functions}.
 #'
 #' \code{qqfr()} is based on numerical root-finding with \code{pqfr()} using
 #' \code{\link[stats]{uniroot}()}, so its result can be affected by the
 #' numerical errors in both the algorithm used in \code{pqfr()} and
 #' root-finding.
 #'
-#' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
-#' and (cumulative) distribution function, respectively,
-#' as a partial sum of infinite series involving top-order zonal or
-#' invariant polynomials (Hillier 2001; Forchini 2002, 2005).  As in some other
-#' functions of this package, these are evaluated with the recursive algorithm
-#' \code{\link{d1_i}}.
-#'
-#' \code{pqfr_imhof()} and \code{pqfr_davies()} evaluate the distribution
-#' function by numerical inversion of the characteristic function based on
-#' Imhof (1961) or Davies (1973, 1980), respectively.  The latter calls
-#' \code{\link[CompQuadForm]{davies}()}, and the former with
-#' \code{use_cpp = FALSE} calls \code{\link[CompQuadForm]{imhof}()},
-#' from the package \pkg{CompQuadForm}.  Additional arguments for
-#' \code{\link[CompQuadForm]{davies}()} can be passed via \code{...},
-#' except for \code{sigma}, which is not applicable.
-#'
-#' \code{dqfr_broda()} evaluates the probability density by numerical inversion
-#' of the characteristic function using Geary's formula based on
-#' Broda & Paolella (2009).  Parameters for numerical integration
-#' can be controlled via the arguments \code{epsabs}, \code{epsrel}, and
-#' \code{limit} (see vignette: \code{vignette("qfratio_distr")}).
-#'
-#' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
-#' approximations of the density and distribution function, respectively,
-#' based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
-#' conduct numerical root-finding for the saddlepoint by the Brent method,
-#' parameters for which can be controlled by the arguments
-#' \code{epsabs}, \code{epsrel}, and \code{maxiter}
-#' (see vignette: \code{vignette("qfratio_distr")}).  The saddlepoint
-#' approximation density does not integrate to unity, but can be normalized by
-#' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}.  Note that
-#' this is usually slower than \code{dqfr(..., method = "broda")} for
-#' a small number of quantiles.
-#'
 #' The density is undefined, and the distribution function has points of
 #' nonanalyticity, at the eigenvalues of
 #' \eqn{\mathbf{B}^{-1} \mathbf{A}}{B^-1 A} (assuming nonsingular
 #' \eqn{\mathbf{B}}{B}).  Around these points,
 #' the series expressions tends to fail.  Avoid using the series expression
-#' methods for these cases.
+#' methods (\code{method = "hillier"} or \code{"forchini"}) for these cases.
 #'
 #' Algorithms based on numerical integration can yield spurious results
 #' that are outside the mathematically permissible support; e.g.,
@@ -67,18 +39,18 @@
 #' all these functions try to return exact \code{0} or \code{1}
 #' when \eqn{q} is outside the possible range of the statistic.
 #'
+#' When \code{method = "butler"}, suddlepoint approximation is used.   The
+#' saddlepoint approximation density does not integrate to unity, but can be
+#' normalized by
+#' \code{dqfr(..., method = "butler", normalize_spa = TRUE)}.  But note that
+#' this is usually slower than \code{dqfr(..., method = "broda")} for
+#' a small number of quantiles, essentially losing its practical advantage.
+#'
 #' @inheritParams qfrm
 #'
 #' @param quantile,probability
 #'   Numeric vector of quantiles \eqn{q} or probabilities \eqn{P}; corresponds
 #'   to \code{x}, \code{q}, or \code{p} in, e.g., \code{\link[stats]{dnorm}()}
-#' @param A,B
-#'   Numerator and denominator argument matrices, respectively, of quadratic
-#'   forms.  Should be square.  \code{B} should be nonnegative definite.  Will
-#'   be automatically symmetrized in the exported functions but not in
-#'   the internals.
-#' @param LA
-#'   Eigenvalues of \eqn{\mathbf{A}}{A}
 #' @param p
 #'   Positive exponent of the ratio, default \code{1}.  Unlike in
 #'   \code{\link{qfrm}()}, the numerator and denominator cannot have
@@ -116,14 +88,6 @@
 #' @param trim_values
 #'   If \code{TRUE} (default), numerical values outside the mathematically
 #'   permissible support are trimmed in (see \dQuote{Details})
-#' @param autoscale_args
-#'   Numeric; if \code{> 0} (default), arguments are scaled to avoid failure in
-#'   numerical integration (see \code{vignette("qfratio_distr")}).  If
-#'   \code{<= 0}, the scaling is skipped.
-#' @param order_spa
-#'   Numeric to determine order of saddlepoint approximation.  More accurate
-#'   second-order approximation is used for any \code{order > 1} (default);
-#'   otherwise, (very slightly) faster first-order approximation is used.
 #' @param normalize_spa
 #'   If \code{TRUE} and \code{method == "butler"}, result is normalized so that
 #'   the density integrates to unity (see \dQuote{Details})
@@ -135,15 +99,6 @@
 #'   non-convergence) in evaluation of hypergeometric function,
 #'   numerical integration, or root finding.  If
 #'   \code{FALSE}, further execution is attempted regardless.
-#' @param check_convergence
-#'   Specifies how numerical convergence is checked for series expression (see
-#'   \code{\link{qfrm}})
-#' @param cpp_method
-#'   Method used in \proglang{C++} calculations to avoid numerical
-#'   overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}})
-#' @param nthreads
-#'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
-#'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
 #' @param epsabs,epsrel,limit,maxiter,epsabs_q,maxiter_q
 #'   Optional arguments used in numerical integration or root-finding
 #'   algorithm (see vignette:
@@ -151,8 +106,9 @@
 #'   and \code{maxiter_q} are used in root-finding for quantiles whereas
 #'   \code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.
 #' @param ...
-#'   Additional arguments passed to internal functions.  In \code{qqfr()},
-#'   these are passed to \code{pqfr()}.
+#'   Additional arguments passed to
+#'   \link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr}() or
+#'   \code{pqfr()}) or \code{pqfr()} (in case of \code{qqfr()})
 #'
 #' @return
 #' \code{dqfr()} and \code{pqfr()} give the density and distribution
@@ -168,24 +124,6 @@
 #' trimming happens with \code{trim_values} (above) or when
 #' \code{log}/\code{log.p = TRUE}.  See vignette for details
 #' (\code{vignette("qfratio_distr")}).
-#'
-#' The internal functions return a list containing \code{$d} or \code{$p}
-#' (for density and lower \eqn{p}-value, respectively), and only this is passed
-#' to the external function by default.  Other components may be inspected
-#' for debugging purposes:
-#' \describe{
-#'   \item{\code{dqfr_A1I1()} and \code{pqfr_A1B1()}}{have \code{$terms},
-#'      a vector of \eqn{0}th to \eqn{m}th order terms.}
-#'   \item{\code{pqfr_imhof()} and \code{dqfr_broda()}}{have \code{$abserr},
-#'      absolute error of numerical integration; the one returned from
-#'      \code{CompQuadForm::\link[CompQuadForm]{imhof}()} is divided by
-#'      \code{pi}, as the integration result itself is (internally).  This is
-#'      passed to the external functions when \code{return_abserr_attr = TRUE}
-#'      (above).}
-#'   \item{\code{pqfr_davies()}}{has the same components as
-#'      \code{CompQuadForm::\link[CompQuadForm]{davies}()} apart from \code{Qq}
-#'      which is replaced by \code{p = 1 - Qq}.}
-#' }
 #'
 #' @references
 #' Broda, S. and Paolella, M. S. (2009) Evaluating the density of ratios of
@@ -235,9 +173,13 @@
 #'
 #' @seealso \code{\link{rqfr}}, a Monte Carlo random number generator
 #'
+#' \code{\link{pqfr_int}}, internal functions for additional arguments
+#'
 #' \code{vignette("qfratio_distr")} for mathematical details
 #'
 #' @name pqfr
+#'
+#' @order 1
 #'
 #' @examples
 #' ## Some symmetric matrices and parameters
@@ -292,13 +234,123 @@
 #'
 NULL
 
+##### pqfr_int #####
+#' Internal functions for probability distribution
+#'
+#' These functions are called internally in \code{\link{dqfr}()} and
+#' \code{\link{pqfr}()}.  A regular user will not
+#' need to call these functions directly but may want to use some of the
+#' arguments here to fine-tune their behaviors.
+#'
+#' In contrast to the exported functions \code{\link{dqfr}()},
+#' \code{\link{pqfr}()}, and \code{\link{qqfr}()}, which
+#' are (pseudo-)vectorized with respect to \code{quantile} or
+#' \code{probability}, these internal functions only accommodate
+#' a length-one \code{quantile}.  They also skip most checks on argument
+#' structures and do not accommodate \code{Sigma}
+#' to minimize execution time.
+#'
+#' \code{pqfr_imhof()} and \code{pqfr_davies()} evaluate the (cumulative)
+#' distribution function by numerical inversion of the characteristic function
+#' based on Imhof (1961) or Davies (1973, 1980), respectively.  The latter calls
+#' \code{\link[CompQuadForm]{davies}()}, and the former with
+#' \code{use_cpp = FALSE} calls \code{\link[CompQuadForm]{imhof}()},
+#' from the package \pkg{CompQuadForm}.
+#'
+#' \code{dqfr_broda()} evaluates the probability density by numerical inversion
+#' of the characteristic function using Geary's formula based on
+#' Broda & Paolella (2009).  Parameters for numerical integration
+#' can be controlled via the arguments \code{epsabs}, \code{epsrel}, and
+#' \code{limit} (see vignette: \code{vignette("qfratio_distr")}).
+#'
+#' \code{dqfr_A1I1()} and \code{pqfr_A1B1()} evaluate the probability density
+#' and distribution function, respectively,
+#' as a partial sum of infinite series involving top-order zonal or
+#' invariant polynomials (Hillier 2001; Forchini 2002, 2005).  As in some other
+#' functions of this package, these are evaluated with the recursive algorithm
+#' \code{\link{d1_i}}.
+#'
+#' \code{dqfr_butler()} and \code{pqfr_butler()} evaluate saddlepoint
+#' approximations of the density and distribution function, respectively,
+#' based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
+#' conduct numerical root-finding for the saddlepoint by the Brent method,
+#' parameters for which can be controlled by the arguments
+#' \code{epsabs}, \code{epsrel}, and \code{maxiter}
+#' (see vignette: \code{vignette("qfratio_distr")}).
+#'
+#' @inheritParams pqfr
+#'
+#' @param quantile
+#'   Length-one numeric of quantile \eqn{q}
+#' @param A,B
+#'   Not automatically symmetrized in these internal functions.
+#' @param LA
+#'   Eigenvalues of \eqn{\mathbf{A}}{A}
+#' @param autoscale_args
+#'   Numeric; if \code{> 0} (default), arguments are scaled to avoid failure in
+#'   numerical integration (see \code{vignette("qfratio_distr")}).  If
+#'   \code{<= 0}, the scaling is skipped.
+#' @param order_spa
+#'   Numeric to determine order of saddlepoint approximation.  More accurate
+#'   second-order approximation is used for any \code{order > 1} (default);
+#'   otherwise, (very slightly) faster first-order approximation is used.
+#' @param stop_on_error
+#'   If \code{TRUE}, execution is stopped upon an error (including
+#'   non-convergence) in evaluation of hypergeometric function,
+#'   numerical integration, or root finding.  If
+#'   \code{FALSE}, further execution is attempted regardless.
+#' @param check_convergence
+#'   Specifies how numerical convergence is checked for series expression (see
+#'   \code{\link{qfrm}})
+#' @param cpp_method
+#'   Method used in \proglang{C++} calculations to avoid numerical
+#'   overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}})
+#' @param nthreads
+#'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
+#'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
+#' @param epsabs,epsrel,limit,maxiter,epsabs_q,maxiter_q
+#'   Optional arguments used in numerical integration or root-finding
+#'   algorithm (see vignette:
+#'   \code{vignette("qfratio_distr")}).  In \code{qqfr()}, \code{epsabs_q}
+#'   and \code{maxiter_q} are used in root-finding for quantiles whereas
+#'   \code{epsabs} and \code{maxiter} are passed to \code{pqfr()} internally.
+#' @param ...
+#'     Additional arguments passed to \code{\link[CompQuadForm]{davies}()};
+#'     cannot include \code{sigma}, which is not applicable.
+#'
+#' @return
+#' A list containing \code{$d} or \code{$p}
+#' (for density and lower \eqn{p}-value, respectively), and only this is passed
+#' to the external function by default.  Other components may be inspected
+#' for debugging purposes:
+#' \describe{
+#'   \item{\code{dqfr_A1I1()} and \code{pqfr_A1B1()}}{have \code{$terms},
+#'      a vector of \eqn{0}th to \eqn{m}th order terms.}
+#'   \item{\code{pqfr_imhof()} and \code{dqfr_broda()}}{have \code{$abserr},
+#'      absolute error of numerical integration; the one returned from
+#'      \code{CompQuadForm::\link[CompQuadForm]{imhof}()} is divided by
+#'      \code{pi}, as the integration result itself is (internally).  This is
+#'      passed to the external functions when \code{return_abserr_attr = TRUE}
+#'      (above).}
+#'   \item{\code{pqfr_davies()}}{has the same components as
+#'      \code{CompQuadForm::\link[CompQuadForm]{davies}()} apart from \code{Qq}
+#'      which is replaced by \code{p = 1 - Qq}.}
+#' }
+#'
+#' @references
+#' See \code{\link{pqfr}}
+#'
+#' @seealso \code{vignette("qfratio_distr")} for implementation details
+#'
+#' @name pqfr_int
+#'
+#' @order 1
+#'
+NULL
+
 ##### pqfr #####
-#' Probability distribution of ratio of quadratic forms
-#'
-#' \code{pqfr()}: Distribution function of the same.
-#'
 #' @rdname pqfr
-#' @order 2
+#' @order 3
 #'
 #' @export
 #'
@@ -471,12 +523,11 @@ pqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 }
 
 ##### pqfr_A1B1 #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{pqfr_A1B1()}: internal for \code{pqfr()},
 #' exact series expression of Forchini (2002, 2005).
 #'
-#' @rdname pqfr
+#' @rdname pqfr_int
 #' @order 7
 #'
 pqfr_A1B1 <- function(quantile, A, B, m = 100L,
@@ -667,13 +718,12 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L,
 }
 
 ##### pqfr_imhof #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{pqfr_imhof()}: internal for \code{pqfr()},
 #' exact numerical inversion algorithm of Imhof (1961).
 #'
-#' @rdname pqfr
-#' @order 8
+#' @rdname pqfr_int
+#' @order 5
 #'
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE, use_cpp = TRUE,
@@ -728,14 +778,13 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 }
 
 ##### pqfr_davies #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{pqfr_davies()}: internal for \code{pqfr()},
 #' exact numerical inversion algorithm of Davies (1973, 1980).
 #' This is **experimental** and may be removed in the future.
 #'
-#' @rdname pqfr
-#' @order 9
+#' @rdname pqfr_int
+#' @order 6
 #'
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         autoscale_args = 1, stop_on_error = NULL,
@@ -782,13 +831,12 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 }
 
 ##### pqfr_butler #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{pqfr_butler()}: internal for \code{pqfr()},
 #' saddlepoint approximation of Butler & Paolella (2007, 2008).
 #'
-#' @rdname pqfr
-#' @order 10
+#' @rdname pqfr_int
+#' @order 8
 #'
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
@@ -869,16 +917,8 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 
 
 ##### dqfr #####
-#' Probability distribution of ratio of quadratic forms
-#'
-#' \code{dqfr()}: Density of the (power of) ratio of quadratic forms,
-#' \eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
-#'                    \mathbf{x^{\mathit{T}} B x} } \right) ^ p
-#' }{ ((x^T A x) / (x^T B x))^p }, where
-#' \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})}{x ~ N_n(\mu, \Sigma)}.
-#'
 #' @rdname pqfr
-#' @order 1
+#' @order 2
 #'
 #' @export
 #'
@@ -1065,15 +1105,14 @@ dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
 }
 
 ##### dqfr_A1I1 #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{dqfr_A1I1()}: internal for \code{dqfr()},
 #' exact series expression of Hillier (2001).  Only accommodates
 #' the simple case where \eqn{\mathbf{B} = \mathbf{I}_n}{B = I_n} and
 #' \eqn{\bm{\mu} = \mathbf{0}_n}{\mu = 0_n}.
 #'
-#' @rdname pqfr
-#' @order 4
+#' @rdname pqfr_int
+#' @order 3
 #'
 dqfr_A1I1 <- function(quantile, LA, m = 100L,
                       check_convergence = c("relative", "strict_relative",
@@ -1199,13 +1238,12 @@ dqfr_A1I1 <- function(quantile, LA, m = 100L,
 }
 
 ##### dqfr_broda #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{dqfr_broda()}: internal for \code{dqfr()},
 #' exact numerical inversion algorithm of Broda & Paolella (2009).
 #'
-#' @rdname pqfr
-#' @order 5
+#' @rdname pqfr_int
+#' @order 2
 #'
 dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE,
@@ -1275,13 +1313,12 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
 }
 
 ##### dqfr_butler #####
-#' Probability distribution of ratio of quadratic forms
-#'
+#' @description
 #' \code{dqfr_butler()}: internal for \code{dqfr()},
 #' saddlepoint approximation of Butler & Paolella (2007, 2008).
 #'
-#' @rdname pqfr
-#' @order 6
+#' @rdname pqfr_int
+#' @order 4
 #'
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
@@ -1372,12 +1409,8 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
 }
 
 ##### qqfr #####
-#' Probability distribution of ratio of quadratic forms
-#'
-#' \code{qqfr()}: Quantile function of the same.
-#'
 #' @rdname pqfr
-#' @order 3
+#' @order 4
 #'
 #' @export
 #'

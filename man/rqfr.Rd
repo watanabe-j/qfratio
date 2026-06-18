@@ -16,11 +16,11 @@ rqfp(nit = 1000L, A, B, D, p = 1, q = 1, r = 1, mu, Sigma, use_cpp = TRUE)
 \item{nit}{Number of iteration or sample size.  Should be an integer-alike of
 length 1.}
 
-\item{A, B, D}{Argument matrices (see \dQuote{Details}).  Assumed to be square matrices of
-the same order.  When missing, set to the identity matrix.  At least
-one of these must be specified.}
+\item{A, B, D}{Argument matrices.  Assumed to be square matrices of the same order.  When
+missing, set to the identity matrix.  At least one of these must be
+specified.}
 
-\item{p, q, r}{Exponents for A, B, D, respectively (see \dQuote{Details}).  Assumed to be
+\item{p, q, r}{Exponents for quadratic forms of A, B, D, respectively.  Assumed to be
 numeric of length 1 each.  See \dQuote{Details} for default values.}
 
 \item{mu}{Mean vector \eqn{\bm{\mu}}{\mu} of \eqn{\mathbf{x}}{x}.  Default zero
@@ -36,27 +36,22 @@ functions via \code{Rcpp}.  \code{TRUE} by default.}
 Numeric vector of length \code{nit}.
 }
 \description{
-\code{rqfr()}, \code{rqfmr()}, and \code{rqfp()} calculate a random sample of
-a simple ratio, multiple ratio (of special form), and product, respectively,
-of quadratic forms in normal variables of specified mean and covariance
-(standard multivariate normal by default).  These functions are primarily for
-empirical verification of the analytic results provided in this package.
-}
-\details{
-These functions generate a random sample of
+\code{rqfr()}, \code{rqfmr()}, and \code{rqfp()} generate a random sample
+of a simple ratio
 \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}{(\mathbf{x^\mathit{T} B x})^q}
-     }{(x^T A x)^p / (x^T B x)^q}
-(\code{rqfr()}),
+     }{(x^T A x)^p / (x^T B x)^q}, multiple ratio
 \eqn{ \frac{(\mathbf{x^\mathit{T} A x})^p}
            {(\mathbf{x^\mathit{T} B x})^q (\mathbf{x^\mathit{T} Dx})^r}
-     }{(x^T A x)^p / ( (x^T B x)^q (x^T D x)^r )}
-(\code{rqfmr()}), and
+     }{(x^T A x)^p / ( (x^T B x)^q (x^T D x)^r )}, and product
 \eqn{ (\mathbf{x^\mathit{T} A x})^p (\mathbf{x^\mathit{T} B x})^q
       (\mathbf{x^\mathit{T} D x})^r }{(x^T A x)^p (x^T B x)^q (x^T D x)^r}
-(\code{rqfp()}), where
+(\code{rqfp()}), respectively, of quadratic forms in normal variables
 \eqn{\mathbf{x} \sim N_n(\bm{\mu}, \mathbf{\Sigma})
-     }{x ~ N_n(\mu, \Sigma)}.  (Internally, \code{rqfr()} and \code{rqfmr()}
-just call \code{rqfp()} with negative exponents.)
+     }{x ~ N_n(\mu, \Sigma)}.
+}
+\details{
+Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()} with
+negative exponents.
 
 When only one of \code{p} and \code{q} is provided in \code{rqfr()},
 the other (missing) one is set to the same value.
@@ -110,6 +105,6 @@ stats::t.test(mcres, mu = anres$statistic)
 \seealso{
 \code{\link{qfrm}} and \code{\link{qfpm}} for analytic moments
 
-\code{\link{dqfr}} for analytic distribution-related functions for
+\code{\link{pqfr}} for analytic distribution-related functions for
 simple ratios
 }
