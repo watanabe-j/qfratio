@@ -100,12 +100,9 @@ rqfr <- function(nit, A, B, p = 1, q = p, mu = rep.int(0, n), Sigma = diag(n),
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
-        A <- (A + t(A)) / 2
     }
     if(missing(B)) {
         B <- In
-    } else {
-        B <- (B + t(B)) / 2
     }
     if(missing(p) && !missing(q)) p <- q
     rqfp(nit, A, B, p = p, q = -q, r = 0,
@@ -133,17 +130,12 @@ rqfmr <- function(nit, A, B, D, p = 1, q = p / 2, r = q,
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
-        A <- (A + t(A)) / 2
     }
     if(missing(B)) {
         B <- In
-    } else {
-        B <- (B + t(B)) / 2
     }
     if(missing(D)) {
         D <- In
-    } else {
-        D <- (D + t(D)) / 2
     }
     if(missing(q) && !missing(r)) q <- r
     if(missing(p) && !missing(q)) p <- q + r
