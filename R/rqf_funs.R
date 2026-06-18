@@ -90,7 +90,8 @@
 #'
 #' @export
 #'
-rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE) {
+rqfr <- function(nit, A, B, p = 1, q = p, mu = rep.int(0, n), Sigma = diag(n),
+                 use_cpp = TRUE) {
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
@@ -107,8 +108,6 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE) {
         B <- (B + t(B)) / 2
     }
     if(missing(p) && !missing(q)) p <- q
-    if(missing(mu)) mu <- rep.int(0, n)
-    if(missing(Sigma)) Sigma <- In
     rqfp(nit, A, B, p = p, q = -q, r = 0,
          mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
@@ -117,8 +116,8 @@ rqfr <- function(nit = 1000L, A, B, p = 1, q = p, mu, Sigma, use_cpp = TRUE) {
 #' @rdname rqfr
 #' @export
 #'
-rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
-                  mu, Sigma, use_cpp = TRUE) {
+rqfmr <- function(nit, A, B, D, p = 1, q = p / 2, r = q,
+                  mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
     if(missing(A)) {
         if(missing(B)) {
             if(missing(D)) {
@@ -148,8 +147,6 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
     }
     if(missing(q) && !missing(r)) q <- r
     if(missing(p) && !missing(q)) p <- q + r
-    if(missing(mu)) mu <- rep.int(0, n)
-    if(missing(Sigma)) Sigma <- In
     rqfp(nit, A, B, D, p = p, q = -q, r = -r,
          mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
@@ -158,8 +155,8 @@ rqfmr <- function(nit = 1000L, A, B, D, p = 1, q = p / 2, r = q,
 #' @rdname rqfr
 #' @export
 #'
-rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1,
-                 mu, Sigma, use_cpp = TRUE) {
+rqfp <- function(nit, A, B, D, p = 1, q = 1, r = 1,
+                 mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
     if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
         stop("Package 'mvtnorm' required to use this function")
     }
@@ -193,8 +190,7 @@ rqfp <- function(nit = 1000L, A, B, D, p = 1, q = 1, r = 1,
     } else {
         D <- (D + t(D)) / 2
     }
-    if(missing(mu)) mu <- rep.int(0, n)
-    if(missing(Sigma)) Sigma <- In
+    if(length(nit) > 1) nit <- length(nit)
     if(use_cpp) {
         return(rqfpE(nit, A, B, D, p, q, r, mu, Sigma))
     }
