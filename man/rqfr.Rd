@@ -44,8 +44,10 @@ rqfp(
 )
 }
 \arguments{
-\item{nit}{Number of iteration or sample size.  Should be an integer-alike of
-length 1.}
+\item{nit}{Number of observation (iteration).  If \code{length(nit) > 1}, the length
+is taken to be the number required.  (Throughout the package
+\pkg{qfratio}, \code{n} is used internally for the size of argument
+matrices; hence this terminology.)}
 
 \item{A, B, D}{Argument matrices.  Assumed to be square matrices of the same order.  When
 missing, set to the identity matrix.  At least one of these must be
