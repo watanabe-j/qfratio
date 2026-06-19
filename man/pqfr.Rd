@@ -18,7 +18,6 @@ dqfr(
   trim_values = TRUE,
   normalize_spa = FALSE,
   return_abserr_attr = FALSE,
-  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   ...
@@ -36,7 +35,6 @@ pqfr(
   method = c("imhof", "davies", "forchini", "butler"),
   trim_values = TRUE,
   return_abserr_attr = FALSE,
-  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   ...
@@ -54,7 +52,6 @@ qqfr(
   trim_values = FALSE,
   return_abserr_attr = FALSE,
   stop_on_error = FALSE,
-  m = 100L,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   epsabs_q = .Machine$double.eps^(1/2),
@@ -114,9 +111,6 @@ the density integrates to unity (see \dQuote{Details})}
 
 \item{return_abserr_attr}{If \code{TRUE}, absolute error of numerical evaluation is returned
 as an attribute \code{"abserr"} (see \dQuote{Value})}
-
-\item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
-in Hillier et al. (2009, 2014).}
 
 \item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals

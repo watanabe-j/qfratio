@@ -28,7 +28,7 @@ dqfr_broda(
 dqfr_A1I1(
   quantile,
   LA,
-  m = 100L,
+  m_ser = 100L,
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
   tol_conv = .Machine$double.eps^(1/4),
@@ -78,7 +78,7 @@ pqfr_A1B1(
   quantile,
   A,
   B,
-  m = 100L,
+  m_ser = 100L,
   mu = rep.int(0, n),
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   stop_on_error = FALSE,
@@ -133,8 +133,9 @@ algorithm (see vignette: \code{vignette("qfratio_distr")}).}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{A}}
 
-\item{m}{Order of polynomials at which the series expression is truncated.  \eqn{M}
-in Hillier et al. (2009, 2014).}
+\item{m_ser}{Order of polynomials at which the series expression is
+truncated.  Equivalent to \code{m} in \code{\link{qfrm}()} but with a
+longer name to avoid partial matching problems.}
 
 \item{check_convergence}{Specifies how numerical convergence is checked for series expression (see
 \code{\link{qfrm}})}

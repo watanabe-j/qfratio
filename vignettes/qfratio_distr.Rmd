@@ -761,13 +761,13 @@ are implemented in `pqfr()` and `dqfr()`, which are defined as:
 pqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
-                 trim_values = TRUE, return_abserr_attr = FALSE, m = 100L,
+                 trim_values = TRUE, return_abserr_attr = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, ...) { ... }
 dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
-                 return_abserr_attr = FALSE, m = 100L,
+                 return_abserr_attr = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, ...) { ... }
 ```
@@ -787,7 +787,7 @@ defined as:
 ```{r definition_qqfr, eval = FALSE}
 qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
-                 return_abserr_attr = FALSE, stop_on_error = FALSE, m = 100L,
+                 return_abserr_attr = FALSE, stop_on_error = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
                  maxiter_q = 5000, ...) { ... }
@@ -827,7 +827,7 @@ dqfr(1.5, A, method = "butler")   # spa
 
 ## Not recommended; for diagnostic use only
 qfratio:::pqfr_imhof(1.5, A)
-qfratio:::pqfr_A1B1(1.5, A, m = 9, check_convergence = FALSE)
+qfratio:::pqfr_A1B1(1.5, A, m_ser = 9, check_convergence = FALSE)
 
 
 ## This is okay
@@ -879,7 +879,7 @@ ks.test(x, pqfr, A = A, B = B)
 ## Series expressions
 ```{r definition_internal_series, eval = FALSE}
 ## Used in pqfr(..., method = "forchini")
-pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
+pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L, mu = rep.int(0, n),
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
                       stop_on_error = FALSE, use_cpp = TRUE,
@@ -890,7 +890,7 @@ pqfr_A1B1 <- function(quantile, A, B, m = 100L, mu = rep.int(0, n),
                       tol_sing = tol_zero,
                       thr_margin = 100) { ... }
 ## Used in dqfr(..., method = "hillier")
-dqfr_A1I1 <- function(quantile, LA, m = 100L,
+dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
                       use_cpp = TRUE,
