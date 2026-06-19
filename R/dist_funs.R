@@ -100,11 +100,12 @@
 #'   numerical integration, or root finding.  If
 #'   \code{FALSE}, further execution is attempted regardless.
 #' @param epsabs_q,maxiter_q
-#'   Optional arguments used in root-finding for quantiles (see vignette:
-#'   \code{vignette("qfratio_distr")}).  Minor point: these are different from
-#'   \code{epsabs} and \code{maxiter}, which can be passed to \code{pqfr()}
-#'   via \code{...} and are used for numerical integration or root-finding
-#'   for saddlepoint approximation (see \code{\link{pqfr_int}}).
+#'   Optional arguments passed to \code{\link[stats]{uniroot}()} used for
+#'   root-finding for quantiles.  Minor point: similar arguments exist for
+#'   some internal functions of \code{pqfr()}, with the suffix \code{_p} (see
+#'   \code{\link{pqfr_int}}).  When using those in \code{qqfr()} (via
+#'   \code{...}), they must be specified with their full argument names
+#'   to avoid partial matching with these arguments for \code{qqfr()}.
 #' @param ...
 #'   Additional arguments passed to
 #'   \link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr}() or
@@ -275,7 +276,7 @@ NULL
 #' based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
 #' conduct numerical root-finding for the saddlepoint by the Brent method,
 #' parameters for which can be controlled by the arguments
-#' \code{epsabs}, \code{epsrel}, and \code{maxiter}
+#' \code{epsabs[_p]}, \code{epsrel[_p]}, and \code{maxiter[_p]}
 #' (see vignette: \code{vignette("qfratio_distr")}).
 #'
 #' @inheritParams pqfr
@@ -313,12 +314,12 @@ NULL
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 #'   functions (see \dQuote{Multithreading} in \code{\link{qfrm}})
-#' @param epsabs,epsrel,limit,maxiter
+#' @param epsabs,epsrel,limit,maxiter,epsabs_p,epsrel_p,limit_p,maxiter_p
 #'   Optional arguments used in numerical integration or root-finding
-#'   algorithm (see vignette: \code{vignette("qfratio_distr")}).
-#' @param ...
-#'     Additional arguments passed to \code{\link[CompQuadForm]{davies}()};
-#'     cannot include \code{sigma}, which is not applicable.
+#'   algorithm (see vignette: \code{vignette("qfratio_distr")}).  The suffix
+#'   \code{_p} is used in internal functions of \code{pqfr()} to avoid
+#'   partial matching with similar-named arguments used in
+#'   \code{\link{qqfr}()} with the suffix \code{_q}.
 #'
 #' @return
 #' A list containing \code{$d} or \code{$p}
@@ -730,7 +731,7 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE, use_cpp = TRUE,
                        tol_zero = .Machine$double.eps * 100,
-                       epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+                       epsabs_p = epsrel_p, epsrel_p = 1e-6, limit_p = 1e4) {
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -750,7 +751,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
     if(quantile ==  Inf) return(list(p = 1, abserr = 0))
     if(use_cpp) {
         cppres <- p_imhof_Ed(quantile, A, B, mu, autoscale_args,
-                             stop_on_error, tol_zero, epsabs, epsrel, limit)
+                             stop_on_error, tol_zero, epsabs_p, epsrel_p,
+                             limit_p)
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
@@ -771,8 +773,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
         }
         res <- CompQuadForm::imhof(0, lambda = L, h = rep.int(1, n),
                                    delta = delta2,
-                                   epsabs = pi * (epsabs + epsrel / 2),
-                                   epsrel = epsrel, limit = limit)
+                                   epsabs = pi * (epsabs_p + epsrel_p / 2),
+                                   epsrel = epsrel_p, limit = limit_p)
         value <- 1 - res$Qq
         abserr <- res$abserr / pi
     }
@@ -790,7 +792,8 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
 #'
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         autoscale_args = 1, stop_on_error = NULL,
-                        tol_zero = .Machine$double.eps * 100, ...) {
+                        tol_zero = .Machine$double.eps * 100,
+                        epsabs_p = 0.0001, limit_p = 10000) {
     ## If A or B is missing, let it be an identity matrix
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
@@ -827,7 +830,8 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
         L <- L / scale_L
     }
     res <- CompQuadForm::davies(0, lambda = L, h = rep.int(1, n),
-                                delta = delta2, sigma = 0, ...)
+                                delta = delta2, sigma = 0,
+                                lim = limit_p, acc = epsabs_p)
     p <- 1 - res$Qq
     return(list(p = p, trace = res$trace, ifault = res$ifault))
 }
@@ -843,8 +847,8 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
-                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
-                        maxiter = 5000) {
+                        epsabs_p = .Machine$double.eps ^ (1/2), epsrel_p = 0,
+                        maxiter_p = 5000) {
     Kder <- function(Xii, L, theta, j = 1) {
         tmp <- (L * Xii) ^ j * (1 + j * theta * Xii)
         2 ^ (j - 1) * factorial(j - 1) * sum(tmp)
@@ -875,7 +879,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
     if(quantile ==  Inf) return(list(p = 1))
     if(use_cpp) {
         cppres <- p_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
-                              tol_zero, epsabs, epsrel, maxiter)
+                              tol_zero, epsabs_p, epsrel_p, maxiter_p)
         value <- cppres$value
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
@@ -887,12 +891,12 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
         U <- eigA_qB$vectors
         mu <- c(crossprod(U, c(mu)))
         theta <- mu ^ 2
-        root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs * c(1, -1),
+        root_res <- stats::uniroot(Kp1, 1 / range(L) / 2 + epsabs_p * c(1, -1),
                                    L = L, theta = theta, extendInt = "upX",
-                                   check.conv = stop_on_error, tol = epsabs,
-                                   maxiter = maxiter)
+                                   check.conv = stop_on_error, tol = epsabs_p,
+                                   maxiter = maxiter_p)
         s <- root_res$root
-        if(abs(s) < max(epsabs, tol_zero)) {
+        if(abs(s) < max(epsabs_p, tol_zero)) {
             Xii_0 <- rep.int(1, n)
             Kp2_0 <- Kder(Xii_0, L, theta, 2)
             Kp3_0 <- Kder(Xii_0, L, theta, 3)

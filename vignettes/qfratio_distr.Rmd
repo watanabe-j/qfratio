@@ -944,11 +944,13 @@ pqfr(1.9999, A, method = "imhof")
 pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE, use_cpp = TRUE,
                        tol_zero = .Machine$double.eps * 100,
-                       epsabs = epsrel, epsrel = 1e-6, limit = 1e4) { ... }
+                       epsabs_p = epsrel_p, epsrel_p = 1e-6,
+                       limit_p = 1e4) { ... }
 ## Used in pqfr(..., method = "davies")
 pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         autoscale_args = 1,
-                        tol_zero = .Machine$double.eps * 100, ...) { ... }
+                        tol_zero = .Machine$double.eps * 100,
+                        epsabs_p = 1e-4, limit_p = 1e4) { ... }
 ## Used in dqfr(..., method = "broda") (default)
 dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
                        autoscale_args = 1, stop_on_error = TRUE,
@@ -961,7 +963,9 @@ conduct numerical integration by the `C` function
 `gsl_integration_qagi(..., epsabs, epsrel, limit)` from `GSL`.
 The arguments `epsabs`, `epsrel`, and `limit` determine the permissible bounds
 of absolute and relative errors, and the maximum number of integration
-intervals, respectively.
+intervals, respectively (the `_p` suffix in `pqfr_*()` is to avoid partial
+matching issues when called within `qqfr()`, which has arguments with similar
+names).
 `dqfr_broda(..., use_cpp = FALSE)` uses the `R` function
 `stats::integrate(..., rel.tol = epsrel, abs.tol = epsabs, stop.on.error = stop_on_error)`,
 instead, and `limit` is ignored.
@@ -979,9 +983,10 @@ $e_I \leq \epsilon_{\mathrm{abs}} + \lvert I \rvert \epsilon_{\mathrm{rel}}$,
 where $I$ is the result of integration.
 
 Internally, $\epsilon_{\mathrm{abs}}$ is calculated from the user-specified
-arguments `epsabs` and `epsrel` to appropriately constrain the density
-or distribution function (whereas $\epsilon_{\mathrm{rel}}$ is always
-specified by `epsrel`).
+arguments `epsabs` and `epsrel` (or  `epsabs_p` and `epsrel_p`; the suffix `_p`
+is omitted in the text hereafter) to appropriately constrain the density or
+distribution function (whereas $\epsilon_{\mathrm{rel}}$ is always specified
+by `epsrel`).
 In `dqfr_broda()`, `pi * epsabs` is used as $\epsilon_{\mathrm{abs}}$,
 and the resultant error bound `abserr` is subsequently divided by `pi`,
 so is the integration result itself to yield the density: $f_Q = I / \pi$
@@ -1076,8 +1081,8 @@ dqfr(1.2, diag(1:30), return_abserr_attr = TRUE)
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
-                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
-                        maxiter = 5000) { ... }
+                        epsabs_p = .Machine$double.eps ^ (1/2), epsrel_p = 0,
+                        maxiter_p = 5000) { ... }
 ## Used in dqfr(..., method = "butler")
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,

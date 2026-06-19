@@ -58,9 +58,9 @@ pqfr_imhof(
   stop_on_error = TRUE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
-  epsabs = epsrel,
-  epsrel = 1e-06,
-  limit = 10000
+  epsabs_p = epsrel_p,
+  epsrel_p = 1e-06,
+  limit_p = 10000
 )
 
 pqfr_davies(
@@ -71,7 +71,8 @@ pqfr_davies(
   autoscale_args = 1,
   stop_on_error = NULL,
   tol_zero = .Machine$double.eps * 100,
-  ...
+  epsabs_p = 1e-04,
+  limit_p = 10000
 )
 
 pqfr_A1B1(
@@ -99,9 +100,9 @@ pqfr_butler(
   stop_on_error = FALSE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
-  epsabs = .Machine$double.eps^(1/2),
-  epsrel = 0,
-  maxiter = 5000
+  epsabs_p = .Machine$double.eps^(1/2),
+  epsrel_p = 0,
+  maxiter_p = 5000
 )
 }
 \arguments{
@@ -128,8 +129,11 @@ functions via \code{Rcpp}.  \code{TRUE} by default.}
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{epsabs, epsrel, limit, maxiter}{Optional arguments used in numerical integration or root-finding
-algorithm (see vignette: \code{vignette("qfratio_distr")}).}
+\item{epsabs, epsrel, limit, maxiter, epsabs_p, epsrel_p, limit_p, maxiter_p}{Optional arguments used in numerical integration or root-finding
+algorithm (see vignette: \code{vignette("qfratio_distr")}).  The suffix
+\code{_p} is used in internal functions of \code{pqfr()} to avoid
+partial matching with similar-named arguments used in
+\code{\link{qqfr}()} with the suffix \code{_q}.}
 
 \item{LA}{Eigenvalues of \eqn{\mathbf{A}}{A}}
 
@@ -150,9 +154,6 @@ in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
 \item{order_spa}{Numeric to determine order of saddlepoint approximation.  More accurate
 second-order approximation is used for any \code{order > 1} (default);
 otherwise, (very slightly) faster first-order approximation is used.}
-
-\item{...}{Additional arguments passed to \code{\link[CompQuadForm]{davies}()};
-cannot include \code{sigma}, which is not applicable.}
 
 \item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details} in \code{\link{qfrm}})}
@@ -243,7 +244,7 @@ approximations of the density and distribution function, respectively,
 based on Butler & Paolella (2007, 2008).  These are fast but not exact.  They
 conduct numerical root-finding for the saddlepoint by the Brent method,
 parameters for which can be controlled by the arguments
-\code{epsabs}, \code{epsrel}, and \code{maxiter}
+\code{epsabs[_p]}, \code{epsrel[_p]}, and \code{maxiter[_p]}
 (see vignette: \code{vignette("qfratio_distr")}).
 }
 \references{
