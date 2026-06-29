@@ -343,26 +343,33 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         return(qfrm(KtAK, KtBK, p, q, m = m, mu = iKmu,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
+    ## Safeguard against vectorization where options may or may not be needed:
+    ## Final result is obtained from one of internals with do.call()
+    ## Arguments are stored in a list and unrequired ones are eraced
+    arg_list <- list(A = A, p = p, q = q, m = m, mu = mu,
+                     tol_zero = tol_zero, tol_sing = tol_sing)
+    arg_list <- c(arg_list, list(...))
     if(iseq(B, In, tol_zero)) {
         if((p %% 1) == 0 && p > 0) {
-            return(qfrm_ApIq_int(A = A, p = p, q = q, m = m, mu = mu,
-                                 tol_zero = tol_zero, ...))
+            arg_list[c("tol_sing", "error_bound", "check_convergence",
+                       "cpp_method", "alphaA")] <- NULL
+            return(do.call(qfrm_ApIq_int, arg_list))
         } else {
-            return(qfrm_ApIq_npi(A = A, p = p, q = q, m = m, mu = mu,
-                                 tol_zero = tol_zero, tol_sing = tol_sing, ...))
+            return(do.call(qfrm_ApIq_npi, arg_list))
         }
     } else {
         if(iseq(A, In, tol_zero)) {
-            return(qfrm_ApIq_npi(A = B, p = -q, q = -p, m = m, mu = mu,
-                                 tol_zero = tol_zero, tol_sing = tol_sing, ...))
+            arg_list[c("A", "p", "q")] <- list(B, -q, -p)
+            return(do.call(qfrm_ApIq_npi, arg_list))
         }
     }
+    arg_list[["B"]] <- B
     if((p %% 1) == 0) {
-        return(qfrm_ApBq_int(A = A, B = B, p = p, q = q, m = m, mu = mu,
-                             tol_zero = tol_zero, tol_sing = tol_sing, ...))
+        arg_list["alphaA"] <- NULL
+        return(do.call(qfrm_ApBq_int, arg_list))
     } else {
-        return(qfrm_ApBq_npi(A = A, B = B, p = p, q = q, m = m, mu = mu,
-                             tol_zero = tol_zero, tol_sing = tol_sing, ...))
+        arg_list["error_bound"] <- NULL
+        return(do.call(qfrm_ApBq_npi, arg_list))
     }
 }
 ##### qfmrm #####
@@ -583,9 +590,11 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                      tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
     if(iseq(A, In, tol_zero)) {
-        return(qfmrm_IpBDqr_gen(B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu,
-                                tol_zero = tol_zero, tol_sing = tol_sing, ...))
+        arg_list <- list(B = B, D = D, p = p, q = q, r = r, m = m, mu = mu,
+                         tol_zero = tol_zero, tol_sing = tol_sing)
+        arg_list <- c(arg_list, list(...))
+        arg_list[c("error_bound", "alphaA")] <- NULL
+        return(do.call(qfmrm_IpBDqr_gen, arg_list))
     }
     ## If B == In, swap B and D
     if(iseq(B, In, tol_zero)) {
@@ -595,28 +604,26 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         q <- r
         r <- qtemp
     }
+    arg_list <- list(A = A, B = B, p = p, q = q, r = r, m = m, mu = mu,
+                     tol_zero = tol_zero, tol_sing = tol_sing)
+    arg_list <- c(arg_list, list(...))
     if(iseq(D, In, tol_zero)) {
+        arg_list["alphaD"] <- NULL
         if((p %% 1) == 0 && p > 0) {
-            return(qfmrm_ApBIqr_int(A = A, B = B, p = p, q = q, r = r, m = m,
-                                    mu = mu,
-                                    tol_zero = tol_zero, tol_sing = tol_sing,
-                                    ...))
+            arg_list["alphaA"] <- NULL
+            return(do.call(qfmrm_ApBIqr_int, arg_list))
         } else {
-            return(qfmrm_ApBIqr_npi(A = A, B = B, p = p, q = q, r = r, m = m,
-                                    mu = mu,
-                                    tol_zero = tol_zero, tol_sing = tol_sing,
-                                    ...))
+            arg_list["error_bound"] <- NULL
+            return(do.call(qfmrm_ApBIqr_npi, arg_list))
         }
     }
+    arg_list[["D"]] <- D
+    arg_list["error_bound"] <- NULL
     if((p %% 1) == 0) {
-        return(qfmrm_ApBDqr_int(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu,
-                                tol_zero = tol_zero, tol_sing = tol_sing,
-                                ...))
+        arg_list["alphaA"] <- NULL
+        return(do.call(qfmrm_ApBDqr_int, arg_list))
     } else {
-        return(qfmrm_ApBDqr_npi(A = A, B = B, D = D, p = p, q = q, r = r, m = m,
-                                mu = mu,
-                                tol_zero = tol_zero, tol_sing = tol_sing, ...))
+        return(do.call(qfmrm_ApBDqr_npi, arg_list))
     }
 }
 
