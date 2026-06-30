@@ -91,12 +91,13 @@ of Hillier (2001)}
 \item{\code{"butler"}}{use \code{dqfr_butler()}, saddlepoint
 approximation of Butler & Paolella (2007, 2008)}
 }
-In \code{pqfr()}, options are:
+In \code{pqfr()} (and \code{qqfr()}), options are:
 \describe{
 \item{\code{"imhof"}}{default; use \code{pqfr_imhof()}, numerical
 inversion of Imhof (1961)}
 \item{\code{"davies"}}{use \code{pqfr_davies()}, numerical inversion
-of Davies (1973, 1980)}
+of Davies (1973, 1980) -- this is \strong{experimental} and may be
+removed in the future}
 \item{\code{"forchini"}}{use \code{pqfr_A1B1()}, series expression
 of Forchini (2002, 2005)}
 \item{\code{"butler"}}{use \code{pqfr_butler()}, saddlepoint
