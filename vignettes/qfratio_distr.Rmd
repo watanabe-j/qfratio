@@ -758,13 +758,13 @@ in a very similar way to `pqfr(..., method = "butler")` (see below).
 The above expressions for the distribution and density functions
 are implemented in `pqfr()` and `dqfr()`, which are defined as:
 ```{r definition_exported, eval = FALSE}
-pqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
+pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                  lower.tail = TRUE, log.p = FALSE,
                  method = c("imhof", "davies", "forchini", "butler"),
                  trim_values = TRUE, return_abserr_attr = FALSE,
                  tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, ...) { ... }
-dqfr <- function(quantile, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
+dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                  log = FALSE, method = c("broda", "hillier", "butler"),
                  trim_values = TRUE, normalize_spa = FALSE,
                  return_abserr_attr = FALSE,
@@ -785,10 +785,10 @@ as in regular probability distribution functions.
 There is also `qqfr()` for the corresponding quantile function, which is
 defined as:
 ```{r definition_qqfr, eval = FALSE}
-qqfr <- function(probability, A, B, p = 1, mu = rep.int(0, n), Sigma = diag(n),
-                 lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
-                 return_abserr_attr = FALSE, stop_on_error = FALSE,
-                 tol_zero = .Machine$double.eps * 100,
+qqfr <- function(probability, A, B, power = 1, mu = rep.int(0, n),
+                 Sigma = diag(n), lower.tail = TRUE, log.p = FALSE,
+                 trim_values = FALSE, return_abserr_attr = FALSE,
+                 stop_on_error = FALSE, tol_zero = .Machine$double.eps * 100,
                  tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
                  maxiter_q = 5000, ...) { ... }
 ```
@@ -1052,7 +1052,7 @@ the mathematically permissible supports; $[ 0, \infty )$ and $[0, 1]$ for
 the density and distribution functions, respectively.
 By default (`trim_values = TRUE`), the external functions
 `dqfr()` and `pqfr()` trim those values into the permissible
-range by using `tol_zero` as a margin; e.g., negative p-values are
+range by using `tol_zero` as a margin; e.g., negative $p$-values are
 replaced by ~`2.2e-14` (default `tol_zero`).  A warning is
 thrown if this happens, because it usually means that numerically accurate
 evaluation was impossible, at least with the given parameters.  Turn
@@ -1276,11 +1276,11 @@ qqfr(0, A, return_abserr_attr = TRUE)
 
 For completeness, `pqfr()` and `dqfr()` can be used to evaluate powers of
 ratios of quadratic forms, $Q^p$, with the exponent specified by the argument
-`p` (default `1`).
+`power` (default `1`).
 Note that, unlike moment-related functions of this package, the numerator
 and denominator must have the same exponent.
-When `p != 1`, these functions return appropriate results typically by
-transforming those from `p == 1` with recursive calling.
+When `power != 1`, these functions return appropriate results typically by
+transforming those from `power == 1` with recursive calling.
 
 For the rest of this section, consider the distribution and density functions
 of $R = Q^p$ at $r = q^p$.
@@ -1309,7 +1309,7 @@ In this case, the relationship between $Q$ and $R$ is one-to-one, so that
   \end{aligned}
 \end{equation}
 Thus, the result can be obtained by a single recursive call of
-`pqfr(..., p = 1)` or `dqfr(..., p = 1)` with transformed `quantile`.
+`pqfr(..., power = 1)` or `dqfr(..., power = 1)` with transformed `quantile`.
 
 
 ### When $\mathbf{A}$ is indefinite and $p$ is an even integer
@@ -1340,13 +1340,13 @@ In this case, $R$ is an even function of $Q$, so that
   \end{aligned}
 \end{equation}
 Thus, for $r > 0$, the result is obtained from two recursive calls of
-`pqfr(..., p = 1)` or `dqfr(..., p = 1)` with transformed `quantile`.
+`pqfr(..., power = 1)` or `dqfr(..., power = 1)` with transformed `quantile`.
 
 
 ### When $\mathbf{A}$ is indefinite and $p$ is non-integer
 
 In this case, $R$ can be undefined, so `pqfr()` and `dqfr()` return an error,
-`"A must be nonnegative definite when p is non-integer"`,
+`"A must be nonnegative definite when power is non-integer"`,
 *regardless of the value of* `quantile`.
 
 

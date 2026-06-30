@@ -215,9 +215,10 @@ $\left( \mathbf{x}^T \mathbf{A} \mathbf{x} /
         \mathbf{x}^T \mathbf{B} \mathbf{x} \right) ^ p$, where
 $\mathbf{x} \sim N_n \left(\boldsymbol{\mu}, \boldsymbol{\Sigma}\right)$.
 
-These are implemented in `pqfr(quantile, A, B, p, ...)`,
-`dqfr(quantile, A, B, p, ...)`, and `qqfr(probability, A, B, p, ...)`,
-whose usage mimics that of regular distribution-related functions.
+These are implemented in `pqfr(quantile, A, B, power, ...)`,
+`dqfr(quantile, A, B, power, ...)`, and
+`qqfr(probability, A, B, power, ...)`, whose usage mimics that of
+regular distribution-related functions.
 
 ``` r
 ## Example parameters

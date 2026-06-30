@@ -10,7 +10,7 @@ dqfr(
   quantile,
   A,
   B,
-  p = 1,
+  power = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
   log = FALSE,
@@ -27,7 +27,7 @@ pqfr(
   quantile,
   A,
   B,
-  p = 1,
+  power = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
   lower.tail = TRUE,
@@ -44,7 +44,7 @@ qqfr(
   probability,
   A,
   B,
-  p = 1,
+  power = 1,
   mu = rep.int(0, n),
   Sigma = diag(n),
   lower.tail = TRUE,
@@ -66,9 +66,9 @@ to \code{x}, \code{q}, or \code{p} in, e.g., \code{\link[stats]{dnorm}()}}
 \item{A, B}{Numerator and denominator argument matrices, respectively, of quadratic
 forms.  Should be square.  Will be automatically symmetrized.}
 
-\item{p}{Positive exponent of the ratio, default \code{1}.  Unlike in
+\item{power}{Positive exponent \eqn{p} of the ratio, default \code{1}.  Unlike in
 \code{\link{qfrm}()}, the numerator and denominator cannot have
-different exponents.  When \code{p} is non-integer, \code{A} must be
+different exponents.  When \code{power} is non-integer, \code{A} must be
 nonnegative definite.  For details, see vignette
 \code{vignette("qfratio_distr")}.}
 
