@@ -56,10 +56,10 @@
 #' @name rqfr
 #'
 #' @examples
-#' p <- 4
-#' A <- diag(1:p)
-#' B <- diag(p:1)
-#' D <- diag(sqrt(1:p))
+#' nv <- 4
+#' A <- diag(1:nv)
+#' B <- diag(nv:1)
+#' D <- diag(sqrt(1:nv))
 #'
 #' ## By default B = I, p = q = 1;
 #' ## i.e., (x^T A x) / (x^T x), x ~ N(0, I)
@@ -78,10 +78,10 @@
 #' rqfp(5, A, B, D)
 #'
 #' ## Example with non-standard normal
-#' mu <- 1:p / p
-#' Sigma <- matrix(0.5, p, p)
+#' mu <- 1:nv / nv
+#' Sigma <- matrix(0.5, nv, nv)
 #' diag(Sigma) <- 1
-#' rqfr(5, A, mu = 1:p / p, Sigma = Sigma)
+#' rqfr(5, A, mu = 1:nv / nv, Sigma = Sigma)
 #'
 #' ## Compare Monte Carlo sample and analytic expression
 #' set.seed(3)
