@@ -17,8 +17,11 @@
 #' Internally, \code{rqfr()} and \code{rqfmr()} just call \code{rqfp()} with
 #' negative exponents.
 #'
-#' When only one of \code{p} and \code{q} is provided in \code{rqfr()},
-#' the other (missing) one is set to the same value.
+#' In \code{rqfr()}, when both \code{p} and \code{q} are missing, these are
+#' set to \code{power}; otherwise, \code{power} is ignored (if its
+#' user-specified value does not match that of \code{p} or \code{q}, a warning
+#' is thrown).  When only one of \code{p} and \code{q} is provided, the other
+#' (missing) one is set to the same value.
 #'
 #' In \code{rqfmr()}, \code{q} and \code{r} are set to \code{p/2}
 #' when both missing, and set to the same value when only one is missing.  When
@@ -42,6 +45,11 @@
 #'   Argument matrices.  Assumed to be square matrices of the same order.  When
 #'   missing, set to the identity matrix.  At least one of these must be
 #'   specified.
+#' @param power
+#'   *Only in \code{rqfr()}.*  Positive exponent \eqn{p} of the ratio, default
+#'   \code{1}.  When both \code{p} and \code{q} are missing, they are set to
+#'   this value; otherwise ignored.  This is mainly for compatibility with
+#'   \code{\link{pqfr}()} and others.
 #' @param p,q,r
 #'   Exponents for quadratic forms of A, B, D, respectively.  Assumed to be
 #'   numeric of length 1 each.  See \dQuote{Details} for default values.
@@ -64,6 +72,13 @@
 #' ## By default B = I, p = q = 1;
 #' ## i.e., (x^T A x) / (x^T x), x ~ N(0, I)
 #' rqfr(5, A)
+#'
+#' ## ((x^T A x) / (x^T B x))^2, x ~ N(0, I)
+#' rqfr(5, A, B, power = 2) # same result with p = 2 or q = 2
+#'
+#' ## (x^T A x) / (x^T B x)^2, x ~ N(0, I)
+#' ## Specify both p and q when the exponents do not match
+#' rqfr(5, A, B, p = 1, q = 2)
 #'
 #' ## (x^T A x) / ((x^T B x)(x^T D x))^(1/2), x ~ N(0, I)
 #' rqfmr(5, A, B, D, 1, 1/2, 1/2)
@@ -92,8 +107,8 @@
 #'
 #' @export
 #'
-rqfr <- function(nit, A, B, p = 1, q = p, mu = rep.int(0, n), Sigma = diag(n),
-                 use_cpp = TRUE) {
+rqfr <- function(nit, A, B, power = 1, p = power, q = p,
+                 mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
     if(missing(A)) {
         if(missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
@@ -107,6 +122,11 @@ rqfr <- function(nit, A, B, p = 1, q = p, mu = rep.int(0, n), Sigma = diag(n),
         B <- In
     }
     if(missing(p) && !missing(q)) p <- q
+    if(!missing(power)) {
+        if(power != p || power != q) {
+            warning("power is ignored when p or q is given")
+        }
+    }
     rqfp(nit, A, B, p = p, q = -q, r = 0,
          mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
