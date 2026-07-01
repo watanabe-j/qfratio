@@ -4,6 +4,7 @@
 \alias{pqfr}
 \alias{dqfr}
 \alias{qqfr}
+\alias{mqfr}
 \title{Probability distribution of ratio of quadratic forms}
 \usage{
 dqfr(
@@ -56,6 +57,16 @@ qqfr(
   tol_sing = tol_zero,
   epsabs_q = .Machine$double.eps^(1/2),
   maxiter_q = 5000,
+  ...
+)
+
+mqfr(
+  power = 1,
+  A,
+  B,
+  mu = rep.int(0, n),
+  Sigma = diag(n),
+  return_abserr_attr = FALSE,
   ...
 )
 }
@@ -121,8 +132,9 @@ the identity matrix, etc.}
 eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments passed to
-\link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr}() or
-\code{pqfr()}) or \code{pqfr()} (in case of \code{qqfr()})}
+\link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr()} or
+\code{pqfr()}), \code{pqfr()} (in case of \code{qqfr()}), or
+\code{\link{qfrm}()} (in case of \code{mqfr()})}
 
 \item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
 non-convergence) in evaluation of hypergeometric function,
@@ -152,8 +164,8 @@ trimming happens with \code{trim_values} (above) or when
 (\code{vignette("qfratio_distr")}).
 }
 \description{
-Density, distribution function, and quantile function of the (power of)
-ratio of quadratic forms in normal variables,
+Density, distribution function, quantile function, and moments of the
+(power of) ratio of quadratic forms in normal variables,
 \eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
                    \mathbf{x^{\mathit{T}} B x} } \right) ^ p
 }{ ((x^T A x) / (x^T B x))^p }, where
@@ -163,14 +175,21 @@ distributions, e.g., \code{\link[stats]{dnorm}()}.
 }
 \details{
 These functions are (pseudo-)vectorized
-with respect to \code{quantile} or \code{probability}.  The actual
-calculations are done by one of the
-\link[qfratio:pqfr_int]{internal functions}.
+with respect to \code{quantile}, \code{probability}, or, in case of
+\code{mqfr()}, \code{power}.  The
+actual calculations are done by one of the
+\link[=pqfr_int]{internal functions} (in case of \code{dqfr()} and
+\code{pqfr()}) or \code{\link{qfrm}()} (\code{mqfr()}).
 
 \code{qqfr()} is based on numerical root-finding with \code{pqfr()} using
 \code{\link[stats]{uniroot}()}, so its result can be affected by the
 numerical errors in both the algorithm used in \code{pqfr()} and
 root-finding.
+
+\code{mqfr()} is essentially a wrapper of \code{\link{qfrm}()}; the latter
+returns a \code{\link[=new_qfrm]{qfrm}} object, which is a list with several
+elements; the former extracts the value of the moment (\code{$statistic})
+from that and returns it as a numeric vector.
 
 The density is undefined, and the distribution function has points of
 nonanalyticity, at the eigenvalues of
@@ -300,6 +319,8 @@ variables.
 \code{\link{rqfr}}, a Monte Carlo random number generator
 
 \code{\link{pqfr_int}}, internal functions for additional arguments
+
+\code{\link{qfrm}} for details of moment evaluation
 
 \code{vignette("qfratio_distr")} for mathematical details
 }

@@ -1,8 +1,8 @@
 ##### pqfr #####
 #' Probability distribution of ratio of quadratic forms
 #'
-#' Density, distribution function, and quantile function of the (power of)
-#' ratio of quadratic forms in normal variables,
+#' Density, distribution function, quantile function, and moments of the
+#' (power of) ratio of quadratic forms in normal variables,
 #' \eqn{\left( \frac{ \mathbf{x^{\mathit{T}} A x} }{
 #'                    \mathbf{x^{\mathit{T}} B x} } \right) ^ p
 #' }{ ((x^T A x) / (x^T B x))^p }, where
@@ -11,14 +11,21 @@
 #' distributions, e.g., \code{\link[stats]{dnorm}()}.
 #'
 #' These functions are (pseudo-)vectorized
-#' with respect to \code{quantile} or \code{probability}.  The actual
-#' calculations are done by one of the
-#' \link[qfratio:pqfr_int]{internal functions}.
+#' with respect to \code{quantile}, \code{probability}, or, in case of
+#' \code{mqfr()}, \code{power}.  The
+#' actual calculations are done by one of the
+#' \link[=pqfr_int]{internal functions} (in case of \code{dqfr()} and
+#' \code{pqfr()}) or \code{\link{qfrm}()} (\code{mqfr()}).
 #'
 #' \code{qqfr()} is based on numerical root-finding with \code{pqfr()} using
 #' \code{\link[stats]{uniroot}()}, so its result can be affected by the
 #' numerical errors in both the algorithm used in \code{pqfr()} and
 #' root-finding.
+#'
+#' \code{mqfr()} is essentially a wrapper of \code{\link{qfrm}()}; the latter
+#' returns a \code{\link[=new_qfrm]{qfrm}} object, which is a list with several
+#' elements; the former extracts the value of the moment (\code{$statistic})
+#' from that and returns it as a numeric vector.
 #'
 #' The density is undefined, and the distribution function has points of
 #' nonanalyticity, at the eigenvalues of
@@ -109,8 +116,9 @@
 #'   to avoid partial matching with these arguments for \code{qqfr()}.
 #' @param ...
 #'   Additional arguments passed to
-#'   \link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr}() or
-#'   \code{pqfr()}) or \code{pqfr()} (in case of \code{qqfr()})
+#'   \link[qfratio:pqfr_int]{internal function} (in case of \code{dqfr()} or
+#'   \code{pqfr()}), \code{pqfr()} (in case of \code{qqfr()}), or
+#'   \code{\link{qfrm}()} (in case of \code{mqfr()})
 #'
 #' @return
 #' \code{dqfr()} and \code{pqfr()} give the density and distribution
@@ -176,6 +184,8 @@
 #' @seealso \code{\link{rqfr}}, a Monte Carlo random number generator
 #'
 #' \code{\link{pqfr_int}}, internal functions for additional arguments
+#'
+#' \code{\link{qfrm}} for details of moment evaluation
 #'
 #' \code{vignette("qfratio_distr")} for mathematical details
 #'
@@ -1585,5 +1595,56 @@ qqfr <- function(probability, A, B, power = 1,
         attr(ans, "abserr") <- abserr
     }
     if(any(is.nan(ans[!is.nan(probability)]))) warning("NaNs produced")
+    return(ans)
+}
+
+
+##### mqfr #####
+#' @rdname pqfr
+#' @order 4
+#'
+#' @export
+#'
+mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
+                 return_abserr_attr = FALSE, ...) {
+    qf_fun <- function(p, A, B, mu, Sigma, ...) {
+        res <- qfrm(A = A, B = B, p = p, mu = mu, Sigma = Sigma,
+                    error_bound = return_abserr_attr, ...)
+        error_bound <- res$error_bound
+        c(statistic = res$statistic,
+          error_bound = if(is.null(error_bound)) NA_real_ else error_bound)
+    }
+    ## If A or B is missing, let it be an identity matrix
+    ## If they are given, symmetrize
+    if(missing(A)) {
+        if(missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if(missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    res <- sapply(power, function(p) qf_fun(p, A, B, mu, Sigma, ...))
+    ans <- res["statistic", ]
+    if(return_abserr_attr) {
+        abserr <- res["error_bound", ]
+    }
+    attributes(ans) <- attributes(power)
+    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if(is.null(dim(power))) {
+            names(abserr) <- names(power)
+        } else {
+            dim(abserr) <- dim(power)
+            dimnames(abserr) <- dimnames(power)
+        }
+        attr(ans, "abserr") <- abserr
+    }
     return(ans)
 }
