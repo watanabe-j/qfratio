@@ -350,7 +350,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
                      tol_zero = tol_zero, tol_sing = tol_sing)
     arg_list <- c(arg_list, list(...))
     if(iseq(B, In, tol_zero)) {
-        if((p %% 1) == 0 && p > 0) {
+        if((p %% 1) == 0 && p >= 0) {
             arg_list[c("tol_sing", "error_bound", "check_convergence",
                        "cpp_method", "alphaA")] <- NULL
             return(do.call(qfrm_ApIq_int, arg_list))
@@ -358,6 +358,11 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
             return(do.call(qfrm_ApIq_npi, arg_list))
         }
     } else {
+        if(q == 0) {
+            ## When q == 0, call recursively without B, which then will be In
+            ## Do this only when B != In, to avoid infinite loop
+            return(do.call(qfrm, arg_list))
+        }
         if(iseq(A, In, tol_zero)) {
             arg_list[c("A", "p", "q")] <- list(B, -q, -p)
             return(do.call(qfrm_ApIq_npi, arg_list))
@@ -560,6 +565,15 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         return(qfrm(A, D, p - q, r, m = m, mu = mu, Sigma = Sigma,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
+    ## If any denominator exponent is zero, reduce the problem to a simple ratio
+    if(r == 0) {
+        return(qfrm(A, B, p, q, m = m, mu = mu, Sigma = Sigma,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+    }
+    if(q == 0) {
+        return(qfrm(A, D, p, r, m = m, mu = mu, Sigma = Sigma,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+    }
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
     if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
@@ -609,7 +623,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     arg_list <- c(arg_list, list(...))
     if(iseq(D, In, tol_zero)) {
         arg_list["alphaD"] <- NULL
-        if((p %% 1) == 0 && p > 0) {
+        if((p %% 1) == 0 && p >= 0) {
             arg_list["alphaA"] <- NULL
             return(do.call(qfmrm_ApBIqr_int, arg_list))
         } else {
@@ -1063,10 +1077,10 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     n <- ncol(A)
     stopifnot(
         "A must be a square matrix" = all(c(dim(A)) == n),
-        "p must be a positive integer" = {
+        "p must be a nonnegative integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
-            p >= 1
+            p >= 0
         },
         "q must be a nonnegative real number" = {
             length(q) == 1 &&
@@ -1332,10 +1346,10 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
-        "p must be a positive integer" = {
+        "p must be a nonnegative integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
-            p >= 1
+            p >= 0
         },
         "q must be a nonnegative real number" = {
             length(q) == 1 &&
@@ -1752,10 +1766,10 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     ## Check basic requirements for arguments
     stopifnot(
         "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
-        "p must be a positive integer" = {
+        "p must be a nonnegative integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
-            p >= 1
+            p >= 0
         },
         "q must be a nonnegative real number" = {
             length(q) == 1 &&
@@ -2460,10 +2474,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     stopifnot(
         "A, B and D must be square matrices" =
             all(c(dim(A), dim(B), dim(D)) == n),
-        "p must be a positive integer" = {
+        "p must be a nonnegative integer" = {
             length(p) == 1 &&
             (p %% 1) == 0 &&
-            p >= 1
+            p >= 0
         },
         "q must be a nonnegative real number" = {
             length(q) == 1 &&
