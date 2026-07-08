@@ -352,7 +352,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     if(iseq(B, In, tol_zero)) {
         if((p %% 1) == 0 && p >= 0) {
             arg_list[c("tol_sing", "error_bound", "check_convergence",
-                       "cpp_method", "alphaA")] <- NULL
+                       "cpp_method", "alphaA", "tol_conv")] <- NULL
             return(do.call(qfrm_ApIq_int, arg_list))
         } else {
             return(do.call(qfrm_ApIq_npi, arg_list))
@@ -361,6 +361,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         if(q == 0) {
             ## When q == 0, call recursively without B, which then will be In
             ## Do this only when B != In, to avoid infinite loop
+            arg_list[c("alphaB")] <- NULL
             return(do.call(qfrm, arg_list))
         }
         if(iseq(A, In, tol_zero)) {
@@ -551,28 +552,50 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     }
     if(missing(p) && (!missing(q) || !missing(r))) p <- q + r
     zeros <- rep.int(0, n)
-    ## If any pair of the three arguments are equal,
+    ## If any pair of argument matrices are equal or q or r equals 0,
     ## reduce the problem to a simple ratio
-    if(iseq(B, D, tol_zero)) {
-        return(qfrm(A, B, p, q + r, m = m, mu = mu, Sigma = Sigma,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
-    }
-    if(iseq(A, D, tol_zero) && p >= r) {
-        return(qfrm(A, B, p - r, q, m = m, mu = mu, Sigma = Sigma,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
-    }
-    if(iseq(A, B, tol_zero) && p >= q) {
-        return(qfrm(A, D, p - q, r, m = m, mu = mu, Sigma = Sigma,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
-    }
-    ## If any denominator exponent is zero, reduce the problem to a simple ratio
-    if(r == 0) {
-        return(qfrm(A, B, p, q, m = m, mu = mu, Sigma = Sigma,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
-    }
-    if(q == 0) {
-        return(qfrm(A, D, p, r, m = m, mu = mu, Sigma = Sigma,
-                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+    B_equals_D <- iseq(B, D, tol_zero)
+    A_equals_D <- iseq(A, D, tol_zero) && p >= r
+    A_equals_B <- iseq(A, B, tol_zero) && p >= q
+    r_equals_0 <- r == 0
+    q_equals_0 <- q == 0
+    if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0) {
+        arg_qfrm <- list(A = A, B = B, p = p, q = q, m = m, mu = mu,
+                         Sigma = Sigma, tol_zero = tol_zero,
+                         tol_sing = tol_sing)
+        arg_qfrm <- c(arg_qfrm, list(...))
+        ## Modify args; when only r_equals_0, above default is used;
+        ## it's still benign to do below when conditions hold.
+        ## "else if" used to avoid complication when more than one holds
+        if(A_equals_B || q_equals_0) {
+            ## A partially cancelled with B; put D in place of B
+            arg_qfrm[["p"]] <- p - q
+            arg_qfrm[["q"]] <- r
+            arg_qfrm[["B"]] <- D
+            if(!(q_equals_0) && ("alphaB" %in% names(arg_qfrm))) {
+                warning("B cancels with A; alphaB is ignored")
+            }
+            arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
+        } else if(B_equals_D) { ## Merge B and D
+            arg_qfrm[["q"]] <- q + r
+            if("alphaD" %in% names(arg_qfrm)) {
+                if("alphaB" %in% names(arg_qfrm)) {
+                    ## When both alphaB and alphaD exist, use alphaB but warn
+                    warning("With B == D, the denominator factors are merged; ",
+                            "alphaD is ignored")
+                } else {
+                    ## When only alphaD exists, copy it into alphaB
+                    arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
+                }
+            }
+        } else if(A_equals_D) {
+            arg_qfrm[["p"]] <- p - r
+            if("alphaD" %in% names(arg_qfrm)) {
+                warning("D cancels with A; alphaD is ignored")
+            }
+        }
+        arg_qfrm["alphaD"] <- NULL
+        return(do.call(qfrm, arg_qfrm))
     }
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
