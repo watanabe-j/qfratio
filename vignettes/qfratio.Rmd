@@ -265,7 +265,7 @@ For the multiple ratio, the expression for an arbitrary $p$ is
 \begin{aligned}
   \qfrE \! \left( \frac{(\mathbf{x}^T \mathbf{A} \mathbf{x})^p}{(\mathbf{x}^T \mathbf{B} \mathbf{x})^q (\mathbf{x}^T \mathbf{D} \mathbf{x})^r} \right)
   = &
-  2^{p - q - r} \beta_{\mathbf{B}}^{q} \beta_{\mathbf{D}}^{r}
+  2^{p - q - r} \beta_{\mathbf{A}}^{-p} \beta_{\mathbf{B}}^{q} \beta_{\mathbf{D}}^{r}
   \qfrGmf{ \frac{n}{2} + p - q - r }
     \\
   & \quad \cdot
