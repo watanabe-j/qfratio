@@ -118,9 +118,10 @@ the identity matrix, etc.}
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 
-\item{simplify_ratio}{Optional logical: if \code{TRUE} (default) and when \code{A == B}, tries
-to simplify the problem by cancelling the exponents, so that \code{p} is
-the smallest nonnegative integer that ensures \code{q} to be non-negative.}
+\item{simplify_ratio}{Optional logical: if \code{TRUE} (default) and when \code{A == B},
+\code{qfrm()} tries to simplify the problem by cancelling the exponents,
+so that \code{p} is the smallest nonnegative integer that ensures \code{q}
+to be non-negative.}
 
 \item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to
 the appropriate \dQuote{internal} function.}

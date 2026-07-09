@@ -152,9 +152,10 @@
 #'   Tolerance against which matrix singularity and rank are determined.  The
 #'   eigenvalues smaller than this are considered zero.
 #' @param simplify_ratio
-#'   Optional logical: if \code{TRUE} (default) and when \code{A == B}, tries
-#'   to simplify the problem by cancelling the exponents, so that \code{p} is
-#'   the smallest nonnegative integer that ensures \code{q} to be non-negative.
+#'   Optional logical: if \code{TRUE} (default) and when \code{A == B},
+#'   \code{qfrm()} tries to simplify the problem by cancelling the exponents,
+#'   so that \code{p} is the smallest nonnegative integer that ensures \code{q}
+#'   to be non-negative.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfrm()} will be passed to
 #'   the appropriate \dQuote{internal} function.
@@ -347,21 +348,22 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         return(qfrm(KtAK, KtBK, p, q, m = m, mu = iKmu,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
+    ## When A == B, partially cancel numerator and denominator, so that
+    ## new p is as small an integer as possible while q is nonnegative
+    if(simplify_ratio && iseq(A, B, tol_zero)) {
+        dif_pq <- max(ceiling(p - q), 0)
+        q <- q - p + dif_pq
+        p <- dif_pq
+    }
     ## Safeguard against vectorization where options may or may not be needed:
     ## Final result is obtained from one of internals with do.call()
     ## Arguments are stored in a list and unrequired ones are eraced
     arg_list <- list(A = A, p = p, q = q, m = m, mu = mu,
                      tol_zero = tol_zero, tol_sing = tol_sing)
     arg_list <- c(arg_list, list(...))
-    ## When A == B, try cancelling numerator and denominator, so that
-    ## new p is as small an integer as possible while q is nonnegative
-    if(simplify_ratio && iseq(A, B, tol_zero)) {
-        dif_pq <- max(ceiling(p - q), 0)
-        arg_list[c("B", "p", "q", "simplify_ratio")] <-
-            list(B, dif_pq, q - p + dif_pq, FALSE)
-        return(do.call(qfrm, arg_list))
-    }
-    if(iseq(B, In, tol_zero)) {
+    if(iseq(B, In, tol_zero) || q == 0) {
+        ## When q == 0, B can be replaced by In
+        arg_list[c("alphaB")] <- NULL
         if((p %% 1) == 0 && p >= 0) {
             arg_list[c("tol_sing", "error_bound", "check_convergence",
                        "cpp_method", "alphaA", "tol_conv")] <- NULL
@@ -370,12 +372,6 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
             return(do.call(qfrm_ApIq_npi, arg_list))
         }
     } else {
-        if(q == 0) {
-            ## When q == 0, call recursively without B, which then will be In
-            ## Do this only when B != In, to avoid infinite loop
-            arg_list[c("alphaB")] <- NULL
-            return(do.call(qfrm, arg_list))
-        }
         if(iseq(A, In, tol_zero)) {
             arg_list[c("A", "p", "q")] <- list(B, -q, -p)
             return(do.call(qfrm_ApIq_npi, arg_list))
