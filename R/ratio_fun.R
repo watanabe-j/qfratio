@@ -349,6 +349,15 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     arg_list <- list(A = A, p = p, q = q, m = m, mu = mu,
                      tol_zero = tol_zero, tol_sing = tol_sing)
     arg_list <- c(arg_list, list(...))
+    ## When A == B, try cancelling numerator and denominator, so that
+    ## new p is as small an integer as possible while q is nonnegative
+    if(iseq(A, B, tol_zero)) {
+        dif_pq <- max(ceiling(p - q), 0)
+        if(p > dif_pq) { ## To avoid infinite recursion when p == dif_pq
+            arg_list[c("B", "p", "q")] <- list(B, dif_pq, q - p + dif_pq)
+            return(do.call(qfrm, arg_list))
+        }
+    }
     if(iseq(B, In, tol_zero)) {
         if((p %% 1) == 0 && p >= 0) {
             arg_list[c("tol_sing", "error_bound", "check_convergence",
