@@ -21,6 +21,7 @@ qfmrm(
   Sigma = diag(n),
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
+  simplify_ratio = TRUE,
   ...
 )
 
@@ -150,6 +151,10 @@ the identity matrix, etc.}
 
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
+
+\item{simplify_ratio}{Optional logical: if \code{TRUE} (default), tries to simplify the multiple
+ratio into a simple ratio when possible, e.g., when any pair of argument
+matrices are equal to each other or an exponent is \code{0}.}
 
 \item{...}{Additional arguments in the front-end \code{qfmrm()} will be passed to
 the appropriate \dQuote{internal} function.}

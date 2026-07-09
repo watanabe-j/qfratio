@@ -151,6 +151,10 @@
 #' @param tol_sing
 #'   Tolerance against which matrix singularity and rank are determined.  The
 #'   eigenvalues smaller than this are considered zero.
+#' @param simplify_ratio
+#'   Optional logical: if \code{TRUE} (default) and when \code{A == B}, tries
+#'   to simplify the problem by cancelling the exponents, so that \code{p} is
+#'   the smallest nonnegative integer that ensures \code{q} to be non-negative.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfrm()} will be passed to
 #'   the appropriate \dQuote{internal} function.
@@ -297,7 +301,7 @@
 qfrm <- function(A, B, p = 1, q = p, m = 100L,
                  mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = tol_zero, ...) {
+                 tol_sing = tol_zero, simplify_ratio = TRUE, ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -351,12 +355,11 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     arg_list <- c(arg_list, list(...))
     ## When A == B, try cancelling numerator and denominator, so that
     ## new p is as small an integer as possible while q is nonnegative
-    if(iseq(A, B, tol_zero)) {
+    if(simplify_ratio && iseq(A, B, tol_zero)) {
         dif_pq <- max(ceiling(p - q), 0)
-        if(p > dif_pq) { ## To avoid infinite recursion when p == dif_pq
-            arg_list[c("B", "p", "q")] <- list(B, dif_pq, q - p + dif_pq)
-            return(do.call(qfrm, arg_list))
-        }
+        arg_list[c("B", "p", "q", "simplify_ratio")] <-
+            list(B, dif_pq, q - p + dif_pq, FALSE)
+        return(do.call(qfrm, arg_list))
     }
     if(iseq(B, In, tol_zero)) {
         if((p %% 1) == 0 && p >= 0) {
@@ -449,6 +452,10 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #'   Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} of
 #'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
 #'   the front-end \code{qfmrm()}.  See \dQuote{Details}.
+#' @param simplify_ratio
+#'   Optional logical: if \code{TRUE} (default), tries to simplify the multiple
+#'   ratio into a simple ratio when possible, e.g., when any pair of argument
+#'   matrices are equal to each other or an exponent is \code{0}.
 #' @param alphaA,alphaB,alphaD
 #'   Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 #'   \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
@@ -529,7 +536,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                   mu = rep.int(0, n), Sigma = diag(n),
                   tol_zero = .Machine$double.eps * 100,
-                  tol_sing = tol_zero, ...) {
+                  tol_sing = tol_zero, simplify_ratio = TRUE, ...) {
     ## If A, B, or D is missing, let it be an identity matrix
     ## If they are given, symmetrize
     if(missing(A)) {
@@ -561,50 +568,52 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     }
     if(missing(p) && (!missing(q) || !missing(r))) p <- q + r
     zeros <- rep.int(0, n)
-    ## If any pair of argument matrices are equal or q or r equals 0,
-    ## reduce the problem to a simple ratio
-    B_equals_D <- iseq(B, D, tol_zero)
-    A_equals_D <- iseq(A, D, tol_zero) && p >= r
-    A_equals_B <- iseq(A, B, tol_zero) && p >= q
-    r_equals_0 <- r == 0
-    q_equals_0 <- q == 0
-    if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0) {
-        arg_qfrm <- list(A = A, B = B, p = p, q = q, m = m, mu = mu,
-                         Sigma = Sigma, tol_zero = tol_zero,
-                         tol_sing = tol_sing)
-        arg_qfrm <- c(arg_qfrm, list(...))
-        ## Modify args; when only r_equals_0, above default is used;
-        ## it's still benign to do below when conditions hold.
-        ## "else if" used to avoid complication when more than one holds
-        if(A_equals_B || q_equals_0) {
-            ## A partially cancelled with B; put D in place of B
-            arg_qfrm[["p"]] <- p - q
-            arg_qfrm[["q"]] <- r
-            arg_qfrm[["B"]] <- D
-            if(!(q_equals_0) && ("alphaB" %in% names(arg_qfrm))) {
-                warning("B cancels with A; alphaB is ignored")
-            }
-            arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
-        } else if(B_equals_D) { ## Merge B and D
-            arg_qfrm[["q"]] <- q + r
-            if("alphaD" %in% names(arg_qfrm)) {
-                if("alphaB" %in% names(arg_qfrm)) {
-                    ## When both alphaB and alphaD exist, use alphaB but warn
-                    warning("With B == D, the denominator factors are merged; ",
-                            "alphaD is ignored")
-                } else {
-                    ## When only alphaD exists, copy it into alphaB
-                    arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
+    if(simplify_ratio) {
+        ## If any pair of argument matrices are equal or q or r equals 0,
+        ## reduce the problem to a simple ratio
+        B_equals_D <- iseq(B, D, tol_zero)
+        A_equals_D <- iseq(A, D, tol_zero) && p >= r
+        A_equals_B <- iseq(A, B, tol_zero) && p >= q
+        r_equals_0 <- r == 0
+        q_equals_0 <- q == 0
+        if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0) {
+            arg_qfrm <- list(A = A, B = B, p = p, q = q, m = m, mu = mu,
+                             Sigma = Sigma, tol_zero = tol_zero,
+                             tol_sing = tol_sing)
+            arg_qfrm <- c(arg_qfrm, list(...))
+            ## Modify args; when only r_equals_0, above default is used;
+            ## it's still benign to do below when conditions hold.
+            ## "else if" used to avoid complication when more than one holds
+            if(A_equals_B || q_equals_0) {
+                ## A partially cancelled with B; put D in place of B
+                arg_qfrm[["p"]] <- p - q
+                arg_qfrm[["q"]] <- r
+                arg_qfrm[["B"]] <- D
+                if(!(q_equals_0) && ("alphaB" %in% names(arg_qfrm))) {
+                    warning("B cancels with A; alphaB is ignored")
+                }
+                arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
+            } else if(B_equals_D) { ## Merge B and D
+                arg_qfrm[["q"]] <- q + r
+                if("alphaD" %in% names(arg_qfrm)) {
+                    if("alphaB" %in% names(arg_qfrm)) {
+                        ## When both alphaB and alphaD exist, use alphaB but warn
+                        warning("With B == D, the denominator factors are ",
+                                "merged; alphaD is ignored")
+                    } else {
+                        ## When only alphaD exists, copy it into alphaB
+                        arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
+                    }
+                }
+            } else if(A_equals_D) {
+                arg_qfrm[["p"]] <- p - r
+                if("alphaD" %in% names(arg_qfrm)) {
+                    warning("D cancels with A; alphaD is ignored")
                 }
             }
-        } else if(A_equals_D) {
-            arg_qfrm[["p"]] <- p - r
-            if("alphaD" %in% names(arg_qfrm)) {
-                warning("D cancels with A; alphaD is ignored")
-            }
+            arg_qfrm["alphaD"] <- NULL
+            return(do.call(qfrm, arg_qfrm))
         }
-        arg_qfrm["alphaD"] <- NULL
-        return(do.call(qfrm, arg_qfrm))
     }
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments

@@ -614,7 +614,7 @@ where $\mathbf{x} \sim \qfrmvnorm{\boldsymbol{\mu}}{\boldsymbol{\Sigma}}$.
 qfrm(A, B, p = 1, q = p, m = 100L,
      mu = rep.int(0, n), Sigma = diag(n),
      tol_zero = .Machine$double.eps * 100,
-     tol_sing = tol_zero, ...)
+     tol_sing = tol_zero, simplify_ratio = TRUE, ...)
 ```
 
 `A` and `B` are the argument matrices; when one is missing, $\mathbf{I}_n$ is
@@ -629,6 +629,14 @@ $\mathbf{x} \sim \qfrmvnorm{\mathbf{0}_n}{\mathbf{I}_n}$.
 `tol_zero` and `tol_sing` just determine the numerical tolerance for assessing
 identity and singularity, respectively, so usually need not be changed
 except when handling edgy cases.
+
+The optional argument `simplify_ratio` is to specify the behavior in a special
+condition when `A == B`.
+When `TRUE` and `A == B`, the function tries to simplify the problem by
+partially cancelling the exponents `p` and `q`, so that the new `p` is the
+smallest nonnegative integer that ensures `q` to be nonnegative.
+Such a combination of `p` and `q` usually allows for efficient evaluation of
+the series expression and calculation of error bound.
 
 
 #### Inside the function
@@ -696,7 +704,7 @@ It works in a way very similar to `qfrm()`, just with the additional arguments
 qfmrm(A, B, D, p = 1, q = p/2, r = q, m = 100L,
       mu = rep.int(0, n), Sigma = diag(n),
       tol_zero = .Machine$double.eps * 100,
-      tol_sing = tol_zero, ...)
+      tol_sing = tol_zero, simplify_ratio = TRUE, ...)
 ```
 Essentially the same as `qfrm()`.
 
