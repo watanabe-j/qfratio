@@ -77,7 +77,7 @@ to \code{x}, \code{q}, or \code{p} in, e.g., \code{\link[stats]{dnorm}()}}
 \item{A, B}{Numerator and denominator argument matrices, respectively, of quadratic
 forms.  Should be square.  Will be automatically symmetrized.}
 
-\item{power}{Positive exponent \eqn{p} of the ratio, default \code{1}.  Unlike in
+\item{power}{Nonnegative exponent \eqn{p} of the ratio, default \code{1}.  Unlike in
 \code{\link{qfrm}()}, the numerator and denominator cannot have
 different exponents.  When \code{power} is non-integer, \code{A} must be
 nonnegative definite.  For details, see vignette

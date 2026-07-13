@@ -59,7 +59,7 @@
 #'   Numeric vector of quantiles \eqn{q} or probabilities \eqn{P}; corresponds
 #'   to \code{x}, \code{q}, or \code{p} in, e.g., \code{\link[stats]{dnorm}()}
 #' @param power
-#'   Positive exponent \eqn{p} of the ratio, default \code{1}.  Unlike in
+#'   Nonnegative exponent \eqn{p} of the ratio, default \code{1}.  Unlike in
 #'   \code{\link{qfrm}()}, the numerator and denominator cannot have
 #'   different exponents.  When \code{power} is non-integer, \code{A} must be
 #'   nonnegative definite.  For details, see vignette
@@ -432,10 +432,16 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         "B must be nonnegative definite" =
             all(LB >= -tol_sing) && any(LB > tol_sing),
         "quantile must be numeric" = is.numeric(quantile),
-        "power must be a positive scalar" =
-            is.numeric(power) && length(power) == 1 && power > 0
+        "power must be a nonnegative scalar" =
+            is.numeric(power) && length(power) == 1 && power >= 0
     )
-    if(power != 1) {
+    if(power == 0) {
+        ans <- as.numeric(quantile >= 1)
+        ans[is.nan(quantile)] <- NaN ## NaN >= 1 yields NA; must return NaN
+        abserr <- rep.int(0, length(ans))
+        abserr[is.na(quantile)] <- NA_real_ ## As is.na(NaN) is TRUE,
+        abserr[is.nan(quantile)] <- NaN     ## is.nan() must be after is.na()
+    } else if(power != 1) {
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
         ## When A is nonnegative definite or power is odd,
@@ -1000,10 +1006,18 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         "B must be nonnegative definite" =
             all(LB >= -tol_sing) && any(LB > tol_sing),
         "quantile must be numeric" = is.numeric(quantile),
-        "power must be a positive scalar" =
-            is.numeric(power) && length(power) == 1 && power > 0
+        "power must be a nonnegative scalar" =
+            is.numeric(power) && length(power) == 1 && power >= 0
     )
-    if(power != 1) {
+    if(power == 0) {
+        ans <- rep.int(0, length(quantile))
+        ans[quantile == 1] <- Inf
+        ans[is.na(quantile)] <- NA_real_
+        ans[is.nan(quantile)] <- NaN
+        abserr <- rep.int(0, length(ans))
+        abserr[is.na(quantile)] <- NA_real_ ## As is.na(NaN) is TRUE,
+        abserr[is.nan(quantile)] <- NaN     ## is.nan() must be after is.na()
+    } else if(power != 1) {
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
         jacobian <- abs(quantile) ^ (1 / power - 1) / power
@@ -1493,30 +1507,9 @@ qqfr <- function(probability, A, B, power = 1,
         "B must be nonnegative definite" =
             all(LB >= -tol_sing) && any(LB > tol_sing),
         "probability must be numeric" = is.numeric(probability),
-        "power must be a positive scalar" =
-            is.numeric(power) && length(power) == 1 && power > 0
+        "power must be a nonnegative scalar" =
+            is.numeric(power) && length(power) == 1 && power >= 0
     )
-    ## Determine the possible range of ratio: l_lim, u_lim
-    LBiArange <- range_qfr(A, B, eigB, tol = tol_sing)
-    LBiAmin <- LBiArange[1]
-    LBiAmax <- LBiArange[2]
-    if(power == 1) {
-        l_lim <- LBiAmin
-        u_lim <- LBiAmax
-    } else if(power %% 2 == 0) {
-        l_lim <- if(LBiAmin * LBiAmax < 0) 0
-                 else min(abs(LBiAmin), abs(LBiAmax)) ^ power
-        u_lim <- max(abs(LBiAmin), abs(LBiAmax)) ^ power
-    } else {
-        l_lim <- sign(LBiAmin) * abs(LBiAmin) ^ power
-        u_lim <- sign(LBiAmax) * abs(LBiAmax) ^ power
-    }
-    ## The search interval is c(l_lim, u_lim), but Inf should be truncated
-    ## to use uniroot()
-    l_int <- l_lim
-    u_int <- u_lim
-    if(is.infinite(l_int)) l_int <- -1 / tol_zero
-    if(is.infinite(u_int)) u_int <-  1 / tol_zero
     p_lower <- 0
     p_upper <- 1
     if(log.p) {
@@ -1526,63 +1519,101 @@ qqfr <- function(probability, A, B, power = 1,
     } else {
         if(!lower.tail) probability <- 1 - probability
     }
-    ## Find quantiles using uniroot;
-    ## there are existing packages that have this functionality,
-    ## e.g., gbutils::cdf2quantile(), flexsurv::qgeneric(), but they do not
-    ## fit the use here and the increased dependencies do not pay off
-    get_quantile <- function(x) {
-        if(is.nan(x))
-            return(c(q = NaN, q_abserr = NaN, p_abserr = NaN))
-        if(is.na(x))
-            return(c(q = NA_real_, q_abserr = NA_real_, p_abserr = NA_real_))
-        if(x < p_lower || x > p_upper)
-            return(c(q = NaN, q_abserr = NA_real_, p_abserr = NA_real_))
-        if(x == p_lower)
-            return(c(q = l_lim,
-                     q_abserr = if(is.infinite(l_lim)) 0
-                                else .Machine$double.eps * 100,
-                     p_abserr = 0))
-        if(x == p_upper)
-            return(c(q = u_lim,
-                     q_abserr = if(is.infinite(u_lim)) 0
-                                else .Machine$double.eps * 100,
-                     p_abserr = 0))
-        pfun <- function(q_opt) {
-            pqfr(q_opt, A, B, power = power, mu = mu, lower.tail = TRUE,
-                 log.p = log.p, trim_values = trim_values,
-                 stop_on_error = stop_on_error,
-                 return_abserr_attr = return_abserr_attr, ...) - x
+    if(power == 0) {
+        get_quantile_p0 <- function(x) {
+            if(is.nan(x))
+                return(c(q = NaN, q_abserr = NaN))
+            if(is.na(x))
+                return(c(q = NA_real_, q_abserr = NA_real_))
+            if(x < p_lower || x > p_upper)
+                return(c(q = NaN, q_abserr = NA_real_))
+            if(x == p_lower)
+                return(c(q = 0, q_abserr = 0))
+            return(c(q = 1, q_abserr = 0))
         }
-        root_res <- stats::uniroot(pfun, lower = l_int, upper = u_int,
-                                   f.lower = if(log.p) -Inf else -x,
-                                   f.upper = p_upper - x,
-                                   extendInt = "upX",
-                                   check.conv = stop_on_error,
-                                   maxiter = maxiter_q, tol = epsabs_q)
-        p_abserr <- attr(root_res$f.root, "abserr")
-        res <- c(q = root_res$root,
-                 q_abserr = root_res$estim.prec,
-                 p_abserr = if(is.null(p_abserr)) NA_real_ else p_abserr)
-        return(res)
-    }
-    quantile_res <- sapply(probability, get_quantile)
-    ans <- quantile_res["q", ]
-    if(return_abserr_attr) {
+        quantile_res <- sapply(probability, get_quantile_p0)
+        ans <- quantile_res["q", ]
         abserr <- quantile_res["q_abserr", ]
-        p_abserr <- quantile_res["p_abserr", ]
-        density <- dqfr(ans, A, B, power = power, mu = mu, log = FALSE,
-                        trim_values = FALSE, return_abserr_attr = TRUE,
-                        tol_zero = tol_zero, tol_sing = tol_sing,
-                        stop_on_error = stop_on_error)
-        slope <- pmax.int(density - attr(density, "abserr"), 0)
-        if(log.p) slope <- slope / exp(probability)
-        abserr <- abserr + ifelse(p_abserr == 0, 0, p_abserr / slope)
-    }
-    if(any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
-           (probability[!is.na(ans)] != p_lower) &
-           (probability[!is.na(ans)] != p_upper))) {
-        warning("very large quantile is difficult to estimate ",
-                "so likely inaccurate")
+    } else {
+        ## Determine the possible range of ratio: l_lim, u_lim
+        LBiArange <- range_qfr(A, B, eigB, tol = tol_sing)
+        LBiAmin <- LBiArange[1]
+        LBiAmax <- LBiArange[2]
+        if(power == 1) {
+            l_lim <- LBiAmin
+            u_lim <- LBiAmax
+        } else if(power %% 2 == 0) {
+            l_lim <- if(LBiAmin * LBiAmax < 0) 0
+                     else min(abs(LBiAmin), abs(LBiAmax)) ^ power
+            u_lim <- max(abs(LBiAmin), abs(LBiAmax)) ^ power
+        } else {
+            l_lim <- sign(LBiAmin) * abs(LBiAmin) ^ power
+            u_lim <- sign(LBiAmax) * abs(LBiAmax) ^ power
+        }
+        ## The search interval is c(l_lim, u_lim), but Inf should be truncated
+        ## to use uniroot()
+        l_int <- l_lim
+        u_int <- u_lim
+        if(is.infinite(l_int)) l_int <- -1 / tol_zero
+        if(is.infinite(u_int)) u_int <-  1 / tol_zero
+        ## Find quantiles using uniroot;
+        ## there are existing packages that have this functionality,
+        ## e.g., gbutils::cdf2quantile(), flexsurv::qgeneric(), but they do not
+        ## fit the use here and the increased dependencies do not pay off
+        get_quantile <- function(x) {
+            if(is.nan(x))
+                return(c(q = NaN, q_abserr = NaN, p_abserr = NaN))
+            if(is.na(x))
+                return(c(q = NA_real_, q_abserr = NA_real_, p_abserr = NA_real_))
+            if(x < p_lower || x > p_upper)
+                return(c(q = NaN, q_abserr = NA_real_, p_abserr = NA_real_))
+            if(x == p_lower)
+                return(c(q = l_lim,
+                         q_abserr = if(is.infinite(l_lim)) 0
+                                    else .Machine$double.eps * 100,
+                         p_abserr = 0))
+            if(x == p_upper)
+                return(c(q = u_lim,
+                         q_abserr = if(is.infinite(u_lim)) 0
+                                    else .Machine$double.eps * 100,
+                         p_abserr = 0))
+            pfun <- function(q_opt) {
+                pqfr(q_opt, A, B, power = power, mu = mu, lower.tail = TRUE,
+                     log.p = log.p, trim_values = trim_values,
+                     stop_on_error = stop_on_error,
+                     return_abserr_attr = return_abserr_attr, ...) - x
+            }
+            root_res <- stats::uniroot(pfun, lower = l_int, upper = u_int,
+                                       f.lower = if(log.p) -Inf else -x,
+                                       f.upper = p_upper - x,
+                                       extendInt = "upX",
+                                       check.conv = stop_on_error,
+                                       maxiter = maxiter_q, tol = epsabs_q)
+            p_abserr <- attr(root_res$f.root, "abserr")
+            res <- c(q = root_res$root,
+                     q_abserr = root_res$estim.prec,
+                     p_abserr = if(is.null(p_abserr)) NA_real_ else p_abserr)
+            return(res)
+        }
+        quantile_res <- sapply(probability, get_quantile)
+        ans <- quantile_res["q", ]
+        if(return_abserr_attr) {
+            abserr <- quantile_res["q_abserr", ]
+            p_abserr <- quantile_res["p_abserr", ]
+            density <- dqfr(ans, A, B, power = power, mu = mu, log = FALSE,
+                            trim_values = FALSE, return_abserr_attr = TRUE,
+                            tol_zero = tol_zero, tol_sing = tol_sing,
+                            stop_on_error = stop_on_error)
+            slope <- pmax.int(density - attr(density, "abserr"), 0)
+            if(log.p) slope <- slope / exp(probability)
+            abserr <- abserr + ifelse(p_abserr == 0, 0, p_abserr / slope)
+        }
+        if(any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
+               (probability[!is.na(ans)] != p_lower) &
+               (probability[!is.na(ans)] != p_upper))) {
+            warning("very large quantile is difficult to estimate ",
+                    "so likely inaccurate")
+        }
     }
     attributes(ans) <- attributes(probability)
     if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
