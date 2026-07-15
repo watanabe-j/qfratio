@@ -1027,7 +1027,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         if(L_nnd || ((power %% 1) == 0 && (power %% 2) == 1)) {
             quantile_new <- sign(quantile) * abs(quantile) ^ (1 / power)
             ans <- dqfr(quantile_new, A, B, power = 1, mu = mu,
-                        log = log, method = method, trim_values = trim_values,
+                        log = FALSE, method = method, trim_values = FALSE,
                         normalize_spa = normalize_spa,
                         return_abserr_attr = return_abserr_attr,
                         tol_zero = tol_zero, tol_sing = tol_sing, ...)
