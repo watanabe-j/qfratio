@@ -1040,8 +1040,11 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
             ## - For zero quantile, density at zero
             ## - For negative quantile, 0
             if((power %% 2) == 0) {
-                ind_q_pos <- quantile > 0
-                ind_q_zero <- quantile == 0
+                ## To avoid assignment with NA indexing
+                ## No need to do anything as ans gets NA and NaN from jacobian
+                ind_q_not_na <- !is.na(quantile)
+                ind_q_pos <- quantile > 0 & ind_q_not_na
+                ind_q_zero <- quantile == 0 & ind_q_not_na
                 ans <- rep.int(0, length(quantile))
                 abserr <- rep.int(0, length(quantile))
                 if(any(ind_q_pos)) {
