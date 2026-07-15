@@ -1218,18 +1218,22 @@ dqfr(1.1, diag(1:35), return_abserr_attr = TRUE,
 
 When `log`/`log.p = TRUE`, `abserr` is transformed so that
 it is a conservative absolute error bound on the log scale.
-That is, if the original value and its error bound is denoted by 
+That is, by denoting the original value and its error bound as
 $\hat{x}$ and $\delta \hat{x}$, respectively, and the
-log-transformed value and its error bound is by $\log \hat{x}$ and
+log-transformed value and its error bound as $\log \hat{x}$ and
 $\delta (\log \hat{x})$, the latter error bound is set so that
-$\log \hat{x} - \delta (\log \hat{x}) = \log (\hat{x} - \delta \hat{x})$, i.e.,
+$\log \hat{x} - \delta (\log \hat{x}) = \log (\hat{x} - \delta \hat{x})$.
+Specifically,
+1) when $\delta \hat{x} = 0$, $\delta (\log \hat{x}) = 0$;
+2) when $\delta \hat{x} > \hat{x}$ (note $\hat{x} \ge 0$),
+$\delta (\log \hat{x}) = \infty$;
+3) otherwise,
 $\delta (\log \hat{x}) = - \log \left( 1 - \frac{\delta \hat{x}}{\hat{x}} \right)$.
 Note that the upper error bound
 $\log \left( 1 + \frac{\delta \hat{x}}{\hat{x}} \right)$ is narrower than this
-unless $\delta \hat{x} > \hat{x}$ (i.e., $\hat{x} - \delta \hat{x} < 0$),
-in which case it should be taken as $\delta (\log \hat{x}) = \infty$.
+in the condition of 3.
 In summary, the new error bound is calculated as
-`ifelse(abserr > ans, Inf, -log1p(-abserr/ans))`.
+`ifelse(abserr == 0, 0, ifelse(abserr > ans, Inf, -log1p(-abserr/ans)))`.
 
 
 ### `qqfr()`

@@ -526,7 +526,8 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
     }
     if(log.p) {
         if(exists("abserr", inherits = FALSE)) {
-            abserr <- ifelse(abserr > ans, Inf, -log1p(- abserr / ans))
+            abserr <- ifelse(abserr == 0, 0,
+                             ifelse(abserr > ans, Inf, -log1p(- abserr / ans)))
         }
         ans <- log(ans)
     }
@@ -1120,7 +1121,8 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
     }
     if(log) {
         if(exists("abserr", inherits = FALSE)) {
-            abserr <- ifelse(abserr > ans, Inf, -log1p(- abserr / ans))
+            abserr <- ifelse(abserr == 0, 0,
+                             ifelse(abserr > ans, Inf, -log1p(- abserr / ans)))
         }
         ans <- log(ans)
     }
