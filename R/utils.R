@@ -327,3 +327,45 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
     ## so Re() is taken for safeguarding
     return(Re(LBiA))
 }
+
+##### .run_check_conv #####
+#' Check convergence of series
+#'
+#' \code{.run_check_conv()} is an internal function to check convergence of
+#' series.  If the sequence/series does not meet the convergence criterion,
+#' this function throws an warning.  Otherwise do nothing.
+#'
+#' @inheritParams qfrm
+#'
+#' @param ansseq
+#'   Sequence to be examined
+#'
+#' @return
+#'   Invisibly returns \code{NULL}
+#'
+#' @seealso \code{\link{qfrm}()}
+#'
+.run_check_conv <- function(ansseq,
+                            check_convergence = c("relative", "strict_relative",
+                                                  "absolute", "none"),
+                            tol_conv = .Machine$double.eps ^ (1/4)) {
+    check_convergence <- match.arg(check_convergence)
+    if(check_convergence != "none") {
+        if(check_convergence == "strict_relative") {
+            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
+        }
+        non_convergence <- if(check_convergence == "absolute") {
+            abs(ansseq[length(ansseq)]) > tol_conv
+        } else {
+            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+        }
+        if(non_convergence) {
+            warning("Last term is >",
+                    sprintf("%.1e", tol_conv),
+                    if(check_convergence != "absolute")
+                        " times as large as the series",
+                    ",\n  suggesting non-convergence. Consider using larger m")
+        }
+    }
+    invisible(NULL)
+}

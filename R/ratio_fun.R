@@ -1282,23 +1282,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     singularA <- any(LA < tol_sing)
     alphaout <- alphaA > 1
     if(error_bound && central) {
@@ -1473,23 +1457,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
     if(error_bound) {
@@ -1731,23 +1699,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
@@ -1920,23 +1872,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
     if(error_bound) {
@@ -2212,23 +2148,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
@@ -2433,23 +2353,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
@@ -2669,23 +2573,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
 
@@ -2923,22 +2811,6 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                           if(cpp_method != "long_double") "\"long_double\" or ",
                           "\"coef_wise\"."))
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
-        }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
-        } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
-        }
-        if(non_convergence) {
-            warning("Last term is >",
-                    sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
-                    ",\n  suggesting non-convergence. Consider using larger m")
-        }
-    }
+    .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
