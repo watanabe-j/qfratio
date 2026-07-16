@@ -289,7 +289,7 @@ and for a positive-integral $p$ [@Watanabe2023cevo, eq. (B28)],
   \frac{ \qfrrf[j]{q} \qfrrf[k]{r} }{ \qfrGmf{ \frac{n}{2} + p + j + k } }
   \\
   & \quad \quad \cdot
-  \qfrhtijk[p; j,k]{ \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }{ \mathbf{I}_n - \beta_{\mathbf{D}} \mathbf{D} },
+  \qfrhtijk[p; j,k]{ \mathbf{A} }{ \mathbf{I}_n - \beta_{\mathbf{B}} \mathbf{B} }{ \mathbf{I}_n - \beta_{\mathbf{D}} \mathbf{D} }.
 \end{aligned}
 \tag{4}
 \end{equation}
