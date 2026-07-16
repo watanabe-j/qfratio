@@ -1645,6 +1645,8 @@ qqfr <- function(probability, A, B, power = 1,
 mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  return_abserr_attr = FALSE, ...) {
     qf_fun <- function(p, A, B, mu, Sigma, ...) {
+        if(is.nan(p)) return(c(statistic = NaN, error_bound = NaN))
+        if(is.na(p)) return(c(statistic = NA_real_, error_bound = NA_real_))
         res <- qfrm(A = A, B = B, p = p, mu = mu, Sigma = Sigma,
                     error_bound = return_abserr_attr, ...)
         error_bound <- res$error_bound
