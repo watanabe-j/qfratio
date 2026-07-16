@@ -1524,7 +1524,24 @@ qqfr <- function(probability, A, B, power = 1,
     } else {
         if(!lower.tail) probability <- 1 - probability
     }
-    if(power == 0) {
+    ## Determine the possible range of ratio: l_lim, u_lim
+    LBiArange <- range_qfr(A, B, eigB, tol = tol_sing)
+    LBiAmin <- LBiArange[1]
+    LBiAmax <- LBiArange[2]
+    if(power == 1) {
+        l_lim <- LBiAmin
+        u_lim <- LBiAmax
+    } else if(power %% 2 == 0) {
+        l_lim <- if(LBiAmin * LBiAmax < 0) 0
+                 else min(abs(LBiAmin), abs(LBiAmax)) ^ power
+        u_lim <- max(abs(LBiAmin), abs(LBiAmax)) ^ power
+    } else {
+        l_lim <- sign(LBiAmin) * abs(LBiAmin) ^ power
+        u_lim <- sign(LBiAmax) * abs(LBiAmax) ^ power
+    }
+    if(l_lim == u_lim) {
+        ## Constant case; typically n == 1, power == 0, and/or A == 0
+        ## In this condition, uniroot() fails
         get_quantile_p0 <- function(x) {
             if(is.nan(x))
                 return(c(q = NaN, q_abserr = NaN))
@@ -1532,29 +1549,12 @@ qqfr <- function(probability, A, B, power = 1,
                 return(c(q = NA_real_, q_abserr = NA_real_))
             if(x < p_lower || x > p_upper)
                 return(c(q = NaN, q_abserr = NA_real_))
-            if(x == p_lower)
-                return(c(q = 0, q_abserr = 0))
-            return(c(q = 1, q_abserr = 0))
+            return(c(q = l_lim, q_abserr = 0))
         }
         quantile_res <- sapply(probability, get_quantile_p0)
         ans <- quantile_res["q", ]
         abserr <- quantile_res["q_abserr", ]
     } else {
-        ## Determine the possible range of ratio: l_lim, u_lim
-        LBiArange <- range_qfr(A, B, eigB, tol = tol_sing)
-        LBiAmin <- LBiArange[1]
-        LBiAmax <- LBiArange[2]
-        if(power == 1) {
-            l_lim <- LBiAmin
-            u_lim <- LBiAmax
-        } else if(power %% 2 == 0) {
-            l_lim <- if(LBiAmin * LBiAmax < 0) 0
-                     else min(abs(LBiAmin), abs(LBiAmax)) ^ power
-            u_lim <- max(abs(LBiAmin), abs(LBiAmax)) ^ power
-        } else {
-            l_lim <- sign(LBiAmin) * abs(LBiAmin) ^ power
-            u_lim <- sign(LBiAmax) * abs(LBiAmax) ^ power
-        }
         ## The search interval is c(l_lim, u_lim), but Inf should be truncated
         ## to use uniroot()
         l_int <- l_lim
