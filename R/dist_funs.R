@@ -1031,7 +1031,8 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                         normalize_spa = normalize_spa,
                         return_abserr_attr = return_abserr_attr,
                         tol_zero = tol_zero, tol_sing = tol_sing, ...)
-            ans <- ans * jacobian
+            ans_nonzero <- ans != 0 & !is.na(ans)
+            ans[ans_nonzero] <- (ans * jacobian)[ans_nonzero]
             abserr <- attr(ans, "abserr") * jacobian
         } else {
             ## When A is indefinite and power is even:
