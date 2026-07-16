@@ -354,16 +354,20 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
         if(check_convergence == "strict_relative") {
             if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
-        non_convergence <- if(check_convergence == "absolute") {
-            abs(ansseq[length(ansseq)]) > tol_conv
+        last_term <- ansseq[length(ansseq)]
+        sum_seq <- sum(ansseq)
+        ## If sum_seq == 0, no point in checking relative error
+        ## And typically last_term == 0 as well, yielding NaN and error below
+        check_abs <- check_convergence == "absolute" || sum_seq == 0
+        non_convergence <- if(check_abs) {
+            abs(last_term) > tol_conv
         } else {
-            abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
+            abs(last_term / sum_seq) > tol_conv
         }
         if(non_convergence) {
             warning("Last term is >",
                     sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
-                        " times as large as the series",
+                    if(!check_abs) " times as large as the series",
                     ",\n  suggesting non-convergence. Consider using larger m")
         }
     }
