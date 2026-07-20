@@ -118,9 +118,11 @@ the identity matrix, etc.}
 \item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 
-\item{simplify_ratio}{Optional logical: if \code{TRUE} (default) and when \code{A == B},
-\code{qfrm()} tries to simplify the problem by cancelling the exponents,
-so that \code{p} is the smallest nonnegative integer that ensures \code{q}
+\item{simplify_ratio}{Optional logical: with this being \code{TRUE} (default) and if
+\code{A == B} or the problem is univariate, \code{qfrm()} tries to
+simplify the problem by cancelling the exponents and modifying the
+argument matrices so that exact evaluation is possible.  Specifically,
+\code{p} is set as the smallest nonnegative integer that ensures \code{q}
 to be non-negative.}
 
 \item{...}{Additional arguments in the front-end \code{qfrm()} will be passed to

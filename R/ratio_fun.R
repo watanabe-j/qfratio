@@ -152,9 +152,11 @@
 #'   Tolerance against which matrix singularity and rank are determined.  The
 #'   eigenvalues smaller than this are considered zero.
 #' @param simplify_ratio
-#'   Optional logical: if \code{TRUE} (default) and when \code{A == B},
-#'   \code{qfrm()} tries to simplify the problem by cancelling the exponents,
-#'   so that \code{p} is the smallest nonnegative integer that ensures \code{q}
+#'   Optional logical: with this being \code{TRUE} (default) and if
+#'   \code{A == B} or the problem is univariate, \code{qfrm()} tries to
+#'   simplify the problem by cancelling the exponents and modifying the
+#'   argument matrices so that exact evaluation is possible.  Specifically,
+#'   \code{p} is set as the smallest nonnegative integer that ensures \code{q}
 #'   to be non-negative.
 #' @param ...
 #'   Additional arguments in the front-end \code{qfrm()} will be passed to
@@ -350,8 +352,15 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     }
     ## When A == B, partially cancel numerator and denominator, so that
     ## new p is as small an integer as possible while q is nonnegative
-    if(simplify_ratio && iseq(A, B, tol_zero)) {
-        dif_pq <- max(ceiling(p - q), 0)
+    ## Do the same in univariate case to simplify evaluation
+    if(simplify_ratio && (iseq(A, B, tol_zero) || n == 1)) {
+        if(n == 1) {
+            dif_pq <- max(ceiling(p - q), 1)
+            A <- A^(p / dif_pq) / B^(q / dif_pq)
+            B <- In
+        } else {
+            dif_pq <- max(ceiling(p - q), 0)
+        }
         q <- q - p + dif_pq
         p <- dif_pq
     }
@@ -572,7 +581,9 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         A_equals_B <- iseq(A, B, tol_zero) && p >= q
         r_equals_0 <- r == 0
         q_equals_0 <- q == 0
-        if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0) {
+        n_equals_1 <- n == 1
+        if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0 ||
+           n_equals_1) {
             arg_qfrm <- list(A = A, B = B, p = p, q = q, m = m, mu = mu,
                              Sigma = Sigma, tol_zero = tol_zero,
                              tol_sing = tol_sing)
@@ -606,6 +617,10 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                 if("alphaD" %in% names(arg_qfrm)) {
                     warning("D cancels with A; alphaD is ignored")
                 }
+            } else if(n_equals_1) {
+                q_new <- q + r
+                arg_qfrm[["q"]] <- q_new
+                arg_qfrm[["B"]] <- B^(q / q_new) * D^(r / q_new)
             }
             arg_qfrm["alphaD"] <- NULL
             return(do.call(qfrm, arg_qfrm))
