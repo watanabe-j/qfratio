@@ -58,7 +58,7 @@ Distribution-related functionalities are documented in a separate vignette:
 
 - $n$: number of variables
 - $m$: order of evaluation at which infinite series is truncated
-- $p, q, r$: exponents of quadratic forms (positive real numbers)
+- $p, q, r$: exponents of quadratic forms (nonnegative real numbers)
 - $t_1, \dots, t_s$: parameters in generating functions; $s$ here denotes the number of arguments (typically $s = 2$ or $3$)
 - $a$, $d$, $\tilde{d}$, $h$, $\tilde{h}$, $\hat{h}$: coefficients in generating functions defined in text
 - $C$: (top-order) zonal and invariant polynomials of matrix arguments [@Muirhead1982; @Davis1980proc; @Chikuse1980msa; @Chikuse1987]
@@ -181,7 +181,7 @@ mqfr(1, A, B, mu = mu, Sigma = Sigma, m = 300)
 
 
 You might have wondered what it means by results being "exact" or
-having "error", or about the unexplained argument `m = 300` in the last example.
+having "error", or about the unexplained argument `m = 300` in the above examples.
 Seeing this requires some excursion into the math involved.
 
 
@@ -656,13 +656,13 @@ $\mathbf{x} \sim \qfrmvnorm{\mathbf{0}_n}{\mathbf{I}_n}$.
 identity and singularity, respectively, so usually need not be changed
 except when handling edgy cases.
 
-The optional argument `simplify_ratio` is to specify the behavior in a special
-condition when `A == B`.
-When `TRUE` and `A == B`, the function tries to simplify the problem by
-partially cancelling the exponents `p` and `q`, so that the new `p` is the
+The optional argument `simplify_ratio` is to specify the behavior in special
+conditions when `A == B` or `n == 1`.
+When `TRUE` and `A == B` or `n == 1`, the function tries to simplify the problem
+by partially cancelling the exponents `p` and `q`, so that the new `p` is the
 smallest nonnegative integer that ensures `q` to be nonnegative.
 Such a combination of `p` and `q` usually allows for efficient evaluation of
-the series expression and calculation of error bound.
+the series expression and calculation of error bound (below).
 
 
 #### Inside the function
@@ -990,8 +990,8 @@ Of course the computational cost is also influenced by the number of variables
 $n$.
 
 In extremely large problems, therefore, it may be impossible to obtain
-a satisfactory numerical convergence within reasonable amount of time and
-memory.
+a satisfactory numerical convergence within a reasonable amount of time (and
+memory).
 A potential practical alternative is a Monte Carlo approach using `rqfr()`.
 
 ```{r, MC, fig.width = 4, fig.height = 4}

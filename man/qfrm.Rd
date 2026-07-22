@@ -111,11 +111,11 @@ vector.}
 \eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
 the front-end \code{qfrm()}.  See \dQuote{Details}.}
 
-\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+\item{tol_zero}{Tolerance with which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
+\item{tol_sing}{Tolerance with which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 
 \item{simplify_ratio}{Optional logical: with this being \code{TRUE} (default) and if
@@ -172,7 +172,7 @@ compared with \code{tol_conv}}
 \item{alphaA, alphaB}{Factors for the scaling constants for \eqn{\mathbf{A}}{A} and
 \eqn{\mathbf{B}}{B}, respectively.  See \dQuote{Details}.}
 
-\item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
+\item{tol_conv}{Tolerance with which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
 }
 \value{

@@ -64,11 +64,11 @@ functions via \code{Rcpp}.  \code{TRUE} by default.}
 \item{cpp_method}{Variable type used in \proglang{C++} calculations.
 In these functions this is ignored.}
 
-\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+\item{tol_zero}{Tolerance with which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
+\item{tol_sing}{Tolerance with which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 }
 \value{

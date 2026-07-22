@@ -26,7 +26,7 @@ compared with \code{tol_conv}}
 \item{\code{"none"} or \code{FALSE}}{skips convergence check}
 }}
 
-\item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
+\item{tol_conv}{Tolerance with which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
 }
 \value{

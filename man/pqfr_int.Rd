@@ -125,7 +125,7 @@ numerical integration, or root finding.  If
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
 functions via \code{Rcpp}.  \code{TRUE} by default.}
 
-\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+\item{tol_zero}{Tolerance with which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
@@ -144,7 +144,7 @@ longer name to avoid partial matching problems.}
 \item{check_convergence}{Specifies how numerical convergence is checked for series expression (see
 \code{\link{qfrm}})}
 
-\item{tol_conv}{Tolerance against which numerical convergence of series is checked.  Used
+\item{tol_conv}{Tolerance with which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}

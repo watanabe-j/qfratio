@@ -145,11 +145,11 @@
 #'   \eqn{\mathbf{x}}{x}.  Default identity matrix.  Accommodated only by
 #'   the front-end \code{qfrm()}.  See \dQuote{Details}.
 #' @param tol_zero
-#'   Tolerance against which numerical zero is determined.  Used to determine,
+#'   Tolerance with which numerical zero is determined.  Used to determine,
 #'   e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 #'   the identity matrix, etc.
 #' @param tol_sing
-#'   Tolerance against which matrix singularity and rank are determined.  The
+#'   Tolerance with which matrix singularity and rank are determined.  The
 #'   eigenvalues smaller than this are considered zero.
 #' @param simplify_ratio
 #'   Optional logical: with this being \code{TRUE} (default) and if
@@ -198,7 +198,7 @@
 #'     \item{\code{"none"} or \code{FALSE}}{skips convergence check}
 #'   }
 #' @param tol_conv
-#'   Tolerance against which numerical convergence of series is checked.  Used
+#'   Tolerance with which numerical convergence of series is checked.  Used
 #'   with \code{check_convergence}.
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}

@@ -67,6 +67,8 @@ mqfr(
   mu = rep.int(0, n),
   Sigma = diag(n),
   return_abserr_attr = FALSE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
   ...
 )
 }
@@ -124,11 +126,11 @@ the density integrates to unity (see \dQuote{Details})}
 \item{return_abserr_attr}{If \code{TRUE}, absolute error of numerical evaluation is returned
 as an attribute \code{"abserr"} (see \dQuote{Value})}
 
-\item{tol_zero}{Tolerance against which numerical zero is determined.  Used to determine,
+\item{tol_zero}{Tolerance with which numerical zero is determined.  Used to determine,
 e.g., whether \code{mu} is a zero vector, \code{A} or \code{B} equals
 the identity matrix, etc.}
 
-\item{tol_sing}{Tolerance against which matrix singularity and rank are determined.  The
+\item{tol_sing}{Tolerance with which matrix singularity and rank are determined.  The
 eigenvalues smaller than this are considered zero.}
 
 \item{...}{Additional arguments passed to

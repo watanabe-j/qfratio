@@ -53,7 +53,7 @@ has a functionality to evaluate probability density and distribution functions
 of a (simple) ratio of quadratic forms in normal variables.
 This document is to describe theoretical backgrounds and some implementation
 details of this functionality.
-See the main package vignette (`vignette("qfratio")`) for the evaluation of
+See the other package vignette (`vignette("qfratio")`) for the evaluation of
 moments of ratios of quadratic forms.
 
 
@@ -1068,7 +1068,7 @@ pqfr(1.5, A * 1e-10, B * 1e-10)
 ### `trim_values`
 
 Numerical integration can yield spurious results that are outside
-the mathematically permissible supports; $[ 0, \infty )$ and $[0, 1]$ for
+the mathematically permissible ranges; $[ 0, \infty )$ and $[0, 1]$ for
 the density and distribution functions, respectively.
 By default (`trim_values = TRUE`), the external functions
 `dqfr()` and `pqfr()` trim those values into the permissible
@@ -1206,9 +1206,9 @@ dqfr(1.5, A, return_abserr_attr = TRUE)
 ```
 
 This error bound tries to accommodate the effect of `trim_values`.
-If the integration result is outside the permissible support
+If the integration result is outside the permissible range
 (e.g., negative density), the possible error bound is only on the direction
-toward the support (assuming things are calculated accurately).
+toward the range (assuming things are calculated accurately).
 The returned `abserr` is truncated accordingly, unless trimming is
 beyond the original `abserr` (in which case it is replaced by `tol_zero`).
 See this in examples:
@@ -1350,6 +1350,14 @@ In this case, the relationship between $Q$ and $R$ is one-to-one, so that
 \end{equation}
 Thus, the result can be obtained by a single recursive call of
 `pqfr(..., power = 1)` or `dqfr(..., power = 1)` with transformed `quantile`.
+
+(This expression of $f_{R}$ can be undefined at $r = 0$ when
+$f_{Q} \left( 0 \right ) = 0$, as
+$\left| \mathrm{d} q / \mathrm{d} r \right| = \infty$ here.
+In this particular case, `dqfr()` returns `0` rather than `NaN`.
+Although albitrary, this would not cause a serious problem as
+$f_{Q} \left( 0 \right ) = 0$ means that $0$ is outside (or at a margin) of
+the support.)
 
 
 ### When $\mathbf{A}$ is indefinite and $p$ is an even integer
