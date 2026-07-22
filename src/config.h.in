@@ -9,15 +9,15 @@
 /* Define if you have inline with C99 behavior */
 #undef HAVE_C99_INLINE
 
-/* Define to 1 if you have the declaration of `finite', and to 0 if you don't.
+/* Define to 1 if you have the declaration of 'finite', and to 0 if you don't.
    */
 #undef HAVE_DECL_FINITE
 
-/* Define to 1 if you have the declaration of `isfinite', and to 0 if you
+/* Define to 1 if you have the declaration of 'isfinite', and to 0 if you
    don't. */
 #undef HAVE_DECL_ISFINITE
 
-/* Define to 1 if you have the declaration of `isnan', and to 0 if you don't.
+/* Define to 1 if you have the declaration of 'isnan', and to 0 if you don't.
    */
 #undef HAVE_DECL_ISNAN
 
@@ -30,7 +30,7 @@
 /* Define if you have inline */
 #undef HAVE_INLINE
 
-/* Define to 1 if you have the `m' library (-lm). */
+/* Define to 1 if you have the 'm' library (-lm). */
 #undef HAVE_LIBM
 
 /* Define if you need to hide the static definitions of inline functions */
