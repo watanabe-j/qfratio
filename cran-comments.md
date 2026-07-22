@@ -2,21 +2,21 @@
 
 0 errors | 0 warnings | 2 notes
 
-* checking CRAN incoming feasibility ... [10s/32s] NOTE
-Maintainer: ‘Junya Watanabe <Junya.Watanabe@uab.cat>’
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Junya Watanabe <Junya.Watanabe@vetmeduni.ac.at>’
 
 New maintainer:
-  Junya Watanabe <Junya.Watanabe@uab.cat>
+  Junya Watanabe <Junya.Watanabe@vetmeduni.ac.at>
 Old maintainer(s):
-  Junya Watanabe <jw2098@cam.ac.uk>
+  Junya Watanabe <Junya.Watanabe@uab.cat>
 
 - The maintainer email address has changed because he changed affiliations.
   A confirmation will be sent from the old maintainer email.
 
-* checking installed package size ... NOTE
-  installed size is 132.6Mb
+* checking installed package size ... INFO
+  installed size is 175.4Mb
   sub-directories of 1Mb or more:
-    libs  131.3Mb
+    libs  174.0Mb
 
 - This package involves many C++ ('Eigen') functions, which are essential to
   the package functionality. This typically causes a large installation size

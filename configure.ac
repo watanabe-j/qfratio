@@ -14,7 +14,7 @@
 ##           (C) ND   Free Software Foundation, Inc. (for GSL-originated part)
 ## Licensed under the GNU GPL (>=3). See LISENSE.md
 
-AC_INIT([qfratio], [1.1.1.9000], [https://github.com/watanabe-j/qfratio/issues])
+AC_INIT([qfratio], [1.1.2], [https://github.com/watanabe-j/qfratio/issues])
 
 AC_CONFIG_SRCDIR([R/qfratio-package.R])
 
