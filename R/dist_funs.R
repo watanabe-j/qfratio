@@ -1643,12 +1643,15 @@ qqfr <- function(probability, A, B, power = 1,
 #' @export
 #'
 mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
-                 return_abserr_attr = FALSE, ...) {
-    qf_fun <- function(p, A, B, mu, Sigma, ...) {
+                 return_abserr_attr = FALSE,
+                 tol_zero = .Machine$double.eps * 100, tol_sing = tol_zero,
+                 ...) {
+    qf_fun <- function(p, A, B, mu, tol_zero, tol_sing, ...) {
         if(is.nan(p)) return(c(statistic = NaN, error_bound = NaN))
         if(is.na(p)) return(c(statistic = NA_real_, error_bound = NA_real_))
-        res <- qfrm(A = A, B = B, p = p, mu = mu, Sigma = Sigma,
-                    error_bound = return_abserr_attr, ...)
+        res <- qfrm(A = A, B = B, p = p, mu = mu,
+                    error_bound = return_abserr_attr,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...)
         error_bound <- res$error_bound
         c(statistic = res$statistic,
           error_bound = if(is.null(error_bound)) NA_real_ else error_bound)
@@ -1670,8 +1673,37 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
     } else {
         B <- (B + t(B)) / 2
     }
-    res <- sapply(power, function(p) qf_fun(p = p, A = A, B = B,
-                                            mu = mu, Sigma = Sigma, ...))
+    zeros <- rep.int(0, n)
+    ## If Sigma is given, transform A, B, and mu, and
+    ## call this function recursively with new arguments
+    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+        KiKS <- KiK(Sigma, tol_sing)
+        K <- KiKS$K
+        iK <- KiKS$iK
+        KtAK <- t(K) %*% A %*% K
+        KtBK <- t(K) %*% B %*% K
+        iKmu <- iK %*% mu
+        ## If Sigma is singular, check conditions for A, B, mu, and Sigma
+        if(ncol(K) != n) {
+            okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
+                    (iseq(A %*% mu, zeros, tol_zero) &&
+                     iseq(B %*% mu, zeros, tol_zero)) ||
+                    (iseq(crossprod(iK, KtAK %*% iK), A) &&
+                     iseq(crossprod(iK, KtBK %*% iK), B))
+            if(!okay) {
+                stop("For singular Sigma, certain condition must be met ",
+                     "for A, B, mu.\n  ",
+                     "Function for situations not satisfying this has not ",
+                     "developed.\n  See documentation for details")
+            }
+        }
+        return(mqfr(power = power, A = KtAK, B = KtBK, mu = iKmu,
+                    return_abserr_attr = return_abserr_attr,
+                    tol_zero = tol_zero, tol_sing = tol_sing, ...))
+    }
+    res <- sapply(power, function(p) qf_fun(p = p, A = A, B = B, mu = mu,
+                                            tol_zero = tol_zero,
+                                            tol_sing = tol_sing, ...))
     ans <- res["statistic", ]
     if(return_abserr_attr) {
         abserr <- res["error_bound", ]
