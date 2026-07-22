@@ -797,6 +797,26 @@ This function is not based on any explicit inverse function, but does
 numerical root-finding using `stats::uniroot()`, internally calling `pqfr()`;
 i.e., by searching the root `q` of `pqfr(q, ...) - probability = 0`.
 
+Random number generation function `rqfr()` is defined as:
+```{r definition_rqfr, eval = FALSE}
+rqfr <- function(nit, A, B, power = 1, q = power,
+                 mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) { ... }
+```
+`rqfr()` accommodates different exponents for the numerator and denominator
+(`power` and `q`, respectively), in accordance with `qfrm()`
+(see also `vignette("qfratio")`).
+
+Finally, there is a moment function `mqfr()` defined as:
+```{r definition_mqfr, eval = FALSE}
+mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
+                 return_abserr_attr = FALSE,
+                 tol_zero = .Machine$double.eps * 100, tol_sing = tol_zero,
+                 ...) { ... }
+```
+`mqfr()` is a convenience wrapper of `qfrm()` to get the evaluation result as
+a numeric vector rather than a `qfrm` object, and is vectorized with resect to
+`power`(see `vignette("qfratio")` for details of moment evaluation).
+
 Internally, these functions first check basic argument structures, and, if
 `Sigma` is specified, transform the arguments `A`, `B`, and `mu` and call
 themselves recursively with new arguments.
@@ -1274,6 +1294,22 @@ the actual error in calculation can be larger.
 qqfr(0, A, return_abserr_attr = TRUE)
 ```
 
+### `mqfr()`
+
+As in the above functions, the option `return_abserr_attr = TRUE` is available
+in `mqfr()`:
+```{r errorbound_m1}
+A <- diag(1:4)
+B <- diag(sqrt(4:1))
+
+mqfr(c(0, 0.5, 1, 1.5, 2), A, B, mu = rep.int(0, 4), m = 20,
+     return_abserr_attr = TRUE)
+```
+The error bound is taken from the result of `qfrm()` and can be `NA` when
+no analytic expression is available (non-integer powers in this example).
+Error of `0` can arise when the moment is exact (`0`-th power in the above
+example) or the error evaluation yielded numerical `0`.
+See `vignette("qfratio")` for further details of the error bound of the moments.
 
 
 ## Distribution of powers

@@ -158,6 +158,28 @@ calculate the moment.
 The function calls are followed by outputs from the `print` method for
 the results, which show the values of the moments.
 
+For the simple ratio, there is also a wrapper function `mqfr()` which returns
+the result from `qfrm()` as a numeric vector.
+This function assumes a special case $p = q$, whose value is specified by
+its first argument `power` (against which it is vectorized, unlike `qfrm()`).
+This syntax is for consistency with other distribution-related functions in
+the package, `dqfr()`, `pqfr()`, `qqfr()`, and `rqfr()`, for which see
+`vignette("qfratio_distr")`.
+
+```{r, short_example}
+
+## Expectation of (x^T A x)^2 / (x^T x)^2 where x ~ N(0, I)
+mqfr(2, A) # By default, B = I
+
+## Expectation of (x^T A x)^p / (x^T B x)^p where x ~ N(0, I), p = 0,0.5,1,2
+mqfr(c(0, 0.5, 1, 2), A, B)
+
+## Expectation of (x^T A x)^1 / (x^T B x)^1 where x ~ N(mu, Sigma)
+## with arbitrary mu and Sigma
+mqfr(1, A, B, mu = mu, Sigma = Sigma, m = 300)
+```
+
+
 You might have wondered what it means by results being "exact" or
 having "error", or about the unexplained argument `m = 300` in the last example.
 Seeing this requires some excursion into the math involved.
@@ -601,6 +623,10 @@ when available.
 Simple `print` and `plot` methods are defined for the `qfrm` class,
 for quick inspection of evaluation results.
 
+In addition, there is a convenience wrapper `mqfr()`, which extracts and
+returns the main evaluation result from `qfrm()` as a numeric vector
+(see `vignette("qfratio_distr")`).
+
 
 ## `qfrm()`: *q*uadratic *f*orm *r*atio *m*oment
 
@@ -761,7 +787,7 @@ obtained within reasonable computational memory and time.
 
 #### Usage
 ```
-rqfr(nit, A, B, p = 1, q = p, mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE)
+rqfr(nit, A, B, power = 1, q = power, mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE)
 rqfmr(nit, A, B, D, p = 1, q = p/2, r = q, mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE)
 rqfp(nit, A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE)
 ```
