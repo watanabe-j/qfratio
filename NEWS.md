@@ -1,3 +1,11 @@
+# qfratio 1.1.2 (upcoming)
+
+* Add mqfr(), convenient moment function
+* Make rqfr() and others more consistent with, e.g., stats::rnorm()
+* Handle 0th power, univariate condition, and constant cases sensibly
+* Modify argument names in dqfr(), pqfr(), and qqfr() to avoid naming problems
+
+
 # qfratio 1.1.1
 
 * Implement quantile function, qqfr()
