@@ -1670,7 +1670,8 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
     } else {
         B <- (B + t(B)) / 2
     }
-    res <- sapply(power, function(p) qf_fun(p, A, B, mu, Sigma, ...))
+    res <- sapply(power, function(p) qf_fun(p = p, A = A, B = B,
+                                            mu = mu, Sigma = Sigma, ...))
     ans <- res["statistic", ]
     if(return_abserr_attr) {
         abserr <- res["error_bound", ]
