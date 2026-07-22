@@ -1,4 +1,4 @@
-# qfratio 1.1.2 (upcoming)
+# qfratio 1.1.2
 
 * Add mqfr(), convenient moment function
 * Make rqfr() and others more consistent with, e.g., stats::rnorm()
