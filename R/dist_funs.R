@@ -561,7 +561,7 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
                       stop_on_error = FALSE, use_cpp = TRUE,
                       cpp_method = c("double", "long_double", "coef_wise"),
                       nthreads = 1,
-                      tol_conv = .Machine$double.eps ^ (1/4),
+                      tol_conv = .Machine$double.eps ^ 0.25,
                       tol_zero = .Machine$double.eps * 100,
                       thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
@@ -872,7 +872,7 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
 pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
-                        epsabs_p = .Machine$double.eps ^ (1/2), epsrel_p = 0,
+                        epsabs_p = .Machine$double.eps ^ 0.5, epsrel_p = 0,
                         maxiter_p = 5000) {
     Kder <- function(Xii, L, theta, j = 1) {
         tmp <- (L * Xii) ^ j * (1 + j * theta * Xii)
@@ -925,7 +925,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
             Xii_0 <- rep.int(1, n)
             Kp2_0 <- Kder(Xii_0, L, theta, 2)
             Kp3_0 <- Kder(Xii_0, L, theta, 3)
-            value <- 1 / 2 + Kp3_0 / sqrt(72 * pi) / Kp2_0^(3/2)
+            value <- 0.5 + Kp3_0 / sqrt(72 * pi) / Kp2_0^1.5
         } else {
             Xii_s <- 1 / (1 - 2 * s * L)
             w <- sign(s) * sqrt(-2 * Kx(s, L, theta, Xii_s))
@@ -1163,7 +1163,7 @@ dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
                       check_convergence = c("relative", "strict_relative",
                                             "absolute", "none"),
                       use_cpp = TRUE,
-                      tol_conv = .Machine$double.eps ^ (1/4),
+                      tol_conv = .Machine$double.eps ^ 0.25,
                       thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
@@ -1368,7 +1368,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
 dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                         order_spa = 2, stop_on_error = FALSE, use_cpp = TRUE,
                         tol_zero = .Machine$double.eps * 100,
-                        epsabs = .Machine$double.eps ^ (1/2), epsrel = 0,
+                        epsabs = .Machine$double.eps ^ 0.5, epsrel = 0,
                         maxiter = 5000) {
     Kder <- function(Xii, L, theta, j = 1) {
         tmp <- (L * Xii) ^ j * (1 + j * theta * Xii)
@@ -1464,7 +1464,7 @@ qqfr <- function(probability, A, B, power = 1,
                  lower.tail = TRUE, log.p = FALSE, trim_values = FALSE,
                  return_abserr_attr = FALSE, stop_on_error = FALSE,
                  tol_zero = .Machine$double.eps * 100,
-                 tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ (1/2),
+                 tol_sing = tol_zero, epsabs_q = .Machine$double.eps ^ 0.5,
                  maxiter_q = 5000, ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize

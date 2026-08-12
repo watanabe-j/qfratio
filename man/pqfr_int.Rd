@@ -31,7 +31,7 @@ dqfr_A1I1(
   m_ser = 100L,
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
   use_cpp = TRUE,
-  tol_conv = .Machine$double.eps^(1/4),
+  tol_conv = .Machine$double.eps^0.25,
   thr_margin = 100
 )
 
@@ -44,7 +44,7 @@ dqfr_butler(
   stop_on_error = FALSE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
-  epsabs = .Machine$double.eps^(1/2),
+  epsabs = .Machine$double.eps^0.5,
   epsrel = 0,
   maxiter = 5000
 )
@@ -86,7 +86,7 @@ pqfr_A1B1(
   use_cpp = TRUE,
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 1,
-  tol_conv = .Machine$double.eps^(1/4),
+  tol_conv = .Machine$double.eps^0.25,
   tol_zero = .Machine$double.eps * 100,
   thr_margin = 100
 )
@@ -100,7 +100,7 @@ pqfr_butler(
   stop_on_error = FALSE,
   use_cpp = TRUE,
   tol_zero = .Machine$double.eps * 100,
-  epsabs_p = .Machine$double.eps^(1/2),
+  epsabs_p = .Machine$double.eps^0.5,
   epsrel_p = 0,
   maxiter_p = 5000
 )

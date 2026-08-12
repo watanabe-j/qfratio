@@ -348,7 +348,7 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
 .run_check_conv <- function(ansseq,
                             check_convergence = c("relative", "strict_relative",
                                                   "absolute", "none"),
-                            tol_conv = .Machine$double.eps ^ (1/4)) {
+                            tol_conv = .Machine$double.eps ^ 0.25) {
     check_convergence <- match.arg(check_convergence)
     if (check_convergence != "none") {
         if (check_convergence == "strict_relative") {

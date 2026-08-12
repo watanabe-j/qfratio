@@ -55,7 +55,7 @@ qqfr(
   stop_on_error = FALSE,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
-  epsabs_q = .Machine$double.eps^(1/2),
+  epsabs_q = .Machine$double.eps^0.5,
   maxiter_q = 5000,
   ...
 )

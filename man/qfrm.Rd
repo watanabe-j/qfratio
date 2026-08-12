@@ -48,7 +48,7 @@ qfrm_ApIq_npi(
   cpp_method = c("double", "long_double", "coef_wise"),
   nthreads = 1,
   alphaA = 1,
-  tol_conv = .Machine$double.eps^(1/4),
+  tol_conv = .Machine$double.eps^0.25,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   thr_margin = 100
@@ -67,7 +67,7 @@ qfrm_ApBq_int(
   cpp_method = "double",
   nthreads = 1,
   alphaB = 1,
-  tol_conv = .Machine$double.eps^(1/4),
+  tol_conv = .Machine$double.eps^0.25,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   thr_margin = 100
@@ -86,7 +86,7 @@ qfrm_ApBq_npi(
   nthreads = 0,
   alphaA = 1,
   alphaB = 1,
-  tol_conv = .Machine$double.eps^(1/4),
+  tol_conv = .Machine$double.eps^0.25,
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   thr_margin = 100

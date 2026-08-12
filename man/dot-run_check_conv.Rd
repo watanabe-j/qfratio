@@ -7,7 +7,7 @@
 .run_check_conv(
   ansseq,
   check_convergence = c("relative", "strict_relative", "absolute", "none"),
-  tol_conv = .Machine$double.eps^(1/4)
+  tol_conv = .Machine$double.eps^0.25
 )
 }
 \arguments{
