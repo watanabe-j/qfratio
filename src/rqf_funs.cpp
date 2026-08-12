@@ -10,7 +10,8 @@ using Eigen::VectorXd;
 
 // Eigen function to obtain matrix square root via Cholesky decomposition
 // with pivoting (accommodates singular matrices)
-inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
+inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd &X)
+{
     Eigen::LDLT<MatrixXd> ldltX(X);
     MatrixXd D = ldltX.vectorD();
     MatrixXd U = ldltX.matrixU();
@@ -20,8 +21,9 @@ inline Eigen::MatrixXd cholpiv_UE(const Eigen::MatrixXd& X) {
 // Eigen function to obtain multivariate normal variables
 // with specified mean vector and covariance
 // // [[Rcpp::export]]
-Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
-                      const Eigen::MatrixXd& Sigma) {
+Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd &mu,
+                      const Eigen::MatrixXd &Sigma)
+{
     const int nv = Sigma.rows();
 
     // LDLT method (Cholesky with pivoting)
@@ -48,26 +50,24 @@ Eigen::MatrixXd rmvnE(const int N, const Eigen::VectorXd& mu,
 Eigen::ArrayXd rqfpE(const int nit,
                      const Eigen::MatrixXd A, const Eigen::MatrixXd B, const Eigen::MatrixXd D,
                      const double p_, const double q_, const double r_,
-                     const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma) {
+                     const Eigen::VectorXd mu, const Eigen::MatrixXd Sigma)
+{
     MatrixXd X = rmvnE(nit, mu, Sigma);
     ArrayXd qfAp(nit);
     ArrayXd qfBq(nit);
     ArrayXd qfDr(nit);
-    if(p_ == 0) {
+    if (p_ == 0)
         qfAp.setOnes();
-    } else {
+    else
         qfAp = (X * A * X.transpose()).diagonal().array().pow(p_);
-    }
-    if(q_ == 0) {
+    if (q_ == 0)
         qfBq.setOnes();
-    } else {
+    else
         qfBq = (X * B * X.transpose()).diagonal().array().pow(q_);
-    }
-    if(r_ == 0) {
+    if (r_ == 0)
         qfDr.setOnes();
-    } else {
+    else
         qfDr = (X * D * X.transpose()).diagonal().array().pow(r_);
-    }
     ArrayXd ans = qfAp * qfBq * qfDr;
     return ans;
 }
