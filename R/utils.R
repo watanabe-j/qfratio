@@ -39,11 +39,11 @@ S_fromUL <- function(evec, evalues) {
 #'   \eqn{\mathbf{K}^-}{K^-}
 #'
 KiK <- function(S, tol = .Machine$double.eps * 100) {
-    if(!isSymmetric(S)) stop("Covariance matrix must be symmetric")
+    if (!isSymmetric(S)) stop("Covariance matrix must be symmetric")
     svdS <- svd(S, nv = 0)
     d <- svdS$d
     u <- svdS$u
-    if(any(d < 0)) stop("Covariance matrix must be nonnegative definite")
+    if (any(d < 0)) stop("Covariance matrix must be nonnegative definite")
     pos <- d > tol
     K <- u[, pos] %*% diag(sqrt(d[pos]), nrow = sum(pos))
     iK <- diag(1 / sqrt(d[pos]), nrow = sum(pos)) %*% t(u[, pos])
@@ -79,11 +79,11 @@ sum_counterdiag <- function(X) {
     n <- nrow(X)
     sum_p <- rep.int(0, n)
     sum_n <- rep.int(0, n)
-    for(i in seq_len(n)) {
-        for(j in seq_len(i)) {
+    for (i in seq_len(n)) {
+        for (j in seq_len(i)) {
             x <- X[i - j + 1, j]
-            if(!is.na(x)) {
-                if(x >= 0) {
+            if (!is.na(x)) {
+                if (x >= 0) {
                     sum_p[i] <- sum_p[i] + x
                 } else {
                     sum_n[i] <- sum_n[i] - x
@@ -99,11 +99,11 @@ sum_counterdiag3D <- function(X) {
     n <- dim(X)[1]
     sum_p <- rep.int(0, n)
     sum_n <- rep.int(0, n)
-    for(i in seq_len(n)) {
-        for(j in seq_len(i)) {
-            for(k in seq_len(i - j + 1)) {
+    for (i in seq_len(n)) {
+        for (j in seq_len(i)) {
+            for (k in seq_len(i - j + 1)) {
                 x <- X[i - j - k + 2, j, k]
-                if(!is.na(x)) {
+                if (!is.na(x)) {
                     if (x >= 0) {
                         sum_p[i] <- sum_p[i] + x
                     } else {
@@ -160,7 +160,7 @@ iseq <- function(x, y = rep.int(0, length(x)),
 #'
 is_diagonal <- function(A, tol = .Machine$double.eps * 100, symmetric = FALSE) {
     n <- dim(A)[1]
-    if(symmetric) {
+    if (symmetric) {
         return(isTRUE(all.equal(A[lower.tri(A)],
                                 rep.int(0, n * (n - 1) / 2), tol)))
     } else {
@@ -191,20 +191,20 @@ range_qfr <- function(A, B, eigB = eigen(B, symmetric = TRUE),
     rB <- sum(LB > tol)
     n <- length(LB)
     Ad <- with(eigB, crossprod(crossprod(A, vectors), vectors))
-    if(rB == n) {
+    if (rB == n) {
         LBiA <- gen_eig(A, B, eigB, Ad, tol = tol, t = t)
-    } else if(rB == 0) {
+    } else if (rB == 0) {
         ## Pathologic case
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
-        if(all(abs(LA) < tol)) return(c( NaN,  NaN))
-        if(all(LA > -tol))     return(c( Inf,  Inf))
-        if(all(LA <  tol))     return(c(-Inf, -Inf))
+        if (all(abs(LA) < tol)) return(c( NaN,  NaN))
+        if (all(LA > -tol))     return(c( Inf,  Inf))
+        if (all(LA <  tol))     return(c(-Inf, -Inf))
         return(c(-Inf, Inf))
     } else {
         ## Common null space of A and B makes generalized eigenvalue problem
         ## unsolvable; try excluding this
         nonnull_AB <- rep.int(TRUE, n)
-        for(i in (rB + 1):n) {
+        for (i in (rB + 1):n) {
             nonnull_AB[i] <- any(abs(Ad[i, ]) >= tol)
         }
         rAd <- sum(nonnull_AB)
@@ -215,7 +215,7 @@ range_qfr <- function(A, B, eigB = eigen(B, symmetric = TRUE),
         LBiA <- try(gen_eig(Adn, diag(LBn, rAd), eigBn, Adn, tol = tol, t = t),
                     TRUE)
         ## In case common null space could not be excluded
-        if(inherits(LBiA, "try-error")) return(c(-Inf, Inf))
+        if (inherits(LBiA, "try-error")) return(c(-Inf, Inf))
     }
     ## NaN in LBiA usually corresponds to common null space so is negligible
     res <- range(LBiA[!is.nan(LBiA)])
@@ -270,7 +270,7 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
     LB <- eigB$values
     rB <- sum(LB > tol)
     n <- length(LB)
-    if(rB == n) {
+    if (rB == n) {
         BiA <- t(Ad / sqrt(LB)) / sqrt(LB)
         LBiA <- eigen(BiA, symmetric = TRUE, only.values = TRUE)$values
     } else {
@@ -280,12 +280,12 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
         Abar <- A - alpha * B
         i <- 1
         fail_prev <- FALSE
-        while(TRUE) {
+        while (TRUE) {
             LM <- try(eigen(solve(Abar, B), only.values = TRUE)$values, TRUE)
             fail_curr <- inherits(LM, "try-error")
-            if(fail_prev && fail_curr) stop("problem looks ill-conditioned")
-            if(!fail_curr) {
-                if(all(abs(LM - alpha) > t * abs(alpha))) break
+            if (fail_prev && fail_curr) stop("problem looks ill-conditioned")
+            if (!fail_curr) {
+                if (all(abs(LM - alpha) > t * abs(alpha))) break
             }
             ## If above didn't work, failure; update alpha
             fail_prev <- TRUE
@@ -293,8 +293,8 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
             Abar <- A - alpha * B
             ## To avoid infinite loop; this should not happen
             i <- i + 1
-            if(i > 5) stop("unexpected error: max iteration reached; ",
-                           "contact maintainer")
+            if (i > 5) stop("unexpected error: max iteration reached; ",
+                            "contact maintainer")
         }
         LBiA <- 1 / LM + alpha
         ## If any of LM is ~0, the corresponding LBiA should be +/-Inf
@@ -302,7 +302,7 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
         ## Determine the sign(s) by looking at the submatrix of Ad
         ## corresponding to the null space of B
         inf_inds <- abs(LM) < tol
-        if(any(inf_inds)) {
+        if (any(inf_inds)) {
             A22 <- Ad[(rB + 1):n, (rB + 1):n]
             LA22 <- eigen(A22, symmetric = TRUE, only.values = TRUE)$values
             LA22min <- min(LA22)
@@ -311,11 +311,11 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
             ##           nonnegative,                 +Inf only
             ##           nonpositive,                 -Inf only
             ##           not clearly any of the above, use NaN (should be rare)
-            if(LA22min < -tol && LA22max > tol) {
+            if (LA22min < -tol && LA22max > tol) {
                 LBiA[inf_inds] <- rep_len(c(Inf, -Inf), sum(inf_inds))
-            } else if(LA22min > -tol && LA22max > tol) {
+            } else if (LA22min > -tol && LA22max > tol) {
                 LBiA[inf_inds] <-  Inf
-            } else if(LA22min < -tol && LA22max < tol) {
+            } else if (LA22min < -tol && LA22max < tol) {
                 LBiA[inf_inds] <- -Inf
             } else {
                 LBiA[inf_inds] <- NaN
@@ -350,24 +350,24 @@ gen_eig <- function(A, B, eigB = eigen(B, symmetric = TRUE),
                                                   "absolute", "none"),
                             tol_conv = .Machine$double.eps ^ (1/4)) {
     check_convergence <- match.arg(check_convergence)
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
+    if (check_convergence != "none") {
+        if (check_convergence == "strict_relative") {
+            if (tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
         last_term <- ansseq[length(ansseq)]
         sum_seq <- sum(ansseq)
         ## If sum_seq == 0, no point in checking relative error
         ## And typically last_term == 0 as well, yielding NaN and error below
         check_abs <- check_convergence == "absolute" || sum_seq == 0
-        non_convergence <- if(check_abs) {
+        non_convergence <- if (check_abs) {
             abs(last_term) > tol_conv
         } else {
             abs(last_term / sum_seq) > tol_conv
         }
-        if(non_convergence) {
+        if (non_convergence) {
             warning("Last term is >",
                     sprintf("%.1e", tol_conv),
-                    if(!check_abs) " times as large as the series",
+                    if (!check_abs) " times as large as the series",
                     ",\n  suggesting non-convergence. Consider using larger m")
         }
     }

@@ -5,7 +5,7 @@ CQF_available <- requireNamespace("CompQuadForm", quietly = TRUE)
 
 test_that("Expect identical results for simultaneously rotated matrices", {
     nvs <- 2:4
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.5
         L1 <- 1:nv
         L2 <- nv:1
@@ -34,7 +34,7 @@ test_that("Expect identical results for simultaneously rotated matrices", {
 
 test_that("Expect equal from R and C++ methods", {
     nvs <- 2:4
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.5
         L1 <- 1:nv
         L2 <- nv:1
@@ -42,7 +42,7 @@ test_that("Expect equal from R and C++ methods", {
         A2 <- diag(L2)
         mu <- 1:nv * 0.2
 
-        if(CQF_available) {
+        if (CQF_available) {
             expect_equal(pqfr(qs, A1, A2, mu = mu, method = "imhof", return_abserr_attr = FALSE, use_cpp = TRUE),
                          pqfr(qs, A1, A2, mu = mu, method = "imhof", return_abserr_attr = FALSE, use_cpp = FALSE), tolerance = tol)
         }
@@ -65,7 +65,7 @@ test_that("Expect equal from R and C++ methods", {
 
 test_that("Expect similar results between different methods", {
     nvs <- 2:4
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.5
         L1 <- 1:nv
         L2 <- nv:1
@@ -78,7 +78,7 @@ test_that("Expect similar results between different methods", {
         dseq_hillier  <- dqfr(qs, A1, method = "hillier", m_ser = 50, check_convergence = FALSE)
 
         expect_equal(pseq_imhof, pseq_forchini, tolerance = tol2)
-        if(CQF_available) {
+        if (CQF_available) {
             pseq_davies <- pqfr(qs, A1, A2, mu = mu, method = "davies")
             expect_equal(pseq_imhof, pseq_davies,   tolerance = tol2)
         }
@@ -88,7 +88,7 @@ test_that("Expect similar results between different methods", {
 
 test_that("Expect equal p-values with exponents with nnd matrices", {
     nvs <- 2:4
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.2
         L1 <- 1:nv
         L2 <- nv:1
@@ -109,7 +109,7 @@ test_that("Expect equal p-values with exponents with nnd matrices", {
 
 test_that("Expect equal p-values with odd exponents with indefinite matrices", {
     nvs <- 2:4
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- (-2):nv + 0.2
         L1 <- (1:nv - 1.5) * 2
         L2 <- nv:1
@@ -127,7 +127,7 @@ test_that("Expect equal p-values with odd exponents with indefinite matrices", {
 test_that("Expect unity when density is integrated with nnd matrices", {
     ## Tests with nv = 2, 3 often hit singularity, causing error
     nvs <- 4:5
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.2
         L1 <- 1:nv
         L2 <- nv:1
@@ -151,7 +151,7 @@ test_that("Expect unity when density is integrated with nnd matrices", {
 
 test_that("Expect unity when density is integrated with indefinite matrices", {
     nvs <- 4:5
-    for(nv in nvs) {
+    for (nv in nvs) {
         qs <- 0:nv + 0.2
         L1 <- (1:nv - 1.5) * 2
         L2 <- nv:1

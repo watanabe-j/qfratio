@@ -109,8 +109,8 @@
 #'
 rqfr <- function(nit, A, B, power = 1, p = power, q = p,
                  mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -118,12 +118,12 @@ rqfr <- function(nit, A, B, power = 1, p = power, q = p,
         n <- dim(A)[1L]
         In <- diag(n)
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     }
-    if(missing(p) && !missing(q)) p <- q
-    if(!missing(power)) {
-        if(power != p || power != q) {
+    if (missing(p) && !missing(q)) p <- q
+    if (!missing(power)) {
+        if (power != p || power != q) {
             warning("power is ignored when p or q is given")
         }
     }
@@ -137,9 +137,9 @@ rqfr <- function(nit, A, B, power = 1, p = power, q = p,
 #'
 rqfmr <- function(nit, A, B, D, p = 1, q = p / 2, r = q,
                   mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B and D")
             } else {
                 n <- dim(D)[1L]
@@ -153,14 +153,14 @@ rqfmr <- function(nit, A, B, D, p = 1, q = p / 2, r = q,
         n <- dim(A)[1L]
         In <- diag(n)
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     }
-    if(missing(q) && !missing(r)) q <- r
-    if(missing(p) && !missing(q)) p <- q + r
+    if (missing(q) && !missing(r)) q <- r
+    if (missing(p) && !missing(q)) p <- q + r
     rqfp(nit, A, B, D, p = p, q = -q, r = -r,
          mu = mu, Sigma = Sigma, use_cpp = use_cpp)
 }
@@ -171,12 +171,12 @@ rqfmr <- function(nit, A, B, D, p = 1, q = p / 2, r = q,
 #'
 rqfp <- function(nit, A, B, D, p = 1, q = 1, r = 1,
                  mu = rep.int(0, n), Sigma = diag(n), use_cpp = TRUE) {
-    if(!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
+    if (!requireNamespace("mvtnorm", quietly = TRUE) && !use_cpp) {
         stop("Package 'mvtnorm' required to use this function")
     }
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B and D")
             } else {
                 n <- dim(D)[1L]
@@ -186,40 +186,40 @@ rqfp <- function(nit, A, B, D, p = 1, q = 1, r = 1,
         }
         In <- diag(n)
         A <- In
-        if(missing(p)) p <- 0
+        if (missing(p)) p <- 0
     } else {
         n <- dim(A)[1L]
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
-        if(missing(q)) q <- 0
+        if (missing(q)) q <- 0
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
-        if(missing(r)) r <- 0
+        if (missing(r)) r <- 0
     } else {
         D <- (D + t(D)) / 2
     }
-    if(length(nit) > 1) nit <- length(nit)
-    if(use_cpp) {
+    if (length(nit) > 1) nit <- length(nit)
+    if (use_cpp) {
         return(rqfpE(nit, A, B, D, p, q, r, mu, Sigma))
     }
     X <- mvtnorm::rmvnorm(nit, mean = mu, sigma = Sigma)
-    if(p == 0) {
+    if (p == 0) {
         qfAp <- rep.int(1, nit)
     } else {
         qfAp <- diag(tcrossprod(tcrossprod(X, A), X)) ^ p
     }
-    if(q == 0) {
+    if (q == 0) {
         qfBq <- rep.int(1, nit)
     } else {
         qfBq <- diag(tcrossprod(tcrossprod(X, B), X)) ^ q
     }
-    if(r == 0) {
+    if (r == 0) {
         qfDr <- rep.int(1, nit)
     } else {
         qfDr <- diag(tcrossprod(tcrossprod(X, D), X)) ^ r

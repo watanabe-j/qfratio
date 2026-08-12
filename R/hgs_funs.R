@@ -27,7 +27,7 @@ NULL
 
 # Internal function to calculate sequence of log rising factorial
 .lrfseq <- function(a, m) {
-    if(a <= 0 && (a %% 1) == 0) {
+    if (a <= 0 && (a %% 1) == 0) {
         return(cumsum(suppressWarnings(log(c(1, pmax(seq.int(-a, -a - (m - 1)), 0))))))
     } else {
         return(lgamma(seq.int(a, a + m)) - lgamma(a))

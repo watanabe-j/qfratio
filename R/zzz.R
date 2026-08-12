@@ -1,3 +1,3 @@
 .onUnload <- function(libpath) {
-  library.dynam.unload("qfratio", libpath)
+    library.dynam.unload("qfratio", libpath)
 }

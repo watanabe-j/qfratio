@@ -137,8 +137,8 @@ involving two or three quadratic forms.
 \details{
 \code{d2_**_*()} functions calculate
 \eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{d_{i,j}(A_1, A_2)} in
-Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related to
-the top-order invariant polynomials
+Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related
+to the top-order invariant polynomials
 \eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)}{C_{[k_1],[k_2]}(A_1, A_2)}
 in the following way:
 \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
@@ -190,8 +190,8 @@ those with \code{_v} take eigenvalues.  The latter can be used only when
 the argument matrices share the same eigenvectors, to which the eigenvalues
 correspond in the orders given, but is substantially faster.
 
-This package also involves \proglang{C++} equivalents for most of these functions
-(which are suffixed by \code{E} for \code{Eigen}),
+This package also involves \proglang{C++} equivalents for most of these
+functions (which are suffixed by \code{E} for \code{Eigen}),
 but these are exclusively for internal use and not exposed to the user.
 }
 \references{

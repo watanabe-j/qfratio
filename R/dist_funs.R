@@ -376,14 +376,14 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                  tol_sing = tol_zero,
                  ...) {
     method <- match.arg(method)
-    if(method == "davies" &&
-       !requireNamespace("CompQuadForm", quietly = TRUE)) {
+    if (method == "davies" &&
+        !requireNamespace("CompQuadForm", quietly = TRUE)) {
         stop("Package 'CompQuadForm' is required to use davies method")
     }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -392,7 +392,7 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -400,7 +400,7 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -408,13 +408,13 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu.\n  See documentation for details")
             }
@@ -435,18 +435,18 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         "power must be a nonnegative scalar" =
             is.numeric(power) && length(power) == 1 && power >= 0
     )
-    if(power == 0) {
+    if (power == 0) {
         ans <- as.numeric(quantile >= 1)
         ans[is.nan(quantile)] <- NaN ## NaN >= 1 yields NA; must return NaN
         abserr <- rep.int(0, length(ans))
         abserr[is.na(quantile)] <- NA_real_ ## As is.na(NaN) is TRUE,
         abserr[is.nan(quantile)] <- NaN     ## is.nan() must be after is.na()
-    } else if(power != 1) {
+    } else if (power != 1) {
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
         ## When A is nonnegative definite or power is odd,
         ## result is available by transforming quantile
-        if(L_nnd || ((power %% 1) == 0 && (power %% 2) == 1)) {
+        if (L_nnd || ((power %% 1) == 0 && (power %% 2) == 1)) {
             quantile_new <- sign(quantile) * abs(quantile) ^ (1 / power)
             ans <- pqfr(quantile_new, A, B, power = 1, mu = mu,
                         lower.tail = TRUE, log.p = FALSE, method = method,
@@ -457,7 +457,7 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         } else {
             ## When A is indefinite and power is even, result is calculated from
             ## p-values on positive and negative branches and then processed
-            if((power %% 2) == 0) {
+            if ((power %% 2) == 0) {
                 quantile_pos <- abs(quantile) ^ (1 / power)
                 ans1 <- pqfr(quantile_pos, A, B, power = 1, mu = mu,
                              lower.tail = TRUE, log.p = FALSE,
@@ -478,8 +478,8 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                 stop("A must be nonnegative definite when power is non-integer")
             }
         }
-    } else if(method == "forchini" || method == "butler") {
-        if(method == "forchini") {
+    } else if (method == "forchini" || method == "butler") {
+        if (method == "forchini") {
             ans <- sapply(quantile,
                           function(q) pqfr_A1B1(q, A, B, mu = mu,
                                                 tol_zero = tol_zero, ...)$p)
@@ -489,51 +489,53 @@ pqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                                                   tol_zero = tol_zero, ...)$p)
         }
     } else {
-        if(method == "davies") {
+        if (method == "davies") {
             res <- sapply(quantile,
-                          function(q) 
+                          function(q) {
                               unlist(pqfr_davies(q, A, B, mu = mu,
-                                                 tol_zero = tol_zero, ...)))
+                                                 tol_zero = tol_zero, ...))
+                          })
         } else {
             res <- sapply(quantile,
-                          function(q)
+                          function(q) {
                               unlist(pqfr_imhof(q, A, B, mu = mu,
-                                                tol_zero = tol_zero, ...)))
+                                                tol_zero = tol_zero, ...))
+                          })
             abserr <- res["abserr", ]
         }
         ans <- res["p", ]
     }
-    if(!lower.tail) ans <- 1 - ans
-    if(trim_values) {
-        if(any(ans[!is.na(ans)] > 1)) {
+    if (!lower.tail) ans <- 1 - ans
+    if (trim_values) {
+        if (any(ans[!is.na(ans)] > 1)) {
             ## When this happens, true value is always on negative side,
             ## so that abserr can be truncated
-            if(exists("abserr", inherits = FALSE)) {
+            if (exists("abserr", inherits = FALSE)) {
                 abserr <- pmax.int(1 - tol_zero - ans + abserr, tol_zero)
             }
             ans <- pmin.int(ans, 1 - tol_zero)
             warning("values > 1 trimmed down to 1 - tol_zero")
         }
-        if(any(ans[!is.na(ans)] < 0)) {
+        if (any(ans[!is.na(ans)] < 0)) {
             ## When this happens, true value is always on positive side,
             ## so that abserr can be truncated
-            if(exists("abserr", inherits = FALSE)) {
+            if (exists("abserr", inherits = FALSE)) {
                 abserr <- pmax.int(ans + abserr - tol_zero, tol_zero)
             }
             ans <- pmax.int(ans, tol_zero)
             warning("values < 0 trimmed up to tol_zero")
         }
     }
-    if(log.p) {
-        if(exists("abserr", inherits = FALSE)) {
+    if (log.p) {
+        if (exists("abserr", inherits = FALSE)) {
             abserr <- ifelse(abserr == 0, 0,
                              ifelse(abserr > ans, Inf, -log1p(- abserr / ans)))
         }
         ans <- log(ans)
     }
     attributes(ans) <- attributes(quantile)
-    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
-        if(is.null(dim(quantile))) {
+    if (exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if (is.null(dim(quantile))) {
             names(abserr) <- names(quantile)
         } else {
             dim(abserr) <- dim(quantile)
@@ -562,42 +564,42 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       tol_zero = .Machine$double.eps * 100,
                       thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In pqfr_A1B1, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) {
+    if (is.nan(quantile)) {
         return(list(p = NaN, terms = rep.int(NaN, m_ser + 1)))
     }
-    if(is.na(quantile)) {
+    if (is.na(quantile)) {
         return(list(p = NA_real_, terms = rep.int(NA_real_, m_ser + 1)))
     }
-    if(quantile == -Inf) {
+    if (quantile == -Inf) {
         return(list(p = 0, terms = rep.int(0, m_ser + 1)))
     }
-    if(quantile ==  Inf) {
+    if (quantile ==  Inf) {
         return(list(p = 1, terms = c(1, rep.int(0, m_ser))))
     }
     diminished <- FALSE
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- p_A1B1_Ec(quantile, A, B, mu, m_ser, stop_on_error,
                                 thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- p_A1B1_El(quantile, A, B, mu, m_ser, stop_on_error,
                                 thr_margin, nthreads, tol_zero)
         } else {
@@ -606,7 +608,7 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
         }
         ansseq <- cppres$ansseq
         diminished <- cppres$diminished
-        if(cppres$exact) {
+        if (cppres$exact) {
             return(list(p = sum(ansseq), terms = ansseq))
         }
     } else {
@@ -618,8 +620,8 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
         n2 <- length(D2)
         ## It is possible that n1 == n2 == 0, when F(q) = Pr(Q <= q) must be 1
         ## Hence the condition n1 == 0 is evaluated first
-        if(n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m_ser))))
-        if(n2 == 0) return(list(p = 0, terms = rep.int(0, m_ser + 1)))
+        if (n1 == 0) return(list(p = 1, terms = c(1, rep.int(0, m_ser))))
+        if (n2 == 0) return(list(p = 0, terms = rep.int(0, m_ser + 1)))
         mu <- c(crossprod(eigA_qB$vectors, c(mu)))
         mu1 <- mu[Ds > tol_zero]
         mu2 <- mu[Ds < -tol_zero]
@@ -633,23 +635,25 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
         D1h <- rep.int(sum(D1d), n1) - D1d
         D2h <- rep.int(sum(D2d), n2) - D2d
         seq0m <- seq.int(0, m_ser)
-        if(central) {
+        if (central) {
             dk1 <- d1_i(D1h, m_ser, thr_margin)
             dk2 <- d1_i(D2h, m_ser, thr_margin)
             lscf1 <- attr(dk1, "logscale")
             lscf2 <- attr(dk2, "logscale")
         } else {
-            dkm1 <- d2_ij_m(tcrossprod(sqrt(D1d) * mu1) / 2, diag(D1h, n1), m_ser,
-                            thr_margin = thr_margin)
-            dkm2 <- d2_ij_m(tcrossprod(sqrt(D2d) * mu2) / 2, diag(D2h, n2), m_ser,
-                            thr_margin = thr_margin)
+            dkm1 <- d2_ij_m(tcrossprod(sqrt(D1d) * mu1) / 2, diag(D1h, n1),
+                            m_ser, thr_margin = thr_margin)
+            dkm2 <- d2_ij_m(tcrossprod(sqrt(D2d) * mu2) / 2, diag(D2h, n2),
+                            m_ser, thr_margin = thr_margin)
             seqlrf_1_2 <- lgamma(1 / 2 + seq0m) - lgamma(1 / 2)
             dk1 <- sum_counterdiag(exp(log(dkm1) - seqlrf_1_2))
             dk2 <- sum_counterdiag(exp(log(dkm2) - seqlrf_1_2))
             lscf1 <- attr(dkm1, "logscale")[1, ]
             lscf2 <- attr(dkm2, "logscale")[1, ]
-            diminished <- any(lscf1 < 0) && any(diag(dkm1[(m_ser + 1):1, ]) == 0) ||
-                          any(lscf2 < 0) && any(diag(dkm2[(m_ser + 1):1, ]) == 0)
+            diminished <- any(lscf1 < 0) &&
+                          any(diag(dkm1[(m_ser + 1):1, ]) == 0) ||
+                          any(lscf2 < 0) &&
+                          any(diag(dkm2[(m_ser + 1):1, ]) == 0)
         }
         ordmat <- outer(seq0m, seq0m, FUN = "+") + (n1 + n2) / 2
         ansmat <- lgamma(ordmat)
@@ -662,30 +666,30 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
         ansmat <- exp(ansmat)
         hgres <- hyperg_2F1_mat_a_vec_c(ordmat, 1, n1 / 2 + 1 + seq0m, sum(D1d))
         hgstatus <- hgres$status[ordmat <= m_ser + 2]
-        if(any(hgstatus)) {
+        if (any(hgstatus)) {
             ermsg <- "problem in gsl_hyperg_2F1():"
             eunimpl <- any(hgstatus == 24)
             eovrflw <- any(hgstatus == 16)
             emaxiter <- any(hgstatus == 11)
             edom <- any(hgstatus == 1)
             eother <- !(eunimpl || eovrflw || emaxiter || edom)
-            if(eunimpl) {
+            if (eunimpl) {
                 ermsg <- paste0(ermsg,
                                 "\n  evaluation failed due to singularity")
             }
-            if(eovrflw) {
+            if (eovrflw) {
                 ermsg <- paste0(ermsg,
                                 "\n  numerical overflow encountered")
             }
-            if(emaxiter) {
+            if (emaxiter) {
                 ermsg <- paste0(ermsg,
                                 "\n  max iteration reached")
             }
-            if(edom) {
+            if (edom) {
                 ermsg <- paste0(ermsg,
                                 "\n  parameter outside acceptable domain")
             }
-            if(eother) {
+            if (eother) {
                 ecode <- hgstatus[hgstatus != 0 & hgstatus != 24 &
                                   hgstatus != 16 & hgstatus != 11 &
                                   hgstatus != 1][1]
@@ -693,7 +697,7 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
                                 "\n  unexpected kind of error with code ",
                                 ecode)
             }
-            if(stop_on_error) {
+            if (stop_on_error) {
                 stop(ermsg)
             } else {
                 warning(ermsg)
@@ -702,36 +706,36 @@ pqfr_A1B1 <- function(quantile, A, B, m_ser = 100L,
         ansmat <- ansmat * hgres$val
         ansseq <- sum_counterdiag(ansmat)
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
+    if (check_convergence != "none") {
+        if (check_convergence == "strict_relative") {
+            if (tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
-        non_convergence <- if(check_convergence == "absolute") {
+        non_convergence <- if (check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
         } else {
             abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
         }
-        if(non_convergence) {
+        if (non_convergence) {
             warning("Last term is >",
                     sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
+                    if (check_convergence != "absolute")
                         " times as large as the series",
                     ",\n  suggesting non-convergence. Consider using larger m")
         }
@@ -752,41 +756,41 @@ pqfr_imhof <- function(quantile, A, B, mu = rep.int(0, n),
                        tol_zero = .Machine$double.eps * 100,
                        epsabs_p = epsrel_p, epsrel_p = 1e-6, limit_p = 1e4) {
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In pqfr_imhof, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) return(list(p = NaN, abserr = NaN))
-    if(is.na(quantile))  return(list(p = NA_real_, abserr = NA_real_))
-    if(quantile == -Inf) return(list(p = 0, abserr = 0))
-    if(quantile ==  Inf) return(list(p = 1, abserr = 0))
-    if(use_cpp) {
+    if (is.nan(quantile)) return(list(p = NaN, abserr = NaN))
+    if (is.na(quantile))  return(list(p = NA_real_, abserr = NA_real_))
+    if (quantile == -Inf) return(list(p = 0, abserr = 0))
+    if (quantile ==  Inf) return(list(p = 1, abserr = 0))
+    if (use_cpp) {
         cppres <- p_imhof_Ed(quantile, A, B, mu, autoscale_args,
                              stop_on_error, tol_zero, epsabs_p, epsrel_p,
                              limit_p)
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
-        if(!requireNamespace("CompQuadForm", quietly = TRUE)) {
+        if (!requireNamespace("CompQuadForm", quietly = TRUE)) {
             stop("Package 'CompQuadForm' is required to use imhof method\n  ",
                  "with \"use_cpp = FALSE\"")
         }
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
         delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-        if(all(L <=  tol_zero)) return(list(p = 1, abserr = 0))
-        if(all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
+        if (all(L <=  tol_zero)) return(list(p = 1, abserr = 0))
+        if (all(L >= -tol_zero)) return(list(p = 0, abserr = 0))
         ## By default, L is scaled because small L yields small integrand
         ## and hence makes numerical integration difficult
-        if(autoscale_args > 0) {
+        if (autoscale_args > 0) {
             scale_L <- (max(L) - min(L)) / autoscale_args
             L <- L / scale_L
         }
@@ -814,37 +818,39 @@ pqfr_davies <- function(quantile, A, B, mu = rep.int(0, n),
                         tol_zero = .Machine$double.eps * 100,
                         epsabs_p = 0.0001, limit_p = 10000) {
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In pqfr_davies, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) {
+    if (is.nan(quantile)) {
         return(list(p = NaN, trace = rep.int(NA_real_, 7), ifault = 3))
     }
-    if(is.na(quantile)) {
+    if (is.na(quantile)) {
         return(list(p = NA_real_, trace = rep.int(NA_real_, 7), ifault = 3))
     }
-    if(quantile == -Inf) {
+    if (quantile == -Inf) {
         return(list(p = 0, trace = rep.int(0, 7), ifault = 0))
     }
-    if(quantile == Inf) {
+    if (quantile == Inf) {
         return(list(p = 1, trace = rep.int(0, 7), ifault = 0))
     }
     eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
     L <- eigA_qB$values
     delta2 <- c(crossprod(eigA_qB$vectors, mu)) ^ 2
-    if(all(L <=  tol_zero)) return(list(p = 1, trace = rep.int(0, 7), ifault = 0))
-    if(all(L >= -tol_zero)) return(list(p = 0, trace = rep.int(0, 7), ifault = 0))
+    if (all(L <=  tol_zero)) return(list(p = 1, trace = rep.int(0, 7),
+                                         ifault = 0))
+    if (all(L >= -tol_zero)) return(list(p = 0, trace = rep.int(0, 7),
+                                         ifault = 0))
     ## Scale L, although davies is more robust to small L than imhof
-    if(autoscale_args > 0) {
+    if (autoscale_args > 0) {
         scale_L <- (max(L) - min(L)) / autoscale_args
         L <- L / scale_L
     }
@@ -880,23 +886,23 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
         sum(log(Xii) / 2 + s * L * theta * Xii)
     }
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In pqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) return(list(p = NaN))
-    if(is.na(quantile))  return(list(p = NA_real_))
-    if(quantile == -Inf) return(list(p = 0))
-    if(quantile ==  Inf) return(list(p = 1))
-    if(use_cpp) {
+    if (is.nan(quantile)) return(list(p = NaN))
+    if (is.na(quantile))  return(list(p = NA_real_))
+    if (quantile == -Inf) return(list(p = 0))
+    if (quantile ==  Inf) return(list(p = 1))
+    if (use_cpp) {
         cppres <- p_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
                               tol_zero, epsabs_p, epsrel_p, maxiter_p)
         value <- cppres$value
@@ -905,8 +911,8 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
         L <- eigA_qB$values
         ## Saddlepoint approximation is about Pr(Q < q)
         ## Hence the condition all(L >= -tol_zero) is evaluated first
-        if(all(L >= -tol_zero)) return(list(p = 0))
-        if(all(L <=  tol_zero)) return(list(p = 1))
+        if (all(L >= -tol_zero)) return(list(p = 0))
+        if (all(L <=  tol_zero)) return(list(p = 1))
         U <- eigA_qB$vectors
         mu <- c(crossprod(U, c(mu)))
         theta <- mu ^ 2
@@ -915,7 +921,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
                                    check.conv = stop_on_error, tol = epsabs_p,
                                    maxiter = maxiter_p)
         s <- root_res$root
-        if(abs(s) < max(epsabs_p, tol_zero)) {
+        if (abs(s) < max(epsabs_p, tol_zero)) {
             Xii_0 <- rep.int(1, n)
             Kp2_0 <- Kder(Xii_0, L, theta, 2)
             Kp3_0 <- Kder(Xii_0, L, theta, 3)
@@ -926,7 +932,7 @@ pqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
             Kp2_s <- Kder(Xii_s, L, theta, 2)
             u <- s * sqrt(Kp2_s)
             cf <- 1 / w - 1 / u
-            if(order_spa > 1) {
+            if (order_spa > 1) {
                 Kp3_s <- Kder(Xii_s, L, theta, 3)
                 Kp4_s <- Kder(Xii_s, L, theta, 4)
                 k3h <- Kp3_s / Kp2_s^1.5
@@ -956,8 +962,8 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
     method <- match.arg(method)
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -966,7 +972,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -974,7 +980,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -982,13 +988,13 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu.\n  See documentation for details")
             }
@@ -1010,7 +1016,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         "power must be a nonnegative scalar" =
             is.numeric(power) && length(power) == 1 && power >= 0
     )
-    if(power == 0) {
+    if (power == 0) {
         ans <- rep.int(0, length(quantile))
         ans[quantile == 1] <- Inf
         ans[is.na(quantile)] <- NA_real_
@@ -1018,13 +1024,13 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
         abserr <- rep.int(0, length(ans))
         abserr[is.na(quantile)] <- NA_real_ ## As is.na(NaN) is TRUE,
         abserr[is.nan(quantile)] <- NaN     ## is.nan() must be after is.na()
-    } else if(power != 1) {
+    } else if (power != 1) {
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
         L_nnd <- all(LA >= -tol_sing) && any(LA > tol_sing)
         jacobian <- abs(quantile) ^ (1 / power - 1) / power
         ## When A is nonnegative definite or power is odd,
         ## result is obtainable by transforming quantile
-        if(L_nnd || ((power %% 1) == 0 && (power %% 2) == 1)) {
+        if (L_nnd || ((power %% 1) == 0 && (power %% 2) == 1)) {
             quantile_new <- sign(quantile) * abs(quantile) ^ (1 / power)
             ans <- dqfr(quantile_new, A, B, power = 1, mu = mu,
                         log = FALSE, method = method, trim_values = FALSE,
@@ -1040,7 +1046,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
             ##   on positive and negative branches
             ## - For zero quantile, density at zero
             ## - For negative quantile, 0
-            if((power %% 2) == 0) {
+            if ((power %% 2) == 0) {
                 ## To avoid assignment with NA indexing
                 ## No need to do anything as ans gets NA and NaN from jacobian
                 ind_q_not_na <- !is.na(quantile)
@@ -1048,7 +1054,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                 ind_q_zero <- quantile == 0 & ind_q_not_na
                 ans <- rep.int(0, length(quantile))
                 abserr <- rep.int(0, length(quantile))
-                if(any(ind_q_pos)) {
+                if (any(ind_q_pos)) {
                     quantile_pos <- abs(quantile[ind_q_pos]) ^ (1 / power)
                     ans1 <- dqfr(quantile_pos, A, B, power = 1, mu = mu,
                                  log = FALSE, method = method,
@@ -1064,9 +1070,9 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                                  tol_zero = tol_zero, tol_sing = tol_sing, ...)
                     ans[ind_q_pos] <- ans1 + ans2
                     abserr_tmp <- attr(ans1, "abserr") + attr(ans2, "abserr")
-                    if(length(abserr_tmp) > 0) abserr[ind_q_pos] <- abserr_tmp
+                    if (length(abserr_tmp) > 0) abserr[ind_q_pos] <- abserr_tmp
                 }
-                if(any(ind_q_zero)) {
+                if (any(ind_q_zero)) {
                     ans0 <- dqfr(0, A, B, power = 1, mu = mu, log = FALSE,
                                  method = method, trim_values = FALSE,
                                  normalize_spa = normalize_spa,
@@ -1074,7 +1080,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                                  tol_zero = tol_zero, tol_sing = tol_sing, ...)
                     ans[ind_q_zero] <- ans0
                     abserr_tmp <- attr(ans0, "abserr")
-                    if(length(abserr_tmp) > 0) abserr[ind_q_zero] <- abserr_tmp
+                    if (length(abserr_tmp) > 0) abserr[ind_q_zero] <- abserr_tmp
                 }
                 ans <- ans * jacobian
                 abserr <- abserr * jacobian
@@ -1084,17 +1090,17 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                 stop("A must be nonnegative definite when power is non-integer")
             }
         }
-    } else if(method == "broda") {
+    } else if (method == "broda") {
         res <- sapply(quantile,
                       function(q) unlist(dqfr_broda(q, A, B, mu,
                                                     tol_zero = tol_zero, ...)))
         ans <- res["d", ]
         abserr <- res["abserr", ]
-    } else if(method == "butler") {
+    } else if (method == "butler") {
         ans <- sapply(quantile,
                       function(q) dqfr_butler(q, A, B, mu,
                                               tol_zero = tol_zero, ...)$d)
-        if(normalize_spa) {
+        if (normalize_spa) {
             r_intg <- range_qfr(A, B, eigB, tol = tol_zero)
             intg_res <- stats::integrate(
                 dqfr, r_intg[1], r_intg[2], A = A, B = B, mu = mu, log = FALSE,
@@ -1103,7 +1109,7 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
             ans <- ans / intg_res$value
         }
     } else {
-        if(!iseq(B, In, tol_zero) || !iseq(mu, zeros, tol_zero)) {
+        if (!iseq(B, In, tol_zero) || !iseq(mu, zeros, tol_zero)) {
             stop("dqfr() does not accommodate B, mu, or Sigma ",
                  "with method = \"hillier\"")
         }
@@ -1112,27 +1118,27 @@ dqfr <- function(quantile, A, B, power = 1, mu = rep.int(0, n), Sigma = diag(n),
                       function(q) dqfr_A1I1(q, LA, ...)$d)
     }
     ## Trim spurious negative density into [0, Inf)
-    if(trim_values) {
-        if(any(ans[!is.na(ans)] < 0)) {
+    if (trim_values) {
+        if (any(ans[!is.na(ans)] < 0)) {
             ## When this happens, true value is always on positive side,
             ## so that abserr can be truncated
-            if(exists("abserr", inherits = FALSE)) {
+            if (exists("abserr", inherits = FALSE)) {
                 abserr <- pmax.int(ans + abserr - tol_zero, tol_zero)
             }
             ans <- pmax.int(ans, tol_zero)
             warning("values < 0 trimmed up to tol_zero")
         }
     }
-    if(log) {
-        if(exists("abserr", inherits = FALSE)) {
+    if (log) {
+        if (exists("abserr", inherits = FALSE)) {
             abserr <- ifelse(abserr == 0, 0,
                              ifelse(abserr > ans, Inf, -log1p(- abserr / ans)))
         }
         ans <- log(ans)
     }
     attributes(ans) <- attributes(quantile)
-    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
-        if(is.null(dim(quantile))) {
+    if (exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if (is.null(dim(quantile))) {
             names(abserr) <- names(quantile)
         } else {
             dim(abserr) <- dim(quantile)
@@ -1159,41 +1165,41 @@ dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
                       use_cpp = TRUE,
                       tol_conv = .Machine$double.eps ^ (1/4),
                       thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
     ## Check basic requirements for arguments
     stopifnot(
         "In dqfr_A1I1, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) {
+    if (is.nan(quantile)) {
         return(list(d = NaN, terms = rep.int(NaN, m_ser + 1)))
     }
-    if(is.na(quantile)) {
+    if (is.na(quantile)) {
         return(list(d = NA_real_, terms = rep.int(NA_real_, m_ser + 1)))
     }
-    if(is.infinite(quantile)) {
+    if (is.infinite(quantile)) {
         return(list(d = 0, terms = rep.int(0, m_ser + 1)))
     }
-    if(all(LA == quantile)) {
+    if (all(LA == quantile)) {
         return(list(d = Inf, terms = c(Inf, rep.int(0, m_ser))))
     }
-    if(use_cpp) {
+    if (use_cpp) {
         cppres <- d_A1I1_Ed(quantile, LA, m_ser, thr_margin)
         ansseq <- cppres$ansseq
-        if(cppres$exact) {
+        if (cppres$exact) {
             return(list(d = sum(ansseq), terms = ansseq))
         }
     } else {
         n <- length(LA)
         L1 <- max(LA)
         Ls <- min(LA)
-        if(quantile >= L1 || quantile <= Ls) {
+        if (quantile >= L1 || quantile <= Ls) {
             return(list(d = 0, terms = rep.int(0, m_ser + 1)))
         }
         n1 <- sum(LA == L1)
         ns <- sum(LA == Ls)
-        if(n1 + ns == n) {
+        if (n1 + ns == n) {
             ## When LA has only two distinct elements, the series vanishes and
             ## the distribution reduces to a scaled beta distribution
             ans <- stats::dbeta((quantile - Ls) / (L1 - Ls), n1 / 2, ns / 2) /
@@ -1205,8 +1211,8 @@ dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
         psi <- (LA[ind_psi] - Ls) / (L1 - LA[ind_psi])
         ind_r1 <- psi > f
         pr <- sum(ind_r1) + n1
-        if((pr == n1) || (pr == n - ns)) {
-            if(pr == n1) {
+        if ((pr == n1) || (pr == n - ns)) {
+            if (pr == n1) {
                 D <- psi / f
                 nt <- n1
             } else {
@@ -1229,7 +1235,7 @@ dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
             ## c_r(j,k) in Hillier (2001, lemma 2) is
             ## (-1)^(j - k) * gamma(alpha + 1) * gamma(beta + 1) /
             ##   (gamma(alpha + 1 + j - k) * gamma(beta + 1 - j + k)), unless
-            ## any of the arguments in the denominator are negative integer or zero
+            ## any arguments in the denominator are negative integer or zero
             ordmat <- outer(seq.int(0, m_ser), seq.int(0, m_ser), "-") # j - k
             ansmat <- ansmat + lgamma(alpha + 1) + lgamma(beta + 1) -
                       lgamma(alpha + 1 + ordmat) - lgamma(beta + 1 - ordmat)
@@ -1249,26 +1255,26 @@ dqfr_A1I1 <- function(quantile, LA, m_ser = 100L,
         ansseq <- ansseq * (L1 - Ls) / (L1 - quantile) ^ 2
     }
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         attr(ansseq, "truncated") <- TRUE
     }
-    if(check_convergence != "none") {
-        if(check_convergence == "strict_relative") {
-            if(tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
+    if (check_convergence != "none") {
+        if (check_convergence == "strict_relative") {
+            if (tol_conv > .Machine$double.eps) tol_conv <- .Machine$double.eps
         }
-        non_convergence <- if(check_convergence == "absolute") {
+        non_convergence <- if (check_convergence == "absolute") {
             abs(ansseq[length(ansseq)]) > tol_conv
         } else {
             abs(ansseq[length(ansseq)] / sum(ansseq)) > tol_conv
         }
-        if(non_convergence) {
+        if (non_convergence) {
             warning("Last term is >",
                     sprintf("%.1e", tol_conv),
-                    if(check_convergence != "absolute")
+                    if (check_convergence != "absolute")
                         " times as large as the series",
                     ",\n  suggesting non-convergence. Consider using larger m")
         }
@@ -1304,22 +1310,22 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
         (rho * cos(beta) - u * delta * sin(beta)) / gamma / 2
     }
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In dqfr_broda, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) return(list(d = NaN, abserr = NaN))
-    if(is.na(quantile))  return(list(d = NA_real_, abserr = NA_real_))
-    if(is.infinite(quantile)) return(list(d = 0, abserr = 0))
-    if(use_cpp) {
+    if (is.nan(quantile)) return(list(d = NaN, abserr = NaN))
+    if (is.na(quantile))  return(list(d = NA_real_, abserr = NA_real_))
+    if (is.infinite(quantile)) return(list(d = 0, abserr = 0))
+    if (use_cpp) {
         cppres <- d_broda_Ed(quantile, A, B, mu, autoscale_args, stop_on_error,
                              tol_zero, pi * epsabs, epsrel, limit)
         value <- cppres$value / pi
@@ -1327,8 +1333,8 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
-        if(all(L == 0)) return(list(d = Inf, abserr = 0))
-        if(all(L <= tol_zero) || all(L >= -tol_zero)) {
+        if (all(L == 0)) return(list(d = Inf, abserr = 0))
+        if (all(L <= tol_zero) || all(L >= -tol_zero)) {
             return(list(d = 0, abserr = 0))
         }
         U <- eigA_qB$vectors
@@ -1336,7 +1342,7 @@ dqfr_broda <- function(quantile, A, B, mu = rep.int(0, n),
         H <- crossprod(crossprod(B, U), U)
         ## Arguments are scaled because small L yields small broda_fun
         ## and hence makes numerical integration difficult
-        if(autoscale_args > 0) {
+        if (autoscale_args > 0) {
             scale_L <- (max(L) - min(L)) / autoscale_args
             L <- L / scale_L
             H <- H / scale_L
@@ -1392,30 +1398,30 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
             8  * c(crossprod(Xiimu * XiiL, crossprod(H, Xiimu * XiiL)))
     }
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         A <- diag(n)
     } else {
         n <- dim(A)[1L]
-        if(missing(B)) B <- diag(n)
+        if (missing(B)) B <- diag(n)
     }
     ## Check basic requirements for arguments
     stopifnot(
         "In dqfr_butler, quantile must be length-one" = (length(quantile) == 1)
     )
-    if(is.nan(quantile)) return(list(d = NaN))
-    if(is.na(quantile))  return(list(d = NA_real_))
-    if(is.infinite(quantile)) return(list(d = 0))
-    if(use_cpp) {
+    if (is.nan(quantile)) return(list(d = NaN))
+    if (is.na(quantile))  return(list(d = NA_real_))
+    if (is.infinite(quantile)) return(list(d = 0))
+    if (use_cpp) {
         cppres <- d_butler_Ed(quantile, A, B, mu, order_spa, stop_on_error,
                               tol_zero, epsabs, epsrel, maxiter)
         value <- cppres$value
     } else {
         eigA_qB <- eigen(A - quantile * B, symmetric = TRUE)
         L <- eigA_qB$values
-        if(all(L == 0)) return(list(d = Inf))
-        if(all(L <= tol_zero) || all(L >= -tol_zero)) {
+        if (all(L == 0)) return(list(d = Inf))
+        if (all(L <= tol_zero) || all(L >= -tol_zero)) {
             return(list(d = 0))
         }
         U <- eigA_qB$vectors
@@ -1431,7 +1437,7 @@ dqfr_butler <- function(quantile, A, B, mu = rep.int(0, n),
         J_s <- J(Xii_s, L, H, mu)
         Kp2_s <- Kder(Xii_s, L, theta, 2)
         value <- Mx(s, L, theta, Xii_s) * J_s / sqrt(2 * pi * Kp2_s)
-        if(order_spa > 1) {
+        if (order_spa > 1) {
             Kp3_s <- Kder(Xii_s, L, theta, 3)
             Kp4_s <- Kder(Xii_s, L, theta, 4)
             Jp1_s <- Jp1(Xii_s, L, H, mu)
@@ -1462,8 +1468,8 @@ qqfr <- function(probability, A, B, power = 1,
                  maxiter_q = 5000, ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -1472,7 +1478,7 @@ qqfr <- function(probability, A, B, power = 1,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -1480,7 +1486,7 @@ qqfr <- function(probability, A, B, power = 1,
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -1488,13 +1494,13 @@ qqfr <- function(probability, A, B, power = 1,
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu.\n  See documentation for details")
             }
@@ -1518,37 +1524,37 @@ qqfr <- function(probability, A, B, power = 1,
     )
     p_lower <- 0
     p_upper <- 1
-    if(log.p) {
+    if (log.p) {
         p_lower <- log(p_lower)
         p_upper <- log(p_upper)
-        if(!lower.tail) probability <- log1p(-exp(probability))
+        if (!lower.tail) probability <- log1p(-exp(probability))
     } else {
-        if(!lower.tail) probability <- 1 - probability
+        if (!lower.tail) probability <- 1 - probability
     }
     ## Determine the possible range of ratio: l_lim, u_lim
     LBiArange <- range_qfr(A, B, eigB, tol = tol_sing)
     LBiAmin <- LBiArange[1]
     LBiAmax <- LBiArange[2]
-    if(power == 1) {
+    if (power == 1) {
         l_lim <- LBiAmin
         u_lim <- LBiAmax
-    } else if(power %% 2 == 0) {
-        l_lim <- if(LBiAmin * LBiAmax < 0) 0
+    } else if (power %% 2 == 0) {
+        l_lim <- if (LBiAmin * LBiAmax < 0) 0
                  else min(abs(LBiAmin), abs(LBiAmax)) ^ power
         u_lim <- max(abs(LBiAmin), abs(LBiAmax)) ^ power
     } else {
         l_lim <- sign(LBiAmin) * abs(LBiAmin) ^ power
         u_lim <- sign(LBiAmax) * abs(LBiAmax) ^ power
     }
-    if(l_lim == u_lim) {
+    if (l_lim == u_lim) {
         ## Constant case; typically n == 1, power == 0, and/or A == 0
         ## In this condition, uniroot() fails
         get_quantile_p0 <- function(x) {
-            if(is.nan(x))
+            if (is.nan(x))
                 return(c(q = NaN, q_abserr = NaN))
-            if(is.na(x))
+            if (is.na(x))
                 return(c(q = NA_real_, q_abserr = NA_real_))
-            if(x < p_lower || x > p_upper)
+            if (x < p_lower || x > p_upper)
                 return(c(q = NaN, q_abserr = NA_real_))
             return(c(q = l_lim, q_abserr = 0))
         }
@@ -1560,27 +1566,28 @@ qqfr <- function(probability, A, B, power = 1,
         ## to use uniroot()
         l_int <- l_lim
         u_int <- u_lim
-        if(is.infinite(l_int)) l_int <- -1 / tol_zero
-        if(is.infinite(u_int)) u_int <-  1 / tol_zero
+        if (is.infinite(l_int)) l_int <- -1 / tol_zero
+        if (is.infinite(u_int)) u_int <-  1 / tol_zero
         ## Find quantiles using uniroot;
         ## there are existing packages that have this functionality,
         ## e.g., gbutils::cdf2quantile(), flexsurv::qgeneric(), but they do not
         ## fit the use here and the increased dependencies do not pay off
         get_quantile <- function(x) {
-            if(is.nan(x))
+            if (is.nan(x))
                 return(c(q = NaN, q_abserr = NaN, p_abserr = NaN))
-            if(is.na(x))
-                return(c(q = NA_real_, q_abserr = NA_real_, p_abserr = NA_real_))
-            if(x < p_lower || x > p_upper)
+            if (is.na(x))
+                return(c(q = NA_real_, q_abserr = NA_real_,
+                         p_abserr = NA_real_))
+            if (x < p_lower || x > p_upper)
                 return(c(q = NaN, q_abserr = NA_real_, p_abserr = NA_real_))
-            if(x == p_lower)
+            if (x == p_lower)
                 return(c(q = l_lim,
-                         q_abserr = if(is.infinite(l_lim)) 0
+                         q_abserr = if (is.infinite(l_lim)) 0
                                     else .Machine$double.eps * 100,
                          p_abserr = 0))
-            if(x == p_upper)
+            if (x == p_upper)
                 return(c(q = u_lim,
-                         q_abserr = if(is.infinite(u_lim)) 0
+                         q_abserr = if (is.infinite(u_lim)) 0
                                     else .Machine$double.eps * 100,
                          p_abserr = 0))
             pfun <- function(q_opt) {
@@ -1590,7 +1597,7 @@ qqfr <- function(probability, A, B, power = 1,
                      return_abserr_attr = return_abserr_attr, ...) - x
             }
             root_res <- stats::uniroot(pfun, lower = l_int, upper = u_int,
-                                       f.lower = if(log.p) -Inf else -x,
+                                       f.lower = if (log.p) -Inf else -x,
                                        f.upper = p_upper - x,
                                        extendInt = "upX",
                                        check.conv = stop_on_error,
@@ -1598,12 +1605,12 @@ qqfr <- function(probability, A, B, power = 1,
             p_abserr <- attr(root_res$f.root, "abserr")
             res <- c(q = root_res$root,
                      q_abserr = root_res$estim.prec,
-                     p_abserr = if(is.null(p_abserr)) NA_real_ else p_abserr)
+                     p_abserr = if (is.null(p_abserr)) NA_real_ else p_abserr)
             return(res)
         }
         quantile_res <- sapply(probability, get_quantile)
         ans <- quantile_res["q", ]
-        if(return_abserr_attr) {
+        if (return_abserr_attr) {
             abserr <- quantile_res["q_abserr", ]
             p_abserr <- quantile_res["p_abserr", ]
             density <- dqfr(ans, A, B, power = power, mu = mu, log = FALSE,
@@ -1611,19 +1618,19 @@ qqfr <- function(probability, A, B, power = 1,
                             tol_zero = tol_zero, tol_sing = tol_sing,
                             stop_on_error = stop_on_error)
             slope <- pmax.int(density - attr(density, "abserr"), 0)
-            if(log.p) slope <- slope / exp(probability)
+            if (log.p) slope <- slope / exp(probability)
             abserr <- abserr + ifelse(p_abserr == 0, 0, p_abserr / slope)
         }
-        if(any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
-               (probability[!is.na(ans)] != p_lower) &
-               (probability[!is.na(ans)] != p_upper))) {
+        if (any((abs(ans[!is.na(ans)]) >= 1 / tol_zero) &
+                (probability[!is.na(ans)] != p_lower) &
+                (probability[!is.na(ans)] != p_upper))) {
             warning("very large quantile is difficult to estimate ",
                     "so likely inaccurate")
         }
     }
     attributes(ans) <- attributes(probability)
-    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
-        if(is.null(dim(probability))) {
+    if (exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if (is.null(dim(probability))) {
             names(abserr) <- names(probability)
         } else {
             dim(abserr) <- dim(probability)
@@ -1631,7 +1638,7 @@ qqfr <- function(probability, A, B, power = 1,
         }
         attr(ans, "abserr") <- abserr
     }
-    if(any(is.nan(ans[!is.nan(probability)]))) warning("NaNs produced")
+    if (any(is.nan(ans[!is.nan(probability)]))) warning("NaNs produced")
     return(ans)
 }
 
@@ -1647,19 +1654,19 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
                  tol_zero = .Machine$double.eps * 100, tol_sing = tol_zero,
                  ...) {
     qf_fun <- function(p, A, B, mu, tol_zero, tol_sing, ...) {
-        if(is.nan(p)) return(c(statistic = NaN, error_bound = NaN))
-        if(is.na(p)) return(c(statistic = NA_real_, error_bound = NA_real_))
+        if (is.nan(p)) return(c(statistic = NaN, error_bound = NaN))
+        if (is.na(p)) return(c(statistic = NA_real_, error_bound = NA_real_))
         res <- qfrm(A = A, B = B, p = p, mu = mu,
                     error_bound = return_abserr_attr,
                     tol_zero = tol_zero, tol_sing = tol_sing, ...)
         error_bound <- res$error_bound
         c(statistic = res$statistic,
-          error_bound = if(is.null(error_bound)) NA_real_ else error_bound)
+          error_bound = if (is.null(error_bound)) NA_real_ else error_bound)
     }
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -1668,7 +1675,7 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -1676,7 +1683,7 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -1684,13 +1691,13 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu.\n  ",
                      "Function for situations not satisfying this has not ",
@@ -1705,12 +1712,12 @@ mqfr <- function(power = 1, A, B, mu = rep.int(0, n), Sigma = diag(n),
                                             tol_zero = tol_zero,
                                             tol_sing = tol_sing, ...))
     ans <- res["statistic", ]
-    if(return_abserr_attr) {
+    if (return_abserr_attr) {
         abserr <- res["error_bound", ]
     }
     attributes(ans) <- attributes(power)
-    if(exists("abserr", inherits = FALSE) && return_abserr_attr) {
-        if(is.null(dim(power))) {
+    if (exists("abserr", inherits = FALSE) && return_abserr_attr) {
+        if (is.null(dim(power))) {
             names(abserr) <- names(power)
         } else {
             dim(abserr) <- dim(power)

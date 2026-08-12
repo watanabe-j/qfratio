@@ -1,6 +1,6 @@
 test_that("Expect average eigenvalues when p = q = 1", {
     nvs <- 2:10
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         A1 <- diag(L1)
 
@@ -14,10 +14,10 @@ test_that("Expect average eigenvalues when p = q = 1", {
 test_that("Expect ordinary positive moments when q = 0", {
     nvs <- 2:10
     ks <- 1:5
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         A1 <- diag(L1)
-        for(k in ks) {
+        for (k in ks) {
             Ak <- qfm_Ap_int(A1, p = k)$statistic
             AkI0 <- qfrm(A1, p = k, q = 0)$statistic
 
@@ -29,7 +29,7 @@ test_that("Expect ordinary positive moments when q = 0", {
 test_that("Expect identical results for simultaneously rotated matrices", {
     nvs <- 2:10
     ps <- 1:3
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -39,7 +39,7 @@ test_that("Expect identical results for simultaneously rotated matrices", {
         A1r <- Q %*% A1 %*% t(Q)
         A2r <- Q %*% A2 %*% t(Q)
 
-        for(p in ps) {
+        for (p in ps) {
             expect_equal(qfrm(A1, A2, p), qfrm(A1r, A2r, p))
         }
     }
@@ -53,7 +53,7 @@ suppressMessages(
 test_that("Expect silence or warning around error bound", {
     nvs <- 4:6
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         A1 <- diag(L1)
@@ -94,7 +94,7 @@ test_that("Existence conditions: qfrm, nonsingular", {
     nvs <- 2:4
     ks <- c(1:3, 1/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         A1 <- diag(L1)
@@ -105,9 +105,9 @@ test_that("Existence conditions: qfrm, nonsingular", {
         A1 <- Q %*% A1 %*% t(Q)
         A2 <- Q %*% A2 %*% t(Q)
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks) {
-                if(nv / 2 + p <= q) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks) {
+                if (nv / 2 + p <= q) {
                     # expect_error(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu)))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
@@ -116,9 +116,9 @@ test_that("Existence conditions: qfrm, nonsingular", {
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks) {
-                if(nv / 2 + p <= q) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks) {
+                if (nv / 2 + p <= q) {
                     # expect_error(suppressWarnings(qfrm(A1, I,  p, q, m = m, mu = mu, check_convergence = FALSE)))
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
@@ -134,7 +134,7 @@ test_that("Existence conditions: qfmrm, nonsingular", {
     nvs <- 2:4
     ks <- c(1, 2, 1/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -148,10 +148,10 @@ test_that("Existence conditions: qfmrm, nonsingular", {
         A2 <- Q %*% A2 %*% t(Q)
         A3 <- Q %*% A3 %*% t(Q)
 
-        for(p in ks) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if(nv / 2 + p <= q + r) {
+        for (p in ks) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if (nv / 2 + p <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
@@ -170,7 +170,7 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L1[nv] <- 0
@@ -182,18 +182,18 @@ test_that("Existence conditions: qfrm, singular A12 = A22 = 0", {
         A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks) {
-                if((nv - 1) / 2 + p <= q) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks) {
+                if ((nv - 1) / 2 + p <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks) {
-                if((nv - 1) / 2 + p <= q) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks) {
+                if ((nv - 1) / 2 + p <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
@@ -207,7 +207,7 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L1[nv] <- 0
@@ -220,18 +220,18 @@ test_that("Existence conditions: qfrm, singular, A22 = 0, A12 != 0", {
         A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks) {
-                if(((nv - 1) + p) / 2 <= q) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks) {
+                if (((nv - 1) + p) / 2 <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks) {
-                if(((nv - 1) + p) / 2 <= q) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks) {
+                if (((nv - 1) + p) / 2 <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
                     # ## Here A1 is indefinite and moment is undefined
@@ -246,7 +246,7 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L1[nv] <- 0
@@ -259,18 +259,18 @@ test_that("Existence conditions: qfrm, singular, A22 != 0", {
         A2 <- Q %*% A2 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks) {
-                if((nv - 1) / 2 <= q) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks) {
+                if ((nv - 1) / 2 <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, error_bound = FALSE, check_convergence = FALSE))
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks) {
-                if((nv - 1) / 2 <= q) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks) {
+                if ((nv - 1) / 2 <= q) {
                     expect_error(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
                 } else {
                     expect_silent(qfrm(A1, A2,  p, q, m = m, mu = mu, check_convergence = FALSE))
@@ -285,7 +285,7 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -302,10 +302,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
         A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 1) / 2 + p <= q + r) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 1) / 2 + p <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
@@ -315,10 +315,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A12 = A22 = 0
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 1) / 2 + p <= q + r) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 1) / 2 + p <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
@@ -335,7 +335,7 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
     nvs <- 2:4
     ks <- c(1:3, 1/2, 3/2)
     m <- 1
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -353,10 +353,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
         A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if(((nv - 1) + p) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if (((nv - 1) + p) / 2 <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
@@ -366,10 +366,10 @@ test_that("Existence conditions: qfmrm, singular, range identical, A22 = 0, A12 
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if(((nv - 1) + p) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if (((nv - 1) + p) / 2 <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
@@ -389,7 +389,7 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
     m <- 1
 
     ## A1 has nonzero elements in the null space of A2/A3, whose rank is (nv - 1)
-    for(nv in nvs) {
+    for (nv in nvs) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -405,10 +405,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
         A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 1) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 1) / 2 <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  error_bound = FALSE, check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
@@ -420,10 +420,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 1) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 1) / 2 <= q + r) {
                         expect_error(qfmrm(A1, A2, I,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
@@ -438,7 +438,7 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
     }
 
     ## A1 has nonzero elements in the null space of A3, whose rank is (nv - 2)
-    for(nv in nvs[nvs != 2]) {
+    for (nv in nvs[nvs != 2]) {
         L1 <- 1:nv
         L2 <- nv:1
         L3 <- sqrt(nv:1)
@@ -455,10 +455,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
         A3 <- Q %*% A3 %*% t(Q)
         mu <- 1:nv / nv
 
-        for(p in ks[(ks %% 1) == 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 2) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) == 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 2) / 2 <= q + r) {
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {
@@ -468,10 +468,10 @@ test_that("Existence conditions: qfmrm, singular, A22 != 0", {
                 }
             }
         }
-        for(p in ks[(ks %% 1) != 0]) {
-            for(q in ks/2) {
-                for(r in ks/2) {
-                    if((nv - 2) / 2 <= q + r) {
+        for (p in ks[(ks %% 1) != 0]) {
+            for (q in ks/2) {
+                for (r in ks/2) {
+                    if ((nv - 2) / 2 <= q + r) {
                         expect_error(qfmrm(I, A2, A3,  p, q, r, m = m, mu = mu,  check_convergence = FALSE))
                         expect_error(qfmrm(A1, A2, A3,  p, q, r, m = m, mu = mu, check_convergence = FALSE))
                     } else {

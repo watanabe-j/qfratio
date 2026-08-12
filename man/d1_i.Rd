@@ -72,8 +72,8 @@ numerical overflow, these functions automatically scale
 coefficients (and temporary objects used to calculate them) by a large number
 (\code{1e10} at present) when any value in the temporary objects exceeds
 a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
-is the number of variables.  This default value empirically seems to work well
-in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
+is the number of variables.  This default value empirically seems to work
+well in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
 if you encounter numerical overflow.  (The \proglang{C++} functions use
 an equivalent expression,
 \code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with

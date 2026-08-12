@@ -74,37 +74,37 @@ new_qfrm <- function(statistic, error_bound = NULL,
                      exact = FALSE, twosided = FALSE, alphaout = FALSE,
                      singular_arg = FALSE, diminished = FALSE, ...,
                      class = character()) {
-    if(missing(statistic) && !missing(terms)) {
+    if (missing(statistic) && !missing(terms)) {
         statistic <- sum(terms)
     }
-    if(missing(error_bound) && !missing(seq_error)) {
+    if (missing(error_bound) && !missing(seq_error)) {
         error_bound <- seq_error[length(seq_error)]
     }
-    if(!is.null(seq_error)) {
-        if(is.na(error_bound) && all(is.na(error_bound))
-           && !all(is.nan(error_bound))) {
+    if (!is.null(seq_error)) {
+        if (is.na(error_bound) && all(is.na(error_bound))
+            && !all(is.nan(error_bound))) {
             seq_error <- NULL
         }
     }
-    if(isTRUE(exact)) {
-        if(!is.null(error_bound)) attr(error_bound, "exact") <- TRUE
-        if(!is.null(seq_error)) attr(seq_error, "exact") <- TRUE
+    if (isTRUE(exact)) {
+        if (!is.null(error_bound)) attr(error_bound, "exact") <- TRUE
+        if (!is.null(seq_error)) attr(seq_error, "exact") <- TRUE
     }
-    if(isTRUE(twosided)) {
-        if(!is.null(error_bound)) attr(error_bound, "twosided") <- TRUE
-        if(!is.null(seq_error)) attr(seq_error, "twosided") <- TRUE
+    if (isTRUE(twosided)) {
+        if (!is.null(error_bound)) attr(error_bound, "twosided") <- TRUE
+        if (!is.null(seq_error)) attr(seq_error, "twosided") <- TRUE
     }
-    if(isTRUE(alphaout)) {
-        if(!is.null(error_bound)) attr(error_bound, "alphaout") <- TRUE
-        if(!is.null(seq_error)) attr(seq_error, "alphaout") <- TRUE
+    if (isTRUE(alphaout)) {
+        if (!is.null(error_bound)) attr(error_bound, "alphaout") <- TRUE
+        if (!is.null(seq_error)) attr(seq_error, "alphaout") <- TRUE
     }
-    if(isTRUE(singular_arg)) {
-        if(!is.null(error_bound)) attr(error_bound, "singular") <- TRUE
-        if(!is.null(seq_error)) attr(seq_error, "singular") <- TRUE
+    if (isTRUE(singular_arg)) {
+        if (!is.null(error_bound)) attr(error_bound, "singular") <- TRUE
+        if (!is.null(seq_error)) attr(seq_error, "singular") <- TRUE
     }
-    if(isTRUE(diminished)) {
-        if(!is.null(terms)) attr(terms, "diminished") <- TRUE
-        if(!is.null(statistic)) attr(statistic, "diminished") <- TRUE
+    if (isTRUE(diminished)) {
+        if (!is.null(terms)) attr(terms, "diminished") <- TRUE
+        if (!is.null(statistic)) attr(statistic, "diminished") <- TRUE
     }
     structure(list(statistic = statistic, error_bound = error_bound,
                    terms = terms, seq_error = seq_error),
@@ -174,7 +174,7 @@ new_qfpm <- function(statistic, exact = TRUE, ..., class = character()) {
 #'
 #' @return
 #' The \code{print} method invisibly returns the input.
-#' 
+#'
 #' The \code{plot} method is used for the side effect (and invisibly returns
 #' \code{NULL}).
 #'
@@ -223,40 +223,41 @@ print.qfrm <- function(x, digits = getOption("digits"),
         sep = "\n")
     cat("\n")
     out <- character()
-    if(!is.null(stat)) {
+    if (!is.null(stat)) {
         out <- c(out, paste("Moment =", format(stat, digits = max(1L, digits))))
     }
     # Is errorb all NA? (NaN should be excluded as it returns TRUE for is.na())
     all_na_errorb <- xor(all(is.na(errorb)), all(is.nan(errorb)))
-    if(length(errorb) > 0 && !all_na_errorb && !exact) {
+    if (length(errorb) > 0 && !all_na_errorb && !exact) {
         out <- c(out,
                  paste("Error =", format(errorb, digits = max(1L, digits)),
-                       if(twosided) " (two-sided)" else " (one-sided)"))
+                       if (twosided) " (two-sided)" else " (one-sided)"))
     }
     cat(strwrap(paste(out, collapse = ", ")), sep = "\n")
-    if(exact) {
+    if (exact) {
         cat("This value is exact\n")
-    } else if(length(errorb) > 0 && all_na_errorb) {
+    } else if (length(errorb) > 0 && all_na_errorb) {
         cat("Error bound unavailable;",
             "recommended to inspect plot() of this object\n")
-    } else if(show_range) {
-        if(twosided) {
+    } else if (show_range) {
+        if (twosided) {
             ra <- sort(c(stat - errorb, stat + errorb))
         } else {
             ra <- sort(c(stat, stat + errorb))
         }
         cat("Possible range:\n ",
-        paste(format(ra, digits = digits + 2L), collapse = " "), "\n", sep = "")
+            paste(format(ra, digits = digits + 2L), collapse = " "), "\n",
+            sep = "")
     }
-    if(isTRUE(attr(errorb, "singular")) && !all_na_errorb) {
+    if (isTRUE(attr(errorb, "singular")) && !all_na_errorb) {
         cat("Note: Argument matrix numerically singular;",
             "error bound is unreliable\n")
     }
-    if(isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
+    if (isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
         cat("Note: Adjustment parameter(s) alpha > 1;",
             "error bound is unreliable\n")
     }
-    if(isTRUE(attr(stat, "diminished"))) {
+    if (isTRUE(attr(stat, "diminished"))) {
         cat("Note: Numerical underflow encountered;",
             "result is likely inaccurate\n")
     }
@@ -276,33 +277,33 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
                       col_m = "royalblue4", col_e = "tomato",
                       lwd_m = 1, lwd_e = 1, lty_m = 1, lty_e = 2,
                       pos_leg = "topright", ...) {
-    if(!requireNamespace("graphics", quietly = TRUE)) {
+    if (!requireNamespace("graphics", quietly = TRUE)) {
         message("Package 'graphics' not found. Exit from plot.qfrm")
         invisible()
     }
     terms <- x$terms
     seq_error <- x$seq_error
     seq_partial <- cumsum(terms)
-    if(isTRUE(attr(seq_error, "exact"))) {
+    if (isTRUE(attr(seq_error, "exact"))) {
         message("plot method for this class is for inspecting ",
                 "partial sums.\n  This particular object has an exact moment, ",
                 "so plot is moot.")
     }
     try(plot(seq_along(terms) - 1L, seq_partial, type = "l", col = col_m,
-         ylim = ylim, xlab = xlab,
-         ylab = ylab, lwd = lwd_m, lty = lty_m, ...))
-    if(add_error) {
+             ylim = ylim, xlab = xlab,
+             ylab = ylab, lwd = lwd_m, lty = lty_m, ...))
+    if (add_error) {
         graphics::lines(seq_along(terms) - 1L, seq_error + seq_partial,
                         col = col_e, lwd = lwd_e, lty = lty_e)
-        if(isTRUE(attr(seq_error, "twosided"))) {
+        if (isTRUE(attr(seq_error, "twosided"))) {
             graphics::lines(-seq_error + seq_partial,
                             col = col_e, lwd = lwd_e, lty = lty_e)
         }
     }
-    if(add_legend) {
+    if (add_legend) {
         graphics::legend(pos_leg, legend = c("Partial sum", "Error bound"),
-               col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
-               lty = c(lty_m, lty_e))
+                         col = c(col_m, col_e), lwd = c(lwd_m, lwd_e),
+                         lty = c(lty_m, lty_e))
     }
     invisible()
 }
@@ -322,7 +323,7 @@ print.qfpm <- function(x, digits = getOption("digits"), ...) {
     cat("\n")
     out <- paste("Moment =", format(stat, digits = max(1L, digits)))
     cat(strwrap(paste(out, collapse = ", ")), sep = "\n")
-    if(exact) cat("This value is exact\n")
+    if (exact) cat("This value is exact\n")
     cat("\n")
     invisible(x)
 }

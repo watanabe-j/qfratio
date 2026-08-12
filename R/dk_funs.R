@@ -29,8 +29,8 @@
 #' coefficients (and temporary objects used to calculate them) by a large number
 #' (\code{1e10} at present) when any value in the temporary objects exceeds
 #' a threshold, \code{.Machine$double.xmax / thr_margin / n}, where \code{n}
-#' is the number of variables.  This default value empirically seems to work well
-#' in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
+#' is the number of variables.  This default value empirically seems to work
+#' well in most conditions, but use a large \code{thr_margin} (e.g., \code{1e5})
 #' if you encounter numerical overflow.  (The \proglang{C++} functions use
 #' an equivalent expression,
 #' \code{std::numeric_limits<Scalar>::max() / thr_margin / Scalar(n)}, with
@@ -191,8 +191,8 @@ NULL
 #'
 #' \code{d2_**_*()} functions calculate
 #' \eqn{d_{i,j}(\mathbf{A}_1, \mathbf{A}_2)}{d_{i,j}(A_1, A_2)} in
-#' Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related to
-#' the top-order invariant polynomials
+#' Hillier et al. (2009, 2014) and Bao and Kan (2013).  These are also related
+#' to the top-order invariant polynomials
 #' \eqn{C_{[k_1],[k_2]}(\mathbf{A}_1, \mathbf{A}_2)}{C_{[k_1],[k_2]}(A_1, A_2)}
 #' in the following way:
 #' \eqn{ d_{i,j}(\mathbf{A}_1, \mathbf{A}_2) =
@@ -244,8 +244,8 @@ NULL
 #' the argument matrices share the same eigenvectors, to which the eigenvalues
 #' correspond in the orders given, but is substantially faster.
 #'
-#' This package also involves \proglang{C++} equivalents for most of these functions
-#' (which are suffixed by \code{E} for \code{Eigen}),
+#' This package also involves \proglang{C++} equivalents for most of these
+#' functions (which are suffixed by \code{E} for \code{Eigen}),
 #' but these are exclusively for internal use and not exposed to the user.
 #'
 #' @return
@@ -433,10 +433,10 @@ d1_i <- function(L, m = 100L, thr_margin = 100) {
     lscf <- rep.int(0, length(dks))
     thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         uk <- L * (dks[k] + uk)
         dks[k + 1L] <- sum(uk) / (2 * k)
-        if(max(uk) > thr) {
+        if (max(uk) > thr) {
             dks[k + 1L] <- dks[k + 1L] / 1e10
             uk <- uk / 1e10
             lscf[(k + 1L):length(lscf)] <- lscf[(k + 1L):length(lscf)] - log(1e10)
@@ -462,11 +462,11 @@ dtil1_i_v <- function(L, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
     vk <- rep.int(0, n)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         uk <- L * (dks[k] + uk)
         vk <- D * uk + L * vk
         dks[k + 1L] <- sum(uk + vk) / (2 * k)
-        if(max(uk) > thr || max(vk) > thr) {
+        if (max(uk) > thr || max(vk) > thr) {
             dks[k + 1L] <- dks[k + 1L] / 1e10
             uk <- uk / 1e10
             vk <- vk / 1e10
@@ -495,11 +495,11 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     thr <- .Machine$double.xmax / thr_margin / n
     uk <- rep.int(0, n)
     vk <- rep.int(0, n)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         uk <- L * (dks[k] + uk)
         vk <- D * uk + L * vk
         dks[k + 1L] <- sum(uk + vk) / (2 * k)
-        if(max(uk) > thr || max(vk) > thr) {
+        if (max(uk) > thr || max(vk) > thr) {
             dks[k + 1L] <- dks[k + 1L] / 1e10
             uk <- uk / 1e10
             vk <- vk / 1e10
@@ -518,7 +518,7 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #' @rdname dtil2_pq
 #'
 dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
-    if(p == 1L) return(dtil2_1q_m(A1, A2, mu, q))
+    if (p == 1L) return(dtil2_1q_m(A1, A2, mu, q))
     n <- ncol(A1)
     In <- diag(n)
     dks <- matrix(0, p + 1L, q + 1L)
@@ -529,16 +529,16 @@ dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
     g_k_i <- list()
     G_k_i[seq_len(p + 1L)] <- list(zeromat)
     g_k_i[seq_len(p + 1L)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- A1 %*% (dks[i, 1L] * In + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] %*% mu + A1 %*% g_k_i[[i]]
         dks[i + 1L, 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * i)
     }
-    for(k in seq_len(q)) {
+    for (k in seq_len(q)) {
         G_k_i[[1L]] <- A2 %*% (dks[1L, k] * In + G_k_i[[1L]])
         g_k_i[[1L]] <- G_k_i[[1L]] %*% mu + A2 %*% g_k_i[[1L]]
         dks[1L, k + 1L] <- (tr(G_k_i[[1L]]) + c(crossprod(mu, g_k_i[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             G_k_i[[i + 1L]] <- A1 %*% (dks[i, k + 1L] * In + G_k_i[[i]]) +
                                A2 %*% (dks[i + 1L, k] * In + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] %*% mu +
@@ -565,7 +565,7 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
     g_k_0 <- matrix(0, n, 1)
     g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
-    for(k in seq_len(q)) {
+    for (k in seq_len(q)) {
         G_k_0 <- A2 %*% (dks[1L, k] * In + G_k_0)
         g_k_0 <- G_k_0 %*% mu + A2 %*% g_k_0
         dks[1L, k + 1L] <- (tr(G_k_0) + c(crossprod(mu, g_k_0))) / (2 * k)
@@ -584,7 +584,7 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
 #' @rdname dtil2_pq
 #'
 dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
-    if(p == 1L) return(dtil2_1q_v(L1, L2, mu, q))
+    if (p == 1L) return(dtil2_1q_v(L1, L2, mu, q))
     n <- length(L1)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
@@ -593,16 +593,16 @@ dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
     g_k_i <- list()
     G_k_i[seq_len(p + 1L)] <- list(zeros)
     g_k_i[seq_len(p + 1L)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- L1 * (dks[i, 1L] + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] * mu + L1 * g_k_i[[i]]
         dks[i + 1L, 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * i)
     }
-    for(k in seq_len(q)) {
+    for (k in seq_len(q)) {
         G_k_i[[1L]] <- L2 * (dks[1L, k] + G_k_i[[1L]])
         g_k_i[[1L]] <- G_k_i[[1L]] * mu + L2 * g_k_i[[1L]]
         dks[1L, k + 1L] <- sum(G_k_i[[1L]] + mu * g_k_i[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             G_k_i[[i + 1L]] <- L1 * (dks[i, k + 1L] + G_k_i[[i]]) +
                                L2 * (dks[i + 1L, k] + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] * mu +
@@ -628,7 +628,7 @@ dtil2_1q_v <- function(L1, L2, mu = rep.int(0, n), q = 1L) {
     g_k_0 <- rep.int(0, n)
     g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
-    for(k in seq_len(q)) {
+    for (k in seq_len(q)) {
         G_k_0 <- L2 * (dks[1L, k] + G_k_0)
         g_k_0 <- G_k_0 * mu + L2 * g_k_0
         dks[1L, k + 1L] <- sum(G_k_0 + mu * g_k_0) / (2 * k)
@@ -659,21 +659,21 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n),
     gc <- list()
     Gc[seq_len(p + 1L)] <- list(zeromat)
     gc[seq_len(p + 1L)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, 1L] * In + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] %*% mu + A1 %*% gc[[i]]
         dks[i + 1L, 1L, 1L] <- (tr(Gc[[i + 1L]]) + c(crossprod(mu, gc[[i + 1L]]))) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
-        if(k <= q) {
+        if (k <= q) {
             Gc[[1L]] <- A2 %*% (dks[1L, k, 1L] * In + Go[[1L]][[1L]])
             gc[[1L]] <- Gc[[1L]] %*% mu + A2 %*% go[[1L]][[1L]]
             dks[1L, k + 1L, 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-            for(i in seq_len(p)) {
+            for (i in seq_len(p)) {
                 Gc[[i + 1L]] <- A1 %*% (dks[i, k + 1L, 1L] * In + Gc[[i]]) +
                                 A2 %*% (dks[i + 1L, k, 1L] * In + Go[[1L]][[i + 1L]])
                 gc[[i + 1L]] <- Gc[[i + 1L]] %*% mu +
@@ -686,13 +686,13 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n),
             Gn <- list(0)
             gn <- list(0)
         }
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
-                if(k - j <= q && j <= r) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
+                if (k - j <= q && j <= r) {
                     Gc[[1L]] <- A2 %*% (dks[1L, k - j, j + 1L] * In + Go[[j + 1L]][[1L]]) + A3 %*% (dks[1L, k - j + 1L, j] * In + Go[[j]][[1L]])
                     gc[[1L]] <- Gc[[1L]] %*% mu + A2 %*% go[[j + 1L]][[1L]] + A3 %*% go[[j]][[1L]]
                     dks[1L, k - j + 1L, j + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-                    for(i in seq_len(p)) {
+                    for (i in seq_len(p)) {
                         Gc[[i + 1L]] <- A1 %*% (dks[i, k - j + 1L, j + 1L] * In + Gc[[i]]) +
                                         A2 %*% (dks[i + 1L, k - j, j + 1L] * In + Go[[j + 1L]][[i + 1L]]) +
                                         A3 %*% (dks[i + 1L, k - j + 1L, j] * In + Go[[j]][[i + 1L]])
@@ -708,11 +708,11 @@ dtil3_pqr_m <- function(A1, A2, A3, mu = rep.int(0, n),
                 }
             }
         }
-        if(k <= r) {
+        if (k <= r) {
             Gc[[1L]] <- A3 %*% (dks[1L, 1L, k] * In + Go[[k]][[1L]])
             gc[[1L]] <- Gc[[1L]] %*% mu + A3 %*% go[[k]][[1L]]
             dks[1L, 1L, k + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-            for(i in seq_len(p)) {
+            for (i in seq_len(p)) {
                 Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, k + 1L] * In + Gc[[i]]) +
                                 A3 %*% (dks[i + 1L, 1L, k] * In + Go[[k]][[i + 1L]])
                 gc[[i + 1L]] <- Gc[[i + 1L]] %*% mu +
@@ -746,21 +746,21 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
     gc <- list()
     Gc[seq_len(p + 1L)] <- list(zeros)
     gc[seq_len(p + 1L)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- L1 * (dks[i, 1L, 1L] + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] * mu + L1 * gc[[i]]
         dks[i + 1L, 1L, 1L] <- (sum(Gc[[i + 1L]]) + sum(mu * gc[[i + 1L]])) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
-        if(k <= q) {
+        if (k <= q) {
             Gc[[1L]] <- L2 * (dks[1L, k, 1L] + Go[[1L]][[1L]])
             gc[[1L]] <- Gc[[1L]] * mu + L2 * go[[1L]][[1L]]
             dks[1L, k + 1L, 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-            for(i in seq_len(p)) {
+            for (i in seq_len(p)) {
                 Gc[[i + 1L]] <- L1 * (dks[i, k + 1L, 1L] + Gc[[i]]) +
                                 L2 * (dks[i + 1L, k, 1L] + Go[[1L]][[i + 1L]])
                 gc[[i + 1L]] <- Gc[[i + 1L]] * mu +
@@ -773,13 +773,13 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
             Gn <- list(0)
             gn <- list(0)
         }
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
-                if(k - j <= q && j <= r) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
+                if (k - j <= q && j <= r) {
                     Gc[[1L]] <- L2 * (dks[1L, k - j, j + 1L] + Go[[j + 1L]][[1L]]) + L3 * (dks[1L, k - j + 1L, j] + Go[[j]][[1L]])
                     gc[[1L]] <- Gc[[1L]] * mu + L2 * go[[j + 1L]][[1L]] + L3 * go[[j]][[1L]]
                     dks[1L, k - j + 1L, j + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-                    for(i in seq_len(p)) {
+                    for (i in seq_len(p)) {
                         Gc[[i + 1L]] <- L1 * (dks[i, k - j + 1L, j + 1L] + Gc[[i]]) +
                                         L2 * (dks[i + 1L, k - j, j + 1L] + Go[[j + 1L]][[i + 1L]]) +
                                         L3 * (dks[i + 1L, k - j + 1L, j] + Go[[j]][[i + 1L]])
@@ -795,11 +795,11 @@ dtil3_pqr_v <- function(L1, L2, L3, mu = rep.int(0, n),
                 }
             }
         }
-        if(k <= r) {
+        if (k <= r) {
             Gc[[1L]] <- L3 * (dks[1L, 1L, k] + Go[[k]][[1L]])
             gc[[1L]] <- Gc[[1L]] * mu + L3 * go[[k]][[1L]]
             dks[1L, 1L, k + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-            for(i in seq_len(p)) {
+            for (i in seq_len(p)) {
                 Gc[[i + 1L]] <- L1 * (dks[i, 1L, k + 1L] + Gc[[i]]) +
                                 L3 * (dks[i + 1L, 1L, k] + Go[[k]][[i + 1L]])
                 gc[[i + 1L]] <- Gc[[i + 1L]] * mu +
@@ -849,8 +849,8 @@ a1_pk <- function(L, mu = rep.int(0, n), m = 10L) {
     arls <- matrix(0, m + 1L, m + 1L)
     arls[, 1L] <- d1_i(L, m)
     wrls <- matrix(0, n, m)
-    for(k in seq_len(m)) {
-        for(l in seq_len(k)) {
+    for (k in seq_len(m)) {
+        for (l in seq_len(k)) {
             wrls[, l] <- L * (arls[k, l] + wrls[, l])
             arls[k + 1L, l + 1L] <- sum(D * wrls[, l])
         }
@@ -876,18 +876,18 @@ d2_ij_m <- function(A1, A2, m = 100L, p = m, q = m, thr_margin = 100,
     thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     order_mat <- outer(0:p, 0:q, "+")
-    kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
-    for(k in seq_len(kmax)) {
+    kmax <- if (fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
+    for (k in seq_len(kmax)) {
         Gs[which(order_mat == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q, 0L)) {
+        for (i1 in min(k, p):max(k - q, 0L)) {
             i2 <- k - i1
             tG <- zeromat
-            if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L] * In + Gs[[il2(i1 - 1L, i2)]])
-            if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2] * In + Gs[[il2(i1, i2 - 1L)]])
+            if (i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L] * In + Gs[[il2(i1 - 1L, i2)]])
+            if (i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2] * In + Gs[[il2(i1, i2 - 1L)]])
             Gs[[il2(i1, i2)]] <- tG
             dks[i1 + 1L, i2 + 1L] <- tr(tG) / (2 * k)
         }
-        if(max(unlist(Gs)) > thr) {
+        if (max(unlist(Gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -915,18 +915,18 @@ d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, thr_margin = 100,
     thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeros)
     order_mat <- outer(0:p, 0:q, "+")
-    kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
-    for(k in seq_len(kmax)) {
+    kmax <- if (fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
+    for (k in seq_len(kmax)) {
         Gs[which(order_mat == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q, 0L)) {
+        for (i1 in min(k, p):max(k - q, 0L)) {
             i2 <- k - i1
             tG <- zeros
-            if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L] + Gs[[il2(i1 - 1L, i2)]])
-            if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2] + Gs[[il2(i1, i2 - 1L)]])
+            if (i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L] + Gs[[il2(i1 - 1L, i2)]])
+            if (i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2] + Gs[[il2(i1, i2 - 1L)]])
             Gs[[il2(i1, i2)]] <- tG
             dks[i1 + 1L, i2 + 1L] <- sum(tG) / (2 * k)
         }
-        if(max(unlist(Gs)) > thr) {
+        if (max(unlist(Gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -945,7 +945,7 @@ d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, thr_margin = 100,
 #' @rdname d2_ij
 #'
 d2_pj_m <- function(A1, A2, m = 100L, p = 1L, thr_margin = 100) {
-    if(p == 1L) return(d2_1j_m(A1, A2, m))
+    if (p == 1L) return(d2_1j_m(A1, A2, m))
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -957,19 +957,19 @@ d2_pj_m <- function(A1, A2, m = 100L, p = 1L, thr_margin = 100) {
     zeromat <- matrix(0, n, n)
     G_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeromat)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- A1 %*% (dks[i, 1L] * In + G_k_i[[i]])
         dks[i + 1L, 1L] <- tr(G_k_i[[i + 1L]]) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         G_k_i[[1L]] <- A2 %*% (dks[1L, k] * In + G_k_i[[1L]])
         dks[1L, k + 1L] <- tr(G_k_i[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             G_k_i[[i + 1L]] <- A1 %*% (dks[i, k + 1L] * In + G_k_i[[i]]) +
                                A2 %*% (dks[i + 1L, k] * In + G_k_i[[i + 1L]])
             dks[i + 1L, k + 1L] <- tr(G_k_i[[i + 1L]]) / (2 * (k + i))
         }
-        if(max(G_k_i[[i + 1L]]) > thr) {
+        if (max(G_k_i[[i + 1L]]) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             lscf[, (k + 1L):m1] <- lscf[, (k + 1L):m1] - log(1e10)
@@ -996,13 +996,13 @@ d2_1j_m <- function(A1, A2, m = 100L, thr_margin = 100) {
     G_k_0 <- matrix(0, n, n)
     G_k_1 <- A1
     dks[2L, 1L] <- tr(G_k_1) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         G_k_0 <- A2 %*% (dks[1L, k] * In + G_k_0)
         dks[1L, k + 1L] <- tr(G_k_0) / (2 * k)
         G_k_1 <- A1 %*% (dks[1L, k + 1L] * In + G_k_0) +
                  A2 %*% (dks[2L, k] * In + G_k_1)
         dks[2L, k + 1L] <- tr(G_k_1) / (2 * (k + 1))
-        if(max(G_k_1) > thr) {
+        if (max(G_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -1020,7 +1020,7 @@ d2_1j_m <- function(A1, A2, m = 100L, thr_margin = 100) {
 #' @rdname d2_ij
 #'
 d2_pj_v <- function(L1, L2, m = 100L, p = 1L, thr_margin = 100) {
-    if(p == 1L) return(d2_1j_v(L1, L2, m))
+    if (p == 1L) return(d2_1j_v(L1, L2, m))
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1031,19 +1031,19 @@ d2_pj_v <- function(L1, L2, m = 100L, p = 1L, thr_margin = 100) {
     zeros <- rep.int(0, n)
     G_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- L1 * (dks[i, 1L] + G_k_i[[i]])
         dks[i + 1L, 1L] <- sum(G_k_i[[i + 1L]]) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         G_k_i[[1L]] <- L2 * (dks[1L, k] + G_k_i[[1L]])
         dks[1L, k + 1L] <- sum(G_k_i[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             G_k_i[[i + 1L]] <- L1 * (dks[i, k + 1L] + G_k_i[[i]]) +
                                L2 * (dks[i + 1L, k] + G_k_i[[i + 1L]])
             dks[i + 1L, k + 1L] <- sum(G_k_i[[i + 1L]]) / (2 * (k + i))
         }
-        if(max(G_k_i[[i + 1L]]) > thr) {
+        if (max(G_k_i[[i + 1L]]) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             lscf[, (k + 1L):m1] <- lscf[, (k + 1L):m1] - log(1e10)
@@ -1069,12 +1069,12 @@ d2_1j_v <- function(L1, L2, m = 100L, thr_margin = 100) {
     G_k_0 <- rep.int(0, n)
     G_k_1 <- L1
     dks[2L, 1L] <- sum(G_k_1) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         G_k_0 <- L2 * (dks[1L, k] + G_k_0)
         dks[1L, k + 1L] <- sum(G_k_0) / (2 * k)
         G_k_1 <- L1 * (dks[1L, k + 1L] + G_k_0) + L2 * (dks[2L, k] + G_k_1)
         dks[2L, k + 1L] <- sum(G_k_1) / (2 * (k + 1))
-        if(max(G_k_1) > thr) {
+        if (max(G_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -1093,9 +1093,9 @@ d2_1j_v <- function(L1, L2, m = 100L, thr_margin = 100) {
 #'
 #' @rdname d3_ijk
 #'
-d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m, 
-                 thr_margin = 100,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
+d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
+                     thr_margin = 100,
+                     fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- ncol(A1)
     p1 <- p + 1L
@@ -1109,23 +1109,24 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
     thr <- .Machine$double.xmax / thr_margin / n
     Gs <- list(zeromat)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
-    kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
-    for(k in seq_len(kmax)) {
+    kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)),
+                sum(dim(dks) - 1L))
+    for (k in seq_len(kmax)) {
         Gs[which(order_array == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
-            for(i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
+        for (i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
+            for (i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
                 i3 <- k - i1 - i2
-                if(fill_across[3L] && i1 + i2 + r > kmax) next
-                if(fill_across[2L] && i1 + i3 + q > kmax) next
+                if (fill_across[3L] && i1 + i2 + r > kmax) next
+                if (fill_across[2L] && i1 + i3 + q > kmax) next
                 tG <- zeromat
-                if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
-                if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
-                if(i3 >= 1L) tG <- tG + A3 %*% (dks[i1 + 1L, i2 + 1L, i3] * In + Gs[[il3(i1, i2, i3 - 1L)]])
+                if (i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
+                if (i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
+                if (i3 >= 1L) tG <- tG + A3 %*% (dks[i1 + 1L, i2 + 1L, i3] * In + Gs[[il3(i1, i2, i3 - 1L)]])
                 Gs[[il3(i1, i2, i3)]] <- tG
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- tr(tG) / (2 * k)
             }
         }
-        if(max(unlist(Gs)) > thr) {
+        if (max(unlist(Gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1144,8 +1145,8 @@ d3_ijk_m <- function(A1, A2, A3, m = 100L, p = m, q = m, r = m,
 #' @rdname d3_ijk
 #'
 d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
-                 thr_margin = 100,
-                 fill_across = c(!missing(p), !missing(q), !missing(r))) {
+                     thr_margin = 100,
+                     fill_across = c(!missing(p), !missing(q), !missing(r))) {
     il3 <- function(i1, i2, i3) i1 + i2 * p1 + i3 * p1 * q1 + 1L
     n <- length(L1)
     p1 <- p + 1L
@@ -1159,22 +1160,22 @@ d3_ijk_v <- function(L1, L2, L3, m = 100L, p = m, q = m, r = m,
     Gs <- list(zeros)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
     kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
-    for(k in seq_len(kmax)) {
+    for (k in seq_len(kmax)) {
         Gs[which(order_array == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
-            for(i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
+        for (i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
+            for (i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
                 i3 <- k - i1 - i2
-                if(fill_across[3L] && i1 + i2 + r > kmax) next
-                if(fill_across[2L] && i1 + i3 + q > kmax) next
+                if (fill_across[3L] && i1 + i2 + r > kmax) next
+                if (fill_across[2L] && i1 + i3 + q > kmax) next
                 tG <- zeros
-                if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
-                if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
-                if(i3 >= 1L) tG <- tG + L3 * (dks[i1 + 1L, i2 + 1L, i3] + Gs[[il3(i1, i2, i3 - 1L)]])
+                if (i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
+                if (i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
+                if (i3 >= 1L) tG <- tG + L3 * (dks[i1 + 1L, i2 + 1L, i3] + Gs[[il3(i1, i2, i3 - 1L)]])
                 Gs[[il3(i1, i2, i3)]] <- tG
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- sum(tG) / (2 * k)
             }
         }
-        if(max(unlist(Gs)) > thr) {
+        if (max(unlist(Gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1205,26 +1206,26 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L, thr_margin = 100) {
     zeromat <- matrix(0, n, n)
     Gc <- list()
     Gc[seq_len(p1)] <- list(zeromat)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, 1L] * In + Gc[[i]])
         dks[i + 1L, 1L, 1L] <- tr(Gc[[i + 1L]]) / (2 * i)
     }
     Gn <- list(Gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         Gc[[1L]] <- A2 %*% (dks[1L, k, 1L] * In + Go[[1L]][[1L]])
         dks[1L, k + 1L, 1L] <- tr(Gc[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             Gc[[i + 1L]] <- A1 %*% (dks[i, k + 1L, 1L] * In + Gc[[i]]) +
                             A2 %*% (dks[i + 1L, k, 1L] * In + Go[[1L]][[i + 1L]])
             dks[i + 1L, k + 1L, 1L] <- tr(Gc[[i + 1L]]) / (2 * (k + i))
         }
         Gn <- list(Gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 Gc[[1L]] <- A2 %*% (dks[1L, k - j, j + 1L] * In + Go[[j + 1L]][[1L]]) + A3 %*% (dks[1L, k - j + 1L, j] * In + Go[[j]][[1L]])
                 dks[1L, k - j + 1L, j + 1L] <- tr(Gc[[1L]]) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     Gc[[i + 1L]] <- A1 %*% (dks[i, k - j + 1L, j + 1L] * In + Gc[[i]]) +
                                     A2 %*% (dks[i + 1L, k - j, j + 1L] * In + Go[[j + 1L]][[i + 1L]]) +
                                     A3 %*% (dks[i + 1L, k - j + 1L, j] * In + Go[[j]][[i + 1L]])
@@ -1235,13 +1236,13 @@ d3_pjk_m <- function(A1, A2, A3, m = 100L, p = 1L, thr_margin = 100) {
         }
         Gc[[1L]] <- A3 %*% (dks[1L, 1L, k] * In + Go[[k]][[1L]])
         dks[1L, 1L, k + 1L] <- tr(Gc[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, k + 1L] * In + Gc[[i]]) +
                             A3 %*% (dks[i + 1L, 1L, k] * In + Go[[k]][[i + 1L]])
             dks[i + 1L, 1L, k + 1L] <- tr(Gc[[i + 1L]]) / (2 * (k + i))
         }
         Gn <- c(Gn, list(Gc))
-        if(max(unlist(Gn)) > thr) {
+        if (max(unlist(Gn)) > thr) {
             ind_dks <- which(order_array == k + 1L)
             ind_lscf <- which(order_array >= k + 1L)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1271,26 +1272,26 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100) {
     zeros <- rep.int(0, n)
     Gc <- list()
     Gc[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- L1 * (dks[i, 1L, 1L] + Gc[[i]])
         dks[i + 1L, 1L, 1L] <- sum(Gc[[i + 1L]]) / (2 * i)
     }
     Gn <- list(Gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         Gc[[1L]] <- L2 * (dks[1L, k, 1L] + Go[[1L]][[1L]])
         dks[1L, k + 1L, 1L] <- sum(Gc[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             Gc[[i + 1L]] <- L1 * (dks[i, k + 1L, 1L] + Gc[[i]]) +
                             L2 * (dks[i + 1L, k, 1L] + Go[[1L]][[i + 1L]])
             dks[i + 1L, k + 1L, 1L] <- sum(Gc[[i + 1L]]) / (2 * (k + i))
         }
         Gn <- list(Gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 Gc[[1L]] <- L2 * (dks[1L, k - j, j + 1L] + Go[[j + 1L]][[1L]]) + L3 * (dks[1L, k - j + 1L, j] + Go[[j]][[1L]])
                 dks[1L, k - j + 1L, j + 1L] <- sum(Gc[[1L]]) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     Gc[[i + 1L]] <- L1 * (dks[i, k - j + 1L, j + 1L] + Gc[[i]]) +
                                     L2 * (dks[i + 1L, k - j, j + 1L] + Go[[j + 1L]][[i + 1L]]) +
                                     L3 * (dks[i + 1L, k - j + 1L, j] + Go[[j]][[i + 1L]])
@@ -1301,13 +1302,13 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100) {
         }
         Gc[[1L]] <- L3 * (dks[1L, 1L, k] + Go[[k]][[1L]])
         dks[1L, 1L, k + 1L] <- sum(Gc[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             Gc[[i + 1L]] <- L1 * (dks[i, 1L, k + 1L] + Gc[[i]]) +
                             L3 * (dks[i + 1L, 1L, k] + Go[[k]][[i + 1L]])
             dks[i + 1L, 1L, k + 1L] <- sum(Gc[[i + 1L]]) / (2 * (k + i))
         }
         Gn <- c(Gn, list(Gc))
-        if(max(unlist(Gn)) > thr) {
+        if (max(unlist(Gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1328,8 +1329,7 @@ d3_pjk_v <- function(L1, L2, L3, m = 100L, p = 1L, thr_margin = 100) {
 #' @rdname d2_ij
 #'
 h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
-                    thr_margin = 100,
-                      fill_all = !missing(p) || !missing(q)) {
+                    thr_margin = 100, fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- ncol(A1)
     In <- diag(n)
@@ -1341,23 +1341,23 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
     Gs <- list(zeromat)
     gs <- list(zerovec)
     order_mat <- outer(0:p, 0:q, "+")
-    kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
-    for(k in seq_len(kmax)) {
+    kmax <- if (fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
+    for (k in seq_len(kmax)) {
         Gs[which(order_mat == k - 2L)] <- 0
         gs[which(order_mat == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q, 0L)) {
+        for (i1 in min(k, p):max(k - q, 0L)) {
             i2 <- k - i1
             tG <- zeromat
-            if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L] * In + Gs[[il2(i1 - 1L, i2)]])
-            if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2] * In + Gs[[il2(i1, i2 - 1L)]])
+            if (i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L] * In + Gs[[il2(i1 - 1L, i2)]])
+            if (i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2] * In + Gs[[il2(i1, i2 - 1L)]])
             Gs[[il2(i1, i2)]] <- tG
             tg <- tG %*% mu
-            if(i1 >= 1L) tg <- tg - Gs[[il2(i1 - 1L, i2)]] %*% mu - dks[i1, i2 + 1L] * mu + A1 %*% gs[[il2(i1 - 1L, i2)]]
-            if(i2 >= 1L) tg <- tg - Gs[[il2(i1, i2 - 1L)]] %*% mu - dks[i1 + 1L, i2] * mu + A2 %*% gs[[il2(i1, i2 - 1L)]]
+            if (i1 >= 1L) tg <- tg - Gs[[il2(i1 - 1L, i2)]] %*% mu - dks[i1, i2 + 1L] * mu + A1 %*% gs[[il2(i1 - 1L, i2)]]
+            if (i2 >= 1L) tg <- tg - Gs[[il2(i1, i2 - 1L)]] %*% mu - dks[i1 + 1L, i2] * mu + A2 %*% gs[[il2(i1, i2 - 1L)]]
             gs[[il2(i1, i2)]] <- tg
             dks[i1 + 1L, i2 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
         }
-        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
+        if (max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1377,8 +1377,7 @@ h2_ij_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #' @rdname d2_ij
 #'
 h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
-                    thr_margin = 100,
-                      fill_all = !missing(p) || !missing(q)) {
+                    thr_margin = 100, fill_all = !missing(p) || !missing(q)) {
     il2 <- function(i1, i2) i1 + i2 * (p + 1L) + 1L
     n <- length(L1)
     zeros <- rep.int(0, n)
@@ -1388,23 +1387,23 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
     Gs <- list(zeros)
     gs <- list(zeros)
     order_mat <- outer(0:p, 0:q, "+")
-    kmax <- if(fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
-    for(k in seq_len(kmax)) {
+    kmax <- if (fill_all) sum(dim(dks) - 1L) else max(dim(dks) - 1L)
+    for (k in seq_len(kmax)) {
         Gs[which(order_mat == k - 2L)] <- 0
         gs[which(order_mat == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q, 0L)) {
+        for (i1 in min(k, p):max(k - q, 0L)) {
             i2 <- k - i1
             tG <- zeros
-            if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L] + Gs[[il2(i1 - 1L, i2)]])
-            if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2] + Gs[[il2(i1, i2 - 1L)]])
+            if (i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L] + Gs[[il2(i1 - 1L, i2)]])
+            if (i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2] + Gs[[il2(i1, i2 - 1L)]])
             Gs[[il2(i1, i2)]] <- tG
             tg <- tG * mu
-            if(i1 >= 1L) tg <- tg - (Gs[[il2(i1 - 1L, i2)]] + dks[i1, i2 + 1L]) * mu + L1 * gs[[il2(i1 - 1L, i2)]]
-            if(i2 >= 1L) tg <- tg - (Gs[[il2(i1, i2 - 1L)]] + dks[i1 + 1L, i2]) * mu + L2 * gs[[il2(i1, i2 - 1L)]]
+            if (i1 >= 1L) tg <- tg - (Gs[[il2(i1 - 1L, i2)]] + dks[i1, i2 + 1L]) * mu + L1 * gs[[il2(i1 - 1L, i2)]]
+            if (i2 >= 1L) tg <- tg - (Gs[[il2(i1, i2 - 1L)]] + dks[i1 + 1L, i2]) * mu + L2 * gs[[il2(i1, i2 - 1L)]]
             gs[[il2(i1, i2)]] <- tg
             dks[i1 + 1L, i2 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
         }
-        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
+        if (max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_mat == k)
             ind_lscf <- which(order_mat >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1426,7 +1425,7 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #'
 htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if(p == 1L) return(htil2_1j_m(A1, A2, mu, m))
+    if (p == 1L) return(htil2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1441,17 +1440,17 @@ htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
     g_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeromat)
     g_k_i[seq_len(p1)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- A1 %*% (dks[i, 1L] * In + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] %*% mu + A1 %*% g_k_i[[i]]
         dks[i + 1L, 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_i[[1L]])
         g_k_i[[1L]] <- (tG - G_k_i[[1L]] - (dks[1L, k] * In)) %*% mu + A2 %*% g_k_i[[1L]]
         G_k_i[[1L]] <- tG
         dks[1L, k + 1L] <- (tr(G_k_i[[1L]]) + c(crossprod(mu, g_k_i[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, k + 1L] * In + G_k_i[[i]]) +
                                A2 %*% (dks[i + 1L, k] * In + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- (tG - G_k_i[[i + 1L]]
@@ -1460,7 +1459,7 @@ htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
             G_k_i[[i + 1L]] <- tG
             dks[i + 1L, k + 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * (k + i))
         }
-        if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
+        if (max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             g_k_i <- lapply(g_k_i, function(x) x / 1e10)
@@ -1490,7 +1489,7 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     g_k_0 <- matrix(0, n, 1)
     g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_0)
         g_k_0 <- (tG - G_k_0 - (dks[1L, k] * In)) %*% mu + A2 %*% g_k_0
         G_k_0 <- tG
@@ -1501,7 +1500,7 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
                  A1 %*% g_k_0 + A2 %*% g_k_1
         G_k_1 <- tG
         dks[2L, k + 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / (2 * (k + 1))
-        if(max(G_k_1) > thr || max(g_k_1) > thr) {
+        if (max(G_k_1) > thr || max(g_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -1522,7 +1521,7 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #'
 htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if(p == 1L) return(htil2_1j_v(L1, L2, mu, m))
+    if (p == 1L) return(htil2_1j_v(L1, L2, mu, m))
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1535,17 +1534,17 @@ htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
     g_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeros)
     g_k_i[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- L1 * (dks[i, 1L] + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] * mu + L1 * g_k_i[[i]]
         dks[i + 1L, 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- L2 * (dks[1L, k] + G_k_i[[1L]])
         g_k_i[[1L]] <- (tG - G_k_i[[1L]] - dks[1L, k]) * mu + L2 * g_k_i[[1L]]
         G_k_i[[1L]] <- tG
         dks[1L, k + 1L] <- sum(G_k_i[[1L]] + mu * g_k_i[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, k + 1L] + G_k_i[[i]]) +
                                L2 * (dks[i + 1L, k] + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- (tG - G_k_i[[i + 1L]] - dks[i + 1L, k]) * mu +
@@ -1553,7 +1552,7 @@ htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
             G_k_i[[i + 1L]] <- tG
             dks[i + 1L, k + 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * (k + i))
         }
-        if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
+        if (max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             g_k_i <- lapply(g_k_i, function(x) x / 1e10)
@@ -1583,7 +1582,7 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L,
     g_k_0 <- rep.int(0, n)
     g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- L2 * (dks[1L, k] + G_k_0)
         g_k_0 <- (tG - G_k_0 - dks[1L, k]) * mu + L2 * g_k_0
         G_k_0 <- tG
@@ -1592,7 +1591,7 @@ htil2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L,
         g_k_1 <- (tG - G_k_1 - dks[2L, k]) * mu + L1 * g_k_0 + L2 * g_k_1
         G_k_1 <- tG
         dks[2L, k + 1L] <- sum(G_k_1 + mu * g_k_1) / (2 * (k + 1))
-        if(max(G_k_1) > thr || max(g_k_1) > thr) {
+        if (max(G_k_1) > thr || max(g_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -1628,28 +1627,28 @@ h3_ijk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L,
     gs <- list(zerovec)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
     kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
-    for(k in seq_len(kmax)) {
+    for (k in seq_len(kmax)) {
         Gs[which(order_array == k - 2L)] <- 0
         gs[which(order_array == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
-            for(i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
+        for (i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
+            for (i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
                 i3 <- k - i1 - i2
-                if(fill_across[3L] && i1 + i2 + r > kmax) next
-                if(fill_across[2L] && i1 + i3 + q > kmax) next
+                if (fill_across[3L] && i1 + i2 + r > kmax) next
+                if (fill_across[2L] && i1 + i3 + q > kmax) next
                 tG <- zeromat
-                if(i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
-                if(i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
-                if(i3 >= 1L) tG <- tG + A3 %*% (dks[i1 + 1L, i2 + 1L, i3] * In + Gs[[il3(i1, i2, i3 - 1L)]])
+                if (i1 >= 1L) tG <- tG + A1 %*% (dks[i1, i2 + 1L, i3 + 1L] * In + Gs[[il3(i1 - 1L, i2, i3)]])
+                if (i2 >= 1L) tG <- tG + A2 %*% (dks[i1 + 1L, i2, i3 + 1L] * In + Gs[[il3(i1, i2 - 1L, i3)]])
+                if (i3 >= 1L) tG <- tG + A3 %*% (dks[i1 + 1L, i2 + 1L, i3] * In + Gs[[il3(i1, i2, i3 - 1L)]])
                 Gs[[il3(i1, i2, i3)]] <- tG
                 tg <- tG %*% mu
-                if(i1 >= 1L) tg <- tg - Gs[[il3(i1 - 1L, i2, i3)]] %*% mu - dks[i1, i2 + 1L, i3 + 1L] * mu + A1 %*% gs[[il3(i1 - 1L, i2, i3)]]
-                if(i2 >= 1L) tg <- tg - Gs[[il3(i1, i2 - 1L, i3)]] %*% mu - dks[i1 + 1L, i2, i3 + 1L] * mu + A2 %*% gs[[il3(i1, i2 - 1L, i3)]]
-                if(i3 >= 1L) tg <- tg - Gs[[il3(i1, i2, i3 - 1L)]] %*% mu - dks[i1 + 1L, i2 + 1L, i3] * mu + A3 %*% gs[[il3(i1, i2, i3 - 1L)]]
+                if (i1 >= 1L) tg <- tg - Gs[[il3(i1 - 1L, i2, i3)]] %*% mu - dks[i1, i2 + 1L, i3 + 1L] * mu + A1 %*% gs[[il3(i1 - 1L, i2, i3)]]
+                if (i2 >= 1L) tg <- tg - Gs[[il3(i1, i2 - 1L, i3)]] %*% mu - dks[i1 + 1L, i2, i3 + 1L] * mu + A2 %*% gs[[il3(i1, i2 - 1L, i3)]]
+                if (i3 >= 1L) tg <- tg - Gs[[il3(i1, i2, i3 - 1L)]] %*% mu - dks[i1 + 1L, i2 + 1L, i3] * mu + A3 %*% gs[[il3(i1, i2, i3 - 1L)]]
                 gs[[il3(i1, i2, i3)]] <- tg
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (tr(tG) + c(crossprod(mu, tg))) / (2 * k)
             }
         }
-        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
+        if (max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1681,29 +1680,30 @@ h3_ijk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L,
     Gs <- list(zeros)
     gs <- list(zeros)
     order_array <- outer(outer(0:p, 0:q, "+"), 0:r, "+")
-    kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)), sum(dim(dks) - 1L))
-    for(k in seq_len(kmax)) {
+    kmax <- min(any(!fill_across) * m + sum(fill_across * c(p, q, r)),
+                sum(dim(dks) - 1L))
+    for (k in seq_len(kmax)) {
         Gs[which(order_array == k - 2L)] <- 0
         gs[which(order_array == k - 2L)] <- 0
-        for(i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
-            for(i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
+        for (i1 in min(k, p):max(k - q - r, 0L, fill_across[1L] * (k + p - kmax))) {
+            for (i2 in min(k - i1, q):max(k - i1 - r, 0L)) {
                 i3 <- k - i1 - i2
-                if(fill_across[3L] && i1 + i2 + r > kmax) next
-                if(fill_across[2L] && i1 + i3 + q > kmax) next
+                if (fill_across[3L] && i1 + i2 + r > kmax) next
+                if (fill_across[2L] && i1 + i3 + q > kmax) next
                 tG <- zeros
-                if(i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
-                if(i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
-                if(i3 >= 1L) tG <- tG + L3 * (dks[i1 + 1L, i2 + 1L, i3] + Gs[[il3(i1, i2, i3 - 1L)]])
+                if (i1 >= 1L) tG <- tG + L1 * (dks[i1, i2 + 1L, i3 + 1L] + Gs[[il3(i1 - 1L, i2, i3)]])
+                if (i2 >= 1L) tG <- tG + L2 * (dks[i1 + 1L, i2, i3 + 1L] + Gs[[il3(i1, i2 - 1L, i3)]])
+                if (i3 >= 1L) tG <- tG + L3 * (dks[i1 + 1L, i2 + 1L, i3] + Gs[[il3(i1, i2, i3 - 1L)]])
                 Gs[[il3(i1, i2, i3)]] <- tG
                 tg <- tG * mu
-                if(i1 >= 1L) tg <- tg - (Gs[[il3(i1 - 1L, i2, i3)]] + dks[i1, i2 + 1L, i3 + 1L]) * mu + L1 * gs[[il3(i1 - 1L, i2, i3)]]
-                if(i2 >= 1L) tg <- tg - (Gs[[il3(i1, i2 - 1L, i3)]] + dks[i1 + 1L, i2, i3 + 1L]) * mu + L2 * gs[[il3(i1, i2 - 1L, i3)]]
-                if(i3 >= 1L) tg <- tg - (Gs[[il3(i1, i2, i3 - 1L)]] + dks[i1 + 1L, i2 + 1L, i3]) * mu + L3 * gs[[il3(i1, i2, i3 - 1L)]]
+                if (i1 >= 1L) tg <- tg - (Gs[[il3(i1 - 1L, i2, i3)]] + dks[i1, i2 + 1L, i3 + 1L]) * mu + L1 * gs[[il3(i1 - 1L, i2, i3)]]
+                if (i2 >= 1L) tg <- tg - (Gs[[il3(i1, i2 - 1L, i3)]] + dks[i1 + 1L, i2, i3 + 1L]) * mu + L2 * gs[[il3(i1, i2 - 1L, i3)]]
+                if (i3 >= 1L) tg <- tg - (Gs[[il3(i1, i2, i3 - 1L)]] + dks[i1 + 1L, i2 + 1L, i3]) * mu + L3 * gs[[il3(i1, i2, i3 - 1L)]]
                 gs[[il3(i1, i2, i3)]] <- tg
                 dks[i1 + 1L, i2 + 1L, i3 + 1L] <- (sum(tG) + sum(mu * tg)) / (2 * k)
             }
         }
-        if(max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
+        if (max(unlist(Gs)) > thr || max(unlist(gs)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1740,21 +1740,21 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
     gc <- list()
     Gc[seq_len(p1)] <- list(zeromat)
     gc[seq_len(p1)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, 1L] * In + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] %*% mu + A1 %*% gc[[i]]
         dks[i + 1L, 1L, 1L] <- (tr(Gc[[i + 1L]]) + c(crossprod(mu, gc[[i + 1L]]))) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
         tG <- A2 %*% (dks[1L, k, 1L] * In + Go[[1L]][[1L]])
         gc[[1L]] <- (tG - Go[[1L]][[1L]] - (dks[1L, k, 1L] * In)) %*% mu + A2 %*% go[[1L]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, k + 1L, 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, k + 1L, 1L] * In + Gc[[i]]) +
                   A2 %*% (dks[i + 1L, k, 1L] * In + Go[[1L]][[i + 1L]])
             gc[[i + 1L]] <- (tG - Go[[1L]][[i + 1L]]
@@ -1765,13 +1765,13 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- list(Gc)
         gn <- list(gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 tG <- A2 %*% (dks[1L, k - j, j + 1L] * In + Go[[j + 1L]][[1L]]) + A3 %*% (dks[1L, k - j + 1L, j] * In + Go[[j]][[1L]])
                 gc[[1L]] <- (tG - Go[[j + 1L]][[1L]] - Go[[j]][[1L]] - ((dks[1L, k - j, j + 1L] + dks[1L, k - j + 1L, j]) * In)) %*% mu + A2 %*% go[[j + 1L]][[1L]] + A3 %*% go[[j]][[1L]]
                 Gc[[1L]] <- tG
                 dks[1L, k - j + 1L, j + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     tG <- A1 %*% (dks[i, k - j + 1L, j + 1L] * In + Gc[[i]]) +
                           A2 %*% (dks[i + 1L, k - j, j + 1L] * In + Go[[j + 1L]][[i + 1L]]) +
                           A3 %*% (dks[i + 1L, k - j + 1L, j] * In + Go[[j]][[i + 1L]])
@@ -1789,7 +1789,7 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         gc[[1L]] <- (tG - Go[[k]][[1L]] - (dks[1L, 1L, k] * In)) %*% mu + A3 %*% go[[k]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, 1L, k + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, 1L, k + 1L] * In + Gc[[i]]) +
                   A3 %*% (dks[i + 1L, 1L, k] * In + Go[[k]][[i + 1L]])
             gc[[i + 1L]] <- (tG - Go[[k]][[i + 1L]]
@@ -1800,7 +1800,7 @@ htil3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- c(Gn, list(Gc))
         gn <- c(gn, list(gc))
-        if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
+        if (max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1834,21 +1834,21 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
     gc <- list()
     Gc[seq_len(p1)] <- list(zeros)
     gc[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- L1 * (dks[i, 1L, 1L] + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] * mu + L1 * gc[[i]]
         dks[i + 1L, 1L, 1L] <- (sum(Gc[[i + 1L]]) + sum(mu * gc[[i + 1L]])) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
         tG <- L2 * (dks[1L, k, 1L] + Go[[1L]][[1L]])
         gc[[1L]] <- (tG - (Go[[1L]][[1L]] + dks[1L, k, 1L])) * mu + L2 * go[[1L]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, k + 1L, 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, k + 1L, 1L] + Gc[[i]]) +
                   L2 * (dks[i + 1L, k, 1L] + Go[[1L]][[i + 1L]])
             gc[[i + 1L]] <- (tG - (Go[[1L]][[i + 1L]]
@@ -1859,13 +1859,13 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- list(Gc)
         gn <- list(gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 tG <- L2 * (dks[1L, k - j, j + 1L] + Go[[j + 1L]][[1L]]) + L3 * (dks[1L, k - j + 1L, j] + Go[[j]][[1L]])
                 gc[[1L]] <- (tG - (Go[[j + 1L]][[1L]] + Go[[j]][[1L]] + dks[1L, k - j, j + 1L] + dks[1L, k - j + 1L, j])) * mu + L2 * go[[j + 1L]][[1L]] + L3 * go[[j]][[1L]]
                 Gc[[1L]] <- tG
                 dks[1L, k - j + 1L, j + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     tG <- L1 * (dks[i, k - j + 1L, j + 1L] + Gc[[i]]) +
                           L2 * (dks[i + 1L, k - j, j + 1L] + Go[[j + 1L]][[i + 1L]]) +
                           L3 * (dks[i + 1L, k - j + 1L, j] + Go[[j]][[i + 1L]])
@@ -1884,7 +1884,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         gc[[1L]] <- (tG - (Go[[k]][[1L]] + dks[1L, 1L, k])) * mu + L3 * go[[k]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, 1L, k + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, 1L, k + 1L] + Gc[[i]]) +
                   L3 * (dks[i + 1L, 1L, k] + Go[[k]][[i + 1L]])
             gc[[i + 1L]] <- (tG - (Go[[k]][[i + 1L]]
@@ -1895,7 +1895,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- c(Gn, list(Gc))
         gn <- c(gn, list(gc))
-        if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
+        if (max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -1918,7 +1918,7 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
 #'
 hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if(p == 1L) return(hhat2_1j_m(A1, A2, mu, m))
+    if (p == 1L) return(hhat2_1j_m(A1, A2, mu, m))
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1933,17 +1933,17 @@ hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
     g_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeromat)
     g_k_i[seq_len(p1)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- A1 %*% (dks[i, 1L] * In + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] %*% mu + A1 %*% g_k_i[[i]]
         dks[i + 1L, 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_i[[1L]])
         g_k_i[[1L]] <- (tG + G_k_i[[1L]] + (dks[1L, k] * In)) %*% mu + A2 %*% g_k_i[[1L]]
         G_k_i[[1L]] <- tG
         dks[1L, k + 1L] <- (tr(G_k_i[[1L]]) + c(crossprod(mu, g_k_i[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, k + 1L] * In + G_k_i[[i]]) +
                                A2 %*% (dks[i + 1L, k] * In + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- (tG + G_k_i[[i + 1L]]
@@ -1952,7 +1952,7 @@ hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
             G_k_i[[i + 1L]] <- tG
             dks[i + 1L, k + 1L] <- (tr(G_k_i[[i + 1L]]) + c(crossprod(mu, g_k_i[[i + 1L]]))) / (2 * (k + i))
         }
-        if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
+        if (max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             g_k_i <- lapply(g_k_i, function(x) x / 1e10)
@@ -1982,18 +1982,18 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     g_k_0 <- matrix(0, n, 1)
     g_k_1 <- G_k_1 %*% mu
     dks[2L, 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- A2 %*% (dks[1L, k] * In + G_k_0)
         g_k_0 <- (tG + G_k_0 + (dks[1L, k] * In)) %*% mu + A2 %*% g_k_0
         G_k_0 <- tG
         dks[1L, k + 1L] <- (tr(G_k_0) + c(crossprod(mu, g_k_0))) / (2 * k)
         tG <- A1 %*% (dks[1L, k + 1L] * In + G_k_0) +
-                 A2 %*% (dks[2L, k] * In + G_k_1)
+              A2 %*% (dks[2L, k] * In + G_k_1)
         g_k_1 <- (tG + G_k_1 + (dks[2L, k] * In)) %*% mu +
                  A1 %*% g_k_0 + A2 %*% g_k_1
         G_k_1 <- tG
         dks[2L, k + 1L] <- (tr(G_k_1) + c(crossprod(mu, g_k_1))) / (2 * (k + 1))
-        if(max(G_k_1) > thr || max(g_k_1) > thr) {
+        if (max(G_k_1) > thr || max(g_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -2014,7 +2014,7 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #'
 hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if(p == 1L) return(hhat2_1j_v(L1, L2, mu, m))
+    if (p == 1L) return(hhat2_1j_v(L1, L2, mu, m))
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -2027,25 +2027,25 @@ hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
     g_k_i <- list()
     G_k_i[seq_len(p1)] <- list(zeros)
     g_k_i[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         G_k_i[[i + 1L]] <- L1 * (dks[i, 1L] + G_k_i[[i]])
         g_k_i[[i + 1L]] <- G_k_i[[i + 1L]] * mu + L1 * g_k_i[[i]]
         dks[i + 1L, 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * i)
     }
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- L2 * (dks[1L, k] + G_k_i[[1L]])
         g_k_i[[1L]] <- (tG + G_k_i[[1L]] + dks[1L, k]) * mu + L2 * g_k_i[[1L]]
         G_k_i[[1L]] <- tG
         dks[1L, k + 1L] <- sum(G_k_i[[1L]] + mu * g_k_i[[1L]]) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, k + 1L] + G_k_i[[i]]) +
-                               L2 * (dks[i + 1L, k] + G_k_i[[i + 1L]])
+                  L2 * (dks[i + 1L, k] + G_k_i[[i + 1L]])
             g_k_i[[i + 1L]] <- (tG + G_k_i[[i + 1L]] + dks[i + 1L, k]) * mu +
                                L1 * g_k_i[[i]] + L2 * g_k_i[[i + 1L]]
             G_k_i[[i + 1L]] <- tG
             dks[i + 1L, k + 1L] <- sum(G_k_i[[i + 1L]] + mu * g_k_i[[i + 1L]]) / (2 * (k + i))
         }
-        if(max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
+        if (max(unlist(G_k_i)) > thr || max(unlist(g_k_i)) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_i <- lapply(G_k_i, function(x) x / 1e10)
             g_k_i <- lapply(g_k_i, function(x) x / 1e10)
@@ -2074,7 +2074,7 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
     g_k_0 <- rep.int(0, n)
     g_k_1 <- G_k_1 * mu
     dks[2L, 1L] <- sum(G_k_1 + mu * g_k_1) / 2
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         tG <- L2 * (dks[1L, k] + G_k_0)
         g_k_0 <- (tG + G_k_0 + dks[1L, k]) * mu + L2 * g_k_0
         G_k_0 <- tG
@@ -2083,7 +2083,7 @@ hhat2_1j_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
         g_k_1 <- (tG + G_k_1 + dks[2L, k]) * mu + L1 * g_k_0 + L2 * g_k_1
         G_k_1 <- tG
         dks[2L, k + 1L] <- sum(G_k_1 + mu * g_k_1) / (2 * (k + 1))
-        if(max(G_k_1) > thr || max(g_k_1) > thr) {
+        if (max(G_k_1) > thr || max(g_k_1) > thr) {
             dks[, k + 1L] <- dks[, k + 1L] / 1e10
             G_k_0 <- G_k_0 / 1e10
             G_k_1 <- G_k_1 / 1e10
@@ -2121,21 +2121,21 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
     gc <- list()
     Gc[seq_len(p1)] <- list(zeromat)
     gc[seq_len(p1)] <- list(zerovec)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- A1 %*% (dks[i, 1L, 1L] * In + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] %*% mu + A1 %*% gc[[i]]
         dks[i + 1L, 1L, 1L] <- (tr(Gc[[i + 1L]]) + c(crossprod(mu, gc[[i + 1L]]))) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
         tG <- A2 %*% (dks[1L, k, 1L] * In + Go[[1L]][[1L]])
         gc[[1L]] <- (tG + Go[[1L]][[1L]] + (dks[1L, k, 1L] * In)) %*% mu + A2 %*% go[[1L]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, k + 1L, 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, k + 1L, 1L] * In + Gc[[i]]) +
                   A2 %*% (dks[i + 1L, k, 1L] * In + Go[[1L]][[i + 1L]])
             gc[[i + 1L]] <- (tG + Go[[1L]][[i + 1L]]
@@ -2146,13 +2146,13 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- list(Gc)
         gn <- list(gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 tG <- A2 %*% (dks[1L, k - j, j + 1L] * In + Go[[j + 1L]][[1L]]) + A3 %*% (dks[1L, k - j + 1L, j] * In + Go[[j]][[1L]])
                 gc[[1L]] <- (tG + Go[[j + 1L]][[1L]] + Go[[j]][[1L]] + ((dks[1L, k - j, j + 1L] + dks[1L, k - j + 1L, j]) * In)) %*% mu + A2 %*% go[[j + 1L]][[1L]] + A3 %*% go[[j]][[1L]]
                 Gc[[1L]] <- tG
                 dks[1L, k - j + 1L, j + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     tG <- A1 %*% (dks[i, k - j + 1L, j + 1L] * In + Gc[[i]]) +
                           A2 %*% (dks[i + 1L, k - j, j + 1L] * In + Go[[j + 1L]][[i + 1L]]) +
                           A3 %*% (dks[i + 1L, k - j + 1L, j] * In + Go[[j]][[i + 1L]])
@@ -2170,7 +2170,7 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         gc[[1L]] <- (tG + Go[[k]][[1L]] + (dks[1L, 1L, k] * In)) %*% mu + A3 %*% go[[k]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, 1L, k + 1L] <- (tr(Gc[[1L]]) + c(crossprod(mu, gc[[1L]]))) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- A1 %*% (dks[i, 1L, k + 1L] * In + Gc[[i]]) +
                   A3 %*% (dks[i + 1L, 1L, k] * In + Go[[k]][[i + 1L]])
             gc[[i + 1L]] <- (tG + Go[[k]][[i + 1L]]
@@ -2181,7 +2181,7 @@ hhat3_pjk_m <- function(A1, A2, A3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- c(Gn, list(Gc))
         gn <- c(gn, list(gc))
-        if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
+        if (max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10
@@ -2215,21 +2215,21 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
     gc <- list()
     Gc[seq_len(p1)] <- list(zeros)
     gc[seq_len(p1)] <- list(zeros)
-    for(i in seq_len(p)) {
+    for (i in seq_len(p)) {
         Gc[[i + 1L]] <- L1 * (dks[i, 1L, 1L] + Gc[[i]])
         gc[[i + 1L]] <- Gc[[i + 1L]] * mu + L1 * gc[[i]]
         dks[i + 1L, 1L, 1L] <- (sum(Gc[[i + 1L]]) + sum(mu * gc[[i + 1L]])) / (2 * i)
     }
     Gn <- list(Gc)
     gn <- list(gc)
-    for(k in seq_len(m)) {
+    for (k in seq_len(m)) {
         Go <- Gn
         go <- gn
         tG <- L2 * (dks[1L, k, 1L] + Go[[1L]][[1L]])
         gc[[1L]] <- (tG + (Go[[1L]][[1L]] + dks[1L, k, 1L])) * mu + L2 * go[[1L]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, k + 1L, 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, k + 1L, 1L] + Gc[[i]]) +
                   L2 * (dks[i + 1L, k, 1L] + Go[[1L]][[i + 1L]])
             gc[[i + 1L]] <- (tG + (Go[[1L]][[i + 1L]]
@@ -2240,13 +2240,13 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- list(Gc)
         gn <- list(gc)
-        if(k >= 2L) {
-            for(j in seq_len(k - 1L)) {
+        if (k >= 2L) {
+            for (j in seq_len(k - 1L)) {
                 tG <- L2 * (dks[1L, k - j, j + 1L] + Go[[j + 1L]][[1L]]) + L3 * (dks[1L, k - j + 1L, j] + Go[[j]][[1L]])
                 gc[[1L]] <- (tG + (Go[[j + 1L]][[1L]] + Go[[j]][[1L]] + dks[1L, k - j, j + 1L] + dks[1L, k - j + 1L, j])) * mu + L2 * go[[j + 1L]][[1L]] + L3 * go[[j]][[1L]]
                 Gc[[1L]] <- tG
                 dks[1L, k - j + 1L, j + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-                for(i in seq_len(p)) {
+                for (i in seq_len(p)) {
                     tG <- L1 * (dks[i, k - j + 1L, j + 1L] + Gc[[i]]) +
                           L2 * (dks[i + 1L, k - j, j + 1L] + Go[[j + 1L]][[i + 1L]]) +
                           L3 * (dks[i + 1L, k - j + 1L, j] + Go[[j]][[i + 1L]])
@@ -2265,7 +2265,7 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         gc[[1L]] <- (tG + (Go[[k]][[1L]] + dks[1L, 1L, k])) * mu + L3 * go[[k]][[1L]]
         Gc[[1L]] <- tG
         dks[1L, 1L, k + 1L] <- (sum(Gc[[1L]]) + sum(mu * gc[[1L]])) / (2 * k)
-        for(i in seq_len(p)) {
+        for (i in seq_len(p)) {
             tG <- L1 * (dks[i, 1L, k + 1L] + Gc[[i]]) +
                   L3 * (dks[i + 1L, 1L, k] + Go[[k]][[i + 1L]])
             gc[[i + 1L]] <- (tG + (Go[[k]][[i + 1L]]
@@ -2276,7 +2276,7 @@ hhat3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
         }
         Gn <- c(Gn, list(Gc))
         gn <- c(gn, list(gc))
-        if(max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
+        if (max(unlist(Gn)) > thr || max(unlist(gn)) > thr) {
             ind_dks <- which(order_array == k)
             ind_lscf <- which(order_array >= k)
             dks[ind_dks] <- dks[ind_dks] / 1e10

@@ -307,8 +307,8 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
                  tol_sing = tol_zero, simplify_ratio = TRUE, ...) {
     ## If A or B is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -317,16 +317,16 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(p) && !missing(q)) p <- q
+    if (missing(p) && !missing(q)) p <- q
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -334,13 +334,13 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu.\n  ",
                      "Function for situations not satisfying this has not ",
@@ -353,8 +353,8 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     ## When A == B, partially cancel numerator and denominator, so that
     ## new p is as small an integer as possible while q is nonnegative
     ## Do the same in univariate case to simplify evaluation
-    if(simplify_ratio && (iseq(A, B, tol_zero) || n == 1)) {
-        if(n == 1) {
+    if (simplify_ratio && (iseq(A, B, tol_zero) || n == 1)) {
+        if (n == 1) {
             dif_pq <- max(ceiling(p - q), 1)
             A <- A^(p / dif_pq) / B^(q / dif_pq)
             B <- In
@@ -370,10 +370,10 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
     arg_list <- list(A = A, p = p, q = q, m = m, mu = mu,
                      tol_zero = tol_zero, tol_sing = tol_sing)
     arg_list <- c(arg_list, list(...))
-    if(iseq(B, In, tol_zero) || q == 0) {
+    if (iseq(B, In, tol_zero) || q == 0) {
         ## When q == 0, B can be replaced by In
         arg_list[c("alphaB")] <- NULL
-        if((p %% 1) == 0 && p >= 0) {
+        if ((p %% 1) == 0 && p >= 0) {
             arg_list[c("tol_sing", "error_bound", "check_convergence",
                        "cpp_method", "alphaA", "tol_conv")] <- NULL
             return(do.call(qfrm_ApIq_int, arg_list))
@@ -381,13 +381,13 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
             return(do.call(qfrm_ApIq_npi, arg_list))
         }
     } else {
-        if(iseq(A, In, tol_zero)) {
+        if (iseq(A, In, tol_zero)) {
             arg_list[c("A", "p", "q")] <- list(B, -q, -p)
             return(do.call(qfrm_ApIq_npi, arg_list))
         }
     }
     arg_list[["B"]] <- B
-    if((p %% 1) == 0) {
+    if ((p %% 1) == 0) {
         arg_list["alphaA"] <- NULL
         return(do.call(qfrm_ApBq_int, arg_list))
     } else {
@@ -544,9 +544,9 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                   tol_sing = tol_zero, simplify_ratio = TRUE, ...) {
     ## If A, B, or D is missing, let it be an identity matrix
     ## If they are given, symmetrize
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B, and D")
             } else {
                 n <- dim(D)[1L]
@@ -561,19 +561,19 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     } else {
         D <- (D + t(D)) / 2
     }
-    if(missing(p) && (!missing(q) || !missing(r))) p <- q + r
+    if (missing(p) && (!missing(q) || !missing(r))) p <- q + r
     zeros <- rep.int(0, n)
-    if(simplify_ratio) {
+    if (simplify_ratio) {
         ## If any pair of argument matrices are equal or q or r equals 0,
         ## reduce the problem to a simple ratio
         B_equals_D <- iseq(B, D, tol_zero)
@@ -582,8 +582,8 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         r_equals_0 <- r == 0
         q_equals_0 <- q == 0
         n_equals_1 <- n == 1
-        if(B_equals_D || A_equals_D || A_equals_B || r_equals_0 || q_equals_0 ||
-           n_equals_1) {
+        if (B_equals_D || A_equals_D || A_equals_B || r_equals_0 ||
+            q_equals_0 || n_equals_1) {
             arg_qfrm <- list(A = A, B = B, p = p, q = q, m = m, mu = mu,
                              Sigma = Sigma, tol_zero = tol_zero,
                              tol_sing = tol_sing)
@@ -591,19 +591,19 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
             ## Modify args; when only r_equals_0, above default is used;
             ## it's still benign to do below when conditions hold.
             ## "else if" used to avoid complication when more than one holds
-            if(A_equals_B || q_equals_0) {
+            if (A_equals_B || q_equals_0) {
                 ## A partially cancelled with B; put D in place of B
                 arg_qfrm[["p"]] <- p - q
                 arg_qfrm[["q"]] <- r
                 arg_qfrm[["B"]] <- D
-                if(!(q_equals_0) && ("alphaB" %in% names(arg_qfrm))) {
+                if (!(q_equals_0) && ("alphaB" %in% names(arg_qfrm))) {
                     warning("B cancels with A; alphaB is ignored")
                 }
                 arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
-            } else if(B_equals_D) { ## Merge B and D
+            } else if (B_equals_D) { ## Merge B and D
                 arg_qfrm[["q"]] <- q + r
-                if("alphaD" %in% names(arg_qfrm)) {
-                    if("alphaB" %in% names(arg_qfrm)) {
+                if ("alphaD" %in% names(arg_qfrm)) {
+                    if ("alphaB" %in% names(arg_qfrm)) {
                         ## When both alphaB and alphaD exist, use alphaB but warn
                         warning("With B == D, the denominator factors are ",
                                 "merged; alphaD is ignored")
@@ -612,12 +612,12 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                         arg_qfrm[["alphaB"]] <- arg_qfrm[["alphaD"]]
                     }
                 }
-            } else if(A_equals_D) {
+            } else if (A_equals_D) {
                 arg_qfrm[["p"]] <- p - r
-                if("alphaD" %in% names(arg_qfrm)) {
+                if ("alphaD" %in% names(arg_qfrm)) {
                     warning("D cancels with A; alphaD is ignored")
                 }
-            } else if(n_equals_1) {
+            } else if (n_equals_1) {
                 q_new <- q + r
                 arg_qfrm[["q"]] <- q_new
                 arg_qfrm[["B"]] <- B^(q / q_new) * D^(r / q_new)
@@ -628,7 +628,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     }
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -637,7 +637,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         KtDK <- t(K) %*% D %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero) &&
@@ -645,7 +645,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B) &&
                      iseq(crossprod(iK, KtDK %*% iK), D))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, D, mu.\n  ",
                      "Function for situations not satisfying this has not ",
@@ -655,7 +655,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         return(qfmrm(KtAK, KtBK, KtDK, p, q, r, m = m, mu = iKmu,
                      tol_zero = tol_zero, tol_sing = tol_sing, ...))
     }
-    if(iseq(A, In, tol_zero)) {
+    if (iseq(A, In, tol_zero)) {
         arg_list <- list(B = B, D = D, p = p, q = q, r = r, m = m, mu = mu,
                          tol_zero = tol_zero, tol_sing = tol_sing)
         arg_list <- c(arg_list, list(...))
@@ -663,7 +663,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
         return(do.call(qfmrm_IpBDqr_gen, arg_list))
     }
     ## If B == In, swap B and D
-    if(iseq(B, In, tol_zero)) {
+    if (iseq(B, In, tol_zero)) {
         B <- D
         D <- In
         qtemp <- q
@@ -673,9 +673,9 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     arg_list <- list(A = A, B = B, p = p, q = q, r = r, m = m, mu = mu,
                      tol_zero = tol_zero, tol_sing = tol_sing)
     arg_list <- c(arg_list, list(...))
-    if(iseq(D, In, tol_zero)) {
+    if (iseq(D, In, tol_zero)) {
         arg_list["alphaD"] <- NULL
-        if((p %% 1) == 0 && p >= 0) {
+        if ((p %% 1) == 0 && p >= 0) {
             arg_list["alphaA"] <- NULL
             return(do.call(qfmrm_ApBIqr_int, arg_list))
         } else {
@@ -685,7 +685,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
     }
     arg_list[["D"]] <- D
     arg_list["error_bound"] <- NULL
-    if((p %% 1) == 0) {
+    if ((p %% 1) == 0) {
         arg_list["alphaA"] <- NULL
         return(do.call(qfmrm_ApBDqr_int, arg_list))
     } else {
@@ -778,7 +778,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                        use_cpp = TRUE, cpp_method = "double",
                        tol_zero = .Machine$double.eps * 100,
                        tol_sing = tol_zero) {
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     n <- ncol(A)
     stopifnot(
         "A must be a square matrix" = all(c(dim(A)) == n),
@@ -792,18 +792,18 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, diag(n), tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, diag(n), tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
         KtAK <- t(K) %*% A %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A and mu.\n  ",
                      "Function for situations not satisfying this has not ",
@@ -814,14 +814,14 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
                            cpp_method = cpp_method, tol_zero = tol_zero))
     }
     A <- (A + t(A)) / 2
-    if(use_cpp) {
+    if (use_cpp) {
         cppres <- Ap_int_E(A, mu, p, tol_zero = tol_zero)
         ans <- cppres$ans
     } else {
         central <- iseq(mu, rep.int(0, n), tol = tol_zero)
         eigA <- eigen(A, symmetric = TRUE)
         LA <- eigA$values
-        if(central) {
+        if (central) {
             dp <- d1_i(LA, m = p)[p + 1]
         } else {
             mu <- c(crossprod(eigA$vectors, c(mu)))
@@ -849,10 +849,10 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
                           use_cpp = TRUE, cpp_method = "double",
                           tol_zero = .Machine$double.eps * 100,
                           tol_sing = tol_zero) {
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -861,7 +861,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -880,7 +880,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
         "mu must be an n-vector" = length(mu) == n
     )
     ## When p = 0 and use_cpp = FALSE, out of bound error happens in d2_pj_*
-    if(p == 0) {
+    if (p == 0) {
         return(qfm_Ap_int(A = B, p = q, mu = mu, Sigma = Sigma,
                           use_cpp = use_cpp, cpp_method = cpp_method,
                           tol_zero = tol_zero, tol_sing = tol_sing))
@@ -888,7 +888,7 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -896,13 +896,13 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
         KtBK <- t(K) %*% B %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero)) ||
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, mu\n  ",
                      "Function for situations not satisfying this has not ",
@@ -918,21 +918,21 @@ qfpm_ABpq_int <- function(A, B, p = 1, q = 1,
     ## Rotate A and mu with eigenvectors of B
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    if(use_cpp) {
+    if (use_cpp) {
         cppres <- ABpq_int_E(A, LB, mu, p, q, tol_zero = tol_zero)
         ans <- cppres$ans
     } else {
         use_vec <- is_diagonal(A, tol_zero, TRUE)
         central <- iseq(mu, rep.int(0, n), tol = tol_zero)
-        if(use_vec) LA <- diag(A)
-        if(central) {
-            if(use_vec) {
+        if (use_vec) LA <- diag(A)
+        if (central) {
+            if (use_vec) {
                 dpq <- d2_pj_v(LA, LB, m = p + q, p)[p + 1, q + 1]
             } else {
                 dpq <- d2_pj_m(A, diag(LB), m = p + q, p)[p + 1, q + 1]
             }
         } else {
-            if(use_vec) {
+            if (use_vec) {
                 dpq <- dtil2_pq_v(LA, LB, mu, p, q)[p + 1, q + 1]
             } else {
                 dpq <- dtil2_pq_m(A, diag(LB), mu, p, q)[p + 1, q + 1]
@@ -957,11 +957,11 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
                             use_cpp = TRUE, cpp_method = "double",
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = tol_zero) {
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     ## If A, B, or D is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B and D")
             } else {
                 n <- dim(D)[1L]
@@ -976,12 +976,12 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     } else {
         D <- (D + t(D)) / 2
@@ -1004,12 +1004,12 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
         "mu must be an n-vector" = length(mu) == n
     )
     ## When (p = 0 or q = r = 0) and use_cpp = FALSE, out of bound error happens
-    if(p == 0) {
+    if (p == 0) {
         return(qfpm_ABpq_int(A = B, B = D, p = q, q = r, mu = mu, Sigma = Sigma,
                              use_cpp = use_cpp, cpp_method = cpp_method,
                              tol_zero = tol_zero, tol_sing = tol_sing))
     }
-    if(q == 0 && r == 0) {
+    if (q == 0 && r == 0) {
         return(qfm_Ap_int(A = A, p = p, mu = mu, Sigma = Sigma,
                           use_cpp = use_cpp, cpp_method = cpp_method,
                           tol_zero = tol_zero, tol_sing = tol_sing))
@@ -1017,7 +1017,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
     zeros <- rep.int(0, n)
     ## If Sigma is given, transform A, B, D, and mu, and
     ## call this function recursively with new arguments
-    if(!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
+    if (!missing(Sigma) && !iseq(Sigma, In, tol_zero)) {
         KiKS <- KiK(Sigma, tol_sing)
         K <- KiKS$K
         iK <- KiKS$iK
@@ -1026,7 +1026,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
         KtDK <- t(K) %*% D %*% K
         iKmu <- iK %*% mu
         ## If Sigma is singular, check conditions for A, B, D, mu, and Sigma
-        if(ncol(K) != n) {
+        if (ncol(K) != n) {
             okay <- (iseq(K %*% iKmu, mu, tol_zero)) ||
                     (iseq(A %*% mu, zeros, tol_zero) &&
                      iseq(B %*% mu, zeros, tol_zero) &&
@@ -1034,7 +1034,7 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
                     (iseq(crossprod(iK, KtAK %*% iK), A) &&
                      iseq(crossprod(iK, KtBK %*% iK), B) &&
                      iseq(crossprod(iK, KtDK %*% iK), D))
-            if(!okay) {
+            if (!okay) {
                 stop("For singular Sigma, certain condition must be met ",
                      "for A, B, D, mu\n  ",
                      "Function for situations not satisfying this has not ",
@@ -1051,24 +1051,24 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
     A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
     D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
     mu <- c(crossprod(eigB$vectors, c(mu)))
-    if(use_cpp) {
+    if (use_cpp) {
         cppres <- ABDpqr_int_E(A, LB, D, mu, p, q, r, tol_zero = tol_zero)
         ans <- cppres$ans
     } else {
         use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
         central <- iseq(mu, rep.int(0, n), tol = tol_zero)
-        if(use_vec) {
+        if (use_vec) {
             LA <- diag(A)
             LD <- diag(D)
         }
-        if(central) {
-            if(use_vec) {
+        if (central) {
+            if (use_vec) {
                 dpqr <- d3_pjk_v(LA, LB, LD, q + r, p)[p + 1, q + 1, r + 1]
             } else {
                 dpqr <- d3_pjk_m(A, diag(LB), D, q + r, p)[p + 1, q + 1, r + 1]
             }
         } else {
-            if(use_vec) {
+            if (use_vec) {
                 dpqr <- dtil3_pqr_v(LA, LB, LD, mu,
                                     p, q, r)[p + 1, q + 1, r + 1]
             } else {
@@ -1124,8 +1124,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           cpp_method = "double", nthreads = 1,
                           tol_zero = .Machine$double.eps * 100,
                           thr_margin = 100) {
-    if(!exact_method) use_cpp <- FALSE
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!exact_method) use_cpp <- FALSE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     n <- ncol(A)
     stopifnot(
         "A must be a square matrix" = all(c(dim(A)) == n),
@@ -1143,8 +1143,8 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     A <- (A + t(A)) / 2
     central <- iseq(mu, rep.int(0, n), tol = tol_zero)
     exact <- TRUE
-    if(use_cpp) {
-        if(central) {
+    if (use_cpp) {
+        if (central) {
             cppres <- ApIq_int_cE(A, p, q)
             ans <- cppres$ans
             ansseq <- ans
@@ -1156,14 +1156,14 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         LA <- eigA$values
-        if(central) {
+        if (central) {
             dp <- d1_i(LA, m = p)[p + 1]
             ans <- exp((p - q) * log(2) + lgamma(p + 1) + lgamma(n/2 + p - q)
                        - lgamma(n/2 + p)) * dp
             ansseq <- ans
         } else {
             mu <- c(mu)
-            if(exact_method) {
+            if (exact_method) {
                 ## This is an exact expression (Hillier et al. 2014, (58))
                 mu <- c(crossprod(eigA$vectors, c(mu)))
                 aps <- a1_pk(LA, mu, m = p)[p + 1, ]
@@ -1188,7 +1188,7 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             ans <- sum(ansseq)
         }
     }
-    if(exact) {
+    if (exact) {
         errseq <- ans - cumsum(ansseq)
     } else {
         errseq <- NA_real_
@@ -1217,10 +1217,10 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     n <- ncol(A)
     stopifnot(
@@ -1230,13 +1230,13 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         "q must be a real number" = length(q) == 1,
         "p and q must have the same sign" = p * q >= 0
     )
-    if((p %% 1) == 0 && p > 0) {
+    if ((p %% 1) == 0 && p > 0) {
         warning("For integral p, qfrm_ApIq_int() works better")
     }
     A <- (A + t(A)) / 2
     eigA <- eigen(A, symmetric = TRUE)
     LA <- eigA$values
-    if(any(LA < -tol_sing) && ((p %% 1) != 0 || p < 0)) {
+    if (any(LA < -tol_sing) && ((p %% 1) != 0 || p < 0)) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
@@ -1249,14 +1249,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     central <- iseq(mu, rep.int(0, n), tol_zero)
     bA <- alphaA / max(abs(LA))
     mu <- c(crossprod(eigA$vectors, c(mu)))
-    if(use_cpp) {
-        if(central) {
+    if (use_cpp) {
+        if (central) {
             cppres <- ApIq_npi_cE(LA, bA, p, q, m, error_bound, thr_margin)
         } else {
-            if(cpp_method == "coef_wise") {
+            if (cpp_method == "coef_wise") {
                 cppres <- ApIq_npi_nEc(LA, bA, mu, p, q, m,
                                        thr_margin, nthreads)
-            } else if(cpp_method == "long_double") {
+            } else if (cpp_method == "long_double") {
                 cppres <- ApIq_npi_nEl(LA, bA, mu, p, q, m,
                                        thr_margin, nthreads)
             } else {
@@ -1267,7 +1267,7 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         ansseq <- cppres$ansseq
     } else {
         LAh <- rep.int(1, n) - bA * LA
-        if(central) {
+        if (central) {
             dks <- d1_i(LAh, m = m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
             attributes(dks) <- NULL
@@ -1289,9 +1289,9 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         m <- length(ansseq) - 1L
@@ -1300,8 +1300,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     .run_check_conv(ansseq, check_convergence, tol_conv)
     singularA <- any(LA < tol_sing)
     alphaout <- alphaA > 1
-    if(error_bound && central) {
-        if(use_cpp) {
+    if (error_bound && central) {
+        if (use_cpp) {
             errseq <- cppres$errseq
             twosided <- FALSE
         } else {
@@ -1317,16 +1317,16 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                           lscf[m + 1])
             errseq <- errseq * cumprod(sign(seq.int(-p, -p + m)))
         }
-        if(singularA) {
+        if (singularA) {
             warning("Argument matrix is numerically close to singular.\n  ",
             "If it is singular, this error bound is invalid.")
         }
-        if(alphaout) {
+        if (alphaout) {
             warning("Error bound is unreliable when alphaA > 1\n  ",
             "It is returned purely for heuristic purpose")
         }
     } else {
-        if(error_bound) {
+        if (error_bound) {
             errseq <- NA_real_
         } else {
             errseq <- NULL
@@ -1359,13 +1359,13 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -1374,7 +1374,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -1399,7 +1399,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         },
         "mu must be an n-vector" = length(mu) == n
     )
-    if(iseq(B, In, tol_zero)) {
+    if (iseq(B, In, tol_zero)) {
         warning("For B = I, qfrm_ApIq_int() works better")
     }
     eigB <- eigen(B, symmetric = TRUE)
@@ -1410,15 +1410,15 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     mu <- c(crossprod(eigB$vectors, c(mu)))
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     rB <- sum(LB > tol_sing)
-    if(rB == n) {
+    if (rB == n) {
         cond_exist <- n / 2 + p > q ## condition(1)
     } else {
         A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rB / 2 > q              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rB + p) / 2 > q    ## condition(2)(ii)
                     } else {
                         rB / 2 + p > q      ## condiiton(2)(i)
@@ -1429,17 +1429,17 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         "B must be nonnegative definite" = all(LB >= -tol_sing),
         "Moment does not exist in this combination of p, q, rank(B)" =
             cond_exist)
-    if(use_cpp) {
+    if (use_cpp) {
         cppres <- ApBq_int_E(A, LB, bB, mu, p, q, m, error_bound,
                              thr_margin, tol_zero)
         ansseq <- cppres$ansseq
     } else {
         use_vec <- is_diagonal(A, tol_zero, TRUE)
         central <- iseq(mu, rep.int(0, n), tol_zero)
-        if(use_vec) {
+        if (use_vec) {
             LA <- diag(A)
             LBh <- rep.int(1, n) - bB * LB
-            if(central) {
+            if (central) {
                 dksm <- d2_pj_v(LA, LBh, m, p = p, thr_margin = thr_margin)
             } else {
                 dksm <- htil2_pj_v(LA, LBh, mu, m, p = p,
@@ -1450,7 +1450,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             UA <- eigA$vectors
             LA <- eigA$values
             Bh <- In - bB * diag(LB, nrow = n)
-            if(central) {
+            if (central) {
                 dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
             } else {
                 dksm <- htil2_pj_m(A, Bh, mu, m, p = p, thr_margin = thr_margin)
@@ -1464,9 +1464,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         m <- length(ansseq) - 1L
@@ -1475,27 +1475,27 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     .run_check_conv(ansseq, check_convergence, tol_conv)
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
-    if(error_bound) {
-        if(singularB) {
+    if (error_bound) {
+        if (singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
                     "When it is singular, this error bound is invalid.\n  ",
                     "If you know it to be, set \"error_bound = FALSE\"")
         }
-        if(alphaout) {
+        if (alphaout) {
             warning("Error bound is unreliable ",
                     "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
         }
-        if(use_cpp) {
+        if (use_cpp) {
             errseq <- cppres$errseq
             twosided <- cppres$twosided
         } else {
             LAp <- abs(LA)
-            if(central) {
+            if (central) {
                 twosided <- any(LA < 0) && ((p %% 2) == 1)
                 deldif2 <- 0
-                if(twosided) {
-                    if(use_vec) {
+                if (twosided) {
+                    if (use_vec) {
                         dkstm <- d2_ij_v(LAp, LBh, m, p = p,
                                          thr_margin = thr_margin)
                     } else {
@@ -1507,7 +1507,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     Ap <- A
                     dkstm <- dksm
                 }
-                if(use_vec) {
+                if (use_vec) {
                     dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
@@ -1519,7 +1519,7 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 twosided <- TRUE
                 mub <- sqrt(2 / bB) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
-                if(use_vec) {
+                if (use_vec) {
                     dkstm <- hhat2_pj_v(LAp, LBh, mu, m, p = p,
                                         thr_margin = thr_margin)
                     dp <- dtil1_i_v(LAp / LB / bB, mub, p,
@@ -1571,14 +1571,14 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -1587,7 +1587,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -1615,7 +1615,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         },
         "mu must be an n-vector" = length(mu) == n
     )
-    if((p %% 1) == 0) {
+    if ((p %% 1) == 0) {
         warning("For integral p, qfrm_ApBq_int() works better")
     }
     eigB <- eigen(B, symmetric = TRUE)
@@ -1626,15 +1626,15 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     mu <- c(crossprod(eigB$vectors, c(mu)))
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     rB <- sum(LB > tol_sing)
-    if(rB == n) {
+    if (rB == n) {
         cond_exist <- n / 2 + p > q ## condition(1)
     } else {
         A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rB / 2 > q              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rB + p) / 2 > q    ## condition(2)(ii)
                     } else {
                         rB / 2 + p > q      ## condiiton(2)(i)
@@ -1646,21 +1646,21 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         "Moment does not exist in this combination of p, q, rank(B)" =
             cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
-    if(use_vec && missing(nthreads)) nthreads <- 1
+    if (use_vec && missing(nthreads)) nthreads <- 1
     diminished <- FALSE
-    LA <- if(use_vec) diag(A) else eigen(A, symmetric = TRUE, only.values = TRUE)$values
+    LA <- if (use_vec) diag(A) else eigen(A, symmetric = TRUE, only.values = TRUE)$values
     bA <- alphaA / max(abs(LA))
-    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+    if (any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
              "to suppress this")
     }
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- ApBq_npi_Ec(A, LB, bA, bB, mu, p, q, m,
                                   thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- ApBq_npi_El(A, LB, bA, bB, mu, p, q, m,
                                   thr_margin, nthreads, tol_zero)
         } else {
@@ -1671,10 +1671,10 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         diminished <- cppres$diminished
     } else {
         central <- iseq(mu, rep.int(0, n), tol_zero)
-        if(use_vec) {
+        if (use_vec) {
             LAh <- rep.int(1, n) - bA * LA
             LBh <- rep.int(1, n) - bB * LB
-            if(central) {
+            if (central) {
                 dksm <- d2_ij_v(LAh, LBh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h2_ij_v(LAh, LBh, mu, m, thr_margin = thr_margin)
@@ -1682,7 +1682,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
         } else {
             Ah <- In - bA * A
             Bh <- In - bB * diag(LB, nrow = n)
-            if(central) {
+            if (central) {
                 dksm <- d2_ij_m(Ah, Bh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h2_ij_m(Ah, Bh, mu, m, thr_margin = thr_margin)
@@ -1697,22 +1697,22 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         # m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
@@ -1746,14 +1746,14 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -1762,7 +1762,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -1799,15 +1799,15 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     rB <- sum(LB > tol_sing)
-    if(rB == n) {
+    if (rB == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
     } else {
         A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rB / 2 > q + r              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rB + p) / 2 > q + r    ## condition(2)(ii)
                     } else {
                         rB / 2 + p > q + r      ## condiiton(2)(i)
@@ -1820,25 +1820,25 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    if(use_vec) {
+    if (use_vec) {
         LA <- diag(A)
         LBh <- rep.int(1, n) - bB * LB
-        if(missing(nthreads)) nthreads <- 1
+        if (missing(nthreads)) nthreads <- 1
     } else {
         eigA <- eigen(A, symmetric = TRUE)
         UA <- eigA$vectors
         LA <- eigA$values
         Bh <- In - bB * diag(LB, nrow = n)
     }
-    if(use_cpp) {
-        if(central) {
+    if (use_cpp) {
+        if (central) {
             cppres <- ApBIqr_int_cEd(A, LB, bB, p, q, r, m,
                                      error_bound, thr_margin, tol_zero)
         } else {
-            if(cpp_method == "coef_wise") {
+            if (cpp_method == "coef_wise") {
                 cppres <- ApBIqr_int_nEc(A, LB, bB, mu, p, q, r, m, error_bound,
                                          thr_margin, nthreads, tol_zero)
-            } else if(cpp_method == "long_double") {
+            } else if (cpp_method == "long_double") {
                 cppres <- ApBIqr_int_nEl(A, LB, bB, mu, p, q, r, m, error_bound,
                                          thr_margin, nthreads, tol_zero)
             } else {
@@ -1848,8 +1848,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         }
         ansseq <- cppres$ansseq
     } else {
-        if(central) {
-            if(use_vec) {
+        if (central) {
+            if (use_vec) {
                 dksm <- d2_pj_v(LA, LBh, m, p = p, thr_margin = thr_margin)
             } else {
                 dksm <- d2_pj_m(A, Bh, m, p = p, thr_margin = thr_margin)
@@ -1861,7 +1861,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                               + lgamma(n/2 + p - q - r) - lgamma(n/2 + p)
                               - lscf))
         } else {
-            if(use_vec) {
+            if (use_vec) {
                 dksm <- htil3_pjk_v(LA, LBh, rep.int(0, n), mu, m, p = p, 
                                     thr_margin = thr_margin)
             } else {
@@ -1879,9 +1879,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         m <- length(ansseq) - 1L
@@ -1890,28 +1890,28 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     .run_check_conv(ansseq, check_convergence, tol_conv)
     singularB <- any(LB < tol_sing)
     alphaout <- alphaB > 1
-    if(error_bound) {
-        if(singularB) {
+    if (error_bound) {
+        if (singularB) {
             warning("Argument matrix B is numerically close to singular.\n  ",
                     "When it is singular, this error bound is invalid.\n  ",
                     "If you know it to be, set \"error_bound = FALSE\"")
         }
-        if(alphaout) {
+        if (alphaout) {
             warning("Error bound is unreliable ",
                     "when alphaB > 1\n  ",
                     "It is returned purely for heuristic purpose")
         }
-        if(use_cpp) {
+        if (use_cpp) {
             errseq <- cppres$errseq
             twosided <- cppres$twosided
         } else {
             LAp <- abs(LA)
-            if(central) {
+            if (central) {
                 twosided <- any(LA < 0) && (p %% 2) == 1
                 deldif2 <- 0
                 s <- q
-                if(twosided) {
-                    if(use_vec) {
+                if (twosided) {
+                    if (use_vec) {
                         dkstm <- d2_pj_v(LAp, LBh, m, p = p,
                                          thr_margin = thr_margin)
                     } else {
@@ -1924,7 +1924,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     dkstm <- dksm
                 }
                 dkst <- dkstm[p + 1, seq_len(m + 1)]
-                if(use_vec) {
+                if (use_vec) {
                     dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
@@ -1938,7 +1938,7 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                 mub <- sqrt(3 / bB) * mu / sqrt(LB)
                 deldif2 <- (sum(mub ^ 2) - sum(mu ^ 2)) / 2
                 s <- max(q, r)
-                if(use_vec) {
+                if (use_vec) {
                     dkstm <- hhat3_pjk_v(LAp, LBh, rep.int(0, n), mu, m, p = p,
                                          thr_margin = thr_margin)
                     dp <- dtil1_i_v(LAp / LB / bB, mub, p,
@@ -1992,14 +1992,14 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) stop("Provide at least one of A and B")
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
         n <- dim(B)[1L]
         In <- diag(n)
         A <- In
@@ -2008,7 +2008,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
@@ -2042,7 +2042,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         },
         "mu must be an n-vector" = length(mu) == n
     )
-    if((p %% 1) == 0) {
+    if ((p %% 1) == 0) {
         warning("For integral p, qfmrm_ApBIqr_int() works better")
     }
     eigB <- eigen(B, symmetric = TRUE)
@@ -2053,15 +2053,15 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
     rB <- sum(LB > tol_sing)
-    if(rB == n) {
+    if (rB == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
     } else {
         A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rB / 2 > q + r              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rB + p) / 2 > q + r    ## condition(2)(ii)
                     } else {
                         rB / 2 + p > q + r      ## condiiton(2)(i)
@@ -2074,24 +2074,24 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             = cond_exist)
     use_vec <- is_diagonal(A, tol_zero, TRUE)
     diminished <- FALSE
-    if(use_vec) {
+    if (use_vec) {
         LA <- diag(A)
-        if(missing(nthreads)) nthreads <- 1
+        if (missing(nthreads)) nthreads <- 1
     } else {
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
     }
     bA <- alphaA / max(abs(LA))
-    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+    if (any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
              "to suppress this")
     }
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- ApBIqr_npi_Ec(A, LB, bA, bB, mu, p, q, r, m,
                                     thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- ApBIqr_npi_El(A, LB, bA, bB, mu, p, q, r, m,
                                     thr_margin, nthreads, tol_zero)
         } else {
@@ -2102,7 +2102,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
         diminished <- cppres$diminished
     } else {
        central <- iseq(mu, rep.int(0, n), tol_zero)
-        if(use_vec) {
+        if (use_vec) {
             LAh <- rep.int(1, n) - bA * LA
             LBh <- rep.int(1, n) - bB * LB
         } else {
@@ -2110,8 +2110,8 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             Ah <- In - bA * A
             Bh <- In - bB * diag(LB, nrow = n)
         }
-        if(central) {
-            if(use_vec) {
+        if (central) {
+            if (use_vec) {
                 dksm <- d2_ij_v(LAh, LBh, m, thr_margin = thr_margin)
             } else {
                 dksm <- d2_ij_m(Ah, Bh, m, thr_margin = thr_margin)
@@ -2123,7 +2123,7 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
-            if(use_vec) {
+            if (use_vec) {
                 dksm <- h3_ijk_v(LAh, LBh, rep.int(0, n), mu, m,
                                  thr_margin = thr_margin)
             } else {
@@ -2135,33 +2135,33 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                         - p * log(bA) + q * log(bB) + lgamma(n/2 + p - q - r)
                         - lgamma(n/2) - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
-            if(any(lscf < 0 )) {
-                for(k in seq_len(m + 1)) {
+            if (any(lscf < 0 )) {
+                for (k in seq_len(m + 1)) {
                     diminished <-
                         any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
-                    if(diminished) break
+                    if (diminished) break
                 }
             }
         }
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         # m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
@@ -2187,14 +2187,14 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(B)) {
-        if(missing(D)) stop("Provide at least one of B and D")
+    if (missing(B)) {
+        if (missing(D)) stop("Provide at least one of B and D")
         n <- dim(D)[1L]
         In <- diag(n)
         B <- In
@@ -2203,7 +2203,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         In <- diag(n)
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     } else {
         D <- (D + t(D)) / 2
@@ -2246,10 +2246,10 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     use_vec <- is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
-    if(use_vec) {
+    if (use_vec) {
         LD <- diag(D)
         bD <- alphaD / max(LD)
-        if(missing(nthreads)) nthreads <- 1
+        if (missing(nthreads)) nthreads <- 1
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LD <- eigD$values
@@ -2260,11 +2260,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
-    if(use_vec) {
+    if (use_vec) {
         ## Common range of B and D
         nzBD <- nzB * nzD
     } else {
-        if(all(nzB) && all(nzD)) {
+        if (all(nzB) && all(nzD)) {
             nzBD <- rep.int(TRUE, n)
         } else {
             zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
@@ -2276,15 +2276,15 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
     }
     rBD <- sum(nzBD)
     ## When A == I, the condition simplifies as A12 == 0 and A22 != 0
-    if(rBD == n) {
+    if (rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
         necess_cond <- TRUE
     } else {
         cond_exist <- rBD / 2 > q + r              ## condition(2)(iii)
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    if(!cond_exist) {
-        if(necess_cond) {
+    if (!cond_exist) {
+        if (necess_cond) {
             stop("Moment does not exist in this combination of p, q, r, and",
                  "\n  eigenstructures of A, B, and D")
         } else {
@@ -2292,11 +2292,11 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     "\n  eigenstructures of A, B, and D")
         }
     }
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- IpBDqr_gen_Ec(LB, D, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- IpBDqr_gen_El(LB, D, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
         } else {
@@ -2306,15 +2306,15 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         ansseq <- cppres$ansseq
         diminished <- cppres$diminished
     } else {
-        if(use_vec) {
+        if (use_vec) {
             LBh <- rep.int(1, n) - bB * LB
             LDh <- rep.int(1, n) - bD * LD
         } else {
             Bh <- In - bB * diag(LB, nrow = n)
             Dh <- In - bD * D
         }
-        if(central) {
-            if(use_vec) {
+        if (central) {
+            if (use_vec) {
                 dksm <- d2_ij_v(LBh, LDh, m, thr_margin = thr_margin)
             } else {
                 dksm <- d2_ij_m(Bh, Dh, m, thr_margin = thr_margin)
@@ -2327,7 +2327,7 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             ansseq <- sum_counterdiag(ansmat)
             diminished <- any(lscf < 0) && any(diag(dksm[(m + 1):1, ]) == 0)
         } else {
-            if(use_vec) {
+            if (use_vec) {
                 dksm <- h3_ijk_v(rep.int(0, n), LBh, LDh, mu, m,
                                  thr_margin = thr_margin)
             } else {
@@ -2340,33 +2340,33 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                               + lgamma(n/2 + p - q - r) - lgamma(n/2)
                               - lscf))
             ansseq <- sum_counterdiag3D(ansarr)
-            if(any(lscf < 0)) {
-                for(k in seq_len(m + 1)) {
+            if (any(lscf < 0)) {
+                for (k in seq_len(m + 1)) {
                     diminished <-
                         any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
-                    if(diminished) break
+                    if (diminished) break
                 }
             }
         }
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         # m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
@@ -2393,15 +2393,15 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B and D")
             } else {
                 n <- dim(D)[1L]
@@ -2416,12 +2416,12 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     } else {
         D <- (D + t(D)) / 2
@@ -2466,10 +2466,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     mu <- c(crossprod(eigB$vectors, c(mu)))
     use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
-    if(use_vec) {
+    if (use_vec) {
         LA <- diag(A)
         LD <- diag(D)
-        if(missing(nthreads)) nthreads <- 1
+        if (missing(nthreads)) nthreads <- 1
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
@@ -2480,12 +2480,12 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
-    if(use_vec) {
+    if (use_vec) {
         ## common nonzero space of B and D, and A "rotated" with its basis
         nzBD <- nzB * nzD
         Ar <- A
     } else {
-        if(all(nzB) && all(nzD)) {
+        if (all(nzB) && all(nzD)) {
             nzBD <- rep.int(TRUE, n)
             Ar <- A
         } else {
@@ -2498,16 +2498,16 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         }
     }
     rBD <- sum(nzBD)
-    if(rBD == n) {
+    if (rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
         necess_cond <- TRUE
     } else {
         A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
         A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rBD / 2 > q + r              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rBD + p) / 2 > q + r    ## condition(2)(ii)
                     } else {
                         rBD / 2 + p > q + r      ## condiiton(2)(i)
@@ -2515,8 +2515,8 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
                 }
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    if(!cond_exist) {
-        if(necess_cond) {
+    if (!cond_exist) {
+        if (necess_cond) {
             stop("Moment does not exist in this combination of p, q, r, and",
                  "\n  eigenstructures of A, B, and D")
         } else {
@@ -2525,11 +2525,11 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         }
     }
     bD <- alphaD / max(LD)
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- ApBDqr_int_Ec(A, LB, D, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- ApBDqr_int_El(A, LB, D, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
         } else {
@@ -2539,10 +2539,10 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         ansseq <- cppres$ansseq
         diminished <- cppres$diminished
     } else {
-        if(use_vec) {
+        if (use_vec) {
             LBh <- rep.int(1, n) - bB * LB
             LDh <- rep.int(1, n) - bD * LD
-            if(central) {
+            if (central) {
                 dksm <- d3_pjk_v(LA, LBh, LDh, m, p = p,
                                  thr_margin = thr_margin)
             } else {
@@ -2552,7 +2552,7 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
         } else {
             Bh <- In - bB * diag(LB, nrow = n)
             Dh <- In - bD * D
-            if(central) {
+            if (central) {
                 dksm <- d3_pjk_m(A, Bh, Dh, m, p = p,
                                  thr_margin = thr_margin)
             } else {
@@ -2571,22 +2571,22 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         # m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
@@ -2613,15 +2613,15 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     thr_margin = 100) {
-    if(isTRUE(check_convergence)) check_convergence <- "strict_relative"
-    if(isFALSE(check_convergence)) check_convergence <- "none"
+    if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
+    if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
-    if(!missing(cpp_method)) use_cpp <- TRUE
+    if (!missing(cpp_method)) use_cpp <- TRUE
     cpp_method <- match.arg(cpp_method)
     ## If A or B is missing, let it be an identity matrix
-    if(missing(A)) {
-        if(missing(B)) {
-            if(missing(D)) {
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
                 stop("Provide at least one of A, B and D")
             } else {
                 n <- dim(D)[1L]
@@ -2636,12 +2636,12 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         In <- diag(n)
         A <- (A + t(A)) / 2
     }
-    if(missing(B)) {
+    if (missing(B)) {
         B <- In
     } else {
         B <- (B + t(B)) / 2
     }
-    if(missing(D)) {
+    if (missing(D)) {
         D <- In
     } else {
         D <- (D + t(D)) / 2
@@ -2682,7 +2682,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         },
         "mu must be an n-vector" = length(mu) == n
     )
-    if((p %% 1) == 0) {
+    if ((p %% 1) == 0) {
         warning("For integral p, qfmrm_ApBDqr_int() works better")
     }
     eigB <- eigen(B, symmetric = TRUE)
@@ -2695,10 +2695,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
     central <- iseq(mu, rep.int(0, n), tol_zero)
     diminished <- FALSE
-    if(use_vec) {
+    if (use_vec) {
         LA <- diag(A)
         LD <- diag(D)
-        if(missing(nthreads)) nthreads <- 1
+        if (missing(nthreads)) nthreads <- 1
     } else {
         eigD <- eigen(D, symmetric = TRUE)
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
@@ -2709,12 +2709,12 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     ## Check condition for existence of moment
     nzB <- (LB > tol_sing)
     nzD <- (LD > tol_sing)
-    if(use_vec) {
+    if (use_vec) {
         ## common nonzero space of B and D, and A "rotated" with its basis
         nzBD <- nzB * nzD
         Ar <- A
     } else {
-        if(all(nzB) && all(nzD)) {
+        if (all(nzB) && all(nzD)) {
             nzBD <- rep.int(TRUE, n)
             Ar <- A
         } else {
@@ -2727,16 +2727,16 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         }
     }
     rBD <- sum(nzBD)
-    if(rBD == n) {
+    if (rBD == n) {
         cond_exist <- n / 2 + p > q + r ## condition(1)
         necess_cond <- TRUE
     } else {
         A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
         A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
-        cond_exist <- if(!A22z) {
+        cond_exist <- if (!A22z) {
                     rBD / 2 > q + r              ## condition(2)(iii)
                 } else {
-                    if(!A12z) {
+                    if (!A12z) {
                         (rBD + p) / 2 > q + r    ## condition(2)(ii)
                     } else {
                         rBD / 2 + p > q + r      ## condiiton(2)(i)
@@ -2744,8 +2744,8 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                 }
         necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
     }
-    if(!cond_exist) {
-        if(necess_cond) {
+    if (!cond_exist) {
+        if (necess_cond) {
             stop("Moment does not exist in this combination of p, q, r, and",
                  "\n  eigenstructures of A, B, and D")
         } else {
@@ -2753,7 +2753,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                     "\n  eigenstructures of A, B, and D")
         }
     }
-    if(any(LA < -tol_sing) && (p %% 1) != 0) {
+    if (any(LA < -tol_sing) && (p %% 1) != 0) {
         stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
              "with which\n  non-integer power of quadratic form is not ",
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
@@ -2761,11 +2761,11 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     }
     bA <- alphaA / max(abs(LA))
     bD <- alphaD / max(LD)
-    if(use_cpp) {
-        if(cpp_method == "coef_wise") {
+    if (use_cpp) {
+        if (cpp_method == "coef_wise") {
             cppres <- ApBDqr_npi_Ec(A, LB, D, bA, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
-        } else if(cpp_method == "long_double") {
+        } else if (cpp_method == "long_double") {
             cppres <- ApBDqr_npi_El(A, LB, D, bA, bB, bD, mu,
                                     p, q, r, m, thr_margin, nthreads, tol_zero)
         } else {
@@ -2775,11 +2775,11 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
         ansseq <- cppres$ansseq
         diminished <- cppres$diminished
     } else {
-        if(use_vec) {
+        if (use_vec) {
             LAh <- rep.int(1, n) - bA * LA
             LBh <- rep.int(1, n) - bB * LB
             LDh <- rep.int(1, n) - bD * LD
-            if(central) {
+            if (central) {
                 dksm <- d3_ijk_v(LAh, LBh, LDh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h3_ijk_v(LAh, LBh, LDh, mu, m, thr_margin = thr_margin)
@@ -2788,7 +2788,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             Ah <- In - bA * A
             Bh <- In - bB * diag(LB, nrow = n)
             Dh <- In - bD * D
-            if(central) {
+            if (central) {
                 dksm <- d3_ijk_m(Ah, Bh, Dh, m, thr_margin = thr_margin)
             } else {
                 dksm <- h3_ijk_m(Ah, Bh, Dh, mu, m, thr_margin = thr_margin)
@@ -2799,32 +2799,32 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                          - p * log(bA) + q * log(bB) + r * log(bD)
                          + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
         ansseq <- sum_counterdiag3D(ansarr)
-        if(any(lscf < 0)) {
-            for(k in seq_len(m + 1)) {
+        if (any(lscf < 0)) {
+            for (k in seq_len(m + 1)) {
                 diminished <-
                     any(diag(dksm[(m + 2 - k):1, seq_len(m + 2 - k), k]) == 0)
-                if(diminished) break
+                if (diminished) break
             }
         }
     }
     ## If there's any NaN, truncate series before summing up
     nans_ansseq <- is.nan(ansseq) | is.infinite(ansseq)
-    if(any(nans_ansseq)) {
+    if (any(nans_ansseq)) {
         warning("NaNs detected at k = ", which(nans_ansseq)[1L],
-                if(sum(nans_ansseq) > 1) " ..." else NULL,
+                if (sum(nans_ansseq) > 1) " ..." else NULL,
                 "\n  Result truncated before first NaN")
         ansseq <- ansseq[-(which(nans_ansseq)[1L]:length(ansseq))]
         # m <- length(ansseq) - 1L
         attr(ansseq, "truncated") <- TRUE
     }
-    if(diminished) {
+    if (diminished) {
         warning("Some terms in multiple series numerically diminished to 0 ",
                 "as\n  scaled to avoid numerical overflow. ",
                 "Result will be inaccurate",
-                if(cpp_method != "coef_wise")
+                if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                          if(cpp_method != "long_double") "\"long_double\" or ",
-                          "\"coef_wise\"."))
+                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
