@@ -1158,7 +1158,7 @@ SEXP d_butler_Ed(const double quantile,
     double J_s = J_fun(Xii_s, L, H, Xiinu);
     double Kp2_s = Kder_fun(Xii_s, L, theta, 2.0);
     double Mx_s = Mx_fun(s, L, theta, Xii_s);
-    double value = Mx_s * J_s / sqrt(M_2PI * Kp2_s);
+    double value = Mx_s * J_s * M_1_SQRT_2PI / sqrt(Kp2_s);
     if (order_spa > 1) {
         double Kp3_s = Kder_fun(Xii_s, L, theta, 3.0);
         double Kp4_s = Kder_fun(Xii_s, L, theta, 4.0);
