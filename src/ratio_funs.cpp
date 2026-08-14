@@ -121,7 +121,7 @@ SEXP ABDpqr_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
 //'
 // [[Rcpp::export]]
 SEXP ApIq_int_cE(const Eigen::MatrixXd A,
-                 const double p_ = 1, const double q_ = 1, 
+                 const double p_ = 1, const double q_ = 1,
                  const double thr_margin = 100)
 {
     const Index p = p_;
@@ -139,7 +139,7 @@ SEXP ApIq_int_cE(const Eigen::MatrixXd A,
 //'
 // [[Rcpp::export]]
 SEXP ApIq_int_nE(const Eigen::MatrixXd A, const Eigen::ArrayXd mu,
-                 const double p_ = 1, const double q_ = 1, 
+                 const double p_ = 1, const double q_ = 1,
                  const double thr_margin = 100)
 {
     const Index p = p_;
@@ -261,7 +261,7 @@ SEXP ApIq_npi_nEd(const Eigen::ArrayXd LA, const double bA,
 SEXP ApBq_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                 const double bB, const Eigen::ArrayXd mu,
                 const double p_ = 1, const double q_ = 1,
-                const Eigen::Index m = 100, bool error_bound = true, 
+                const Eigen::Index m = 100, bool error_bound = true,
                 const double thr_margin = 100,
                 const double tol_zero = 2.2e-14) {
     const Index p = p_;
@@ -352,8 +352,8 @@ SEXP ApBq_int_E(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
+            Rcpp::Named("ansseq")   = ansseq,
+            Rcpp::Named("errseq")   = errseq,
             Rcpp::Named("twosided") = twosided);
     }
     else {
@@ -486,8 +486,8 @@ SEXP ApBIqr_int_cEd(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                          exp(lcoefe + log(cumsum_dkst) - lscf(m));
 
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("errseq") = errseq,
+            Rcpp::Named("ansseq")   = ansseq,
+            Rcpp::Named("errseq")   = errseq,
             Rcpp::Named("twosided") = twosided);
     }
     else {

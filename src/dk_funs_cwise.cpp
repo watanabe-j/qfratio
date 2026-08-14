@@ -107,7 +107,7 @@ inline Eigen::Index id3(Eigen::Index i1, Eigen::Index i2, Eigen::Index k)
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d2_ij_mE(Eigen::Index i1, Eigen::Index k,
-                              const Eigen::Index m, const Eigen::Index n, 
+                              const Eigen::Index m, const Eigen::Index n,
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -186,7 +186,7 @@ template ArrayXd d2_ij_mEc(const MatrixBase<MatrixXd> &A1,
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d2_ij_vE(Eigen::Index i1, Eigen::Index k,
-                              const Eigen::Index &m, const Eigen::Index &n, 
+                              const Eigen::Index &m, const Eigen::Index &n,
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -258,7 +258,7 @@ template ArrayXd d2_ij_vEc(const ArrayBase<ArrayXd> &A1,
 
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 inline void scale_in_h2_ij_mE(Eigen::Index i1, Eigen::Index k,
-                              const Eigen::Index &m, const Eigen::Index &n, 
+                              const Eigen::Index &m, const Eigen::Index &n,
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -353,7 +353,7 @@ template ArrayXd h2_ij_mEc(const MatrixBase<MatrixXd> &A1,
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_h2_ij_vE(Eigen::Index i1, Eigen::Index k,
-                              const Eigen::Index &m, const Eigen::Index &n, 
+                              const Eigen::Index &m, const Eigen::Index &n,
                               typename DerivedA::Scalar &thr,
                               Eigen::ArrayBase<DerivedA> &dks,
                               Eigen::ArrayBase<DerivedB> &lscf,
@@ -446,7 +446,7 @@ template ArrayXd h2_ij_vEc(const ArrayBase<ArrayXd> &A1,
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d3_ijk_mE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
-                               const Eigen::Index m, const Eigen::Index n, 
+                               const Eigen::Index m, const Eigen::Index n,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
@@ -569,7 +569,7 @@ template ArrayXd d3_ijk_mEc(const MatrixBase<MatrixXd> &A1,
 
 template <typename DerivedA, typename DerivedB, typename DerivedC>
 inline void scale_in_d3_ijk_vE(Eigen::Index i1, Eigen::Index i2, Eigen::Index k,
-                               const Eigen::Index m, const Eigen::Index n, 
+                               const Eigen::Index m, const Eigen::Index n,
                                typename DerivedA::Scalar &thr,
                                Eigen::ArrayBase<DerivedA> &dks,
                                Eigen::ArrayBase<DerivedB> &lscf,
@@ -983,8 +983,8 @@ h3_ijk_mEc(const Eigen::MatrixBase<Derived> &A1,
             scale_in_h3_ijk_mE(i1, 0, k, m, n, thr, dks, lscf, Gn, gn);
             for (Index i2 = 1; i2 < k - i1; i2++) {
                 Index i3 = k - i1 - i2;
-                min_lscf = min<Scalar>({lscf.ULCat(i1 - 1, i2, i3, m + 1), 
-                                        lscf.ULCat(i1, i2 - 1, i3, m + 1), 
+                min_lscf = min<Scalar>({lscf.ULCat(i1 - 1, i2, i3, m + 1),
+                                        lscf.ULCat(i1, i2 - 1, i3, m + 1),
                                         lscf.ULCat(i1, i2, i3 - 1, m + 1)});
                 s1 = exp(min_lscf - lscf.ULCat(i1 - 1, i2, i3, m + 1));
                 s2 = exp(min_lscf - lscf.ULCat(i1, i2 - 1, i3, m + 1));

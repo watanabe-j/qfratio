@@ -279,7 +279,7 @@ SEXP p_A1B1_Ed(const double quantile,
         ansseq = sum_counterdiagE(ansmat);
     }
     return Rcpp::List::create(
-        Rcpp::Named("ansseq") = ansseq,
+        Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished,
         Rcpp::Named("exact")      = exact);
 }
@@ -313,14 +313,14 @@ SEXP p_A1B1_El(const long double quantile,
         ansseq(0) = 1;
         exact = true;
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
+            Rcpp::Named("ansseq")     = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
     if (n2 == 0) {
         exact = true;
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
+            Rcpp::Named("ansseq")     = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
@@ -486,7 +486,7 @@ SEXP p_A1B1_El(const long double quantile,
         ansseq = sum_counterdiagE(ansmat);
     }
     return Rcpp::List::create(
-        Rcpp::Named("ansseq") = ansseq,
+        Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished,
         Rcpp::Named("exact")      = exact);
 }
@@ -520,14 +520,14 @@ SEXP p_A1B1_Ec(const double quantile,
         ansseq(0) = 1;
         exact = true;
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
+            Rcpp::Named("ansseq")     = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
     if (n2 == 0) {
         exact = true;
         return Rcpp::List::create(
-            Rcpp::Named("ansseq") = ansseq,
+            Rcpp::Named("ansseq")     = ansseq,
             Rcpp::Named("diminished") = diminished,
             Rcpp::Named("exact")      = exact);
     }
@@ -710,7 +710,7 @@ SEXP p_A1B1_Ec(const double quantile,
         ansseq = sum_counterdiagE(ansmat);
     }
     return Rcpp::List::create(
-        Rcpp::Named("ansseq") = ansseq,
+        Rcpp::Named("ansseq")     = ansseq,
         Rcpp::Named("diminished") = diminished,
         Rcpp::Named("exact")      = exact);
 }
@@ -732,7 +732,7 @@ SEXP d_A1I1_Ed(const double quantile, const Eigen::ArrayXd LA,
         exact = true;
         return Rcpp::List::create(
             Rcpp::Named("ansseq") = ansseq,
-            Rcpp::Named("exact") = exact);
+            Rcpp::Named("exact")  = exact);
     }
     const double n1_ = double((LA == L1).cast<int>().sum());
     const double ns_ = double((LA == Ls).cast<int>().sum());
@@ -812,8 +812,7 @@ SEXP d_A1I1_Ed(const double quantile, const Eigen::ArrayXd LA,
         Rcpp::Named("exact")  = exact);
 }
 
-struct imhof_params
-{
+struct imhof_params {
     const Eigen::ArrayXd *L;
     const Eigen::ArrayXd *theta;
 };
@@ -848,12 +847,12 @@ SEXP p_imhof_Ed(const double quantile,
     ArrayXd L = eigA_qB.eigenvalues();
     if ((L <= tol_zero).all()) {
         return Rcpp::List::create(
-            Rcpp::Named("value") = 1,
+            Rcpp::Named("value")     = 1,
             Rcpp::Named("abs.error") = 0);
     }
     if ((L >= -tol_zero).all()) {
         return Rcpp::List::create(
-            Rcpp::Named("value") = 0,
+            Rcpp::Named("value")     = 0,
             Rcpp::Named("abs.error") = 0);
     }
     const MatrixXd U = eigA_qB.eigenvectors();
@@ -873,8 +872,8 @@ SEXP p_imhof_Ed(const double quantile,
     gsl_function F;
     F.function = &imhof_fun;
     F.params = &params;
-    status = gsl_integration_qagiu(&F, 0, M_PI * (epsabs + epsrel / 2.0), epsrel, limit, w,
-                                   &result, &error);
+    status = gsl_integration_qagiu(&F, 0, M_PI * (epsabs + epsrel / 2.0),
+                                   epsrel, limit, w, &result, &error);
     gsl_integration_workspace_free(w);
     if (status) {
         std::string errmsg = "problem in gsl_integration_qagiu():\n  ";
@@ -887,7 +886,7 @@ SEXP p_imhof_Ed(const double quantile,
     value = 0.5 - M_1_PI * result;
     error *= M_1_PI;
     return Rcpp::List::create(
-        Rcpp::Named("value") = value,
+        Rcpp::Named("value")     = value,
         Rcpp::Named("abs.error") = error);
 }
 
@@ -938,12 +937,12 @@ SEXP d_broda_Ed(const double quantile,
     ArrayXd L = eigA_qB.eigenvalues();
     if ((L == 0).all()) {
         return Rcpp::List::create(
-            Rcpp::Named("value") = INFINITY,
+            Rcpp::Named("value")     = INFINITY,
             Rcpp::Named("abs.error") = 0);
     }
     if ((L >= -tol_zero).all() || (L <= tol_zero).all()) {
         return Rcpp::List::create(
-            Rcpp::Named("value") = 0,
+            Rcpp::Named("value")     = 0,
             Rcpp::Named("abs.error") = 0);
     }
     const MatrixXd U = eigA_qB.eigenvectors();
@@ -977,7 +976,7 @@ SEXP d_broda_Ed(const double quantile,
             Rcpp::warning(errmsg);
     }
     return Rcpp::List::create(
-        Rcpp::Named("value") = value,
+        Rcpp::Named("value")     = value,
         Rcpp::Named("abs.error") = error);
 }
 
