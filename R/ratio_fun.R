@@ -1720,6 +1720,326 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 
 
 
+##### qfrm_integ_int #####
+#' Positive integer moment of ratio of quadratic forms
+#'
+#' \code{qfrm_integ_int()}: For general \eqn{\mathbf{B}}{B} and
+#' positive-integral \eqn{p}.
+#'
+#'
+#' @rdname qfrm
+#'
+#' @export
+#'
+qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                    # use_cpp = TRUE,
+                    stop_on_error = TRUE,
+                    tol_zero = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
+                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    bao_fun_c_m <- function(t_, A, LB) {
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta * t(Delta * A)
+        LAr <- eigen(Ar, symmetric = TRUE, only.values = TRUE)$values
+        d_til <- d1_i(LAr, m = p_c)[p_c + 1]
+        t_ ^ (q - 1) * prod(Delta) * d_til
+    }
+    bao_fun_c_v <- function(t_, LA, LB) {
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        LAr <- Delta ^ 2 * LA
+        d_til <- d1_i(LAr, m = p_c)[p_c + 1]
+        t_ ^ (q - 1) * prod(Delta) * d_til
+    }
+    bao_fun_nc_m <- function(t_, A, LB, mu) {
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta * t(Delta * A)
+        mu_til <- Delta * mu
+        d_til <- dtil1_i_m(Ar, mu_til, m = p_c)[p_c + 1]
+        (t_ ^ (q - 1) * prod(Delta) * d_til * exp(c(crossprod(mu_til)) / 2))
+    }
+    bao_fun_nc_v <- function(t_, LA, LB, mu) {
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        LAr <- Delta ^ 2 * LA
+        mu_til <- Delta * mu
+        d_til <- dtil1_i_v(LAr, mu_til, m = p_c)[p_c + 1]
+        (t_ ^ (q - 1) * prod(Delta) * d_til * exp(c(crossprod(mu_til)) / 2))
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if (missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
+        "p must be a nonnegative integer" = {
+            length(p) == 1 &&
+            (p %% 1) == 0 &&
+            p >= 0
+        },
+        "q must be a nonnegative real number" = {
+            length(q) == 1 &&
+            q >= 0
+        },
+        "mu must be an n-vector" = length(mu) == n
+    )
+    if (iseq(B, In, tol_zero)) {
+        warning("For B = I, qfrm_ApIq_int() works better")
+    }
+    eigB <- eigen(B, symmetric = TRUE)
+    LB <- eigB$values
+    ## Rotate A and mu with eigenvectors of B
+    A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
+    mu <- c(crossprod(eigB$vectors, c(mu)))
+    ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
+    rB <- sum(LB > tol_sing)
+    if (rB == n) {
+        cond_exist <- n / 2 + p > q ## condition(1)
+    } else {
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
+        A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
+        cond_exist <- if (!A22z) {
+                    rB / 2 > q              ## condition(2)(iii)
+                } else {
+                    if (!A12z) {
+                        (rB + p) / 2 > q    ## condition(2)(ii)
+                    } else {
+                        rB / 2 + p > q      ## condiiton(2)(i)
+                    }
+                }
+    }
+    stopifnot(
+        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, rank(B)" =
+            cond_exist)
+    # if (use_cpp) {
+    #     cppres <- ApBq_integ_int_E(A, LB, mu, p, q, stop_on_error, tol_zero,
+    #                                epsabs, epsrel, limit)
+    #     value <- cppres$value
+    #     abserr <- cppres$abserr
+    # } else {
+        use_vec <- is_diagonal(A, tol_zero, TRUE)
+        central <- iseq(mu, rep.int(0, n), tol_zero)
+        p_c <- p
+        const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
+                     lgamma(q))
+        if (use_vec) LA <- diag(A)
+        integrand <-
+            if (use_vec) {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_v(t, LA, LB))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_v(t, LA, LB, mu))
+                }
+            } else {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_m(t, A, LB))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_m(t, A, LB, mu))
+                }
+            }
+        ans <- stats::integrate(integrand, 0, Inf,
+                                rel.tol = epsrel, abs.tol = epsabs / const,
+                                stop.on.error = stop_on_error)
+        value <- ans$value * const
+        abserr <- ans$abs.error * const
+    # }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+}
+
+##### qfrm_integ_npi #####
+#' Non-positive-integer moment of ratio of quadratic forms
+#'
+#' \code{qfrm_integ_npi()}: For general \eqn{\mathbf{B}}{B} and
+#' non-integral \eqn{p}.
+#'
+#' @rdname qfrm
+#'
+#' @export
+#'
+qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                    # use_cpp = TRUE,
+                    stop_on_error = TRUE,
+                    tol_zero = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
+                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    bao_fun_c_m <- function(t_, A, LB) {
+        int_fun <- function(s, LAr, H, Delta) {
+            one_2sLAr <- 1 + 2 * s * LAr
+            R <- LAr / (one_2sLAr)
+            d_til <- d1_i(R, m = p_c)[p_c + 1]
+            (s ^ (p_r - 1) * d_til / sqrt(prod(one_2sLAr)))
+        }
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta * t(Delta * A)
+        eigAr <- eigen(Ar, symmetric = TRUE)
+        LAr <- eigAr$values
+        H <- eigAr$vectors
+        ans_s <- stats::integrate(
+            function(y) sapply(y, function(s) int_fun(s, LAr, H, Delta)),
+            0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    }
+    bao_fun_c_v <- function(t_, A, LB) {
+        int_fun <- function(s, LAr, Delta) {
+            one_2sLAr <- 1 + 2 * s * LAr
+            R <- LAr / (one_2sLAr)
+            d_til <- d1_i(R, m = p_c)[p_c + 1]
+            (s ^ (p_r - 1) * d_til / sqrt(prod(one_2sLAr)))
+        }
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        LAr <- Delta ^ 2 * LA
+        ans_s <- stats::integrate(
+            function(y) sapply(y, function(s) int_fun(s, LAr, Delta)),
+            0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    }
+    bao_fun_nc_m <- function(t_, A, LB, mu) {
+        int_fun <- function(s, LAr, H, Delta, mu) {
+            one_2sLAr <- 1 + 2 * s * LAr
+            mu_til <- crossprod(H, Delta * mu) / sqrt(one_2sLAr)
+            R <- LAr / (one_2sLAr)
+            d_til <- dtil1_i_v(R, mu_til, m = p_c)[p_c + 1]
+            (s ^ (p_r - 1) * exp(c(crossprod(mu_til)) / 2) * d_til /
+             sqrt(prod(one_2sLAr)))
+        }
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta * t(Delta * A)
+        eigAr <- eigen(Ar, symmetric = TRUE)
+        LAr <- eigAr$values
+        H <- eigAr$vectors
+        ans_s <- stats::integrate(
+            function(y) sapply(y, function(s) int_fun(s, LAr, H, Delta, mu)),
+            0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    }
+    bao_fun_nc_v <- function(t_, A, LB, mu) {
+        int_fun <- function(s, LAr, Delta, mu) {
+            one_2sLAr <- 1 + 2 * s * LAr
+            mu_til <- Delta * mu / sqrt(one_2sLAr)
+            R <- LAr / (one_2sLAr)
+            d_til <- dtil1_i_v(R, mu_til, m = p_c)[p_c + 1]
+            (s ^ (p_r - 1) * exp(c(crossprod(mu_til)) / 2) * d_til /
+             sqrt(prod(one_2sLAr)))
+        }
+        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
+        LAr <- Delta ^ 2 * LA
+        ans_s <- stats::integrate(
+            function(y) sapply(y, function(s) int_fun(s, LAr, Delta, mu)),
+            0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if (missing(A)) {
+        if (missing(B)) stop("Provide at least one of A and B")
+        n <- dim(B)[1L]
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if (missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "A and B must be square matrices" = all(c(dim(A), dim(B)) == n),
+        "p and q must be nonnegative real numbers" = {
+            length(p) == 1 &&
+            length(q) == 1 &&
+            p >= 0 &&
+            q >= 0
+        },
+        "mu must be an n-vector" = length(mu) == n
+    )
+    # if ((p %% 1) == 0) {
+    #     warning("For integral p, qfrm_integ_int() works better")
+    # }
+    eigB <- eigen(B, symmetric = TRUE)
+    LB <- eigB$values
+    ## Rotate A and mu with eigenvectors of B
+    A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
+    mu <- c(crossprod(eigB$vectors, c(mu)))
+    ## Check condition for existence of moment (Bao & Kan, 2013, prop. 1)
+    rB <- sum(LB > tol_sing)
+    if (rB == n) {
+        cond_exist <- n / 2 + p > q ## condition(1)
+    } else {
+        A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
+        A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
+        cond_exist <- if (!A22z) {
+                    rB / 2 > q              ## condition(2)(iii)
+                } else {
+                    if (!A12z) {
+                        (rB + p) / 2 > q    ## condition(2)(ii)
+                    } else {
+                        rB / 2 + p > q      ## condiiton(2)(i)
+                    }
+                }
+    }
+    stopifnot(
+        "B must be nonnegative definite" = all(LB >= -tol_sing),
+        "Moment does not exist in this combination of p, q, rank(B)" =
+            cond_exist)
+    use_vec <- is_diagonal(A, tol_zero, TRUE)
+    LA <- if (use_vec) diag(A) else eigen(A, symmetric = TRUE, only.values = TRUE)$values
+    if (any(LA < -tol_sing) && (p %% 1) != 0) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this")
+    }
+    # if (use_cpp) {
+    #     cppres <- ApBq_integ_npi_E(A, LB, mu, p, q, stop_on_error, tol_zero,
+    #                                epsabs, epsrel, limit)
+    #     value <- cppres$value
+    #     abserr <- cppres$abserr
+    # } else {
+        central <- iseq(mu, rep.int(0, n), tol_zero)
+        p_c <- ceiling(p)
+        p_r <- p_c - p
+        const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
+                     lgamma(p_r) - lgamma(q))
+        integrand <-
+            if (use_vec) {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_v(t, LA, LB))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_v(t, LA, LB, mu))
+                }
+            } else {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_m(t, A, LB))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_m(t, A, LB, mu))
+                }
+            }
+        ans <- stats::integrate(integrand, 0, Inf,
+                                rel.tol = epsrel, abs.tol = epsabs / const,
+                                stop.on.error = stop_on_error)
+        value <- ans$value * const
+        abserr <- ans$abs.error * const
+    # }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+}
+
+
+
 ###############################
 ## Functions for multiple ratio
 ###############################

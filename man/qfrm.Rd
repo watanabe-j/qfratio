@@ -6,6 +6,8 @@
 \alias{qfrm_ApIq_npi}
 \alias{qfrm_ApBq_int}
 \alias{qfrm_ApBq_npi}
+\alias{qfrm_integ_int}
+\alias{qfrm_integ_npi}
 \title{Moment of ratio of quadratic forms in normal variables}
 \usage{
 qfrm(
@@ -90,6 +92,34 @@ qfrm_ApBq_npi(
   tol_zero = .Machine$double.eps * 100,
   tol_sing = tol_zero,
   thr_margin = 100
+)
+
+qfrm_integ_int(
+  A,
+  B,
+  p = 1,
+  q = p,
+  mu = rep.int(0, n),
+  stop_on_error = TRUE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
+  epsabs = epsrel,
+  epsrel = 1e-06,
+  limit = 10000
+)
+
+qfrm_integ_npi(
+  A,
+  B,
+  p = 1,
+  q = p,
+  mu = rep.int(0, n),
+  stop_on_error = TRUE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
+  epsabs = epsrel,
+  epsrel = 1e-06,
+  limit = 10000
 )
 }
 \arguments{
@@ -207,6 +237,12 @@ non-positive-integral \eqn{p} (fraction or negative).
 positive-integral \eqn{p}.
 
 \code{qfrm_ApBq_npi()}: For general \eqn{\mathbf{B}}{B} and
+non-integral \eqn{p}.
+
+\code{qfrm_integ_int()}: For general \eqn{\mathbf{B}}{B} and
+positive-integral \eqn{p}.
+
+\code{qfrm_integ_npi()}: For general \eqn{\mathbf{B}}{B} and
 non-integral \eqn{p}.
 }
 \details{
