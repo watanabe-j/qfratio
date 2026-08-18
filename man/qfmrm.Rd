@@ -7,6 +7,8 @@
 \alias{qfmrm_IpBDqr_gen}
 \alias{qfmrm_ApBDqr_int}
 \alias{qfmrm_ApBDqr_npi}
+\alias{qfmrm_integ_int}
+\alias{qfmrm_integ_npi}
 \title{Moment of multiple ratio of quadratic forms in normal variables}
 \usage{
 qfmrm(
@@ -127,6 +129,38 @@ qfmrm_ApBDqr_npi(
   tol_sing = tol_zero,
   thr_margin = 100
 )
+
+qfmrm_integ_int(
+  A,
+  B,
+  D,
+  p = 1,
+  q = 1,
+  r = 1,
+  mu = rep.int(0, n),
+  stop_on_error = TRUE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
+  epsabs = epsrel,
+  epsrel = 1e-06,
+  limit = 10000
+)
+
+qfmrm_integ_npi(
+  A,
+  B,
+  D,
+  p = 1,
+  q = 1,
+  r = 1,
+  mu = rep.int(0, n),
+  stop_on_error = TRUE,
+  tol_zero = .Machine$double.eps * 100,
+  tol_sing = tol_zero,
+  epsabs = epsrel,
+  epsrel = 1e-06,
+  limit = 10000
+)
 }
 \arguments{
 \item{A, B, D}{Argument matrices.  Should be square.  Will be automatically symmetrized.}
@@ -232,6 +266,12 @@ non-integral \eqn{p}
 
 \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
 and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
+
+\code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
+
+\code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which

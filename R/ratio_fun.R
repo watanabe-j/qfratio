@@ -3139,3 +3139,518 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
     .run_check_conv(ansseq, check_convergence, tol_conv)
     new_qfrm(terms = ansseq, seq_error = NA_real_, diminished = diminished)
 }
+
+
+##### qfmrm_integ_int #####
+#' Integer moment of multiple ratio
+#'
+#' \code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+#' and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
+#'
+#' @rdname qfmrm
+#'
+#' @export
+#'
+qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                    # use_cpp = TRUE,
+                    stop_on_error = TRUE,
+                    tol_zero = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
+                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    bao_fun_c_m <- function(t_, A, LB, D) {
+        u_fun <- function(u, A, LDr) {
+            Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
+            Ar_uD <- Delta_uD * t(Delta_uD * A)
+            LAr_uD <- eigen(Ar_uD, symmetric = TRUE, only.values = TRUE)$values
+            d_til <- d1_i(LAr_uD, m = p_c)[p_c + 1]
+            u ^ (r - 1) * prod(Delta_uD) * d_til
+        }
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Dr <- Delta_tB * t(Delta_tB * D)
+        Ar <- Delta_tB * t(Delta_tB * A)
+        eigDr <- eigen(Dr, symmetric = TRUE)
+        LDr <- eigDr$values
+        HDr <- eigDr$vectors
+        Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
+        ans_u <-
+            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_c_v <- function(t_, LA, LB, LD) {
+        u_fun <- function(u, LA, LDr) {
+            Delta2_uD <- 1 / (1 + 2 * u * LDr)
+            Delta_uD <- sqrt(Delta2_uD)
+            LAr_uD <- Delta2_uD * LA
+            d_til <- d1_i(LAr_uD, m = p_c)[p_c + 1]
+            u ^ (r - 1) * prod(Delta_uD) * d_til
+        }
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LDr <- Delta2_tB * LD
+        LAr <- Delta2_tB * LA
+        ans_u <-
+            stats::integrate(Vectorize(function(u) u_fun(u, LAr, LDr)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_nc_m <- function(t_, A, LB, D, mu) {
+        u_fun <- function(u, A, LDr, mu) {
+            Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
+            Ar_uD <- Delta_uD * t(Delta_uD * A)
+            mu_til_uD <- Delta_uD * mu
+            d_til <- dtil1_i_m(Ar_uD, mu_til_uD, m = p_c)[p_c + 1]
+            (u ^ (r - 1) * prod(Delta_uD) * exp(c(crossprod(mu_til_uD)) / 2) *
+             d_til)
+        }
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Dr <- Delta_tB * t(Delta_tB * D)
+        Ar <- Delta_tB * t(Delta_tB * A)
+        eigDr <- eigen(Dr, symmetric = TRUE)
+        LDr <- eigDr$values
+        HDr <- eigDr$vectors
+        Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
+        mu_til_tB <- crossprod(HDr, Delta_tB * mu)
+        ans_u <-
+            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr, mu_til_tB)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_nc_v <- function(t_, LA, LB, LD, mu) {
+        u_fun <- function(u, LA, LDr, mu) {
+            Delta2_uD <- 1 / (1 + 2 * u * LDr)
+            Delta_uD <- sqrt(Delta2_uD)
+            LAr_uD <- Delta2_uD * LA
+            mu_til_uD <- Delta_uD * mu
+            d_til <- dtil1_i_v(LAr_uD, mu_til_uD, m = p_c)[p_c + 1]
+            (u ^ (r - 1) * prod(Delta_uD) * exp(c(crossprod(mu_til_uD)) / 2) *
+             d_til)
+        }
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LDr <- Delta2_tB * LD
+        LAr <- Delta2_tB * LA
+        mu_til_tB <- Delta_tB * mu
+        ans_u <-
+            stats::integrate(Vectorize(function(u) u_fun(u, LAr, LDr, mu_til_tB)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
+                stop("Provide at least one of A, B and D")
+            } else {
+                n <- dim(D)[1L]
+            }
+        } else {
+            n <- dim(B)[1L]
+        }
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if (missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    if (missing(D)) {
+        D <- In
+    } else {
+        D <- (D + t(D)) / 2
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "A, B and D must be square matrices" =
+            all(c(dim(A), dim(B), dim(D)) == n),
+        "p must be a nonnegative real number" = {
+            length(p) == 1 &&
+            p >= 0
+        },
+        "q must be a nonnegative real number" = {
+            length(q) == 1 &&
+            q >= 0
+        },
+        "r must be a nonnegative real number" = {
+            length(r) == 1 &&
+            r >= 0
+        },
+        "mu must be an n-vector" = length(mu) == n
+    )
+    if ((p %% 1) != 0) {
+        stop("For integral p, qfmrm_integ_int() fails;\n  use qfmrm_integ_npi()")
+    }
+    eigB <- eigen(B, symmetric = TRUE)
+    LB <- eigB$values
+    ## Rotate A, D, and mu with eigenvectors of B
+    A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
+    D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
+    mu <- c(crossprod(eigB$vectors, c(mu)))
+    use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
+    central <- iseq(mu, rep.int(0, n), tol_zero)
+    if (use_vec) {
+        LA <- diag(A)
+        LD <- diag(D)
+        # if (missing(nthreads)) nthreads <- 1
+    } else {
+        eigD <- eigen(D, symmetric = TRUE)
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+        LD <- eigD$values
+    }
+    stopifnot("B must be nonnegative definite" = all(LB >= -tol_sing),
+              "D must be nonnegative definite" = all(LD >= -tol_sing))
+    ## Check condition for existence of moment
+    nzB <- (LB > tol_sing)
+    nzD <- (LD > tol_sing)
+    if (use_vec) {
+        ## common nonzero space of B and D, and A "rotated" with its basis
+        nzBD <- nzB * nzD
+        Ar <- A
+    } else {
+        if (all(nzB) && all(nzD)) {
+            nzBD <- rep.int(TRUE, n)
+            Ar <- A
+        } else {
+            zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
+                       t(zerocols)
+            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            nzBD <- eigBD$values > tol_sing
+            Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        }
+    }
+    rBD <- sum(nzBD)
+    if (rBD == n) {
+        cond_exist <- n / 2 + p > q + r ## condition(1)
+        necess_cond <- TRUE
+    } else {
+        A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
+        A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
+        cond_exist <- if (!A22z) {
+                    rBD / 2 > q + r              ## condition(2)(iii)
+                } else {
+                    if (!A12z) {
+                        (rBD + p) / 2 > q + r    ## condition(2)(ii)
+                    } else {
+                        rBD / 2 + p > q + r      ## condiiton(2)(i)
+                    }
+                }
+        necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
+    }
+    if (!cond_exist) {
+        if (necess_cond) {
+            stop("Moment does not exist in this combination of p, q, r, and",
+                 "\n  eigenstructures of A, B, and D")
+        } else {
+            warning("Moment may not exist in this combination of p, q, r, and",
+                    "\n  eigenstructures of A, B, and D")
+        }
+    }
+    # if (use_cpp) {
+    #     cppres <- ApBqDr_integ_npi_E(A, LB, D, mu, p, q, r, stop_on_error,
+    #                                  tol_zero, epsabs, epsrel, limit)
+    #     value <- cppres$value
+    #     abserr <- cppres$abserr
+    # } else {
+        p_c <- p
+        const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
+                     lgamma(q) - lgamma(r))
+        integrand <-
+            if (use_vec) {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_v(t, LA, LB, LD))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_v(t, LA, LB, LD, mu))
+                }
+            } else {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_m(t, A, LB, D))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_m(t, A, LB, D, mu))
+                }
+            }
+        ans <- stats::integrate(integrand, 0, Inf,
+                                rel.tol = epsrel, abs.tol = epsabs / const,
+                                stop.on.error = stop_on_error)
+        value <- ans$value * const
+        abserr <- ans$abs.error * const
+    # }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+}
+
+##### qfmrm_integ_npi #####
+#' Non-positive-integer moment of multiple ratio
+#'
+#' \code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
+#' and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
+#'
+#' @rdname qfmrm
+#'
+#' @export
+#'
+qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                    # use_cpp = TRUE,
+                    stop_on_error = TRUE,
+                    tol_zero = .Machine$double.eps * 100,
+                    tol_sing = tol_zero,
+                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    s_fun_c <- function(s, LA) {
+        Delta2_sA <- 1 / (1 + 2 * s * LA)
+        Delta_sA <- sqrt(Delta2_sA)
+        R <- LA * Delta2_sA
+        d_til <- d1_i(R, m = p_c)[p_c + 1]
+        s ^ (p_r - 1) * prod(Delta_sA) * d_til
+    }
+    s_fun_nc <- function(s, LA, mu) {
+        Delta2_sA <- 1 / (1 + 2 * s * LA)
+        Delta_sA <- sqrt(Delta2_sA)
+        mu_til_sA <- mu * Delta_sA
+        R <- LA * Delta2_sA
+        d_til <- dtil1_i_v(R, mu_til_sA, m = p_c)[p_c + 1]
+        (s ^ (p_r - 1) * prod(Delta_sA) * exp(c(crossprod(mu_til_sA)) / 2) *
+         d_til)
+    }
+    bao_fun_c_m <- function(t_, A, LB, D) {
+        u_fun <- function(u, A, LDr) {
+            Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
+            Ar_uD <- Delta_uD * t(Delta_uD * A)
+            eigAr <- eigen(Ar_uD, symmetric = TRUE, only.values = TRUE)
+            LAr <- eigAr$values
+            ans_s <- stats::integrate(Vectorize(function(s) s_fun_c(s, LAr)),
+                                      0, Inf, stop.on.error = stop_on_error)
+            u ^ (r - 1) * prod(Delta_uD) * ans_s$value
+        }
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Dr <- Delta_tB * t(Delta_tB * D)
+        Ar <- Delta_tB * t(Delta_tB * A)
+        eigDr <- eigen(Dr, symmetric = TRUE)
+        LDr <- eigDr$values
+        HDr <- eigDr$vectors
+        Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
+        ans_u <- stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr)),
+                                  0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_c_v <- function(t_, LA, LB, LD) {
+        u_fun <- function(u, LA, LDr) {
+            Delta2_uD <- 1 / (1 + 2 * u * LDr)
+            Delta_uD <- sqrt(Delta2_uD)
+            LAr_uD <- Delta2_uD * LA
+            ans_s <-
+                stats::integrate(Vectorize(function(s) s_fun_c(s, LAr_uD)),
+                                 0, Inf, stop.on.error = stop_on_error)
+            u ^ (r - 1) * prod(Delta_uD) * ans_s$value
+        }
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LDr <- Delta2_tB * LD
+        LAr <- Delta2_tB * LA
+        ans_u <- stats::integrate(Vectorize(function(u) u_fun(u, LAr, LDr)),
+                                  0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_nc_m <- function(t_, A, LB, D, mu) {
+        u_fun <- function(u, A, LDr, mu) {
+            Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
+            Ar_uD <- Delta_uD * t(Delta_uD * A)
+            eigAr <- eigen(Ar_uD, symmetric = TRUE)
+            LAr <- eigAr$values
+            HAr <- eigAr$vectors
+            mu_til_uD <- crossprod(HAr, Delta_uD * mu)
+            ans_s <-
+                stats::integrate(Vectorize(function(s) s_fun_nc(s, LAr, mu_til_uD)),
+                                 0, Inf, stop.on.error = stop_on_error)
+            u ^ (r - 1) * prod(Delta_uD) * ans_s$value
+        }
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Dr <- Delta_tB * t(Delta_tB * D)
+        Ar <- Delta_tB * t(Delta_tB * A)
+        eigDr <- eigen(Dr, symmetric = TRUE)
+        LDr <- eigDr$values
+        HDr <- eigDr$vectors
+        Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
+        mu_til_tB <- crossprod(HDr, Delta_tB * mu)
+        ans_u <-
+            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr, mu_til_tB)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    bao_fun_nc_v <- function(t_, LA, LB, LD, mu) {
+        u_fun <- function(u, LA, LDr, mu) {
+            Delta2_uD <- 1 / (1 + 2 * u * LDr)
+            Delta_uD <- sqrt(Delta2_uD)
+            LAr_uD <- Delta2_uD * LA
+            mu_til_uD <- Delta_uD * mu
+            ans_s <- stats::integrate(
+                Vectorize(function(s) s_fun_nc(s, LAr_uD, mu_til_uD)),
+                0, Inf, stop.on.error = stop_on_error)
+            u ^ (r - 1) * prod(Delta_uD) * ans_s$value
+        }
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LDr <- Delta2_tB * LD
+        LAr <- Delta2_tB * LA
+        mu_til_tB <- Delta_tB * mu
+        ans_u <- stats::integrate(
+            Vectorize(function(u) u_fun(u, LAr, LDr, mu_til_tB)),
+            0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
+    }
+    ## If A or B is missing, let it be an identity matrix
+    if (missing(A)) {
+        if (missing(B)) {
+            if (missing(D)) {
+                stop("Provide at least one of A, B and D")
+            } else {
+                n <- dim(D)[1L]
+            }
+        } else {
+            n <- dim(B)[1L]
+        }
+        In <- diag(n)
+        A <- In
+    } else {
+        n <- dim(A)[1L]
+        In <- diag(n)
+        A <- (A + t(A)) / 2
+    }
+    if (missing(B)) {
+        B <- In
+    } else {
+        B <- (B + t(B)) / 2
+    }
+    if (missing(D)) {
+        D <- In
+    } else {
+        D <- (D + t(D)) / 2
+    }
+    ## Check basic requirements for arguments
+    stopifnot(
+        "A, B and D must be square matrices" =
+            all(c(dim(A), dim(B), dim(D)) == n),
+        "p must be a nonnegative real number" = {
+            length(p) == 1 &&
+            p >= 0
+        },
+        "q must be a nonnegative real number" = {
+            length(q) == 1 &&
+            q >= 0
+        },
+        "r must be a nonnegative real number" = {
+            length(r) == 1 &&
+            r >= 0
+        },
+        "mu must be an n-vector" = length(mu) == n
+    )
+    if ((p %% 1) == 0) {
+        stop("For integral p, qfmrm_integ_npi() fails;\n  use qfmrm_integ_int()")
+    }
+    eigB <- eigen(B, symmetric = TRUE)
+    LB <- eigB$values
+    ## Rotate A, D, and mu with eigenvectors of B
+    A <- with(eigB, crossprod(crossprod(A, vectors), vectors))
+    D <- with(eigB, crossprod(crossprod(D, vectors), vectors))
+    mu <- c(crossprod(eigB$vectors, c(mu)))
+    use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
+    central <- iseq(mu, rep.int(0, n), tol_zero)
+    if (use_vec) {
+        LA <- diag(A)
+        LD <- diag(D)
+        # if (missing(nthreads)) nthreads <- 1
+    } else {
+        eigD <- eigen(D, symmetric = TRUE)
+        LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
+        LD <- eigD$values
+    }
+    stopifnot("B must be nonnegative definite" = all(LB >= -tol_sing),
+              "D must be nonnegative definite" = all(LD >= -tol_sing))
+    ## Check condition for existence of moment
+    nzB <- (LB > tol_sing)
+    nzD <- (LD > tol_sing)
+    if (use_vec) {
+        ## common nonzero space of B and D, and A "rotated" with its basis
+        nzBD <- nzB * nzD
+        Ar <- A
+    } else {
+        if (all(nzB) && all(nzD)) {
+            nzBD <- rep.int(TRUE, n)
+            Ar <- A
+        } else {
+            zerocols <- cbind(In[, !nzB], eigD$vectors[, !nzD])
+            projmat <- zerocols %*% MASS::ginv(crossprod(zerocols)) %*%
+                       t(zerocols)
+            eigBD <- eigen(In - projmat, symmetric = TRUE)
+            nzBD <- eigBD$values > tol_sing
+            Ar <- with(eigBD, crossprod(crossprod(A, vectors), vectors))
+        }
+    }
+    rBD <- sum(nzBD)
+    if (rBD == n) {
+        cond_exist <- n / 2 + p > q + r ## condition(1)
+        necess_cond <- TRUE
+    } else {
+        A12z <- all(abs(Ar[nzBD, !nzBD]) < tol_zero)
+        A22z <- all(abs(Ar[!nzBD, !nzBD]) < tol_zero)
+        cond_exist <- if (!A22z) {
+                    rBD / 2 > q + r              ## condition(2)(iii)
+                } else {
+                    if (!A12z) {
+                        (rBD + p) / 2 > q + r    ## condition(2)(ii)
+                    } else {
+                        rBD / 2 + p > q + r      ## condiiton(2)(i)
+                    }
+                }
+        necess_cond <- (rBD == sum(nzB)) || (rBD == sum(nzD))
+    }
+    if (!cond_exist) {
+        if (necess_cond) {
+            stop("Moment does not exist in this combination of p, q, r, and",
+                 "\n  eigenstructures of A, B, and D")
+        } else {
+            warning("Moment may not exist in this combination of p, q, r, and",
+                    "\n  eigenstructures of A, B, and D")
+        }
+    }
+    if (any(LA < -tol_sing) && (p %% 1) != 0) {
+        stop("Detected negative eigenvalue(s) of A (< -tol_sing), ",
+             "with which\n  non-integer power of quadratic form is not ",
+             "well defined.\n  If you know them to be 0, use larger tol_sing ",
+             "to suppress this")
+    }
+    # if (use_cpp) {
+    #     cppres <- ApBqDr_integ_npi_E(A, LB, D, mu, p, q, r, stop_on_error,
+    #                                  tol_zero, epsabs, epsrel, limit)
+    #     value <- cppres$value
+    #     abserr <- cppres$abserr
+    # } else {
+        p_c <- ceiling(p)
+        p_r <- p_c - p
+        const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
+                     lgamma(p_r) - lgamma(q) - lgamma(r))
+        integrand <-
+            if (use_vec) {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_v(t, LA, LB, LD))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_v(t, LA, LB, LD, mu))
+                }
+            } else {
+                if (central) {
+                    Vectorize(function(t) bao_fun_c_m(t, A, LB, D))
+                } else {
+                    Vectorize(function(t) bao_fun_nc_m(t, A, LB, D, mu))
+                }
+            }
+        ans <- stats::integrate(integrand, 0, Inf,
+                                rel.tol = epsrel, abs.tol = epsabs / const,
+                                stop.on.error = stop_on_error)
+        value <- ans$value * const
+        abserr <- ans$abs.error * const
+    # }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+}
