@@ -1745,8 +1745,9 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         t_ ^ (q - 1) * prod(Delta) * d_til
     }
     bao_fun_c_v <- function(t_, LA, LB) {
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        LAr <- Delta ^ 2 * LA
+        Delta2 <- 1 / (1 + 2 * t_ * LB)
+        Delta <- sqrt(Delta2)
+        LAr <- Delta2 * LA
         d_til <- d1_i(LAr, m = p_c)[p_c + 1]
         t_ ^ (q - 1) * prod(Delta) * d_til
     }
@@ -1755,14 +1756,15 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         Ar <- Delta * t(Delta * A)
         mu_til <- Delta * mu
         d_til <- dtil1_i_m(Ar, mu_til, m = p_c)[p_c + 1]
-        (t_ ^ (q - 1) * prod(Delta) * d_til * exp(c(crossprod(mu_til)) / 2))
+        t_ ^ (q - 1) * prod(Delta) * exp(c(crossprod(mu_til)) / 2) * d_til
     }
     bao_fun_nc_v <- function(t_, LA, LB, mu) {
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        LAr <- Delta ^ 2 * LA
+        Delta2 <- 1 / (1 + 2 * t_ * LB)
+        Delta <- sqrt(Delta2)
+        LAr <- Delta2 * LA
         mu_til <- Delta * mu
         d_til <- dtil1_i_v(LAr, mu_til, m = p_c)[p_c + 1]
-        (t_ ^ (q - 1) * prod(Delta) * d_til * exp(c(crossprod(mu_til)) / 2))
+        t_ ^ (q - 1) * prod(Delta) * exp(c(crossprod(mu_til)) / 2) * d_til
     }
     ## If A or B is missing, let it be an identity matrix
     if (missing(A)) {
@@ -1874,71 +1876,59 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
                     epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
-    bao_fun_c_m <- function(t_, A, LB) {
-        int_fun <- function(s, LAr, H, Delta) {
-            one_2sLAr <- 1 + 2 * s * LAr
-            R <- LAr / (one_2sLAr)
-            d_til <- d1_i(R, m = p_c)[p_c + 1]
-            (s ^ (p_r - 1) * d_til / sqrt(prod(one_2sLAr)))
-        }
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        Ar <- Delta * t(Delta * A)
-        eigAr <- eigen(Ar, symmetric = TRUE)
-        LAr <- eigAr$values
-        H <- eigAr$vectors
-        ans_s <- stats::integrate(
-            function(y) sapply(y, function(s) int_fun(s, LAr, H, Delta)),
-            0, Inf, stop.on.error = stop_on_error)
-        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    s_fun_c <- function(s, LA) {
+        Delta2_sA <- 1 / (1 + 2 * s * LA)
+        Delta_sA <- sqrt(Delta2_sA)
+        R <- Delta2_sA * LA
+        d_til <- d1_i(R, m = p_c)[p_c + 1]
+        s ^ (p_r - 1) * prod(Delta_sA) * d_til
     }
-    bao_fun_c_v <- function(t_, A, LB) {
-        int_fun <- function(s, LAr, Delta) {
-            one_2sLAr <- 1 + 2 * s * LAr
-            R <- LAr / (one_2sLAr)
-            d_til <- d1_i(R, m = p_c)[p_c + 1]
-            (s ^ (p_r - 1) * d_til / sqrt(prod(one_2sLAr)))
-        }
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        LAr <- Delta ^ 2 * LA
-        ans_s <- stats::integrate(
-            function(y) sapply(y, function(s) int_fun(s, LAr, Delta)),
-            0, Inf, stop.on.error = stop_on_error)
-        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    s_fun_nc <- function(s, LA, mu) {
+        Delta2_sA <- 1 / (1 + 2 * s * LA)
+        Delta_sA <- sqrt(Delta2_sA)
+        mu_til_sA <- mu * Delta_sA
+        R <- Delta2_sA * LA
+        d_til <- dtil1_i_v(R, mu_til_sA, m = p_c)[p_c + 1]
+        (s ^ (p_r - 1) * prod(Delta_sA) * exp(c(crossprod(mu_til_sA)) / 2) *
+         d_til)
+    }
+    bao_fun_c_m <- function(t_, A, LB) {
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta_tB * t(Delta_tB * A)
+        eigAr <- eigen(Ar, symmetric = TRUE, only.values = TRUE)
+        LAr <- eigAr$values
+        ans_s <- stats::integrate(Vectorize(function(s) s_fun_c(s, LAr)),
+                                  0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_s$value
+    }
+    bao_fun_c_v <- function(t_, LA, LB) {
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LAr <- Delta2_tB * LA
+        ans_s <- stats::integrate(Vectorize(function(s) s_fun_c(s, LAr)),
+                                  0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_s$value
     }
     bao_fun_nc_m <- function(t_, A, LB, mu) {
-        int_fun <- function(s, LAr, H, Delta, mu) {
-            one_2sLAr <- 1 + 2 * s * LAr
-            mu_til <- crossprod(H, Delta * mu) / sqrt(one_2sLAr)
-            R <- LAr / (one_2sLAr)
-            d_til <- dtil1_i_v(R, mu_til, m = p_c)[p_c + 1]
-            (s ^ (p_r - 1) * exp(c(crossprod(mu_til)) / 2) * d_til /
-             sqrt(prod(one_2sLAr)))
-        }
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        Ar <- Delta * t(Delta * A)
+        Delta_tB <- 1 / sqrt(1 + 2 * t_ * LB)
+        Ar <- Delta_tB * t(Delta_tB * A)
         eigAr <- eigen(Ar, symmetric = TRUE)
         LAr <- eigAr$values
-        H <- eigAr$vectors
-        ans_s <- stats::integrate(
-            function(y) sapply(y, function(s) int_fun(s, LAr, H, Delta, mu)),
-            0, Inf, stop.on.error = stop_on_error)
-        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+        mu_til_tB <- crossprod(eigAr$vectors, Delta_tB * mu)
+        ans_s <-
+            stats::integrate(Vectorize(function(s) s_fun_nc(s, LAr, mu_til_tB)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_s$value
     }
-    bao_fun_nc_v <- function(t_, A, LB, mu) {
-        int_fun <- function(s, LAr, Delta, mu) {
-            one_2sLAr <- 1 + 2 * s * LAr
-            mu_til <- Delta * mu / sqrt(one_2sLAr)
-            R <- LAr / (one_2sLAr)
-            d_til <- dtil1_i_v(R, mu_til, m = p_c)[p_c + 1]
-            (s ^ (p_r - 1) * exp(c(crossprod(mu_til)) / 2) * d_til /
-             sqrt(prod(one_2sLAr)))
-        }
-        Delta <- 1 / sqrt(1 + 2 * t_ * LB)
-        LAr <- Delta ^ 2 * LA
-        ans_s <- stats::integrate(
-            function(y) sapply(y, function(s) int_fun(s, LAr, Delta, mu)),
-            0, Inf, stop.on.error = stop_on_error)
-        t_ ^ (q - 1) * prod(Delta) * ans_s$value
+    bao_fun_nc_v <- function(t_, LA, LB, mu) {
+        Delta2_tB <- 1 / (1 + 2 * t_ * LB)
+        Delta_tB <- sqrt(Delta2_tB)
+        LAr <- Delta2_tB * LA
+        mu_til_tB <- Delta_tB * mu
+        ans_s <-
+            stats::integrate(Vectorize(function(s) s_fun_nc(s, LAr, mu_til_tB)),
+                             0, Inf, stop.on.error = stop_on_error)
+        t_ ^ (q - 1) * prod(Delta_tB) * ans_s$value
     }
     ## If A or B is missing, let it be an identity matrix
     if (missing(A)) {
@@ -1967,9 +1957,9 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         },
         "mu must be an n-vector" = length(mu) == n
     )
-    # if ((p %% 1) == 0) {
-    #     warning("For integral p, qfrm_integ_int() works better")
-    # }
+    if ((p %% 1) == 0) {
+        stop("For integral p, qfrm_integ_npi() fails;\n  use qfrm_integ_int()")
+    }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
     ## Rotate A and mu with eigenvectors of B
