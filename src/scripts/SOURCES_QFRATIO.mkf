@@ -7,5 +7,6 @@ SOURCES_QFRATIO = \
     ratio_funs_cwise.cpp \
     ratio_funs_long.cpp \
     ratio_funs.cpp \
+    ratio_integ.cpp \
     RcppExports.cpp \
     rqf_funs.cpp

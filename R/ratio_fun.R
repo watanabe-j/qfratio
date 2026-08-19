@@ -1829,7 +1829,7 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
     #     cppres <- ApBq_integ_int_E(A, LB, mu, p, q, stop_on_error, tol_zero,
     #                                epsabs, epsrel, limit)
     #     value <- cppres$value
-    #     abserr <- cppres$abserr
+    #     abserr <- cppres$abs.error
     # } else {
         use_vec <- is_diagonal(A, tol_zero, TRUE)
         central <- iseq(mu, rep.int(0, n), tol_zero)
@@ -1998,7 +1998,7 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
     #     cppres <- ApBq_integ_npi_E(A, LB, mu, p, q, stop_on_error, tol_zero,
     #                                epsabs, epsrel, limit)
     #     value <- cppres$value
-    #     abserr <- cppres$abserr
+    #     abserr <- cppres$abs.error
     # } else {
         central <- iseq(mu, rep.int(0, n), tol_zero)
         p_c <- ceiling(p)
@@ -3152,7 +3152,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
 #' @export
 #'
 qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    # use_cpp = TRUE,
+                    use_cpp = TRUE,
                     stop_on_error = TRUE,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
@@ -3351,12 +3351,12 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                     "\n  eigenstructures of A, B, and D")
         }
     }
-    # if (use_cpp) {
-    #     cppres <- ApBqDr_integ_npi_E(A, LB, D, mu, p, q, r, stop_on_error,
-    #                                  tol_zero, epsabs, epsrel, limit)
-    #     value <- cppres$value
-    #     abserr <- cppres$abserr
-    # } else {
+    if (use_cpp) {
+        cppres <- integ_mr_int_Ed(A, LB, D, mu, p, q, r, stop_on_error,
+                                  tol_zero, epsabs, epsrel, limit)
+        value <- cppres$value
+        abserr <- cppres$abs.error
+    } else {
         p_c <- p
         const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
                      lgamma(q) - lgamma(r))
@@ -3379,7 +3379,7 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                                 stop.on.error = stop_on_error)
         value <- ans$value * const
         abserr <- ans$abs.error * const
-    # }
+    }
     new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
 }
 
@@ -3394,7 +3394,7 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    # use_cpp = TRUE,
+                    use_cpp = TRUE,
                     stop_on_error = TRUE,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
@@ -3622,12 +3622,12 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
              "to suppress this")
     }
-    # if (use_cpp) {
-    #     cppres <- ApBqDr_integ_npi_E(A, LB, D, mu, p, q, r, stop_on_error,
-    #                                  tol_zero, epsabs, epsrel, limit)
-    #     value <- cppres$value
-    #     abserr <- cppres$abserr
-    # } else {
+    if (use_cpp) {
+        cppres <- integ_mr_npi_Ed(A, LB, D, mu, p, q, r, stop_on_error,
+                                  tol_zero, epsabs, epsrel, limit)
+        value <- cppres$value
+        abserr <- cppres$abs.error
+    } else {
         p_c <- ceiling(p)
         p_r <- p_c - p
         const <- exp(-c(crossprod(mu)) / 2 + p_c * log(2) + lfactorial(p_c) -
@@ -3651,6 +3651,6 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
                                 stop.on.error = stop_on_error)
         value <- ans$value * const
         abserr <- ans$abs.error * const
-    # }
+    }
     new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
 }
