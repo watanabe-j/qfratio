@@ -1732,7 +1732,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
-                    # use_cpp = TRUE,
+                    use_cpp = TRUE,
                     stop_on_error = TRUE,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
@@ -1825,12 +1825,12 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         "B must be nonnegative definite" = all(LB >= -tol_sing),
         "Moment does not exist in this combination of p, q, rank(B)" =
             cond_exist)
-    # if (use_cpp) {
-    #     cppres <- ApBq_integ_int_E(A, LB, mu, p, q, stop_on_error, tol_zero,
-    #                                epsabs, epsrel, limit)
-    #     value <- cppres$value
-    #     abserr <- cppres$abs.error
-    # } else {
+    if (use_cpp) {
+        cppres <- integ_r_int_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
+                                 epsabs, epsrel, limit)
+        value <- cppres$value
+        abserr <- cppres$abs.error
+    } else {
         use_vec <- is_diagonal(A, tol_zero, TRUE)
         central <- iseq(mu, rep.int(0, n), tol_zero)
         p_c <- p
@@ -1856,7 +1856,7 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
                                 stop.on.error = stop_on_error)
         value <- ans$value * const
         abserr <- ans$abs.error * const
-    # }
+    }
     new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
 }
 
@@ -1871,7 +1871,7 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
-                    # use_cpp = TRUE,
+                    use_cpp = TRUE,
                     stop_on_error = TRUE,
                     tol_zero = .Machine$double.eps * 100,
                     tol_sing = tol_zero,
@@ -1994,12 +1994,12 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
              "well defined.\n  If you know them to be 0, use larger tol_sing ",
              "to suppress this")
     }
-    # if (use_cpp) {
-    #     cppres <- ApBq_integ_npi_E(A, LB, mu, p, q, stop_on_error, tol_zero,
-    #                                epsabs, epsrel, limit)
-    #     value <- cppres$value
-    #     abserr <- cppres$abs.error
-    # } else {
+    if (use_cpp) {
+        cppres <- integ_r_npi_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
+                                 epsabs, epsrel, limit)
+        value <- cppres$value
+        abserr <- cppres$abs.error
+    } else {
         central <- iseq(mu, rep.int(0, n), tol_zero)
         p_c <- ceiling(p)
         p_r <- p_c - p
@@ -2024,7 +2024,7 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
                                 stop.on.error = stop_on_error)
         value <- ans$value * const
         abserr <- ans$abs.error * const
-    # }
+    }
     new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
 }
 

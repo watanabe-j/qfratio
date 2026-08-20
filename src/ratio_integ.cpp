@@ -11,13 +11,8 @@
 #include "hgs_funs.h"
 
 using Eigen::exp;
-using Eigen::log;
-using Eigen::abs;
-using Eigen::ArrayXi;
 using Eigen::ArrayXd;
-using Eigen::ArrayXXd;
 using Eigen::MatrixXd;
-using Eigen::VectorXd;
 using Eigen::SelfAdjointEigenSolver;
 using Eigen::Index;
 
@@ -823,6 +818,175 @@ double bao_mr_fun_npi_n_v(double t, void *p)
     return out;
 }
 
+
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_integ_int()}, double
+//'
+// [[Rcpp::export]]
+SEXP integ_r_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                    const Eigen::ArrayXd mu, const double p_, const double q_,
+                     bool stop_on_error, const double tol_zero,
+                     double epsabs, double epsrel, int limit)
+{
+    const Index p_i = p_;
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
+    double cons = exp(-mu.matrix().squaredNorm() / 2.0 + p_ * M_LN2
+                      + lgamma(p_ + 1.0) - lgamma(q_));
+    epsabs /= cons;
+
+    gsl_set_error_handler_off();
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
+    double value, error;
+    int status;
+    gsl_function F;
+    if (use_vec) {
+        ArrayXd LA = A.diagonal();
+        struct bao_tB_params_v params;
+        params.LA = &LA;
+        params.LB = &LB;
+        params.mu = &mu;
+        params.p_ = &p_;
+        params.q_ = &q_;
+        params.p_i = &p_i;
+        params.epsabs = &epsabs;
+        params.epsrel = &epsrel;
+        params.limit = &limit;
+        F.params = &params;
+        if (central) {
+            F.function = &bao_tB_fun_int_c_v;
+        }
+        else {
+            F.function = &bao_tB_fun_int_n_v;
+        }
+        // Function call must be within the same scope with params;
+        // otherwise segfault occurs
+        status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                       &value, &error);
+    }
+    else {
+        struct bao_tB_params_m params;
+        params.A = &A;
+        params.LB = &LB;
+        params.mu = &mu;
+        params.p_ = &p_;
+        params.q_ = &q_;
+        params.p_i = &p_i;
+        params.epsabs = &epsabs;
+        params.epsrel = &epsrel;
+        params.limit = &limit;
+        F.params = &params;
+        if (central) {
+            F.function = &bao_tB_fun_int_c_m;
+        }
+        else {
+            F.function = &bao_tB_fun_int_n_m;
+        }
+        status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                       &value, &error);
+    }
+    gsl_integration_workspace_free(w);
+    if (status) {
+        std::string errmsg = "problem in gsl_integration_qagiu():\n  ";
+        errmsg += gsl_strerror(status);
+        if (stop_on_error)
+            Rcpp::stop(errmsg);
+        else
+            Rcpp::warning(errmsg);
+    }
+
+    value *= cons;
+    error *= cons;
+
+    return Rcpp::List::create(
+        Rcpp::Named("value")     = value,
+        Rcpp::Named("abs.error") = error);
+}
+
+
+//' @describeIn qfrm_cpp
+//'   \code{qfrm_integ_npi()}, double
+//'
+// [[Rcpp::export]]
+SEXP integ_r_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
+                    const Eigen::ArrayXd mu, const double p_, const double q_,
+                    bool stop_on_error, const double tol_zero,
+                    double epsabs, double epsrel, int limit)
+{
+    const double p_c = ceil(p_);
+    const double p_r = p_c - p_;
+    const Index p_i = p_c;
+    bool use_vec = is_diag_E(A, tol_zero);
+    bool central = is_zero_E(mu, tol_zero);
+    double cons = exp(-mu.matrix().squaredNorm() / 2.0 + p_c * M_LN2
+                       + lgamma(p_c + 1.0) - lgamma(p_r) - lgamma(q_));
+    epsabs /= cons;
+
+    gsl_set_error_handler_off();
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc(limit);
+    double value, error;
+    int status;
+    gsl_function F;
+    if (use_vec) {
+        ArrayXd LA = A.diagonal();
+        struct bao_tB_params_v params;
+        params.LA = &LA;
+        params.LB = &LB;
+        params.mu = &mu;
+        params.p_ = &p_r;
+        params.q_ = &q_;
+        params.p_i = &p_i;
+        params.epsabs = &epsabs;
+        params.epsrel = &epsrel;
+        params.limit = &limit;
+        F.params = &params;
+        if (central) {
+            F.function = &bao_tB_fun_npi_c_v;
+        }
+        else {
+            F.function = &bao_tB_fun_npi_n_v;
+        }
+        status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                       &value, &error);
+    }
+    else {
+        struct bao_tB_params_m params;
+        params.A = &A;
+        params.LB = &LB;
+        params.mu = &mu;
+        params.p_ = &p_r;
+        params.q_ = &q_;
+        params.p_i = &p_i;
+        params.epsabs = &epsabs;
+        params.epsrel = &epsrel;
+        params.limit = &limit;
+        F.params = &params;
+        if (central) {
+            F.function = &bao_tB_fun_npi_c_m;
+        }
+        else {
+            F.function = &bao_tB_fun_npi_n_m;
+        }
+        status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
+                                       &value, &error);
+    }
+    gsl_integration_workspace_free(w);
+    if (status) {
+        std::string errmsg = "problem in gsl_integration_qagiu():\n  ";
+        errmsg += gsl_strerror(status);
+        if (stop_on_error)
+            Rcpp::stop(errmsg);
+        else
+            Rcpp::warning(errmsg);
+    }
+
+    value *= cons;
+    error *= cons;
+
+    return Rcpp::List::create(
+        Rcpp::Named("value")     = value,
+        Rcpp::Named("abs.error") = error);
+}
 
 
 //' @describeIn qfrm_cpp

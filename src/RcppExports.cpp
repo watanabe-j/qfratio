@@ -782,6 +782,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// integ_r_int_Ed
+SEXP integ_r_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB, const Eigen::ArrayXd mu, const double p_, const double q_, bool stop_on_error, const double tol_zero, double epsabs, double epsrel, int limit);
+RcppExport SEXP _qfratio_integ_r_int_Ed(SEXP ASEXP, SEXP LBSEXP, SEXP muSEXP, SEXP p_SEXP, SEXP q_SEXP, SEXP stop_on_errorSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type LB(LBSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type p_(p_SEXP);
+    Rcpp::traits::input_parameter< const double >::type q_(q_SEXP);
+    Rcpp::traits::input_parameter< bool >::type stop_on_error(stop_on_errorSEXP);
+    Rcpp::traits::input_parameter< const double >::type tol_zero(tol_zeroSEXP);
+    Rcpp::traits::input_parameter< double >::type epsabs(epsabsSEXP);
+    Rcpp::traits::input_parameter< double >::type epsrel(epsrelSEXP);
+    Rcpp::traits::input_parameter< int >::type limit(limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(integ_r_int_Ed(A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integ_r_npi_Ed
+SEXP integ_r_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB, const Eigen::ArrayXd mu, const double p_, const double q_, bool stop_on_error, const double tol_zero, double epsabs, double epsrel, int limit);
+RcppExport SEXP _qfratio_integ_r_npi_Ed(SEXP ASEXP, SEXP LBSEXP, SEXP muSEXP, SEXP p_SEXP, SEXP q_SEXP, SEXP stop_on_errorSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type LB(LBSEXP);
+    Rcpp::traits::input_parameter< const Eigen::ArrayXd >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double >::type p_(p_SEXP);
+    Rcpp::traits::input_parameter< const double >::type q_(q_SEXP);
+    Rcpp::traits::input_parameter< bool >::type stop_on_error(stop_on_errorSEXP);
+    Rcpp::traits::input_parameter< const double >::type tol_zero(tol_zeroSEXP);
+    Rcpp::traits::input_parameter< double >::type epsabs(epsabsSEXP);
+    Rcpp::traits::input_parameter< double >::type epsrel(epsrelSEXP);
+    Rcpp::traits::input_parameter< int >::type limit(limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(integ_r_npi_Ed(A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // integ_mr_int_Ed
 SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB, const Eigen::MatrixXd D, const Eigen::ArrayXd mu, const double p_, const double q_, const double r_, bool stop_on_error, const double tol_zero, double epsabs, double epsrel, int limit);
 RcppExport SEXP _qfratio_integ_mr_int_Ed(SEXP ASEXP, SEXP LBSEXP, SEXP DSEXP, SEXP muSEXP, SEXP p_SEXP, SEXP q_SEXP, SEXP r_SEXP, SEXP stop_on_errorSEXP, SEXP tol_zeroSEXP, SEXP epsabsSEXP, SEXP epsrelSEXP, SEXP limitSEXP) {
@@ -886,6 +926,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qfratio_IpBDqr_gen_El", (DL_FUNC) &_qfratio_IpBDqr_gen_El, 12},
     {"_qfratio_ApBDqr_int_El", (DL_FUNC) &_qfratio_ApBDqr_int_El, 13},
     {"_qfratio_ApBDqr_npi_El", (DL_FUNC) &_qfratio_ApBDqr_npi_El, 14},
+    {"_qfratio_integ_r_int_Ed", (DL_FUNC) &_qfratio_integ_r_int_Ed, 10},
+    {"_qfratio_integ_r_npi_Ed", (DL_FUNC) &_qfratio_integ_r_npi_Ed, 10},
     {"_qfratio_integ_mr_int_Ed", (DL_FUNC) &_qfratio_integ_mr_int_Ed, 12},
     {"_qfratio_integ_mr_npi_Ed", (DL_FUNC) &_qfratio_integ_mr_npi_Ed, 12},
     {"_qfratio_rqfpE", (DL_FUNC) &_qfratio_rqfpE, 9},

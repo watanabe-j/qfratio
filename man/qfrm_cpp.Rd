@@ -38,6 +38,8 @@
 \alias{IpBDqr_gen_El}
 \alias{ApBDqr_int_El}
 \alias{ApBDqr_npi_El}
+\alias{integ_r_int_Ed}
+\alias{integ_r_npi_Ed}
 \alias{integ_mr_int_Ed}
 \alias{integ_mr_npi_Ed}
 \alias{rqfpE}
@@ -499,6 +501,32 @@ ApBDqr_npi_El(
   tol_zero = 2.2e-14
 )
 
+integ_r_int_Ed(
+  A,
+  LB,
+  mu,
+  p_,
+  q_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
+integ_r_npi_Ed(
+  A,
+  LB,
+  mu,
+  p_,
+  q_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
 integ_mr_int_Ed(
   A,
   LB,
@@ -677,6 +705,10 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{ApBDqr_int_El()}: \code{qfmrm_ApBDqr_int()}, long double
 
 \item \code{ApBDqr_npi_El()}: \code{qfmrm_ApBDqr_npi()}, long double
+
+\item \code{integ_r_int_Ed()}: \code{qfrm_integ_int()}, double
+
+\item \code{integ_r_npi_Ed()}: \code{qfrm_integ_npi()}, double
 
 \item \code{integ_mr_int_Ed()}: \code{qfmrm_integ_int()}, double
 
