@@ -678,7 +678,7 @@ assumed.  All parameters are assumed to be appropriately structured.
 
 \item \code{ApBDqr_npi_El()}: \code{qfmrm_ApBDqr_npi()}, long double
 
-\item \code{integ_mr_int_Ed()}: \code{qfmrm_integ_npi()}, double
+\item \code{integ_mr_int_Ed()}: \code{qfmrm_integ_int()}, double
 
 \item \code{integ_mr_npi_Ed()}: \code{qfmrm_integ_npi()}, double
 

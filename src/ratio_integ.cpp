@@ -24,48 +24,48 @@ using Eigen::Index;
 typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatXd;
 
 
-struct bao_m_u_params {
+struct bao_tB_params_m {
     const Eigen::MatrixXd *A;
-    const Eigen::ArrayXd *LD;
+    const Eigen::ArrayXd *LB;
     const Eigen::ArrayXd *mu;
     const double *p_;
-    const double *r_;
+    const double *q_;
     const Eigen::Index *p_i;
     const double *epsabs;
     const double *epsrel;
     const int *limit;
 };
 
-double bao_int_c_m_u_fun(double u, void *p)
+double bao_tB_fun_int_c_m(double u, void *p)
 {
-    struct bao_m_u_params *params = (struct bao_m_u_params *)p;
+    struct bao_tB_params_m *params = (struct bao_tB_params_m *)p;
     const MatrixXd *A = (params->A);
-    const ArrayXd *LD = (params->LD);
-    const double *r_ = (params->r_);
+    const ArrayXd *LB = (params->LB);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     DiagMatXd DeltaD = Delta.matrix().asDiagonal();
     MatrixXd Ar = DeltaD * (*A) * DeltaD;
     ArrayXd lscfdp = ArrayXd::Zero((*p_i) + 1);
     double d_til = d1_i_mE(Ar, *p_i, lscfdp, 100.0)(*p_i);
 
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * d_til;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * d_til;
 
     return out;
 }
 
-double bao_int_n_m_u_fun(double u, void *p)
+double bao_tB_fun_int_n_m(double u, void *p)
 {
-    struct bao_m_u_params *params = (struct bao_m_u_params *)p;
+    struct bao_tB_params_m *params = (struct bao_tB_params_m *)p;
     const MatrixXd *A = (params->A);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const ArrayXd *mu = (params->mu);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     DiagMatXd DeltaD = Delta.matrix().asDiagonal();
     MatrixXd Ar = DeltaD * (*A) * DeltaD;
@@ -73,13 +73,13 @@ double bao_int_n_m_u_fun(double u, void *p)
     ArrayXd lscfdp = ArrayXd::Zero((*p_i) + 1);
     double d_til = dtil1_i_mE(Ar, mu_til, *p_i, lscfdp, 100.0)(*p_i);
 
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() *
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() *
                  exp(mu_til.matrix().squaredNorm() / 2.0) * d_til;
 
     return out;
 }
 
-struct bao_m_t_params {
+struct bao_mr_params_m {
     const Eigen::MatrixXd *A;
     const Eigen::ArrayXd *LB;
     const Eigen::MatrixXd *D;
@@ -93,9 +93,9 @@ struct bao_m_t_params {
     const int *limit;
 };
 
-double bao_int_c_m_t_fun(double t, void *p)
+double bao_mr_fun_int_c_m(double t, void *p)
 {
-    struct bao_m_t_params *params = (struct bao_m_t_params *)p;
+    struct bao_mr_params_m *params = (struct bao_mr_params_m *)p;
     const MatrixXd *A = (params->A);
     const ArrayXd *LB = (params->LB);
     const MatrixXd *D = (params->D);
@@ -120,13 +120,13 @@ double bao_int_c_m_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_m_u_params params_pass;
+    struct bao_tB_params_m params_pass;
     params_pass.A = &Ar_HDr;
-    params_pass.LD = &LDr;
-    params_pass.r_ = r_;
+    params_pass.LB = &LDr;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_int_c_m_u_fun;
+    F.function = &bao_tB_fun_int_c_m;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -144,9 +144,9 @@ double bao_int_c_m_t_fun(double t, void *p)
     return out;
 }
 
-double bao_int_n_m_t_fun(double t, void *p)
+double bao_mr_fun_int_n_m(double t, void *p)
 {
-    struct bao_m_t_params *params = (struct bao_m_t_params *)p;
+    struct bao_mr_params_m *params = (struct bao_mr_params_m *)p;
     const MatrixXd *A = (params->A);
     const ArrayXd *LB = (params->LB);
     const MatrixXd *D = (params->D);
@@ -173,14 +173,14 @@ double bao_int_n_m_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_m_u_params params_pass;
+    struct bao_tB_params_m params_pass;
     params_pass.A = &Ar_HDr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.mu = &mu_til;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_int_n_m_u_fun;
+    F.function = &bao_tB_fun_int_n_m;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -200,61 +200,61 @@ double bao_int_n_m_t_fun(double t, void *p)
 
 
 
-struct bao_v_u_params {
+struct bao_tB_params_v {
     const Eigen::ArrayXd *LA;
-    const Eigen::ArrayXd *LD;
+    const Eigen::ArrayXd *LB;
     const Eigen::ArrayXd *mu;
     const double *p_;
-    const double *r_;
+    const double *q_;
     const Eigen::Index *p_i;
     const double *epsabs;
     const double *epsrel;
     const int *limit;
 };
 
-double bao_int_c_v_u_fun(double u, void *p)
+double bao_tB_fun_int_c_v(double u, void *p)
 {
-    struct bao_v_u_params *params = (struct bao_v_u_params *)p;
+    struct bao_tB_params_v *params = (struct bao_tB_params_v *)p;
     const ArrayXd *LA = (params->LA);
-    const ArrayXd *LD = (params->LD);
-    const double *r_ = (params->r_);
+    const ArrayXd *LB = (params->LB);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     ArrayXd LAr = (*LA) * Delta2;
 
     ArrayXd lscfdp = ArrayXd::Zero((*p_i) + 1);
     double d_til = d1_i_vE(LAr, *p_i, lscfdp, 100.0)(*p_i);
 
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * d_til;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * d_til;
 
     return out;
 }
 
-double bao_int_n_v_u_fun(double u, void *p)
+double bao_tB_fun_int_n_v(double u, void *p)
 {
-    struct bao_v_u_params *params = (struct bao_v_u_params *)p;
+    struct bao_tB_params_v *params = (struct bao_tB_params_v *)p;
     const ArrayXd *LA = (params->LA);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const ArrayXd *mu = (params->mu);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     ArrayXd LAr = (*LA) * Delta2;
     ArrayXd mu_til = Delta * (*mu);
     ArrayXd lscfdp = ArrayXd::Zero((*p_i) + 1);
     double d_til = dtil1_i_vE(LAr, mu_til, *p_i, lscfdp, 100.0)(*p_i);
 
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() *
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() *
                  exp(mu_til.matrix().squaredNorm() / 2.0) * d_til;
 
     return out;
 }
 
-struct bao_v_t_params {
+struct bao_mr_params_v {
     const Eigen::ArrayXd *LA;
     const Eigen::ArrayXd *LB;
     const Eigen::ArrayXd *LD;
@@ -268,9 +268,9 @@ struct bao_v_t_params {
     const int *limit;
 };
 
-double bao_int_c_v_t_fun(double t, void *p)
+double bao_mr_fun_int_c_v(double t, void *p)
 {
-    struct bao_v_t_params *params = (struct bao_v_t_params *)p;
+    struct bao_mr_params_v *params = (struct bao_mr_params_v *)p;
     const ArrayXd *LA = (params->LA);
     const ArrayXd *LB = (params->LB);
     const ArrayXd *LD = (params->LD);
@@ -290,16 +290,16 @@ double bao_int_c_v_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_v_u_params params_pass;
+    struct bao_tB_params_v params_pass;
     params_pass.LA = &LAr;
-    params_pass.LD = &LDr;
-    params_pass.r_ = r_;
+    params_pass.LB = &LDr;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_int_c_v_u_fun;
+    F.function = &bao_tB_fun_int_c_v;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -317,9 +317,9 @@ double bao_int_c_v_t_fun(double t, void *p)
     return out;
 }
 
-double bao_int_n_v_t_fun(double t, void *p)
+double bao_mr_fun_int_n_v(double t, void *p)
 {
-    struct bao_v_t_params *params = (struct bao_v_t_params *)p;
+    struct bao_mr_params_v *params = (struct bao_mr_params_v *)p;
     const ArrayXd *LA = (params->LA);
     const ArrayXd *LB = (params->LB);
     const ArrayXd *LD = (params->LD);
@@ -341,17 +341,17 @@ double bao_int_n_v_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_v_u_params params_pass;
+    struct bao_tB_params_v params_pass;
     params_pass.LA = &LAr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.mu = &mu_til;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_int_n_v_u_fun;
+    F.function = &bao_tB_fun_int_n_v;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -371,16 +371,16 @@ double bao_int_n_v_t_fun(double t, void *p)
 
 
 
-struct bao_s_params {
+struct bao_sA_params {
     const Eigen::ArrayXd *LA;
     const Eigen::ArrayXd *mu;
     const double *p_;
     const Index *p_i;
 };
 
-double bao_npi_c_s_fun(double s, void *p)
+double bao_sA_fun_npi_c(double s, void *p)
 {
-    struct bao_s_params *params = (struct bao_s_params *)p;
+    struct bao_sA_params *params = (struct bao_sA_params *)p;
     const ArrayXd *LA = (params->LA);
     const double *p_ = (params->p_);
     const Index *p_i = (params->p_i);
@@ -396,9 +396,9 @@ double bao_npi_c_s_fun(double s, void *p)
     return out;
 }
 
-double bao_npi_n_s_fun(double s, void *p)
+double bao_sA_fun_npi_n(double s, void *p)
 {
-    struct bao_s_params *params = (struct bao_s_params *)p;
+    struct bao_sA_params *params = (struct bao_sA_params *)p;
     const ArrayXd *LA = (params->LA);
     const ArrayXd *mu = (params->mu);
     const double *p_ = (params->p_);
@@ -417,19 +417,19 @@ double bao_npi_n_s_fun(double s, void *p)
     return out;
 }
 
-double bao_npi_c_m_u_fun(double u, void *p)
+double bao_tB_fun_npi_c_m(double u, void *p)
 {
-    struct bao_m_u_params *params = (struct bao_m_u_params *)p;
+    struct bao_tB_params_m *params = (struct bao_tB_params_m *)p;
     const MatrixXd *A = (params->A);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const double *p_ = (params->p_);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
     const double *epsabs = (params->epsabs);
     const double *epsrel = (params->epsrel);
     const int *limit = (params->limit);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     DiagMatXd DeltaD = Delta.matrix().asDiagonal();
     MatrixXd Ar = DeltaD * (*A) * DeltaD;
@@ -440,12 +440,12 @@ double bao_npi_c_m_u_fun(double u, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_s_params params_pass;
+    struct bao_sA_params params_pass;
     params_pass.LA = &LAr;
     params_pass.p_ = p_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_npi_c_s_fun;
+    F.function = &bao_sA_fun_npi_c;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -458,25 +458,25 @@ double bao_npi_c_m_u_fun(double u, void *p)
         // else
             Rcpp::warning(errmsg);
     }
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * value;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * value;
 
     return out;
 }
 
-double bao_npi_n_m_u_fun(double u, void *p)
+double bao_tB_fun_npi_n_m(double u, void *p)
 {
-    struct bao_m_u_params *params = (struct bao_m_u_params *)p;
+    struct bao_tB_params_m *params = (struct bao_tB_params_m *)p;
     const MatrixXd *A = (params->A);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const ArrayXd *mu = (params->mu);
     const double *p_ = (params->p_);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
     const double *epsabs = (params->epsabs);
     const double *epsrel = (params->epsrel);
     const int *limit = (params->limit);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     DiagMatXd DeltaD = Delta.matrix().asDiagonal();
     MatrixXd Ar = DeltaD * (*A) * DeltaD;
@@ -489,13 +489,13 @@ double bao_npi_n_m_u_fun(double u, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_s_params params_pass;
+    struct bao_sA_params params_pass;
     params_pass.LA = &LAr;
     params_pass.mu = &mu_til;
     params_pass.p_ = p_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_npi_n_s_fun;
+    F.function = &bao_sA_fun_npi_n;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -508,14 +508,14 @@ double bao_npi_n_m_u_fun(double u, void *p)
         // else
             Rcpp::warning(errmsg);
     }
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * value;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * value;
 
     return out;
 }
 
-double bao_npi_c_m_t_fun(double t, void *p)
+double bao_mr_fun_npi_c_m(double t, void *p)
 {
-    struct bao_m_t_params *params = (struct bao_m_t_params *)p;
+    struct bao_mr_params_m *params = (struct bao_mr_params_m *)p;
     const MatrixXd *A = (params->A);
     const ArrayXd *LB = (params->LB);
     const MatrixXd *D = (params->D);
@@ -541,17 +541,17 @@ double bao_npi_c_m_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_m_u_params params_pass;
+    struct bao_tB_params_m params_pass;
     params_pass.A = &Ar_HDr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.p_ = p_;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_npi_c_m_u_fun;
+    F.function = &bao_tB_fun_npi_c_m;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -569,9 +569,9 @@ double bao_npi_c_m_t_fun(double t, void *p)
     return out;
 }
 
-double bao_npi_n_m_t_fun(double t, void *p)
+double bao_mr_fun_npi_n_m(double t, void *p)
 {
-    struct bao_m_t_params *params = (struct bao_m_t_params *)p;
+    struct bao_mr_params_m *params = (struct bao_mr_params_m *)p;
     const MatrixXd *A = (params->A);
     const ArrayXd *LB = (params->LB);
     const MatrixXd *D = (params->D);
@@ -599,18 +599,18 @@ double bao_npi_n_m_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_m_u_params params_pass;
+    struct bao_tB_params_m params_pass;
     params_pass.A = &Ar_HDr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.mu = &mu_til;
     params_pass.p_ = p_;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_npi_n_m_u_fun;
+    F.function = &bao_tB_fun_npi_n_m;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -629,19 +629,19 @@ double bao_npi_n_m_t_fun(double t, void *p)
 }
 
 
-double bao_npi_c_v_u_fun(double u, void *p)
+double bao_tB_fun_npi_c_v(double u, void *p)
 {
-    struct bao_v_u_params *params = (struct bao_v_u_params *)p;
+    struct bao_tB_params_v *params = (struct bao_tB_params_v *)p;
     const ArrayXd *LA = (params->LA);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const double *p_ = (params->p_);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
     const double *epsabs = (params->epsabs);
     const double *epsrel = (params->epsrel);
     const int *limit = (params->limit);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     ArrayXd LAr = (*LA) * Delta2;
 
@@ -649,12 +649,12 @@ double bao_npi_c_v_u_fun(double u, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_s_params params_pass;
+    struct bao_sA_params params_pass;
     params_pass.LA = &LAr;
     params_pass.p_ = p_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_npi_c_s_fun;
+    F.function = &bao_sA_fun_npi_c;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -667,25 +667,25 @@ double bao_npi_c_v_u_fun(double u, void *p)
         // else
             Rcpp::warning(errmsg);
     }
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * value;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * value;
 
     return out;
 }
 
-double bao_npi_n_v_u_fun(double u, void *p)
+double bao_tB_fun_npi_n_v(double u, void *p)
 {
-    struct bao_v_u_params *params = (struct bao_v_u_params *)p;
+    struct bao_tB_params_v *params = (struct bao_tB_params_v *)p;
     const ArrayXd *LA = (params->LA);
-    const ArrayXd *LD = (params->LD);
+    const ArrayXd *LB = (params->LB);
     const ArrayXd *mu = (params->mu);
     const double *p_ = (params->p_);
-    const double *r_ = (params->r_);
+    const double *q_ = (params->q_);
     const Index *p_i = (params->p_i);
     const double *epsabs = (params->epsabs);
     const double *epsrel = (params->epsrel);
     const int *limit = (params->limit);
 
-    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LD));
+    ArrayXd Delta2 = 1.0 / (1.0 + 2.0 * u * (*LB));
     ArrayXd Delta = Delta2.sqrt();
     ArrayXd LAr = (*LA) * Delta2;
     ArrayXd mu_til = Delta * (*mu);
@@ -694,13 +694,13 @@ double bao_npi_n_v_u_fun(double u, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_s_params params_pass;
+    struct bao_sA_params params_pass;
     params_pass.LA = &LAr;
     params_pass.mu = &mu_til;
     params_pass.p_ = p_;
     params_pass.p_i = p_i;
     gsl_function F;
-    F.function = &bao_npi_n_s_fun;
+    F.function = &bao_sA_fun_npi_n;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -713,14 +713,14 @@ double bao_npi_n_v_u_fun(double u, void *p)
         // else
             Rcpp::warning(errmsg);
     }
-    double out = std::pow(u, (*r_) - 1.0) * Delta.prod() * value;
+    double out = std::pow(u, (*q_) - 1.0) * Delta.prod() * value;
 
     return out;
 }
 
-double bao_npi_c_v_t_fun(double t, void *p)
+double bao_mr_fun_npi_c_v(double t, void *p)
 {
-    struct bao_v_t_params *params = (struct bao_v_t_params *)p;
+    struct bao_mr_params_v *params = (struct bao_mr_params_v *)p;
     const ArrayXd *LA = (params->LA);
     const ArrayXd *LB = (params->LB);
     const ArrayXd *LD = (params->LD);
@@ -741,17 +741,17 @@ double bao_npi_c_v_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_v_u_params params_pass;
+    struct bao_tB_params_v params_pass;
     params_pass.LA = &LAr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.p_ = p_;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.p_i = p_i;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_npi_c_v_u_fun;
+    F.function = &bao_tB_fun_npi_c_v;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -769,9 +769,9 @@ double bao_npi_c_v_t_fun(double t, void *p)
     return out;
 }
 
-double bao_npi_n_v_t_fun(double t, void *p)
+double bao_mr_fun_npi_n_v(double t, void *p)
 {
-    struct bao_v_t_params *params = (struct bao_v_t_params *)p;
+    struct bao_mr_params_v *params = (struct bao_mr_params_v *)p;
     const ArrayXd *LA = (params->LA);
     const ArrayXd *LB = (params->LB);
     const ArrayXd *LD = (params->LD);
@@ -794,18 +794,18 @@ double bao_npi_n_v_t_fun(double t, void *p)
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(*limit);
     double value, error;
     int status;
-    struct bao_v_u_params params_pass;
+    struct bao_tB_params_v params_pass;
     params_pass.LA = &LAr;
-    params_pass.LD = &LDr;
+    params_pass.LB = &LDr;
     params_pass.mu = &mu_til;
     params_pass.p_ = p_;
     params_pass.p_i = p_i;
-    params_pass.r_ = r_;
+    params_pass.q_ = r_;
     params_pass.epsabs = epsabs;
     params_pass.epsrel = epsrel;
     params_pass.limit = limit;
     gsl_function F;
-    F.function = &bao_npi_n_v_u_fun;
+    F.function = &bao_tB_fun_npi_n_v;
     F.params = &params_pass;
     status = gsl_integration_qagiu(&F, 0, *epsabs, *epsrel, *limit, w,
                                    &value, &error);
@@ -826,7 +826,7 @@ double bao_npi_n_v_t_fun(double t, void *p)
 
 
 //' @describeIn qfrm_cpp
-//'   \code{qfmrm_integ_npi()}, double
+//'   \code{qfmrm_integ_int()}, double
 //'
 // [[Rcpp::export]]
 SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
@@ -850,7 +850,7 @@ SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     if (use_vec) {
         ArrayXd LA = A.diagonal();
         ArrayXd LD = D.diagonal();
-        struct bao_v_t_params params;
+        struct bao_mr_params_v params;
         params.LA = &LA;
         params.LB = &LB;
         params.LD = &LD;
@@ -864,10 +864,10 @@ SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
         params.limit = &limit;
         F.params = &params;
         if (central) {
-            F.function = &bao_int_c_v_t_fun;
+            F.function = &bao_mr_fun_int_c_v;
         }
         else {
-            F.function = &bao_int_n_v_t_fun;
+            F.function = &bao_mr_fun_int_n_v;
         }
         // Function call must be within the same scope with params;
         // otherwise segfault occurs
@@ -875,7 +875,7 @@ SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
                                        &value, &error);
     }
     else {
-        struct bao_m_t_params params;
+        struct bao_mr_params_m params;
         params.A = &A;
         params.LB = &LB;
         params.D = &D;
@@ -889,10 +889,10 @@ SEXP integ_mr_int_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
         params.limit = &limit;
         F.params = &params;
         if (central) {
-            F.function = &bao_int_c_m_t_fun;
+            F.function = &bao_mr_fun_int_c_m;
         }
         else {
-            F.function = &bao_int_n_m_t_fun;
+            F.function = &bao_mr_fun_int_n_m;
         }
         status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
                                        &value, &error);
@@ -943,7 +943,7 @@ SEXP integ_mr_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
     if (use_vec) {
         ArrayXd LA = A.diagonal();
         ArrayXd LD = D.diagonal();
-        struct bao_v_t_params params;
+        struct bao_mr_params_v params;
         params.LA = &LA;
         params.LB = &LB;
         params.LD = &LD;
@@ -957,16 +957,16 @@ SEXP integ_mr_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
         params.limit = &limit;
         F.params = &params;
         if (central) {
-            F.function = &bao_npi_c_v_t_fun;
+            F.function = &bao_mr_fun_npi_c_v;
         }
         else {
-            F.function = &bao_npi_n_v_t_fun;
+            F.function = &bao_mr_fun_npi_n_v;
         }
         status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
                                        &value, &error);
     }
     else {
-        struct bao_m_t_params params;
+        struct bao_mr_params_m params;
         params.A = &A;
         params.LB = &LB;
         params.D = &D;
@@ -980,10 +980,10 @@ SEXP integ_mr_npi_Ed(const Eigen::MatrixXd A, const Eigen::ArrayXd LB,
         params.limit = &limit;
         F.params = &params;
         if (central) {
-            F.function = &bao_npi_c_m_t_fun;
+            F.function = &bao_mr_fun_npi_c_m;
         }
         else {
-            F.function = &bao_npi_n_m_t_fun;
+            F.function = &bao_mr_fun_npi_n_m;
         }
         status = gsl_integration_qagiu(&F, 0, epsabs, epsrel, limit, w,
                                        &value, &error);

@@ -276,7 +276,7 @@ ApBDqr_npi_El <- function(A, LB, D, bA, bB, bD, mu, p_ = 1L, q_ = 1L, r_ = 1L, m
 }
 
 #' @describeIn qfrm_cpp
-#'   \code{qfmrm_integ_npi()}, double
+#'   \code{qfmrm_integ_int()}, double
 #'
 integ_mr_int_Ed <- function(A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit) {
     .Call(`_qfratio_integ_mr_int_Ed`, A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit)
