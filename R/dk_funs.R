@@ -518,7 +518,9 @@ dtil1_i_m <- function(A, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #' @rdname dtil2_pq
 #'
 dtil2_pq_m <- function(A1, A2, mu = rep.int(0, n), p = 1L, q = 1L) {
-    if (p == 1L) return(dtil2_1q_m(A1, A2, mu, q))
+    if (p == 1L) {
+        return(dtil2_1q_m(A1, A2, mu, q))
+    }
     n <- ncol(A1)
     In <- diag(n)
     dks <- matrix(0, p + 1L, q + 1L)
@@ -584,7 +586,9 @@ dtil2_1q_m <- function(A1, A2, mu = rep.int(0, n), q = 1L) {
 #' @rdname dtil2_pq
 #'
 dtil2_pq_v <- function(L1, L2, mu = rep.int(0, n), p = 1L, q = 1L) {
-    if (p == 1L) return(dtil2_1q_v(L1, L2, mu, q))
+    if (p == 1L) {
+        return(dtil2_1q_v(L1, L2, mu, q))
+    }
     n <- length(L1)
     dks <- matrix(0, p + 1L, q + 1L)
     dks[1L, 1L] <- 1
@@ -945,7 +949,9 @@ d2_ij_v <- function(L1, L2, m = 100L, p = m, q = m, thr_margin = 100,
 #' @rdname d2_ij
 #'
 d2_pj_m <- function(A1, A2, m = 100L, p = 1L, thr_margin = 100) {
-    if (p == 1L) return(d2_1j_m(A1, A2, m))
+    if (p == 1L) {
+        return(d2_1j_m(A1, A2, m))
+    }
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1020,7 +1026,9 @@ d2_1j_m <- function(A1, A2, m = 100L, thr_margin = 100) {
 #' @rdname d2_ij
 #'
 d2_pj_v <- function(L1, L2, m = 100L, p = 1L, thr_margin = 100) {
-    if (p == 1L) return(d2_1j_v(L1, L2, m))
+    if (p == 1L) {
+        return(d2_1j_v(L1, L2, m))
+    }
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1425,7 +1433,9 @@ h2_ij_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = m, q = m,
 #'
 htil2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if (p == 1L) return(htil2_1j_m(A1, A2, mu, m))
+    if (p == 1L) {
+        return(htil2_1j_m(A1, A2, mu, m))
+    }
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1521,7 +1531,9 @@ htil2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #'
 htil2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if (p == 1L) return(htil2_1j_v(L1, L2, mu, m))
+    if (p == 1L) {
+        return(htil2_1j_v(L1, L2, mu, m))
+    }
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -1918,7 +1930,9 @@ htil3_pjk_v <- function(L1, L2, L3, mu = rep.int(0, n), m = 100L, p = 1L,
 #'
 hhat2_pj_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if (p == 1L) return(hhat2_1j_m(A1, A2, mu, m))
+    if (p == 1L) {
+        return(hhat2_1j_m(A1, A2, mu, m))
+    }
     n <- ncol(A1)
     p1 <- p + 1L
     m1 <- m + 1L
@@ -2014,7 +2028,9 @@ hhat2_1j_m <- function(A1, A2, mu = rep.int(0, n), m = 100L, thr_margin = 100) {
 #'
 hhat2_pj_v <- function(L1, L2, mu = rep.int(0, n), m = 100L, p = 1L,
                        thr_margin = 100) {
-    if (p == 1L) return(hhat2_1j_v(L1, L2, mu, m))
+    if (p == 1L) {
+        return(hhat2_1j_v(L1, L2, mu, m))
+    }
     n <- length(L1)
     p1 <- p + 1L
     m1 <- m + 1L

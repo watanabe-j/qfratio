@@ -203,7 +203,8 @@
 #' @param thr_margin
 #'   Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 #'   in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-#'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.
+#'   \code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+#'   equivalents.
 #' @param nthreads
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 #'   functions.  If \code{<= 0} (default), one-half of the number of processors
@@ -395,6 +396,7 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
         return(do.call(qfrm_ApBq_npi, arg_list))
     }
 }
+
 ##### qfmrm #####
 #' Moment of multiple ratio of quadratic forms in normal variables
 #'
@@ -604,7 +606,7 @@ qfmrm <- function(A, B, D, p = 1, q = p / 2, r = q, m = 100L,
                 arg_qfrm[["q"]] <- q + r
                 if ("alphaD" %in% names(arg_qfrm)) {
                     if ("alphaB" %in% names(arg_qfrm)) {
-                        ## When both alphaB and alphaD exist, use alphaB but warn
+                        ## If both alphaB and alphaD exist, use alphaB but warn
                         warning("With B == D, the denominator factors are ",
                                 "merged; alphaD is ignored")
                     } else {
@@ -811,7 +813,7 @@ qfm_Ap_int <- function(A, p = 1, mu = rep.int(0, n), Sigma = diag(n),
             }
         }
         return(qfm_Ap_int(KtAK, p, mu = iKmu, use_cpp = use_cpp,
-                           cpp_method = cpp_method, tol_zero = tol_zero))
+                          cpp_method = cpp_method, tol_zero = tol_zero))
     }
     A <- (A + t(A)) / 2
     if (use_cpp) {
@@ -1055,7 +1057,8 @@ qfpm_ABDpqr_int <- function(A, B, D, p = 1, q = 1, r = 1,
         cppres <- ABDpqr_int_E(A, LB, D, mu, p, q, r, tol_zero = tol_zero)
         ans <- cppres$ans
     } else {
-        use_vec <- is_diagonal(A, tol_zero, TRUE) && is_diagonal(D, tol_zero, TRUE)
+        use_vec <- (is_diagonal(A, tol_zero, TRUE) &&
+                    is_diagonal(D, tol_zero, TRUE))
         central <- iseq(mu, rep.int(0, n), tol = tol_zero)
         if (use_vec) {
             LA <- diag(A)
@@ -1167,11 +1170,13 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                 ## This is an exact expression (Hillier et al. 2014, (58))
                 mu <- c(crossprod(eigA$vectors, c(mu)))
                 aps <- a1_pk(LA, mu, m = p)[p + 1, ]
-                hgres <- hyperg_1F1_vec_b(q, seq.int(n/2 + p, n/2 + p + p), -crossprod(mu) / 2)
+                hgres <- hyperg_1F1_vec_b(q, seq.int(n/2 + p, n/2 + p + p),
+                                          -crossprod(mu) / 2)
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(p + 1)
-                      + lgamma(seq.int(n/2 + p - q, n/2 + p - q + p)) - 0:p * log(2)
-                      - lgamma(seq_len(p + 1)) - lgamma(seq.int(n/2 + p, n/2 + p + p))) *
+                        + lgamma(seq.int(n/2 + p - q, n/2 + p - q + p))
+                        - 0:p * log(2) - lgamma(seq_len(p + 1))
+                        - lgamma(seq.int(n/2 + p, n/2 + p + p))) *
                     hgres$val * aps
             } else {
                 ## This is a recursive alternative (Hillier et al. 2014, (53))
@@ -1180,9 +1185,10 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                                thr_margin = thr_margin)[p + 1, ]
                 ansseq <-
                     exp((p - q) * log(2) + lgamma(1 + p) - c(crossprod(mu)) / 2
-                      + lgamma(seq.int(n/2 + p - q, n/2 + p - q + m)) - 0:m * log(2)
-                      - lgamma(seq.int(1/2, 1/2 + m)) + lgamma(1/2) - lgamma(seq.int(n/2 + p, n/2 + p + m))
-                      + log(dks))
+                        + lgamma(seq.int(n/2 + p - q, n/2 + p - q + m))
+                        - 0:m * log(2) - lgamma(seq.int(1/2, 1/2 + m))
+                        + lgamma(1/2) - lgamma(seq.int(n/2 + p, n/2 + p + m))
+                        + log(dks))
                 exact <- FALSE
             }
             ans <- sum(ansseq)
@@ -1207,16 +1213,15 @@ qfrm_ApIq_int <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    error_bound = TRUE,
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 1, alphaA = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                          error_bound = TRUE,
+                          check_convergence = c("relative", "strict_relative",
+                                                "absolute", "none"),
+                          use_cpp = TRUE,
+                          cpp_method = c("double", "long_double", "coef_wise"),
+                          nthreads = 1, alphaA = 1,
+                          tol_conv = .Machine$double.eps ^ 0.25,
+                          tol_zero = .Machine$double.eps * 100,
+                          tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -1278,7 +1283,8 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             # dks <- d2_ij_m(diag(LAh), tcrossprod(mu), m)
             # ansmat <- hgs_dmu_2d(dks, -p, n / 2 + p - q, n / 2,
             #                      ((p - q) * log(2) - c(crossprod(mu)) / 2
-            #                      - p * log(bA) + lgamma(n/2 + p - q) - lgamma(n/2)))
+            #                       - p * log(bA) + lgamma(n/2 + p - q)
+            #                       - lgamma(n/2)))
             ## This is based on recursion for h as in Hillier et al. (2014)
             dks <- h2_ij_v(LAh, rep.int(0, n), mu, m, thr_margin = thr_margin)
             lscf <- attr(dks, "logscale")
@@ -1309,21 +1315,21 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             dkst <- dks
             twosided <- FALSE
             lcoefe <- (lgamma(seq.int(-p + 1, -p + 1 + m)) - lgamma(-p)
-                       - lgamma(seq.int(n/2 + 1, n/2 + 1 + m)) + lgamma(n/2 + p - q)
-                       + (p - q) * log(2) - p * log(bA))
+                       - lgamma(seq.int(n/2 + 1, n/2 + 1 + m))
+                       + lgamma(n/2 + p - q) + (p - q) * log(2) - p * log(bA))
             errseq <- exp(lcoefe - sum(log(1 - Lp)) / 2) -
                       exp((lcoefe + log(cumsum(dkst[seq_len(m + 1)] /
-                                        exp(lscf[seq_len(m + 1)] - lscf[m + 1])))) -
-                          lscf[m + 1])
+                                        exp(lscf[seq_len(m + 1)] -
+                                            lscf[m + 1])))) - lscf[m + 1])
             errseq <- errseq * cumprod(sign(seq.int(-p, -p + m)))
         }
         if (singularA) {
             warning("Argument matrix is numerically close to singular.\n  ",
-            "If it is singular, this error bound is invalid.")
+                    "If it is singular, this error bound is invalid.")
         }
         if (alphaout) {
             warning("Error bound is unreliable when alphaA > 1\n  ",
-            "It is returned purely for heuristic purpose")
+                    "It is returned purely for heuristic purpose")
         }
     } else {
         if (error_bound) {
@@ -1350,15 +1356,14 @@ qfrm_ApIq_npi <- function(A, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    error_bound = TRUE,
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE, cpp_method = "double", nthreads = 1,
-                    alphaB = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                          error_bound = TRUE,
+                          check_convergence = c("relative", "strict_relative",
+                                                "absolute", "none"),
+                          use_cpp = TRUE, cpp_method = "double", nthreads = 1,
+                          alphaB = 1,
+                          tol_conv = .Machine$double.eps ^ 0.25,
+                          tol_zero = .Machine$double.eps * 100,
+                          tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -1511,9 +1516,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
                     dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE, only.values = TRUE)$values / bB, p,
-                                     thr_margin = thr_margin)[p + 1]
+                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE,
+                                     only.values = TRUE)$values / bB, p,
+                               thr_margin = thr_margin)[p + 1]
                 }
             } else {
                 twosided <- TRUE
@@ -1537,8 +1542,9 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
             lscft <- attr(dkstm, "logscale")[p + 1, seq_len(m + 1)]
             lBdet <- sum(log(LB * bB))
             lcoefe <- (lgamma(seq.int(q + 1, q + 1 + m)) - lgamma(q)
-                        - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m)) + lgamma(n/2 + p - q)
-                        + (p - q) * log(2) + q * log(bB) + lgamma(p + 1))
+                        - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m))
+                        + lgamma(n/2 + p - q) + (p - q) * log(2) + q * log(bB)
+                        + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
                           - lscft[m + 1])
@@ -1562,15 +1568,14 @@ qfrm_ApBq_int <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaA = 1, alphaB = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                          check_convergence = c("relative", "strict_relative",
+                                                "absolute", "none"),
+                          use_cpp = TRUE,
+                          cpp_method = c("double", "long_double", "coef_wise"),
+                          nthreads = 0, alphaA = 1, alphaB = 1,
+                          tol_conv = .Machine$double.eps ^ 0.25,
+                          tol_zero = .Machine$double.eps * 100,
+                          tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -1732,11 +1737,10 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
-                    use_cpp = TRUE,
-                    stop_on_error = TRUE,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+                           use_cpp = TRUE, stop_on_error = TRUE,
+                           tol_zero = .Machine$double.eps * 100,
+                           tol_sing = tol_zero,
+                           epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     bao_fun_c_m <- function(t_, A, LB) {
         Delta <- 1 / sqrt(1 + 2 * t_ * LB)
         Ar <- Delta * t(Delta * A)
@@ -1871,11 +1875,10 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
-                    use_cpp = TRUE,
-                    stop_on_error = TRUE,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+                           use_cpp = TRUE, stop_on_error = TRUE,
+                           tol_zero = .Machine$double.eps * 100,
+                           tol_sing = tol_zero,
+                           epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     s_fun_c <- function(s, LA) {
         Delta2_sA <- 1 / (1 + 2 * s * LA)
         Delta_sA <- sqrt(Delta2_sA)
@@ -1972,7 +1975,8 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
     } else {
         A12z <- all(abs(A[seq_len(rB), (rB + 1):n]) < tol_zero)
         A22z <- all(abs(A[(rB + 1):n, (rB + 1):n]) < tol_zero)
-        cond_exist <- if (!A22z) {
+        cond_exist <-
+        if (!A22z) {
                     rB / 2 > q              ## condition(2)(iii)
                 } else {
                     if (!A12z) {
@@ -2045,17 +2049,18 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n),
-                    error_bound = TRUE,
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaB = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                             mu = rep.int(0, n),
+                             error_bound = TRUE,
+                             check_convergence = c("relative",
+                                                   "strict_relative",
+                                                   "absolute", "none"),
+                             use_cpp = TRUE,
+                             cpp_method = c("double", "long_double",
+                                            "coef_wise"),
+                             nthreads = 0, alphaB = 1,
+                             tol_conv = .Machine$double.eps ^ 0.25,
+                             tol_zero = .Machine$double.eps * 100,
+                             tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -2238,9 +2243,9 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
                     dp <- d1_i(LAp / LB / bB, p, thr_margin = thr_margin)[p + 1]
                 } else {
                     Bisqr <- 1 / sqrt(LB)
-                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr),
-                                     symmetric = TRUE, only.values = TRUE)$values / bB, p,
-                                     thr_margin = thr_margin)[p + 1]
+                    dp <- d1_i(eigen(t(t(Ap * Bisqr) * Bisqr), symmetric = TRUE,
+                                     only.values = TRUE)$values / bB, p,
+                               thr_margin = thr_margin)[p + 1]
                 }
                 lscft <- attr(dkstm, "logscale")[p + 1, ]
             } else {
@@ -2266,7 +2271,8 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
             }
             lBdet <- sum(log(LB * bB))
             lcoefe <- (lgamma(seq.int(s + 1, s + 1 + m)) - lgamma(s)
-                       - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m)) + lgamma(n/2 + p - q - r)
+                       - lgamma(seq.int(n/2 + p + 1, n/2 + p + 1 + m))
+                       + lgamma(n/2 + p - q - r)
                        + (p - q - r) * log(2) + q * log(bB) + lgamma(p + 1))
             errseq <- exp(lcoefe + (deldif2 + log(dp) - lBdet / 2)) -
                       exp(lcoefe + log(cumsum(dkst / exp(lscft - lscft[m + 1])))
@@ -2292,16 +2298,17 @@ qfmrm_ApBIqr_int <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n),
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaA = 1, alphaB = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                             mu = rep.int(0, n),
+                             check_convergence = c("relative",
+                                                   "strict_relative",
+                                                   "absolute", "none"),
+                             use_cpp = TRUE,
+                             cpp_method = c("double", "long_double",
+                                            "coef_wise"),
+                             nthreads = 0, alphaA = 1, alphaB = 1,
+                             tol_conv = .Machine$double.eps ^ 0.25,
+                             tol_zero = .Machine$double.eps * 100,
+                             tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -2487,16 +2494,17 @@ qfmrm_ApBIqr_npi <- function(A, B, p = 1, q = 1, r = 1, m = 100L,
 #' @export
 #'
 qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    m = 100L,
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaB = 1, alphaD = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                             m = 100L,
+                             check_convergence = c("relative",
+                                                   "strict_relative",
+                                                   "absolute", "none"),
+                             use_cpp = TRUE,
+                             cpp_method = c("double", "long_double",
+                                            "coef_wise"),
+                             nthreads = 0, alphaB = 1, alphaD = 1,
+                             tol_conv = .Machine$double.eps ^ 0.25,
+                             tol_zero = .Machine$double.eps * 100,
+                             tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -2693,16 +2701,17 @@ qfmrm_IpBDqr_gen <- function(B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
-                    mu = rep.int(0, n),
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaB = 1, alphaD = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                             mu = rep.int(0, n),
+                             check_convergence = c("relative",
+                                                   "strict_relative",
+                                                   "absolute", "none"),
+                             use_cpp = TRUE,
+                             cpp_method = c("double", "long_double",
+                                            "coef_wise"),
+                             nthreads = 0, alphaB = 1, alphaD = 1,
+                             tol_conv = .Machine$double.eps ^ 0.25,
+                             tol_zero = .Machine$double.eps * 100,
+                             tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -2905,24 +2914,25 @@ qfmrm_ApBDqr_int <- function(A, B, D, p = 1, q = 1, r = 1, m = 100L,
 ##### qfmrm_ApBDqr_npi #####
 #' Positive integer moment of multiple ratio
 #'
-#' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-#' and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
+#' \code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A},
+#' \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
 #'
 #' @rdname qfmrm
 #'
 #' @export
 #'
 qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
-                    m = 100L, mu = rep.int(0, n),
-                    check_convergence = c("relative", "strict_relative",
-                                          "absolute", "none"),
-                    use_cpp = TRUE,
-                    cpp_method = c("double", "long_double", "coef_wise"),
-                    nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
-                    tol_conv = .Machine$double.eps ^ 0.25,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    thr_margin = 100) {
+                             m = 100L, mu = rep.int(0, n),
+                             check_convergence = c("relative",
+                                                   "strict_relative",
+                                                   "absolute", "none"),
+                             use_cpp = TRUE,
+                             cpp_method = c("double", "long_double",
+                                            "coef_wise"),
+                             nthreads = 0, alphaA = 1, alphaB = 1, alphaD = 1,
+                             tol_conv = .Machine$double.eps ^ 0.25,
+                             tol_zero = .Machine$double.eps * 100,
+                             tol_sing = tol_zero, thr_margin = 100) {
     if (isTRUE(check_convergence)) check_convergence <- "strict_relative"
     if (isFALSE(check_convergence)) check_convergence <- "none"
     check_convergence <- match.arg(check_convergence)
@@ -3105,9 +3115,10 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
             }
         }
         lscf <- attr(dksm, "logscale")
-        ansarr <- hgs_3d(dksm, -p, q, r, n / 2, ((p - q - r) * log(2)
-                         - p * log(bA) + q * log(bB) + r * log(bD)
-                         + lgamma(n/2 + p - q - r) - lgamma(n/2) - lscf))
+        ansarr <- hgs_3d(dksm, -p, q, r, n / 2,
+                         ((p - q - r) * log(2) - p * log(bA) + q * log(bB) +
+                          r * log(bD) + lgamma(n/2 + p - q - r) - lgamma(n/2) -
+                          lscf))
         ansseq <- sum_counterdiag3D(ansarr)
         if (any(lscf < 0)) {
             for (k in seq_len(m + 1)) {
@@ -3133,7 +3144,9 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
                 "Result will be inaccurate",
                 if (cpp_method != "coef_wise")
                     paste0(".\n  Consider using cpp_method = ",
-                           if (cpp_method != "long_double") "\"long_double\" or ",
+                           if (cpp_method != "long_double") {
+                               "\"long_double\" or "
+                           },
                            "\"coef_wise\"."))
     }
     .run_check_conv(ansseq, check_convergence, tol_conv)
@@ -3144,19 +3157,18 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
 ##### qfmrm_integ_int #####
 #' Integer moment of multiple ratio
 #'
-#' \code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-#' and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
+#' \code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A},
+#' \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
 #'
 #' @rdname qfmrm
 #'
 #' @export
 #'
 qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    use_cpp = TRUE,
-                    stop_on_error = TRUE,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+                            use_cpp = TRUE, stop_on_error = TRUE,
+                            tol_zero = .Machine$double.eps * 100,
+                            tol_sing = tol_zero,
+                            epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     bao_fun_c_m <- function(t_, A, LB, D) {
         u_fun <- function(u, A, LDr) {
             Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
@@ -3212,7 +3224,8 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
         mu_til_tB <- crossprod(HDr, Delta_tB * mu)
         ans_u <-
-            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr, mu_til_tB)),
+            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr,
+                                                         mu_til_tB)),
                              0, Inf, stop.on.error = stop_on_error)
         t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
     }
@@ -3232,7 +3245,8 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         LAr <- Delta2_tB * LA
         mu_til_tB <- Delta_tB * mu
         ans_u <-
-            stats::integrate(Vectorize(function(u) u_fun(u, LAr, LDr, mu_til_tB)),
+            stats::integrate(Vectorize(function(u) u_fun(u, LAr, LDr,
+                                                         mu_til_tB)),
                              0, Inf, stop.on.error = stop_on_error)
         t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
     }
@@ -3283,7 +3297,8 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         "mu must be an n-vector" = length(mu) == n
     )
     if ((p %% 1) != 0) {
-        stop("For integral p, qfmrm_integ_int() fails;\n  use qfmrm_integ_npi()")
+        stop("For integral p, qfmrm_integ_int() fails",
+             ";\n  use qfmrm_integ_npi()")
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values
@@ -3386,19 +3401,18 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 ##### qfmrm_integ_npi #####
 #' Non-positive-integer moment of multiple ratio
 #'
-#' \code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-#' and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
+#' \code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A},
+#' \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
 #'
 #' @rdname qfmrm
 #'
 #' @export
 #'
 qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
-                    use_cpp = TRUE,
-                    stop_on_error = TRUE,
-                    tol_zero = .Machine$double.eps * 100,
-                    tol_sing = tol_zero,
-                    epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+                            use_cpp = TRUE, stop_on_error = TRUE,
+                            tol_zero = .Machine$double.eps * 100,
+                            tol_sing = tol_zero,
+                            epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
     s_fun_c <- function(s, LA) {
         Delta2_sA <- 1 / (1 + 2 * s * LA)
         Delta_sA <- sqrt(Delta2_sA)
@@ -3463,7 +3477,8 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
             HAr <- eigAr$vectors
             mu_til_uD <- crossprod(HAr, Delta_uD * mu)
             ans_s <-
-                stats::integrate(Vectorize(function(s) s_fun_nc(s, LAr, mu_til_uD)),
+                stats::integrate(Vectorize(function(s) s_fun_nc(s, LAr,
+                                                                mu_til_uD)),
                                  0, Inf, stop.on.error = stop_on_error)
             u ^ (r - 1) * prod(Delta_uD) * ans_s$value
         }
@@ -3476,7 +3491,8 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         Ar_HDr <- crossprod(crossprod(Ar, HDr), HDr)
         mu_til_tB <- crossprod(HDr, Delta_tB * mu)
         ans_u <-
-            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr, mu_til_tB)),
+            stats::integrate(Vectorize(function(u) u_fun(u, Ar_HDr, LDr,
+                                                         mu_til_tB)),
                              0, Inf, stop.on.error = stop_on_error)
         t_ ^ (q - 1) * prod(Delta_tB) * ans_u$value
     }
@@ -3548,7 +3564,8 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         "mu must be an n-vector" = length(mu) == n
     )
     if ((p %% 1) == 0) {
-        stop("For integral p, qfmrm_integ_npi() fails;\n  use qfmrm_integ_int()")
+        stop("For integral p, qfmrm_integ_npi() fails;",
+             "\n  use qfmrm_integ_int()")
     }
     eigB <- eigen(B, symmetric = TRUE)
     LB <- eigB$values

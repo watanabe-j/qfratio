@@ -196,9 +196,15 @@ range_qfr <- function(A, B, eigB = eigen(B, symmetric = TRUE),
     } else if (rB == 0) {
         ## Pathologic case
         LA <- eigen(A, symmetric = TRUE, only.values = TRUE)$values
-        if (all(abs(LA) < tol)) return(c( NaN,  NaN))
-        if (all(LA > -tol))     return(c( Inf,  Inf))
-        if (all(LA <  tol))     return(c(-Inf, -Inf))
+        if (all(abs(LA) < tol)) {
+            return(c(NaN, NaN))
+        }
+        if (all(LA > -tol)) {
+            return(c(Inf, Inf))
+        }
+        if (all(LA <  tol)) {
+            return(c(-Inf, -Inf))
+        }
         return(c(-Inf, Inf))
     } else {
         ## Common null space of A and B makes generalized eigenvalue problem
@@ -215,7 +221,9 @@ range_qfr <- function(A, B, eigB = eigen(B, symmetric = TRUE),
         LBiA <- try(gen_eig(Adn, diag(LBn, rAd), eigBn, Adn, tol = tol, t = t),
                     TRUE)
         ## In case common null space could not be excluded
-        if (inherits(LBiA, "try-error")) return(c(-Inf, Inf))
+        if (inherits(LBiA, "try-error")) {
+            return(c(-Inf, Inf))
+        }
     }
     ## NaN in LBiA usually corresponds to common null space so is negligible
     res <- range(LBiA[!is.nan(LBiA)])
