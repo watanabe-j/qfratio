@@ -59,7 +59,7 @@ vector.}
 \item{Sigma}{Covariance matrix \eqn{\mathbf{\Sigma}}{\Sigma} for \eqn{\mathbf{x}}{x}}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
-functions via \code{Rcpp}.  \code{TRUE} by default.}
+functions via \pkg{Rcpp}.  \code{TRUE} by default.}
 
 \item{cpp_method}{Variable type used in \proglang{C++} calculations.
 In these functions this is ignored.}

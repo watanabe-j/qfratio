@@ -138,6 +138,7 @@ qfmrm_integ_int(
   q = 1,
   r = 1,
   mu = rep.int(0, n),
+  error_bound = FALSE,
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -155,6 +156,7 @@ qfmrm_integ_npi(
   q = 1,
   r = 1,
   mu = rep.int(0, n),
+  error_bound = FALSE,
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -211,7 +213,7 @@ compared with \code{tol_conv}}
 }}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
-functions via \code{Rcpp}.  \code{TRUE} by default.}
+functions via \pkg{Rcpp}.  \code{TRUE} by default.}
 
 \item{cpp_method}{Method used in \proglang{C++} calculations to avoid numerical
 overflow/underflow (see \dQuote{Details}).  Options:
@@ -233,7 +235,8 @@ with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+equivalents.}
 
 \item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
@@ -266,14 +269,14 @@ non-integral \eqn{p}
 \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}
 
-\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
+\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
 
-\code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
+\code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
 
-\code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
+\code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which

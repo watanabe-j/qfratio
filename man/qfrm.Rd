@@ -100,6 +100,7 @@ qfrm_integ_int(
   p = 1,
   q = p,
   mu = rep.int(0, n),
+  error_bound = TRUE,
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -115,6 +116,7 @@ qfrm_integ_npi(
   p = 1,
   q = p,
   mu = rep.int(0, n),
+  error_bound = FALSE,
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -161,7 +163,7 @@ to be non-negative.}
 the appropriate \dQuote{internal} function.}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
-functions via \code{Rcpp}.  \code{TRUE} by default.}
+functions via \pkg{Rcpp}.  \code{TRUE} by default.}
 
 \item{exact_method}{Logical to specify whether the exact method is used in
 \code{qfrm_ApIq_int()} (see \dQuote{Details}).}
@@ -184,7 +186,8 @@ detected is used.  See \dQuote{Multithreading} in \dQuote{Details}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+equivalents.}
 
 \item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 

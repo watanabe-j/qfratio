@@ -166,7 +166,7 @@
 #'   \eqn{\mathbf{B}}{B}, respectively.  See \dQuote{Details}.
 #' @param use_cpp
 #'   Logical to specify whether the calculation is done with \proglang{C++}
-#'   functions via \code{Rcpp}.  \code{TRUE} by default.
+#'   functions via \pkg{Rcpp}.  \code{TRUE} by default.
 #' @param exact_method
 #'   Logical to specify whether the exact method is used in
 #'   \code{qfrm_ApIq_int()} (see \dQuote{Details}).
@@ -1737,6 +1737,7 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                           error_bound = TRUE,
                            use_cpp = TRUE, stop_on_error = TRUE,
                            tol_zero = .Machine$double.eps * 100,
                            tol_sing = tol_zero,
@@ -1861,7 +1862,11 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         value <- ans$value * const
         abserr <- ans$abs.error * const
     }
-    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+    if (!error_bound) {
+        abserr <- NULL
+    }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE,
+             outer_only = FALSE)
 }
 
 ##### qfrm_integ_npi #####
@@ -1875,6 +1880,7 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                           error_bound = FALSE,
                            use_cpp = TRUE, stop_on_error = TRUE,
                            tol_zero = .Machine$double.eps * 100,
                            tol_sing = tol_zero,
@@ -2029,7 +2035,11 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         value <- ans$value * const
         abserr <- ans$abs.error * const
     }
-    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+    if (!error_bound) {
+        abserr <- NA_real_
+    }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE,
+             outer_only = TRUE)
 }
 
 
@@ -3165,6 +3175,7 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
 #' @export
 #'
 qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                            error_bound = FALSE,
                             use_cpp = TRUE, stop_on_error = TRUE,
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = tol_zero,
@@ -3395,7 +3406,11 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         value <- ans$value * const
         abserr <- ans$abs.error * const
     }
-    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+    if (!error_bound) {
+        abserr <- NA_real_
+    }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE,
+             outer_only = TRUE)
 }
 
 ##### qfmrm_integ_npi #####
@@ -3409,6 +3424,7 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                            error_bound = FALSE,
                             use_cpp = TRUE, stop_on_error = TRUE,
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = tol_zero,
@@ -3669,5 +3685,9 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         value <- ans$value * const
         abserr <- ans$abs.error * const
     }
-    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE)
+    if (!error_bound) {
+        abserr <- NA_real_
+    }
+    new_qfrm(statistic = value, error_bound = abserr, twosided = TRUE,
+             outer_only = TRUE)
 }

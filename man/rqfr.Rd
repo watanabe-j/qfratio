@@ -69,7 +69,7 @@ vector.}
 \eqn{\mathbf{x}}{x}.  Default identity matrix.}
 
 \item{use_cpp}{Logical to specify whether the calculation is done with \proglang{C++}
-functions via \code{Rcpp}.  \code{TRUE} by default.}
+functions via \pkg{Rcpp}.  \code{TRUE} by default.}
 }
 \value{
 Numeric vector of length \code{nit}.
