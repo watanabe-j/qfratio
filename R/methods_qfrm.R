@@ -15,7 +15,7 @@
 #'   Terms in series expression for the moment along varying polynomial degrees
 #' @param seq_error
 #'   Vector of error bounds corresponding to \code{cumsum(terms)}
-#' @param exact,twosided,alphaout,singular_arg
+#' @param exact,twosided,alphaout,singular_arg,outer_only
 #'   Logicals used to append attributes to the resultant error bound
 #'   (see \dQuote{Value})
 #' @param diminished
@@ -55,6 +55,9 @@
 #'   \item{\code{"singular"}}{indicates whether the relevant argument matrix
 #'                is (numerically) singular, in which case the error bound is
 #'                invalid}
+#'   \item{\code{"outer_only"}}{indicates whether the result is based on
+#'                multiple numerical integration and error bound pertains to
+#'                the outermost integration}
 #' }
 #' Similarly, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
 #' have the attribute \code{"diminished"} being \code{TRUE}, which indicates
@@ -72,8 +75,8 @@
 new_qfrm <- function(statistic, error_bound = NULL,
                      terms = statistic, seq_error = NULL,
                      exact = FALSE, twosided = FALSE, alphaout = FALSE,
-                     singular_arg = FALSE, diminished = FALSE, ...,
-                     class = character()) {
+                     singular_arg = FALSE, diminished = FALSE,
+                     outer_only = FALSE, ..., class = character()) {
     if (missing(statistic) && !missing(terms)) {
         statistic <- sum(terms)
     }
@@ -105,6 +108,10 @@ new_qfrm <- function(statistic, error_bound = NULL,
     if (isTRUE(diminished)) {
         if (!is.null(terms)) attr(terms, "diminished") <- TRUE
         if (!is.null(statistic)) attr(statistic, "diminished") <- TRUE
+    }
+    if (isTRUE(outer_only)) {
+        if (!is.null(error_bound)) attr(error_bound, "outer_only") <- TRUE
+        if (!is.null(seq_error)) attr(seq_error, "outer_only") <- TRUE
     }
     structure(list(statistic = statistic, error_bound = error_bound,
                    terms = terms, seq_error = seq_error),
@@ -218,6 +225,7 @@ print.qfrm <- function(x, digits = getOption("digits"),
     errorb <- x$error_bound
     exact <- isTRUE(attr(errorb, "exact"))
     twosided <- isTRUE(attr(errorb, "twosided"))
+    terms_gt1 <- length(x$terms) > 1
     cat("\n")
     cat(strwrap("Moment of ratio of quadratic forms", prefix = "\t"),
         sep = "\n")
@@ -237,8 +245,10 @@ print.qfrm <- function(x, digits = getOption("digits"),
     if (exact) {
         cat("This value is exact\n")
     } else if (length(errorb) > 0 && all_na_errorb) {
-        cat("Error bound unavailable;",
-            "recommended to inspect plot() of this object\n")
+        cat("Error bound unavailable",
+            if (terms_gt1) "; recommended to inspect plot() of this object",
+            "\n",
+            sep = "")
     } else if (show_range) {
         if (twosided) {
             ra <- sort(c(stat - errorb, stat + errorb))
@@ -256,6 +266,10 @@ print.qfrm <- function(x, digits = getOption("digits"),
     if (isTRUE(attr(errorb, "alphaout")) && !all_na_errorb) {
         cat("Note: Adjustment parameter(s) alpha > 1;",
             "error bound is unreliable\n")
+    }
+    if (isTRUE(attr(errorb, "outer_only")) && !all_na_errorb) {
+        cat("Note: error bound is only for outer one in",
+            "multiple integraion and is unreliable\n")
     }
     if (isTRUE(attr(stat, "diminished"))) {
         cat("Note: Numerical underflow encountered;",
@@ -286,8 +300,12 @@ plot.qfrm <- function(x, add_error = length(x$seq_error) > 0,
     seq_partial <- cumsum(terms)
     if (isTRUE(attr(seq_error, "exact"))) {
         message("plot method for this class is for inspecting ",
-                "partial sums.\n  This particular object has an exact moment, ",
-                "so plot is moot.")
+                "partial sums;\n  this object has an exact moment, ",
+                "so plot is moot")
+    } else if (length(terms) == 1) {
+        message("plot method for this class is for inspecting ",
+                "partial sums;\n  this object has no terms to calculate ",
+                "partial sum with, so plot is moot")
     }
     try(plot(seq_along(terms) - 1L, seq_partial, type = "l", col = col_m,
              ylim = ylim, xlab = xlab,

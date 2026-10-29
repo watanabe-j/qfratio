@@ -15,6 +15,7 @@ new_qfrm(
   alphaout = FALSE,
   singular_arg = FALSE,
   diminished = FALSE,
+  outer_only = FALSE,
   ...,
   class = character()
 )
@@ -32,7 +33,7 @@ obtained as \code{seq_error[length(seq_error)]}.}
 
 \item{seq_error}{Vector of error bounds corresponding to \code{cumsum(terms)}}
 
-\item{exact, twosided, alphaout, singular_arg}{Logicals used to append attributes to the resultant error bound
+\item{exact, twosided, alphaout, singular_arg, outer_only}{Logicals used to append attributes to the resultant error bound
 (see \dQuote{Value})}
 
 \item{diminished}{Logical used to append attribute to the resultant statistic and terms
@@ -71,6 +72,9 @@ two-sided}
 \item{\code{"singular"}}{indicates whether the relevant argument matrix
 is (numerically) singular, in which case the error bound is
 invalid}
+\item{\code{"outer_only"}}{indicates whether the result is based on
+multiple numerical integration and error bound pertains to
+the outermost integration}
 }
 Similarly, when \code{diminished = TRUE}, \code{$statistic} and \code{$terms}
 have the attribute \code{"diminished"} being \code{TRUE}, which indicates
