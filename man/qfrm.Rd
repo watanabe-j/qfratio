@@ -209,6 +209,14 @@ compared with \code{tol_conv}}
 
 \item{tol_conv}{Tolerance with which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
+
+\item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
+non-convergence) in numerical integration.  If \code{FALSE}, further
+execution is attempted regardless.}
+
+\item{epsabs, epsrel, limit}{Optional arguments used in numerical integration.  In multiple integration,
+these are passed to all inner integrations as well.  See \dQuote{Details}
+for caveat in multiple integration.}
 }
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
@@ -348,6 +356,15 @@ default is 1, which should suffice for most purposes.  Values larger than 1
 often yield faster convergence, but are \emph{not}
 recommended as the error bound will not strictly hold
 (see Hillier et al. 2009, 2014).
+
+Numerical integration algorithms involve single (\code{qfrm_integ_int()})
+or multiple (\code{qfrm_integ_npi()}) integration.  Multiple integration
+involves many numerical interations inside, each of which comes with
+numerical errors.  But there is no simple way to evaluate the propagated
+errors in the final result.  Thus, by default, \code{qfrm_integ_npi()}
+returns \code{NA} as error bound.  Turn \code{error_bound = TRUE}
+to get the error bound of the outermost integral but remember that this
+will be too optimistic as an estimated error bound of the final result.
 \subsection{Multithreading}{
 
 All these functions use \proglang{C++} versions to speed up computation

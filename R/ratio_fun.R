@@ -110,6 +110,15 @@
 #' recommended as the error bound will not strictly hold
 #' (see Hillier et al. 2009, 2014).
 #'
+#' Numerical integration algorithms involve single (\code{qfrm_integ_int()})
+#' or multiple (\code{qfrm_integ_npi()}) integration.  Multiple integration
+#' involves many numerical interations inside, each of which comes with
+#' numerical errors.  But there is no simple way to evaluate the propagated
+#' errors in the final result.  Thus, by default, \code{qfrm_integ_npi()}
+#' returns \code{NA} as error bound.  Turn \code{error_bound = TRUE}
+#' to get the error bound of the outermost integral but remember that this
+#' will be too optimistic as an estimated error bound of the final result.
+#'
 #' ## Multithreading
 #' All these functions use \proglang{C++} versions to speed up computation
 #' by default.  Furthermore, some of the \proglang{C++} functions, in particular
@@ -209,6 +218,14 @@
 #'   Number of threads used in \proglang{OpenMP}-enabled \proglang{C++}
 #'   functions.  If \code{<= 0} (default), one-half of the number of processors
 #'   detected is used.  See \dQuote{Multithreading} in \dQuote{Details}.
+#' @param stop_on_error
+#'   If \code{TRUE}, execution is stopped upon an error (including
+#'   non-convergence) in numerical integration.  If \code{FALSE}, further
+#'   execution is attempted regardless.
+#' @param epsabs,epsrel,limit
+#'   Optional arguments used in numerical integration.  In multiple integration,
+#'   these are passed to all inner integrations as well.  See \dQuote{Details}
+#'   for caveat in multiple integration.
 #'
 #' @return
 #' A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:
@@ -446,6 +463,10 @@ qfrm <- function(A, B, p = 1, q = p, m = 100L,
 #' \code{\link{d1_i}} and \dQuote{Details} in \code{\link{qfrm}}).  To avoid
 #' this, \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be
 #' used (see \dQuote{Details} in \code{\link{qfrm}}).
+#'
+#' Both \code{qfmrm_integ_int()} and \code{qfmrm_integ_npi()} involve multiple
+#' numerical integration, thus exact error bounds are unavailable.  See
+#' \dQuote{Details} of \code{\link{qfrm}()} for more details.
 #'
 #' @inheritParams qfrm
 #'

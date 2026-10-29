@@ -241,6 +241,14 @@ equivalents.}
 \item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
 \dQuote{Details} in \code{\link{qfrm}}.}
+
+\item{stop_on_error}{If \code{TRUE}, execution is stopped upon an error (including
+non-convergence) in numerical integration.  If \code{FALSE}, further
+execution is attempted regardless.}
+
+\item{epsabs, epsrel, limit}{Optional arguments used in numerical integration.  In multiple integration,
+these are passed to all inner integrations as well.  See \dQuote{Details}
+for caveat in multiple integration.}
 }
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
@@ -313,6 +321,10 @@ from numerical overflow and underflow (see \dQuote{Scaling} in
 \code{\link{d1_i}} and \dQuote{Details} in \code{\link{qfrm}}).  To avoid
 this, \code{cpp_method = "long_double"} or \code{"coef_wise"} options can be
 used (see \dQuote{Details} in \code{\link{qfrm}}).
+
+Both \code{qfmrm_integ_int()} and \code{qfmrm_integ_npi()} involve multiple
+numerical integration, thus exact error bounds are unavailable.  See
+\dQuote{Details} of \code{\link{qfrm}()} for more details.
 }
 \examples{
 ## Some symmetric matrices and parameters
