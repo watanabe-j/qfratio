@@ -182,6 +182,16 @@
 #'     \item{\code{"coef_wise"}}{coefficient-wise scaling algorithm;
 #'           most robust but variably slow}
 #'    }
+#' @param integ_method
+#'   Method used in numerical integration with \proglang{C++}
+#'   (see \dQuote{Details}).  Options:
+#'   \describe{
+#'     \item{\code{"univariate"}}{default; recursive univariate integration
+#'           after Bao and Kan (2013); numerical error unavailable}
+#'     \item{\code{"cubature"}}{*experimental*: multidimensional cubature
+#'           with \pkg{RcppNumerical}; numerical error available, but
+#'           slow and prone to failure}
+#'    }
 #' @param error_bound
 #'   Logical to specify whether an error bound is returned (if available).
 #' @param check_convergence
@@ -1737,10 +1747,12 @@ qfrm_ApBq_npi <- function(A, B, p = 1, q = p, m = 100L, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                           integ_method = c("univariate", "cubature"),
                            use_cpp = TRUE, stop_on_error = TRUE,
                            tol_zero = .Machine$double.eps * 100,
                            tol_sing = tol_zero,
                            epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    integ_method <- match.arg(integ_method)
     bao_fun_c_m <- function(t_, A, LB) {
         Delta <- 1 / sqrt(1 + 2 * t_ * LB)
         Ar <- Delta * t(Delta * A)
@@ -1830,8 +1842,13 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
         "Moment does not exist in this combination of p, q, rank(B)" =
             cond_exist)
     if (use_cpp) {
-        cppres <- integ_r_int_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
-                                 epsabs, epsrel, limit)
+        if (integ_method == "cubature") {
+            cppres <- integ_r_int_Nc(A, LB, mu, p, q, stop_on_error, tol_zero,
+                                     epsabs, epsrel, limit)
+        } else {
+            cppres <- integ_r_int_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
+                                     epsabs, epsrel, limit)
+        }
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
@@ -1875,10 +1892,12 @@ qfrm_integ_int <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
 #' @export
 #'
 qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
+                           integ_method = c("univariate", "cubature"),
                            use_cpp = TRUE, stop_on_error = TRUE,
                            tol_zero = .Machine$double.eps * 100,
                            tol_sing = tol_zero,
                            epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    integ_method <- match.arg(integ_method)
     s_fun_c <- function(s, LA) {
         Delta2_sA <- 1 / (1 + 2 * s * LA)
         Delta_sA <- sqrt(Delta2_sA)
@@ -1999,8 +2018,13 @@ qfrm_integ_npi <- function(A, B, p = 1, q = p, mu = rep.int(0, n),
              "to suppress this")
     }
     if (use_cpp) {
-        cppres <- integ_r_npi_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
-                                 epsabs, epsrel, limit)
+        if (integ_method == "cubature") {
+            cppres <- integ_r_npi_Nc(A, LB, mu, p, q, stop_on_error,
+                                     tol_zero, epsabs, epsrel, limit)
+        } else {
+            cppres <- integ_r_npi_Ed(A, LB, mu, p, q, stop_on_error, tol_zero,
+                                     epsabs, epsrel, limit)
+        }
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
@@ -3165,10 +3189,12 @@ qfmrm_ApBDqr_npi <- function(A, B, D, p = 1, q = 1, r = 1,
 #' @export
 #'
 qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                            integ_method = c("univariate", "cubature"),
                             use_cpp = TRUE, stop_on_error = TRUE,
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = tol_zero,
                             epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    integ_method <- match.arg(integ_method)
     bao_fun_c_m <- function(t_, A, LB, D) {
         u_fun <- function(u, A, LDr) {
             Delta_uD <- 1 / sqrt(1 + 2 * u * LDr)
@@ -3367,8 +3393,13 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
         }
     }
     if (use_cpp) {
-        cppres <- integ_mr_int_Ed(A, LB, D, mu, p, q, r, stop_on_error,
-                                  tol_zero, epsabs, epsrel, limit)
+        if (integ_method == "cubature") {
+            cppres <- integ_mr_int_Nc(A, LB, D, mu, p, q, r, stop_on_error,
+                                      tol_zero, epsabs, epsrel, limit)
+        } else {
+            cppres <- integ_mr_int_Ed(A, LB, D, mu, p, q, r, stop_on_error,
+                                      tol_zero, epsabs, epsrel, limit)
+        }
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {
@@ -3409,10 +3440,12 @@ qfmrm_integ_int <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
 #' @export
 #'
 qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
+                            integ_method = c("univariate", "cubature"),
                             use_cpp = TRUE, stop_on_error = TRUE,
                             tol_zero = .Machine$double.eps * 100,
                             tol_sing = tol_zero,
                             epsabs = epsrel, epsrel = 1e-6, limit = 1e4) {
+    integ_method <- match.arg(integ_method)
     s_fun_c <- function(s, LA) {
         Delta2_sA <- 1 / (1 + 2 * s * LA)
         Delta_sA <- sqrt(Delta2_sA)
@@ -3640,8 +3673,13 @@ qfmrm_integ_npi <- function(A, B, D, p = 1, q = 1, r = 1, mu = rep.int(0, n),
              "to suppress this")
     }
     if (use_cpp) {
-        cppres <- integ_mr_npi_Ed(A, LB, D, mu, p, q, r, stop_on_error,
-                                  tol_zero, epsabs, epsrel, limit)
+        if (integ_method == "cubature") {
+            cppres <- integ_mr_npi_Nc(A, LB, D, mu, p, q, r, stop_on_error,
+                                      tol_zero, epsabs, epsrel, limit)
+        } else {
+            cppres <- integ_mr_npi_Ed(A, LB, D, mu, p, q, r, stop_on_error,
+                                      tol_zero, epsabs, epsrel, limit)
+        }
         value <- cppres$value
         abserr <- cppres$abs.error
     } else {

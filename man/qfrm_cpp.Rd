@@ -42,6 +42,10 @@
 \alias{integ_r_npi_Ed}
 \alias{integ_mr_int_Ed}
 \alias{integ_mr_npi_Ed}
+\alias{integ_r_int_Nc}
+\alias{integ_r_npi_Nc}
+\alias{integ_mr_int_Nc}
+\alias{integ_mr_npi_Nc}
 \alias{rqfpE}
 \alias{qfrm_cpp}
 \title{Internal C++ functions}
@@ -557,6 +561,62 @@ integ_mr_npi_Ed(
   limit
 )
 
+integ_r_int_Nc(
+  A,
+  LB,
+  mu,
+  p_,
+  q_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
+integ_r_npi_Nc(
+  A,
+  LB,
+  mu,
+  p_,
+  q_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
+integ_mr_int_Nc(
+  A,
+  LB,
+  D,
+  mu,
+  p_,
+  q_,
+  r_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
+integ_mr_npi_Nc(
+  A,
+  LB,
+  D,
+  mu,
+  p_,
+  q_,
+  r_,
+  stop_on_error,
+  tol_zero,
+  epsabs,
+  epsrel,
+  limit
+)
+
 rqfpE(nit, A, B, D, p_, q_, r_, mu, Sigma)
 }
 \arguments{
@@ -713,6 +773,14 @@ assumed.  All parameters are assumed to be appropriately structured.
 \item \code{integ_mr_int_Ed()}: \code{qfmrm_integ_int()}, double
 
 \item \code{integ_mr_npi_Ed()}: \code{qfmrm_integ_npi()}, double
+
+\item \code{integ_r_int_Nc()}: \code{qfmrm_integ_npi()}, cubature
+
+\item \code{integ_r_npi_Nc()}: \code{qfmrm_integ_npi()}, cubature
+
+\item \code{integ_mr_int_Nc()}: \code{qfmrm_integ_int()}, cubature
+
+\item \code{integ_mr_npi_Nc()}: \code{qfmrm_integ_npi()}, cubature
 
 \item \code{rqfpE()}: \code{rqfp()}
 

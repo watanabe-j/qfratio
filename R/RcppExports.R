@@ -304,6 +304,34 @@ integ_mr_npi_Ed <- function(A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, e
 }
 
 #' @describeIn qfrm_cpp
+#'   \code{qfmrm_integ_npi()}, cubature
+#'
+integ_r_int_Nc <- function(A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit) {
+    .Call(`_qfratio_integ_r_int_Nc`, A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_integ_npi()}, cubature
+#'
+integ_r_npi_Nc <- function(A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit) {
+    .Call(`_qfratio_integ_r_npi_Nc`, A, LB, mu, p_, q_, stop_on_error, tol_zero, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_integ_int()}, cubature
+#'
+integ_mr_int_Nc <- function(A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit) {
+    .Call(`_qfratio_integ_mr_int_Nc`, A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
+#'   \code{qfmrm_integ_npi()}, cubature
+#'
+integ_mr_npi_Nc <- function(A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit) {
+    .Call(`_qfratio_integ_mr_npi_Nc`, A, LB, D, mu, p_, q_, r_, stop_on_error, tol_zero, epsabs, epsrel, limit)
+}
+
+#' @describeIn qfrm_cpp
 #'   \code{rqfp()}
 #'
 rqfpE <- function(nit, A, B, D, p_, q_, r_, mu, Sigma) {

@@ -100,6 +100,7 @@ qfrm_integ_int(
   p = 1,
   q = p,
   mu = rep.int(0, n),
+  integ_method = c("univariate", "cubature"),
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -115,6 +116,7 @@ qfrm_integ_npi(
   p = 1,
   q = p,
   mu = rep.int(0, n),
+  integ_method = c("univariate", "cubature"),
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -184,7 +186,8 @@ detected is used.  See \dQuote{Multithreading} in \dQuote{Details}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+equivalents.}
 
 \item{error_bound}{Logical to specify whether an error bound is returned (if available).}
 
@@ -206,6 +209,16 @@ compared with \code{tol_conv}}
 
 \item{tol_conv}{Tolerance with which numerical convergence of series is checked.  Used
 with \code{check_convergence}.}
+
+\item{integ_method}{Method used in numerical integration with \proglang{C++}
+(see \dQuote{Details}).  Options:
+\describe{
+\item{\code{"univariate"}}{default; recursive univariate integration
+after Bao and Kan (2013); numerical error unavailable}
+\item{\code{"cubature"}}{\emph{experimental}: multidimensional cubature
+with \pkg{RcppNumerical}; numerical error available, but
+slow and prone to failure}
+}}
 }
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object consisting of the following:

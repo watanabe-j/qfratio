@@ -149,7 +149,8 @@ with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+equivalents.}
 
 \item{order_spa}{Numeric to determine order of saddlepoint approximation.  More accurate
 second-order approximation is used for any \code{order > 1} (default);

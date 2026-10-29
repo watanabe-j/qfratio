@@ -138,6 +138,7 @@ qfmrm_integ_int(
   q = 1,
   r = 1,
   mu = rep.int(0, n),
+  integ_method = c("univariate", "cubature"),
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -155,6 +156,7 @@ qfmrm_integ_npi(
   q = 1,
   r = 1,
   mu = rep.int(0, n),
+  integ_method = c("univariate", "cubature"),
   use_cpp = TRUE,
   stop_on_error = TRUE,
   tol_zero = .Machine$double.eps * 100,
@@ -233,11 +235,22 @@ with \code{check_convergence}.}
 
 \item{thr_margin}{Optional argument to adjust the threshold for scaling (see \dQuote{Scaling}
 in \code{\link{d1_i}}).  Passed to internal functions (\code{\link{d1_i}},
-\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++} equivalents.}
+\code{\link{d2_ij}}, \code{\link{d3_ijk}}) or their \proglang{C++}
+equivalents.}
 
 \item{alphaA, alphaB, alphaD}{Factors for the scaling constants for \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, respectively.  See
 \dQuote{Details} in \code{\link{qfrm}}.}
+
+\item{integ_method}{Method used in numerical integration with \proglang{C++}
+(see \dQuote{Details}).  Options:
+\describe{
+\item{\code{"univariate"}}{default; recursive univariate integration
+after Bao and Kan (2013); numerical error unavailable}
+\item{\code{"cubature"}}{\emph{experimental}: multidimensional cubature
+with \pkg{RcppNumerical}; numerical error available, but
+slow and prone to failure}
+}}
 }
 \value{
 A \code{\link[=new_qfrm]{qfrm}} object, as in \code{\link{qfrm}()} functions.
@@ -266,14 +279,14 @@ non-integral \eqn{p}
 \code{qfmrm_ApBDqr_int()}: For general \eqn{\mathbf{A}}{A},
 \eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}
 
-\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
+\code{qfmrm_ApBDqr_npi()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}
 
-\code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
+\code{qfmrm_integ_int()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and positive-integral \eqn{p}.
 
-\code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A}, \eqn{\mathbf{B}}{B},
-and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
+\code{qfmrm_integ_npi()}: For general \eqn{\mathbf{A}}{A},
+\eqn{\mathbf{B}}{B}, and \eqn{\mathbf{D}}{D}, and non-integral \eqn{p}.
 }
 \details{
 The usage of these functions is similar to \code{\link{qfrm}}, to which

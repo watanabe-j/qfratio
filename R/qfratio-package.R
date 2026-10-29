@@ -138,6 +138,7 @@
 ## Setting Rcpp-related import
 #' @useDynLib qfratio, .registration = TRUE
 #' @importFrom Rcpp evalCpp
+#' @import RcppNumerical
 #'
 NULL
 
